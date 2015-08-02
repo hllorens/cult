@@ -1,0 +1,509 @@
+2015-08 GDP of BR, AR and then world has been updated (old values until 86 have been added since they were null before, and some values have been updated from 1987 maybe they were estimates before...)
+CHANGES ARE NOT BIG.
+
+ERROR: gdp wld different! (/home/hector/cognitionis.com/cult/cron-scripts/../../cult-data/wld_gdp_wb_new.json)
+2,20c2,20
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"11184185052528.4","decimal":"1","date":"1980"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"11330709464266.3","decimal":"1","date":"1982"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"11452817380453.4","decimal":"1","date":"1981"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"11679790293017.4","decimal":"1","date":"1983"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"12125529140323.3","decimal":"1","date":"1984"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"12748737673365.1","decimal":"1","date":"1985"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"1367891921227.23","decimal":"1","date":"1960"}]]
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"1423984178037.83","decimal":"1","date":"1961"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"15084337496199.8","decimal":"1","date":"1986"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"1523644699758.9","decimal":"1","date":"1962"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"1644126938243.89","decimal":"1","date":"1963"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"17180490790695.4","decimal":"1","date":"1987"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"1803630897540.75","decimal":"1","date":"1964"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"19079508957938.3","decimal":"1","date":"1988"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"1963928523937.85","decimal":"1","date":"1965"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"20045924287827.6","decimal":"1","date":"1989"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"2131173687906.66","decimal":"1","date":"1966"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"22546701306931.4","decimal":"1","date":"1990"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"2274240264244.1","decimal":"1","date":"1967"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"11156090495502.2","decimal":"1","date":"1980"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"11345794154008.9","decimal":"1","date":"1982"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"11448244184673.1","decimal":"1","date":"1981"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"11600916606289.6","decimal":"1","date":"1983"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"12038131976913.9","decimal":"1","date":"1984"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"12659028510326.4","decimal":"1","date":"1985"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"1368214933012.16","decimal":"1","date":"1960"}]]
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"1423601790326.99","decimal":"1","date":"1961"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"14982285418418.6","decimal":"1","date":"1986"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"1528570027924.49","decimal":"1","date":"1962"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"1644636920426.68","decimal":"1","date":"1963"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"17050865790720.5","decimal":"1","date":"1987"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"1802220720611.73","decimal":"1","date":"1964"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"19096380995772.6","decimal":"1","date":"1988"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"1963284204370.59","decimal":"1","date":"1965"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"20046633610063.8","decimal":"1","date":"1989"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"2129182324494.86","decimal":"1","date":"1966"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"22546701087850.4","decimal":"1","date":"1990"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"2265321086439.99","decimal":"1","date":"1967"},
+22c22
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"2449792029420.17","decimal":"1","date":"1968"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"2443355396117.39","decimal":"1","date":"1968"},
+25c25
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"2693387895602.49","decimal":"1","date":"1969"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"2690595093217.93","decimal":"1","date":"1969"},
+27c27
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"2961331892665.71","decimal":"1","date":"1970"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"2953712904358.94","decimal":"1","date":"1970"},
+33c33
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"3268622753394.35","decimal":"1","date":"1971"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"3262328939232.16","decimal":"1","date":"1971"},
+37c37
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"3770112155511.26","decimal":"1","date":"1972"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"3761395340003.96","decimal":"1","date":"1972"},
+40c40
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"4574728700617.27","decimal":"1","date":"1973"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"4583217884381.3","decimal":"1","date":"1973"},
+43c43
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"5245608583931.57","decimal":"1","date":"1974"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"5284172333173.92","decimal":"1","date":"1974"},
+45c45
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"5868261804923.73","decimal":"1","date":"1975"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"5884669749775.19","decimal":"1","date":"1975"},
+48c48
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"6370876351020.9","decimal":"1","date":"1976"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"6402281610150.85","decimal":"1","date":"1976"},
+50c50
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"7201951187825.88","decimal":"1","date":"1977"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"7240197762307.82","decimal":"1","date":"1977"},
+55,56c55,56
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"8534250756606.81","decimal":"1","date":"1978"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"9908282170403.77","decimal":"1","date":"1979"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"8527024161690.31","decimal":"1","date":"1978"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"9908477442568.46","decimal":"1","date":"1979"}, 
+<br />
+
+Some data of gdp is reviewed backwards br, ar???
+
+
+
+ERROR: gdp br different! (/home/hector/cognitionis.com/cult/cron-scripts/../../cult-data/br_gdp_wb_new.json)
+1a2
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"105136007544.771","decimal":"1","date":"1974"},
+2a4
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"123709376566.885","decimal":"1","date":"1975"},
+3a6,8
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"15165569912.5199","decimal":"1","date":"1960"}]]
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"15236854859.469","decimal":"1","date":"1961"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"152678020453.114","decimal":"1","date":"1976"},
+5a11,17
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"176171284305.289","decimal":"1","date":"1977"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"19926293839.0163","decimal":"1","date":"1962"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"200800891871.957","decimal":"1","date":"1978"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"203304515490.695","decimal":"1","date":"1983"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"209023912696.764","decimal":"1","date":"1984"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"21211892259.9904","decimal":"1","date":"1964"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"21790035102.382","decimal":"1","date":"1965"},
+6a19,21
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"222942790435.318","decimal":"1","date":"1985"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"224969488839.356","decimal":"1","date":"1979"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"23021477292.2093","decimal":"1","date":"1963"},
+7a23
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"235024598984.118","decimal":"1","date":"1980"},
+11c27,35
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"315000000000","decimal":"1","date":"1988"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"263561088975.615","decimal":"1","date":"1981"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"268137224729.724","decimal":"1","date":"1986"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"27062716510.5085","decimal":"1","date":"1966"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"281682304160.256","decimal":"1","date":"1982"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"294084112392.657","decimal":"1","date":"1987"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"30591834045.3823","decimal":"1","date":"1967"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"330397381998.489","decimal":"1","date":"1988"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"33875881906.0553","decimal":"1","date":"1968"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"37458898265.2258","decimal":"1","date":"1969"},
+14,15c38,39
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"420000000000","decimal":"1","date":"1987"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"425600000000","decimal":"1","date":"1989"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"42327600115.9852","decimal":"1","date":"1970"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"425595310000","decimal":"1","date":"1989"},
+17c41,42
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"461952000000","decimal":"1","date":"1990"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"461951782000","decimal":"1","date":"1990"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"49204456711.657","decimal":"1","date":"1971"},
+21a47
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"58539008795.7658","decimal":"1","date":"1972"},
+25a52
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"79279057736.1044","decimal":"1","date":"1973"},
+30,56d56
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1960"}]]
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1961"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1962"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1963"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1964"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1965"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1966"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1967"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1968"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1969"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1970"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1971"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1972"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1973"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1974"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1975"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1976"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1977"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1978"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1979"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1980"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1981"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1982"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1983"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1984"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1985"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1986"}, 
+<br />
+
+
+ERROR: gdp ar different! (/home/hector/cognitionis.com/cult/cron-scripts/../../cult-data/ar_gdp_wb_new.json)
+3,6c3,6
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"104285714285.714","decimal":"1","date":"1983"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"110934444444.444","decimal":"1","date":"1986"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"111106190476.19","decimal":"1","date":"1987"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"126206818181.818","decimal":"1","date":"1988"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"103979106777.911","decimal":"1","date":"1983"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"110934442762.694","decimal":"1","date":"1986"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"111106191358.197","decimal":"1","date":"1987"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"126206817196.091","decimal":"1","date":"1988"},
+8c8,9
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"141352367385.557","decimal":"1","date":"1990"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"141352368714.691","decimal":"1","date":"1990"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"18272123664.4715","decimal":"1","date":"1963"},
+13a15,17
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"24256667554.62","decimal":"1","date":"1967"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"24450604877.6081","decimal":"1","date":"1962"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"25605249381.7597","decimal":"1","date":"1964"},
+16a21
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"26436857248.0056","decimal":"1","date":"1968"},
+18a24
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"28344705967.5816","decimal":"1","date":"1965"},
+20a27
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"28630474726.3365","decimal":"1","date":"1966"},
+23c30,31
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"30000000000","decimal":"1","date":"1977"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"31256284544.7361","decimal":"1","date":"1969"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"31584210364.5523","decimal":"1","date":"1970"},
+24a33,34
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"33293199094.6727","decimal":"1","date":"1971"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"34733000536.4685","decimal":"1","date":"1972"},
+27a38,40
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"51169499890.7757","decimal":"1","date":"1976"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"52438647921.8723","decimal":"1","date":"1975"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"52544000117.2532","decimal":"1","date":"1973"},
+29a43,44
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"56781000100.9442","decimal":"1","date":"1977"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"58082870156.265","decimal":"1","date":"1978"},
+32,39c47,54
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"63333333333.3333","decimal":"1","date":"1979"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"70000000000","decimal":"1","date":"1978"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"75000000000","decimal":"1","date":"1981"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"76000000000","decimal":"1","date":"1980"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"76636898180.9591","decimal":"1","date":"1989"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"79090000000","decimal":"1","date":"1984"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"84230769230.7692","decimal":"1","date":"1982"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"88416666666.6667","decimal":"1","date":"1985"},
+---
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"69252328953.3803","decimal":"1","date":"1979"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"72436777341.9953","decimal":"1","date":"1974"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"76636898036.4712","decimal":"1","date":"1989"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"76961923741.9469","decimal":"1","date":"1980"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"78676842366.4213","decimal":"1","date":"1981"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"79092001998.032","decimal":"1","date":"1984"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"84307486836.724","decimal":"1","date":"1982"},
+> {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"88416668900.2596","decimal":"1","date":"1985"},
+42,56d56
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1962"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1963"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1964"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1965"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1966"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1967"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1968"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1969"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1970"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1971"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1972"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1973"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1974"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1975"},
+< {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1976"}, 
+<br />
+
+
+ERROR: gdppcap wld different! (/home/hector/cognitionis.com/cult/cron-scripts/../../cult-data/wld_gdppcap_wb_new.json)
+6,23c6,23
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"1168.3298728974","decimal":"1","date":"1973"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"1314.14321546994","decimal":"1","date":"1974"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"1443.14916901815","decimal":"1","date":"1975"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"1539.15243314213","decimal":"1","date":"1976"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"1709.82252138597","decimal":"1","date":"1977"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"1991.03206589323","decimal":"1","date":"1978"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2271.41323314264","decimal":"1","date":"1979"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2465.14742258652","decimal":"1","date":"1982"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2497.20875424061","decimal":"1","date":"1983"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2519.88873486703","decimal":"1","date":"1980"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2536.05878948192","decimal":"1","date":"1981"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2548.66062728851","decimal":"1","date":"1984"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2634.0461538434","decimal":"1","date":"1985"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"3062.63610591978","decimal":"1","date":"1986"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"3427.30146386947","decimal":"1","date":"1987"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"3740.1446815758","decimal":"1","date":"1988"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"3862.65488906992","decimal":"1","date":"1989"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"4271.08948173896","decimal":"1","date":"1990"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"1170.49790681528","decimal":"1","date":"1973"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"1323.80430409656","decimal":"1","date":"1974"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"1447.18428414506","decimal":"1","date":"1975"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"1546.73969089758","decimal":"1","date":"1976"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"1718.90267934728","decimal":"1","date":"1977"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"1989.34610861164","decimal":"1","date":"1978"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2271.45799809497","decimal":"1","date":"1979"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2468.4292986382","decimal":"1","date":"1982"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2480.34509007931","decimal":"1","date":"1983"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2513.55880046153","decimal":"1","date":"1980"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2530.29064881248","decimal":"1","date":"1984"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2535.04612220807","decimal":"1","date":"1981"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"2615.51113634435","decimal":"1","date":"1985"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"3041.91604591214","decimal":"1","date":"1986"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"3401.44283400958","decimal":"1","date":"1987"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"3743.45209701884","decimal":"1","date":"1988"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"3862.79156857466","decimal":"1","date":"1989"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"4271.0894402378","decimal":"1","date":"1990"},
+25,26c25,26
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"450.479034418647","decimal":"1","date":"1960"}]]
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"462.689502305897","decimal":"1","date":"1961"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"450.585409808929","decimal":"1","date":"1960"}]]
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"462.565254591389","decimal":"1","date":"1961"},
+29c29
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"486.701022859782","decimal":"1","date":"1962"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"488.274330768437","decimal":"1","date":"1962"},
+31c31
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"514.527266513068","decimal":"1","date":"1963"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"514.686864736526","decimal":"1","date":"1963"},
+40,41c40,41
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"553.122276571745","decimal":"1","date":"1964"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"590.199972244401","decimal":"1","date":"1965"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"552.689815432154","decimal":"1","date":"1964"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"590.006341271542","decimal":"1","date":"1965"},
+43,44c43,44
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"627.277996108864","decimal":"1","date":"1966"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"655.949134502063","decimal":"1","date":"1967"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"626.691869104027","decimal":"1","date":"1966"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"653.376615207135","decimal":"1","date":"1967"},
+46c46
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"692.524894063346","decimal":"1","date":"1968"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"690.70534010015","decimal":"1","date":"1968"},
+48c48
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"745.68812929831","decimal":"1","date":"1969"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"744.914917393317","decimal":"1","date":"1969"},
+50c50
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"803.190293322937","decimal":"1","date":"1970"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"801.123825370426","decimal":"1","date":"1970"},
+52c52
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"868.393153056003","decimal":"1","date":"1971"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"866.72104050665","decimal":"1","date":"1971"},
+56c56
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"981.724689548596","decimal":"1","date":"1972"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"1W","value":"World"},"value":"979.454859727952","decimal":"1","date":"1972"}, 
+<br />
+
+
+ERROR: gdppcap br different! (/home/hector/cognitionis.com/cult/cron-scripts/../../cult-data/br_gdppcap_wb_new.json)
+2a3
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"1143.13221827052","decimal":"1","date":"1975"},
+7c8,22
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"2180.64577602475","decimal":"1","date":"1988"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"1377.85723359531","decimal":"1","date":"1976"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"1552.78133223427","decimal":"1","date":"1977"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"1558.41852357432","decimal":"1","date":"1983"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"1567.31560653806","decimal":"1","date":"1984"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"1636.60116178228","decimal":"1","date":"1985"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"1728.64326152589","decimal":"1","date":"1978"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"1891.70590847145","decimal":"1","date":"1979"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"1928.72017446016","decimal":"1","date":"1986"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"1930.53847057884","decimal":"1","date":"1980"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"203.19047502829","decimal":"1","date":"1961"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"2074.40951570041","decimal":"1","date":"1987"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"208.387302047849","decimal":"1","date":"1960"}]]
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"2115.07437658982","decimal":"1","date":"1981"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"2208.83259322146","decimal":"1","date":"1982"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"2287.23700147505","decimal":"1","date":"1988"},
+8a24,26
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"257.823301350306","decimal":"1","date":"1962"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"258.238896078756","decimal":"1","date":"1965"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"258.627944474235","decimal":"1","date":"1964"},
+12,13c30,31
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"2893.68969566142","decimal":"1","date":"1989"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"2962.59457712863","decimal":"1","date":"1987"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"289.058327514254","decimal":"1","date":"1963"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"2893.65780796247","decimal":"1","date":"1989"},
+15c33,34
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"3086.9169475123","decimal":"1","date":"1990"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"3086.91549076378","decimal":"1","date":"1990"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"312.063323244665","decimal":"1","date":"1966"},
+16a36
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"343.526386268571","decimal":"1","date":"1967"},
+19a40
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"370.724583330701","decimal":"1","date":"1968"},
+20a42,43
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"399.732500717329","decimal":"1","date":"1969"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"440.635447080875","decimal":"1","date":"1970"},
+22a46
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"499.903682890245","decimal":"1","date":"1971"},
+25a50
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"580.671136221504","decimal":"1","date":"1972"},
+27a53
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"767.994782921771","decimal":"1","date":"1973"},
+30,56c56
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1960"}]]
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1961"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1962"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1963"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1964"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1965"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1966"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1967"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1968"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1969"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1970"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1971"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1972"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1973"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1974"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1975"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1976"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1977"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1978"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1979"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1980"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1981"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1982"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1983"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1984"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1985"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":null,"decimal":"1","date":"1986"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"BR","value":"Brazil"},"value":"994.726006771348","decimal":"1","date":"1974"}, 
+<br />
+
+
+ERROR: gdppcap ar different! (/home/hector/cognitionis.com/cult/cron-scripts/../../cult-data/ar_gdppcap_wb_new.json)
+3c3,4
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"1115.66616947624","decimal":"1","date":"1977"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"1057.32806804985","decimal":"1","date":"1967"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"1136.12592453378","decimal":"1","date":"1968"},
+4a6,9
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"1148.16961298053","decimal":"1","date":"1962"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"1165.78516387942","decimal":"1","date":"1964"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"1265.77734467379","decimal":"1","date":"1966"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"1271.41556636899","decimal":"1","date":"1965"},
+5a11,13
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"1317.1869889513","decimal":"1","date":"1970"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"1323.70790453585","decimal":"1","date":"1969"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"1366.1180737277","decimal":"1","date":"1971"},
+6a15
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"1401.32489153958","decimal":"1","date":"1972"},
+9,14c18,25
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2286.28538261275","decimal":"1","date":"1979"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2382.21724024067","decimal":"1","date":"1989"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2564.75145561553","decimal":"1","date":"1978"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2626.95891012449","decimal":"1","date":"1981"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2646.33967290452","decimal":"1","date":"1984"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2702.68972748531","decimal":"1","date":"1980"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"1932.10310707553","decimal":"1","date":"1976"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2011.42143698411","decimal":"1","date":"1975"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2083.81188288541","decimal":"1","date":"1973"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2111.62136272167","decimal":"1","date":"1977"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2128.11608256583","decimal":"1","date":"1978"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2382.21723574934","decimal":"1","date":"1989"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2499.95664312636","decimal":"1","date":"1979"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2646.40665946183","decimal":"1","date":"1984"},
+16,17c27,31
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2905.60449632823","decimal":"1","date":"1982"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2914.15443757275","decimal":"1","date":"1985"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2736.89737769562","decimal":"1","date":"1980"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2755.74442766573","decimal":"1","date":"1981"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2824.42766599272","decimal":"1","date":"1974"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2908.25092853875","decimal":"1","date":"1982"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"2914.15451119049","decimal":"1","date":"1985"},
+19,23c33,37
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"3542.86675615916","decimal":"1","date":"1983"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"3554.87777488794","decimal":"1","date":"1987"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"3602.17923744094","decimal":"1","date":"1986"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"3979.63715747977","decimal":"1","date":"1988"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"4332.65634636802","decimal":"1","date":"1990"},
+---
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"3532.45047283574","decimal":"1","date":"1983"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"3554.87780310803","decimal":"1","date":"1987"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"3602.1791828324","decimal":"1","date":"1986"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"3979.63712639717","decimal":"1","date":"1988"},
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"4332.65638710793","decimal":"1","date":"1990"},
+38a53
+> {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":"844.725024008369","decimal":"1","date":"1963"},
+42,56d56
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1962"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1963"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1964"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1965"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1966"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1967"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1968"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1969"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1970"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1971"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1972"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1973"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1974"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1975"},
+< {indicator:{"id":"NY.GDP.PCAP.CD","value":"GDP per capita (current US$)"},"country":{"id":"AR","value":"Argentina"},"value":null,"decimal":"1","date":"1976"}, 
+<br />
+
+
+ERROR: surpdeficitgdp br different! (/home/hector/cognitionis.com/cult/cron-scripts/../../cult-data/br_surpdeficitgdp_wb_new.json)
+17c17
+< {indicator:{"id":"GC.BAL.CASH.GD.ZS","value":"Cash surplus\/deficit (% of GDP)"},"country":{"id":"BR","value":"Brazil"},"value":"-3.38547570444155","decimal":"1","date":"1990"},
+---
+> {indicator:{"id":"GC.BAL.CASH.GD.ZS","value":"Cash surplus\/deficit (% of GDP)"},"country":{"id":"BR","value":"Brazil"},"value":"-3.38547730208384","decimal":"1","date":"1990"}, 
+<br />
+
+
+
