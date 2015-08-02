@@ -35,7 +35,7 @@ $mail->AddReplyTo("info@cognitionis.com"); // indicates ReplyTo headers
 $mail->IsHTML(true);
 
 $subject="cognitionis.com: ERRORES descarga datos world bank";
-$body=file_get_contents(substr(dirname(__FILE__), 0,strpos(dirname(__FILE__), '/')).'../data/ERROR.log');
+$body=file_get_contents(substr(dirname(__FILE__), 0,strpos(dirname(__FILE__), '/')).'../../cult-data/ERROR.log');
 $mail->Subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
 $mail->Body = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"></head><body><br />'.$body.'<br /><br /></body></html>';
 $mail->AddAddress('hectorlm1983@gmail.com');

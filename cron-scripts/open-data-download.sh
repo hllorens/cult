@@ -1,6 +1,10 @@
 #!/bin/bash
 
-destination="../../cult-data";
+SCRIPT_PATH=$(dirname "$(readlink -e "${BASH_SOURCE[0]}")")
+destination="$SCRIPT_PATH/../../cult-data";
+
+if [ ! -d $destination ];then echo "ERROR $destination does not exist"; exit -1; fi
+echo "$SCRIPT_PATH and $destination"
 
 timestamp=`date +'%Y-%m-%d_%H-%M-%S'`
 current_year=`date +'%Y'`
@@ -34,6 +38,7 @@ INDICATORMAP[pop65]=SP.POP.65UP.TO.ZS
 sendemail="false"
 
 echo "$timestamp Downloading from WB to $destination (last_year=${last_year})" | tee $destination/ERROR.log
+
 for K in "${!INDICATORMAP[@]}";do
 	echo $K;
 	for c in "${countries[@]}";do
