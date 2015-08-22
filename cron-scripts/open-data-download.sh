@@ -9,7 +9,7 @@ echo "$SCRIPT_PATH and $destination"
 timestamp=`date +'%Y-%m-%d_%H-%M-%S'`
 current_year=`date +'%Y'`
 last_year=$((current_year - 1))
-countries=( wld us eu uk fr de it jp ca br ru id cn zaf aus kr sau ar mx tur idn es pt gr be nld dk fi swe nor pl che afg pak egy );
+countries=( wld us eu gb fr de it jp ca br ru id cn zaf aus kr sau ar mx tur idn es pt gr be nld dk fi swe nor pl che afg pak egy );
 #countries=( es );
 declare -A INDICATORMAP     # Create an associative array
 INDICATORMAP[population]=SP.POP.TOTL
@@ -67,11 +67,14 @@ for K in "${!INDICATORMAP[@]}";do
 			mv $destination/${c}_${K}_wb_new.json $destination/${c}_${K}_wb.json
 		fi
 	done
+	echo "Generating data for the game!\n\n"
+	wget --timeout=180 -q -O /home/hector/cron-scripts/data-generation.log http://www.cognitionis.com/cult/www/backend/format_data_for_the_game.php?indicator=$K > $destination-game/${K}_wb.json;
+
 done
 
 if [ "$sendemail" == "true" ];then 
 	echo "sending email errors!"
-	wget --timeout=180 -q -O /home/hector/cron-scripts/data-download.log http://www.cognitionis.com/dataism-dashfromql/backend/send-data-download-errors.php?autosecret=1secret > /home/hector/cron-scripts/last-download-data-errors.log; 
+	wget --timeout=180 -q -O /home/hector/cron-scripts/data-download.log http://www.cognitionis.com/cult/www/backend/send-data-download-errors.php?autosecret=1secret > /home/hector/cron-scripts/last-download-data-errors.log; 
 fi
 
 #wget -O proveta.json http://api.worldbank.org/countries/es/indicators/SP.POP.TOTL?format=json&per_page=500

@@ -96,7 +96,8 @@ function menu_screen(){
 			ajax_request_json(json_filenames[i],function(json){
 				data_arr[data_arr.length]=json; //console.log(json);
 				data_not_loaded_yet--;
-				if(data_not_loaded_yet==0){continue_app();}
+				//if(data_not_loaded_yet==0){continue_app();}
+				if(data_not_loaded_yet==0){continue_game();}
 			});
 		}
 	});
@@ -104,6 +105,11 @@ function menu_screen(){
 
 
 }
+
+var continue_app=function(){
+	alert('first get the parsed data in a good format for questions')
+}
+
 
 var continue_app=function(){
 	googled_data_arr=wbApiJson2GoogleJsonArr(data_arr);
@@ -151,8 +157,10 @@ function wbApiJson2GoogleJson(wbApiJson){
 	// indicator must match with the selected
 	// ideally I will have downloaded batches per country and indicator [all-years] (a lot of small json files, like es_population.json)
 	// cols --> year, indicator-country (e.g., year, population-es) (e.g., 1960, 44444), normally numbers...
+	
 	var indicator=wbApiJson[1][0]['indicator']['id'];
 	var region=wbApiJson[1][0]['country']['value'];
+	if(debug){console.log(indicator+" "+region);}
 	var cols=[{'id': 'year', 'label': 'year', 'type': 'number'},{'id': indicator+"-"+region, 'label': region, 'type': 'number'}]; //indicator+"-"+
 	var rows=[];
 	

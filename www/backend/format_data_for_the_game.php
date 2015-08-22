@@ -38,7 +38,7 @@ $last_lustrum=$last_year-5;
 $last_decade=$last_year-10;
 $last_2decade=$last_year-20;
 
-echo "$last_year $previous_year $last_lustrum $last_decade";
+echo "dates considered: $last_year $previous_year $last_lustrum $last_decade <br />";
 
 $data_directory='/home/hector/cognitionis.com/cult-data';
 $indicator='population';
@@ -56,23 +56,23 @@ $data_arr['data']['previous_year']=array();
 $data_arr['data']['last_lustrum']=array();
 $data_arr['data']['last_decade']=array();
 $data_arr['data']['last_2decade']=array();
-
 foreach(array_filter(glob($data_directory.'/*_'.$indicator.'_'.$data_source.'.json'), 'is_file') as $file) {
-    //echo $file."<br />";
 	$string = file_get_contents($file);
 	$json_a = json_decode($string, true);
-
-	foreach (array($json_a[1]) as $item) { // ver q falla aquí
+	foreach ($json_a[1] as $item) {
 		if($item['date'] == $last_year ) $data_arr['data']['last_year'][$item['country']['value']]=$item["value"];
-		//echo "<br />".$item['date']."<br />";
+		else if($item['date'] == $previous_year ) $data_arr['data']['previous_year'][$item['country']['value']]=$item["value"];
+		else if($item['date'] == $last_lustrum ) $data_arr['data']['last_lustrum'][$item['country']['value']]=$item["value"];
+		else if($item['date'] == $last_decade ) $data_arr['data']['last_decade'][$item['country']['value']]=$item["value"];
+		else if($item['date'] == $last_2decade ) $data_arr['data']['last_2decade'][$item['country']['value']]=$item["value"];
 	}
-
 }
 
-//$data_arr=array_filter(glob($data_directory.'/*_'.$indicator.'_'.$data_source.'.json'), 'is_file');
-//print_r(data_arr);
+print_r(data_arr);
 
 //header('Content-type: application/json');
 echo json_encode( $data_arr );
+
+echo "TODO guardar esto en un fichero? llamar a este php desde otro q genera los ficheros"
 
 ?>
