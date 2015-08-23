@@ -1,0 +1,284 @@
+/* reset */
+* {
+    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+}
+
+
+/*
+
+afan colors:
+green: #6a6   pastel: #aea
+yellow: #fa1  pastel: #fc5
+granate: #400;pastel: #faa
+white: #eee
+
+*/
+
+
+html{margin:0; padding:0; background: #111;}
+body{margin:0 auto; padding:0; font:normal 28px Monospace, Arial, sans-serif; color:#555; width:100%;
+    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
+    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
+    -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
+}
+
+#splash_screen {
+	position: fixed;
+	top: 0; right: 0; bottom: 0; left: 0;
+	margin:0 auto;
+	padding-top:80px;
+	text-align:center;
+	background: #aea;
+	z-index: 99999; /* could work without this. Just to make sure in case other elements have also positioning and positive z-indez */
+}
+
+img{border:none;}
+a{text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+/* clearfix */
+.cf:before,
+.cf:after{content:""; display:table;}
+.cf:after{clear:both;}
+.cf{zoom:1;}
+.clear{content:"."; display:block; height:0; clear:both; visibility:hidden;}
+
+
+/* cognitionis responsive */
+img, embed, object, video {max-width: 100%;}
+nav a, button {min-width:48px;min-height:48px}
+
+#page{
+	width:100%; max-width:1000px; min-width:320px;   
+	position: absolute; bottom:0px; top:0px; left:0px; right:0px;
+	overflow-x:hidden; /*disallow horizontal scrolling*/ 
+	background-color:#fa1;/*background:#662;*/
+	margin: 0 auto;
+    /*margin-left:auto;  margin-right:auto;  */
+	/*height:100%;*/
+	/* min-height:100%; height:80%; position: relative; max-width: 640px;min-height: 480px;
+min-height: 80%; CANNOT BE A PERCENTAGE :() min-width:640px; */
+	/*min-height: 600px;*/ /*BEST SOLUTION WOULD BE ADAPT PER DEVICE MAXHEIGHT*/
+}
+
+h1{font: normal 26px Monospace,Arial,sans-serif; margin: 5px; color: #722;}
+
+#header{display:block;position:absolute;top:0px; height:80px;width:100%;background-color:#fc5} /*overflow:hidden;*/
+#zone_canvas{position:absolute; overflow: hidden;background:#aea;top:80px; bottom:1%; width:100%;} /*#fee*/
+/*HEIGHT perhaps use variables? css3?*/
+
+select, button {font-family:inherit;font-size:inherit;}
+
+#zone_score{font: bold 14px Monospace, Verdana,Arial,sans-serif; padding: 5px;}
+.col_left{float: left;margin-left:10px;}
+.col_right{float: right; text-align: right; margin-right:10px;}
+#best_score{color: #111;}
+#current_score{}
+#remaining_activities{color: #111;}
+#current_answered{}
+.col_moves{text-align: center; color: #d63;}
+.col_moves .critical{color: #c33;}
+
+#results-table{
+	border:1px solid black;
+	margin: 0 auto;
+	font-size: 20px;
+}
+
+#results-table tbody{background-color:#eee;}
+#results-table th{
+	background:#333;
+	color:#eee;
+	font-weight:bold;
+}
+
+div.button{
+	border:2px solid #733;
+    background-color: #eee;
+	min-width:48px;min-height:48px;
+	display:inline-block; /*make the div adjust to the content*/
+	vertical-align: middle;
+	text-align:center;
+}
+
+
+
+button.button{
+	/*font-size:30px;*/
+	border:2px solid #733;
+	background-color: #eee;
+	min-width:48px;min-height:48px;
+	margin:2px;
+	-webkit-transition: background 0.2s ease-in-out;
+	-moz-transition:    background 0.2s ease-in-out;
+	-ms-transition:     background 0.2s ease-in-out;
+	transition:         background 0.2s ease-in-out;
+}
+
+
+button.backgroundRed{
+    background-color: #faa;
+}
+
+.answer{
+	margin:0;
+	float:left;
+	width:50%;
+}
+
+.aleft{
+	background:#369;
+}
+.aleft:hover{
+	background:#ccf;
+}
+.aright{
+	background:#963;
+}
+.aright:hover{
+	background:#fcc;
+}
+
+
+#sound{/*height:40%;*/
+	width:100%;text-align:center;margin:0;padding:1px;
+}
+#answers{/*height:60%;*/
+	width:100%;
+	text-align:center;
+	/*width:100%;display:table;display:inline;display:inline-block;*/
+	margin:0 auto;/*padding:0 5px;*/
+	/*background:#fee;*/
+}
+/*
+#answers ul{height:100%;width:100%;align:center;margin:0;padding:0;decoration:none;border:1px solid black;decoration:none;}
+#answers ul li{height:33%;width:100%;text-align:center;margin:0;background:#fee;border:1px solid black;decoration:none;}
+*/
+/*#answers ul li:hover{background:#5b6;border:1px solid red;}*/
+
+#menu-logo-div{height:10px;}
+
+.text-center{
+	text-align:center;
+}
+
+.hover_red_border{
+	width:31%; max-width:250px;
+ 	text-align:center;
+	/*float:left;*/
+	display:inline-block;
+	border:2px solid #a55; /*original border color #fee*/
+	background-color: #eee; /*d99, fbb*/
+	/* on two divs (use .hover_red_border div too) */
+	padding:1px;
+	margin:0 1px;
+	/* on one div (IMPOSSIBLE, there is no max-padding-top)
+	padding-top:31%;  
+	max-padding-top:250px;*/
+}
+
+.hover_red_border div{
+	margin: 0 auto;
+	/*width:30%;  seems to default to 100 that is what we want...*/
+	padding-top:100%;  /*force square shape */
+}
+
+.bsprite {
+	border:2px solid #733;
+    background-color: #eee;
+    width: 30%;
+    padding: 30% 0 0;
+	display:inline-block;
+    height: 0;
+    margin: 0;
+    overflow: hidden;
+    text-align: center;
+}
+
+/*.hover_red_border:hover{
+	border:2px solid red;
+}*/
+
+/* not used since it is an sprite */
+/*.hover_red_border img{
+	decoration:none;width:80%; max-width:150px; 
+}
+
+.hover_red_border div{
+	margin: 0 auto;
+	//width:30%;  to make it wide 
+	padding-top:100%;  force square shape 
+}*/
+
+
+
+
+/* 
+	in media queries you can use max"-device"-width or height 
+	but better use it without -device to capture window resizing
+*/
+
+/*Galaxy S4  dips=360x640px, iphone 320x480px */
+@media screen and (max-width: 650px) {
+	#header{height:48px;}
+	#zone_canvas{top:48px;}
+	#results-table{font-size: 16px;}
+}
+
+/* Small Landscape (e.g., Galaxy S4)*/
+@media screen and (max-height: 400px) and (min-width: 420px) {
+	/*#header{height:37px;}
+	#zone_canvas{top:37px;}*/
+	#header{height:0px;}
+	#zone_canvas{top:0px;}
+	#h1{font-size:14px;}
+	#zone_canvas{bottom:0;}
+	#answers{width:60%;}
+	body{font-size:16px;}
+	#menu-logo-div{display:none;height:0;margin:0;padding:0;}
+}
+
+
+
+/* short screen (laptop) */
+/*@media screen and (max-height: 720px) {
+  #page{min-height: 600px;height:600px;}
+}
+
+@media screen and (max-height: 720px) and (max-width: 1000px) {
+  #page{min-height: 600px;height:600px;}
+}
+
+@media screen and (min-height: 720px) and (max-width: 1200px) {
+  #page{min-height: 600px;height:600px;}
+}
+
+@media screen and (max-height: 800px) {
+  #page{min-height: 600px;height:600px;}
+}
+*/
+
+
+/* mobile (vertical) */
+/*@media screen and (max-width: 640px) {
+  h1{font-size: 30px;}
+  #zone_message{font-size: 35px;}
+  #zone_score{font-size: 14px;}
+  //#download_zone{display: block; position: relative; left: 0; top: 0;}
+  #download_zone{display: none;}
+  #send_to_phone{display: none;}
+  #zone_message .bt-app-wall {
+    display: inline-block;
+  }
+}*/
+
+/* mobile (horizontal) */
+/*@media screen and (orientation: landscape) {
+  #page{min-height: 0;}
+  #zone_score{display: none;}
+  #zone_jeu{display: none;}
+  #zone_message{display: none;}
+  #download_zone{display: none;}
+  #send_to_phone{display: none;}
+  #msg_portrait{display: block; font-size: 20px; text-align: center; padding: 30px;}
+}*/

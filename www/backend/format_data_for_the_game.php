@@ -34,11 +34,11 @@
 
 $last_year=intval(date("Y"))-1;
 $previous_year=$last_year-1;
-$last_lustrum=$last_year-5;
-$last_decade=$last_year-10;
-$last_2decade=$last_year-20;
+$last_lustrum=$last_year-4;
+$last_decade=$last_year-9;
+$last_2decade=$last_year-19;
 
-echo "dates considered: $last_year $previous_year $last_lustrum $last_decade <br />";
+//echo "dates considered: $last_year $previous_year $last_lustrum $last_decade <br />";
 
 $data_directory='/home/hector/cognitionis.com/cult-data';
 $indicator='population';
@@ -48,7 +48,12 @@ if(isset($_REQUEST['indicator']) ){$indicator=$_REQUEST['indicator'];}
 if(isset($_REQUEST['data_source']) ){$data_source=$_REQUEST['data_source'];}
 
 $data_arr=array();
+$data_arr['indicator']=$indicator;
 $data_arr['last_year']=$last_year;
+$data_arr['previous_year']=$previous_year;
+$data_arr['last_lustrum']=$last_lustrum;
+$data_arr['last_decade']=$last_decade;
+$data_arr['last_2decade']=$last_2decade;
 $data_arr['data_source']=$data_source;
 $data_arr['data']=array();
 $data_arr['data']['last_year']=array();
@@ -68,11 +73,10 @@ foreach(array_filter(glob($data_directory.'/*_'.$indicator.'_'.$data_source.'.js
 	}
 }
 
-print_r(data_arr);
+// TODO guardar esto en un fichero? llamar a este php desde otro q genera los ficheros
 
-//header('Content-type: application/json');
+header('Content-type: application/json');
 echo json_encode( $data_arr );
 
-echo "TODO guardar esto en un fichero? llamar a este php desde otro q genera los ficheros"
 
 ?>

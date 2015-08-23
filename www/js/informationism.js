@@ -96,8 +96,7 @@ function menu_screen(){
 			ajax_request_json(json_filenames[i],function(json){
 				data_arr[data_arr.length]=json; //console.log(json);
 				data_not_loaded_yet--;
-				//if(data_not_loaded_yet==0){continue_app();}
-				if(data_not_loaded_yet==0){continue_game();}
+				if(data_not_loaded_yet==0){continue_app();}
 			});
 		}
 	});
@@ -106,9 +105,6 @@ function menu_screen(){
 
 }
 
-var continue_app=function(){
-	alert('first get the parsed data in a good format for questions')
-}
 
 
 var continue_app=function(){
