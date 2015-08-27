@@ -54,3 +54,5 @@ window.onload = function () {
 	var splash=document.getElementById("splash_screen");
 	if(splash!=null && (ResourceLoader.lazy_audio==false || ResourceLoader.not_loaded['sounds'].length==0)){ splash.parentNode.removeChild(splash); }
 }
+
+
