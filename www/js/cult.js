@@ -202,10 +202,10 @@ function menu_screen(){
 	if(user_data.email==null){
 		login_screen();
 	}else{
-		var sign='<li><a href="#" onclick="hamburguer_close();show_profile()">profile</a></li>\
-                  <li><a href="#" onclick="hamburguer_close();gdisconnect()">sign out</a></li>';
+		var sign='<li><a href="#" onclick="hamburger_close();show_profile()">profile</a></li>\
+                  <li><a href="#" onclick="hamburger_close();gdisconnect()">sign out</a></li>';
 		if(user_data.email=='invitee'){
-			sign='<li><a href="#" onclick="hamburguer_close();login_screen()">sign in</a></li>';
+			sign='<li><a href="#" onclick="hamburger_close();login_screen()">sign in</a></li>';
 		}
 		// TODO if admin administrar... lo de sujetos puede ir aquí tb...
 		hamburger_menu_content.innerHTML=''+user_data.email.substr(0,10)+'<ul>\
@@ -258,6 +258,19 @@ function menu_screen(){
 	}
 }
 
+var countdown_limit_end_secs=10;
+var silly_cb=function(){
+	if(debug) console.log("question timeout!!!");
+	check_correct("timeout","incorrect");
+}
+activity_timer.set_limit_end_seconds(countdown_limit_end_secs); 
+activity_timer.set_end_callback(silly_cb);
+
+var end_game(){
+	activity_timer.stop();
+	activity_timer.reset();
+}
+
 var play_game=function(){
 	canvas_zone_vcentered.innerHTML=' \
 		<div id="zone_score" class="cf">\
@@ -279,6 +292,7 @@ var play_game=function(){
 		  </div>\
 		</div> <!-- /#zone_score -->\
 	<div id="answers"></div>\
+	<button class="button" onclick="end_game()">END GAME</button> \
 	';
 	//get elements
 	dom_score_correct=document.getElementById('current_score_num');
