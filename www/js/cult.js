@@ -117,7 +117,6 @@ function signInCallback(authResult) {
 					if(debug){
 						console.log(result);
 						console.log("logged! "+result.email+" level:"+result.access_level);
-						alert("logged! "+result.email+" level:"+result.access_level);
 					}
                     user_data.username=result.email;
                     user_data.email=result.email;
@@ -212,13 +211,9 @@ function menu_screen(){
 		'+sign+'\
 	      <li><a href="#" onclick="exit_app()">exit app</a></li>\
 		</ul>';
-		header_zone.innerHTML='<a id="hamburger_icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\
-		<path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/></svg></a> CULT';
-		var hamburger_icon=document.getElementById('hamburger_icon');
-		hamburger_icon.addEventListener('click', function(e) {
-			hamburger_menu.classList.toggle('open');
-			e.stopPropagation();
-		});
+		header_zone.innerHTML='<a id="hamburger_icon" onclick="hamburger_toggle(event)"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\
+		<path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/></svg></a> <span id="header_text" onclick="menu_screen()">'+app_name+'</span>';
+        header_text=document.getElementById('header_text');
 		// Optionally if(is_app) we could completely remove header...
 		canvas_zone_vcentered.innerHTML=' \
 		<div id="menu-logo-div"></div> \
@@ -258,17 +253,29 @@ function menu_screen(){
 	}
 }
 
-var countdown_limit_end_secs=10;
+var countdown_limit_end_secs=12;
 var silly_cb=function(){
 	if(debug) console.log("question timeout!!!");
 	check_correct("timeout","incorrect");
 }
+var tricker_cb=function(){
+	if(debug) console.log("tricker progress "+activity_timer.seconds);
+	document.getElementById("time_left").value=activity_timer.seconds;
+	if(activity_timer.seconds==countdown_limit_end_secs-3){
+		// blink background
+		// change progress color to red
+		console.log("progress-red...");
+		document.getElementById("time_left").classList.add("progress-red");
+	}
+}
+activity_timer.set_tricker_callback(tricker_cb);
 activity_timer.set_limit_end_seconds(countdown_limit_end_secs); 
 activity_timer.set_end_callback(silly_cb);
 
-var end_game(){
+var end_game=function(){
 	activity_timer.stop();
 	activity_timer.reset();
+	menu_screen();
 }
 
 var play_game=function(){
@@ -292,6 +299,7 @@ var play_game=function(){
 		  </div>\
 		</div> <!-- /#zone_score -->\
 	<div id="answers"></div>\
+	<div>Time left: <progress id="time_left" value="0" max="'+countdown_limit_end_secs+'">hola hola hola</progress></div>\
 	<button class="button" onclick="end_game()">END GAME</button> \
 	';
 	//get elements
@@ -306,6 +314,8 @@ var play_game=function(){
 
 function check_correct(clicked_answer,correct_answer){
 	activity_timer.stop();
+	document.getElementById("time_left").value=0;
+	document.getElementById("time_left").classList.remove("progress-red");
 	var activity_results={};
 	var timestamp=new Date();
 	var timestamp_str=timestamp.getFullYear()+"-"+

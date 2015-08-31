@@ -259,6 +259,35 @@ a#hamburger_icon svg {
     vertical-align: middle;
 }
 
+#time_left{
+	height:20px;
+	width:80%;
+	/*border-radius: 0px;
+	background: #f00;*/
+}
+.progress-red{
+	color:#f00;
+}
+
+.progress-red::-webkit-progress-bar {
+	background:#f00;
+}
+.progress-red::-moz-progress-bar {
+	background:#f00;
+}
+
+/*background-color
+
+To color the background-color of a progress element (the part that does not increase/decrease) in Gecko browsers use the following:
+
+progress {background-color: #000;}
+
+color
+
+To color the effective color of the moving part of a progress element use the following:
+
+progress::-moz-progress-bar {background-color: #aaa !important;}
+*/
 
 /* 
 	in media queries you can use max"-device"-width or height 
