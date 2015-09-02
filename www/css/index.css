@@ -276,6 +276,28 @@ a#hamburger_icon svg {
 	background:#f00;
 }
 
+.js-modal-correct{
+	border: 2px solid #151;
+	background: #aea;
+	color: #151;
+	width: 70%;
+	position: relative;
+	margin: 10% auto;
+	padding: 2% 8% 2% 8%;
+	text-align: center;
+}
+
+.js-modal-incorrect{
+	border: 2px solid #511;
+	background: #eaa;
+	color: #511;
+	width: 70%;
+	position: relative;
+	margin: 10% auto;
+	padding: 2% 8% 2% 8%;
+	text-align: center;
+}
+
 /*background-color
 
 To color the background-color of a progress element (the part that does not increase/decrease) in Gecko browsers use the following:

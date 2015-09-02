@@ -68,7 +68,7 @@ for K in "${!INDICATORMAP[@]}";do
 		fi
 	done
 	echo "Generating data for the game!\n\n"
-	wget --timeout=180 -q -O /home/hector/cron-scripts/data-generation.log http://www.cognitionis.com/cult/www/backend/format_data_for_the_game.php?indicator=$K > $destination-game/${K}_wb.json;
+	wget --timeout=180 -q -O $destination-game/${K}_wb.json http://www.cognitionis.com/cult/www/backend/format_data_for_the_game.php?indicator=$K > /home/hector/cron-scripts/data-generation.log;
 
 done
 

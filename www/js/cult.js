@@ -1,6 +1,6 @@
+"use strict";
 
-
-
+var app_name='CULT';
 
 // DATA vars, TODO all data will be already in the same format...
 var data_source="wb";
@@ -40,11 +40,18 @@ var session_data={
 	details: []
 };
 
+var media_objects;
 var session_state="unset";
 var header_zone=document.getElementById('header');
 var canvas_zone=document.getElementById('zone_canvas');
 var canvas_zone_vcentered=document.getElementById('zone_canvas_vcentered');
 var canvas_zone_answers;
+
+var dom_score_correct;
+var dom_score_answered;
+var correct_answer='undefined';
+var answer_msg="";
+var show_answer_timeout;
 
 // LOAD DATA
 
@@ -253,8 +260,9 @@ function menu_screen(){
 	}
 }
 
-var countdown_limit_end_secs=12;
+var countdown_limit_end_secs=15;
 var silly_cb=function(){
+	activity_timer.stop();
 	if(debug) console.log("question timeout!!!");
 	check_correct("timeout","incorrect");
 }
@@ -310,10 +318,13 @@ var play_game=function(){
 	console.log("let's go, there are "+json_data_files.length+" indicator files. Countries in 'population' = "+country_list.length);
 	activity_timer.reset();
 	same_country_question(random_item(indicator_list));
+	// TODO to avoid recursion this should probably be a game status checker
+	// e.g., in a timeout or time_set...
 }
 
-function check_correct(clicked_answer,correct_answer){
+function check_correct(clicked_answer,correct_answer,optional_msg){
 	activity_timer.stop();
+	if(typeof(optional_msg)==='undefined') optional_msg="";
 	document.getElementById("time_left").value=0;
 	document.getElementById("time_left").classList.remove("progress-red");
 	var activity_results={};
@@ -340,25 +351,26 @@ function check_correct(clicked_answer,correct_answer){
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_correct");
 			//dom_score_correct.innerHTML=session_data.num_correct;
-			open_js_modal_content('<div class="js-modal-img"><img src="'+media_objects.images['correct.png'].src+'"/></div>');
+			open_js_modal_content('<div class="js-modal-correct"><h1>CORRECT</h1>'+optional_msg+'<br /><button onclick="nextActivity()">OK</button></div>');
 		}
 	}else{
 		activity_results.result="incorrect";
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_wrong"); // add a callback to move forward after the sound plays...
-			open_js_modal_content('<div class="js-modal-img"><img src="'+media_objects.images['wrong.png'].src+'"/></div>');
+			open_js_modal_content('<div class="js-modal-incorrect"><h1>INCORRECT</h1><br />Correct answer: <b>'+correct_answer+'</b> <br />'+optional_msg+'<br /><button onclick="nextActivity()">OK</button></div>');
 		}
 	}
 	//session_data.details.push(activity_results);
 	session_data.num_answered++;
 	
 	//dom_score_answered.innerHTML=session_data.num_answered;
-	var waiting_time=500;
-	if(session_data.mode!="test") waiting_time=1000; // fire next activity after 2 seconds (time for displaying img and playing the sound)
-	setTimeout(function(){nextActivity()}, waiting_time);
+	var waiting_time=1000;
+	if(session_data.mode!="test") waiting_time=10000; 
+	show_answer_timeout=setTimeout(function(){nextActivity()}, waiting_time);
 }
 
 function nextActivity(){
+	 clearTimeout(show_answer_timeout);
 	activity_timer.reset();
 	if(session_data.mode!="test") remove_modal();
 	if(Math.floor((Math.random() * 10))<2)
@@ -372,59 +384,90 @@ var same_country_question=function(indicator){
 	// setTimeout(function(){nextActivity()}, waiting_time);
 	// So that each trick increases a progress bar and on end it stops and fails
 	// even in the tricker callback we can set red blink when there are 3 seconds left...
-	var country=random_item(country_list);
-	var period=random_item(period_list,"last_year");
-	//data_map[indicator].data.last_year.hasOwnProperty(country)
 	console.log("question for indicator="+indicator);
-	correct_answer=period_map['last_year'];
-	if(data_map[indicator].data.last_year[country]==data_map[indicator].data[period][country]){
-		same_country_question(indicator);
-		console.log("Equal value "+country+" last_year and "+data[period]);
+	var country=random_item(country_list);
+    var period1="last_year";
+	var period2=random_item(period_list); // last_year is already not in period_list
+    if(data_map[indicator].data[period1][country]==null){
+        period1="previous_year";
+        period2=random_item(period_list,"previous_year");
+        if(data_map[indicator].data[period1][country]==null){
+            console.log("USLESS: NULL value "+country+" "+indicator+" -- last_year and "+period1);
+            nextActivity(); return;
+        }
+    }
+
+	correct_answer=period_map[period1];
+	if(data_map[indicator].data[period1][country]==data_map[indicator].data[period2][country]){
+		console.log("USLESS: Equal value "+country+" "+indicator+" -- "+period_map[period1]+" ("+data_map[indicator].data[period1][country]+") and "+period_map[period2]+" ("+data_map[indicator].data[period2][country]+")");
+        nextActivity(); return;
 	}
-	if(data_map[indicator].data.last_year[country]<data_map[indicator].data[period][country]){
-		correct_answer=period_map[period];		
-	}
-	activity_timer.start();
-	canvas_zone_answers.innerHTML=' \
-	When was <b>'+country+' '+indicator+'</b> bigger?\
-	<div id="answer-'+period_map[period]+'" onclick="check_correct(this.innerHTML,correct_answer)" class="answer aleft">'+period_map[period]+'</div>\
-	<div id="answer-'+period_map['last_year']+'" onclick="check_correct(this.innerHTML,correct_answer)" class="answer aright">'+period_map['last_year']+'</div>\
-	NEED A BUTTON TO STOP GAME, TIMER, ETC...\
-	';	
+    if(data_map[indicator].data[period1][country]<data_map[indicator].data[period2][country]){
+        correct_answer=period_map[period2];
+    }
+	answer_msg='<br />'+country+' '+indicator+'<b> '+period_map[period2]+'</b> ==> '+Number(data_map[indicator].data[period2][country]).toFixed(2);
+	answer_msg+='<br />'+country+' '+indicator+'<b> '+period_map[period1]+'</b> ==> '+Number(data_map[indicator].data[period1][country]).toFixed(2);
+    activity_timer.start();
+    canvas_zone_answers.innerHTML=' \
+    When was <b>'+country+' '+indicator+'</b> bigger?\
+    <div id="answer-'+period_map[period2]+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aleft">'+period_map[period2]+'</div>\
+    <div id="answer-'+period_map[period1]+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aright">'+period_map[period1]+'</div>\
+    ';
 }
 
 var diff_country_question=function(indicator){
+	console.log("question for indicator="+indicator);
+    var period="last_year";
 	var country1=random_item(country_list);
 	var country2=random_item(country_list,country1);
+    
+    // ----can give more oportunities by trying alternatives:----
+    // previous year, try a country diffenrent than country2... again
+    // previous_year is a good to try because some indicators do not have 
+    // data for last_year....
+    if(data_map[indicator].data[period][country1]==null){
+        period="previous_year";
+        if(data_map[indicator].data[period][country1]==null){
+            console.log("USLESS: NULL value "+country1+" "+indicator+" "+period);
+            nextActivity();return;
+        }
+    }
+    if(data_map[indicator].data[period][country2]==null){
+        console.log("USLESS: NULL value "+country2+" "+indicator+" "+period);
+        nextActivity(); return;
+    }
+    // ------------------------------------------------------------
 	correct_answer=country1;
-	if(data_map[indicator].data.last_year[country1]==data_map[indicator].data.last_year[country2]){
-		diff_country_question(indicator);
-		console.log("Equal value "+country1+" and "+country2);
+	if(data_map[indicator].data[period][country1]==data_map[indicator].data[period][country2]){
+		console.log("USLESS: Equal value "+indicator+"  -- "+country1+" ("+data_map[indicator].data[period][country1]+") and "+country2+" ("+data_map[indicator].data[period][country2]+")");
+        nextActivity(); return;
 	}
-	if(data_map[indicator].data.last_year[country1]<data_map[indicator].data.last_year[country2]){
-		correct_answer=country2;
-	}
-	activity_timer.start();
-	canvas_zone_answers.innerHTML=' \
-	Which is bigger in '+indicator+'?\
-	<div id="answer-'+country1+'" onclick="check_correct(this.innerHTML,correct_answer)" class="answer aleft">'+country1+'</div>\
-	<div id="answer-'+country2+'" onclick="check_correct(this.innerHTML,correct_answer)" class="answer aright">'+country2+'</div>\
-	';
+    if(data_map[indicator].data[period][country1]<data_map[indicator].data[period][country2]){
+        correct_answer=country2;
+    }
+	answer_msg='<br />'+period_map[period]+' '+indicator+'<b> '+country1+'</b> ==> '+Number(data_map[indicator].data[period][country1]).toFixed(2);
+	answer_msg+='<br />'+period_map[period]+' '+indicator+'<b> '+country2+'</b> ==> '+Number(data_map[indicator].data[period][country2]).toFixed(2);
+
+    activity_timer.start();
+    canvas_zone_answers.innerHTML=' \
+    Which is bigger in '+indicator+' ('+period_map[period]+')?<br />\
+    <div id="answer-'+country1+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aleft">'+country1+'</div>\
+    <div id="answer-'+country2+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aright">'+country2+'</div>\
+    ';
 }
 
 
 var load_country_list_from_indicator=function(indicator){
-	for (country in data_map[indicator].data.last_year) {
+	for (var country in data_map[indicator].data.last_year) {
 		country_list.push(country);
 	}
 }
 
 var load_period_list_from_indicator_ignore_last_year=function(indicator){
 	period_map['last_year']=data_map[indicator].last_year;
-	for (period in data_map[indicator].data) {
+	for (var period in data_map[indicator].data) {
 		if(period!='last_year')	period_list.push(period);
 		period_map[period]= data_map[indicator][period];
-		//last_year+period_correspondence[period];
 	}
 }
 
