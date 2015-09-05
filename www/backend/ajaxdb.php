@@ -315,7 +315,7 @@ if ($action == "get_users"){
 				$_SESSION['access_level'] = 'invitee';
 				// insert the user in the db
 				mail("hectorlm1983@gmail.com","New afan-app user","NEW USER: ".$_SESSION['email'].". Change from 'invitee' to something else or DELETE");
-				$sQuery = "INSERT INTO users (email, display_name, access_level, last_login, last_provider) VALUES ('".$_SESSION['email']."', '".$_SESSION['display_name']."', '".$_SESSION['access_level']."', '$timestamp_seconds', 'google');";
+				$sQuery = "INSERT INTO users (email, display_name, access_level, last_login, last_provider, creation_timestamp) VALUES ('".$_SESSION['email']."', '".$_SESSION['display_name']."', '".$_SESSION['access_level']."', '$timestamp_seconds', 'google', '$timestamp_seconds');";
 				$rResult = mysql_query( $sQuery, $db_connection );
 				if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysql_error()." -- ".$sQuery);}
 			}

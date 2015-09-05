@@ -21,6 +21,8 @@ var period_correspondence={
 
 // MEDIA
 var images = [
+	"../../cult-media/img/clock.svg",
+	"../../cult-media/img/clock.png",
 	"../../cult-media/img/correct.png",
 	"../../cult-media/img/wrong.png"
 ];
@@ -45,7 +47,9 @@ var session_state="unset";
 var header_zone=document.getElementById('header');
 var canvas_zone=document.getElementById('zone_canvas');
 var canvas_zone_vcentered=document.getElementById('zone_canvas_vcentered');
+var header_text;
 var canvas_zone_answers;
+var canvas_zone_question;
 
 var dom_score_correct;
 var dom_score_answered;
@@ -187,7 +191,12 @@ function set_user(){
 }
 
 function show_profile(){
-	alert("under construction");
+	canvas_zone.innerHTML='\
+		  name:'+user_data.display_name+'\
+		  email:'+user_data.email+'\
+		  type: '+user_data.access_level+'\
+		  <button class="button" onclick="end_game()">Back</button>\
+          ';
 }
 
 function menu_screen(){
@@ -204,7 +213,7 @@ function menu_screen(){
 	if(is_app){
 		session_data.user='app...'; // find a way to set the usr, by google account
 	}
-
+	alert('user.email: '+user_data.email);
 	if(user_data.email==null){
 		login_screen();
 	}else{
@@ -219,7 +228,7 @@ function menu_screen(){
 	      <li><a href="#" onclick="exit_app()">exit app</a></li>\
 		</ul>';
 		header_zone.innerHTML='<a id="hamburger_icon" onclick="hamburger_toggle(event)"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\
-		<path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/></svg></a> <span id="header_text" onclick="menu_screen()">'+app_name+'</span>';
+		<path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/></svg></a> <span id="header_text" onclick="menu_screen()">'+app_name+'</span> <div id="game_status"> Life: <span id="current_lifes">O O O</span>   Score: <span id="current_score_num">0</span></div>';
         header_text=document.getElementById('header_text');
 		// Optionally if(is_app) we could completely remove header...
 		canvas_zone_vcentered.innerHTML=' \
@@ -237,11 +246,11 @@ function menu_screen(){
 		        json_data_files=json_filenames;
 		        data_not_loaded_yet=json_filenames.length;
 		        for(var i=0;i<json_filenames.length;i++){
-		            console.log('requesting '+json_filenames[i]);
+		            if(debug) console.log('requesting '+json_filenames[i]);
 		            ajax_request_json(json_filenames[i],function(json){
 		                data_map[json.indicator]=json; 
 		                indicator_list.push(json.indicator);
-		                console.log(json.indicator);
+		                if(debug) console.log(json.indicator);
 		                data_not_loaded_yet--;
 		                if(data_not_loaded_yet==0){
 		                    // load countries and periods (only once)
@@ -260,7 +269,7 @@ function menu_screen(){
 	}
 }
 
-var countdown_limit_end_secs=15;
+var countdown_limit_end_secs=1500;
 var silly_cb=function(){
 	activity_timer.stop();
 	if(debug) console.log("question timeout!!!");
@@ -281,6 +290,7 @@ activity_timer.set_limit_end_seconds(countdown_limit_end_secs);
 activity_timer.set_end_callback(silly_cb);
 
 var end_game=function(){
+    alert('this will ask if you want to store your session (save game to continue later or exit?)');
 	activity_timer.stop();
 	activity_timer.reset();
 	menu_screen();
@@ -288,33 +298,17 @@ var end_game=function(){
 
 var play_game=function(){
 	canvas_zone_vcentered.innerHTML=' \
-		<div id="zone_score" class="cf">\
-		  <div class="col_left">\
-		    <div id="activity_timer_div">\
-		      Tiempo : <span id="activity_timer_span">00:00:00</span>\
-		    </div>\
-			<div id="current_score">\
-		Correct : <span id="current_score_num">0</span>\
-		</div>\
-		  </div>\
-		  <div class="col_right">\
-		    <div id="remaining_activities">\
-		      remaining activs : <span id="remaining_activities_num">0</span>\
-		    </div>\
-		    <div id="current_answered">\
-		      Answered : <span id="current_answered_num">0</span>\
-		    </div>\
-		  </div>\
-		</div> <!-- /#zone_score -->\
+	<div id="question"></div>\
 	<div id="answers"></div>\
-	<div>Time left: <progress id="time_left" value="0" max="'+countdown_limit_end_secs+'">hola hola hola</progress></div>\
-	<button class="button" onclick="end_game()">END GAME</button> \
+	<div id="game-panel">\
+        <img src="'+media_objects.images['clock.svg'].src+'"/> &nbsp; <progress id="time_left" value="0" max="'+countdown_limit_end_secs+'"></progress>\
+        <button class="button" onclick="end_game()">exit</button>\
+    </div>\
 	';
 	//get elements
 	dom_score_correct=document.getElementById('current_score_num');
-	dom_score_answered=document.getElementById('current_answered_num');
+	canvas_zone_question=document.getElementById('question');
 	canvas_zone_answers=document.getElementById('answers');
-	activity_timer.anchor_to_dom(document.getElementById('activity_timer_span'));
 	console.log("let's go, there are "+json_data_files.length+" indicator files. Countries in 'population' = "+country_list.length);
 	activity_timer.reset();
 	same_country_question(random_item(indicator_list));
@@ -350,7 +344,7 @@ function check_correct(clicked_answer,correct_answer,optional_msg){
 		//activity_results.result="correct";
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_correct");
-			//dom_score_correct.innerHTML=session_data.num_correct;
+			dom_score_correct.innerHTML=session_data.num_correct;
 			open_js_modal_content('<div class="js-modal-correct"><h1>CORRECT</h1>'+optional_msg+'<br /><button onclick="nextActivity()">OK</button></div>');
 		}
 	}else{
@@ -365,11 +359,12 @@ function check_correct(clicked_answer,correct_answer,optional_msg){
 	
 	//dom_score_answered.innerHTML=session_data.num_answered;
 	var waiting_time=1000;
-	if(session_data.mode!="test") waiting_time=10000; 
+	if(session_data.mode!="test") waiting_time=20000; 
 	show_answer_timeout=setTimeout(function(){nextActivity()}, waiting_time);
 }
 
 function nextActivity(){
+		alert('implementar q haya 3 vidas y que se vaya anotando el score y guardar los 3 highest scores de cada user con sus fechas.... the competition starts');
 	 clearTimeout(show_answer_timeout);
 	activity_timer.reset();
 	if(session_data.mode!="test") remove_modal();
@@ -398,18 +393,20 @@ var same_country_question=function(indicator){
     }
 
 	correct_answer=period_map[period1];
+	answer_msg='<br />'+period_map[period1]+' <b>'+( Number(data_map[indicator].data[period1][country])/Number(data_map[indicator].data[period2][country])  ).toFixed(2)+' times bigger</b> than '+period_map[period2]+'<br />';
 	if(data_map[indicator].data[period1][country]==data_map[indicator].data[period2][country]){
 		console.log("USLESS: Equal value "+country+" "+indicator+" -- "+period_map[period1]+" ("+data_map[indicator].data[period1][country]+") and "+period_map[period2]+" ("+data_map[indicator].data[period2][country]+")");
         nextActivity(); return;
 	}
     if(data_map[indicator].data[period1][country]<data_map[indicator].data[period2][country]){
         correct_answer=period_map[period2];
+		answer_msg='<br />'+period_map[period2]+' <b>'+( Number(data_map[indicator].data[period2][country])/Number(data_map[indicator].data[period1][country])  ).toFixed(2)+' times bigger</b> than '+period_map[period1]+'<br />';
     }
-	answer_msg='<br />'+country+' '+indicator+'<b> '+period_map[period2]+'</b> ==> '+Number(data_map[indicator].data[period2][country]).toFixed(2);
+	answer_msg+='<br />'+country+' '+indicator+'<b> '+period_map[period2]+'</b> ==> '+Number(data_map[indicator].data[period2][country]).toFixed(2);
 	answer_msg+='<br />'+country+' '+indicator+'<b> '+period_map[period1]+'</b> ==> '+Number(data_map[indicator].data[period1][country]).toFixed(2);
     activity_timer.start();
+    canvas_zone_question.innerHTML='When was <b>'+country+' '+indicator+'</b> bigger?';
     canvas_zone_answers.innerHTML=' \
-    When was <b>'+country+' '+indicator+'</b> bigger?\
     <div id="answer-'+period_map[period2]+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aleft">'+period_map[period2]+'</div>\
     <div id="answer-'+period_map[period1]+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aright">'+period_map[period1]+'</div>\
     ';
@@ -438,19 +435,22 @@ var diff_country_question=function(indicator){
     }
     // ------------------------------------------------------------
 	correct_answer=country1;
+	answer_msg='<br />'+country1+' <b>'+( Number(data_map[indicator].data[period][country1])/Number(data_map[indicator].data[period][country2])  ).toFixed(2)+' times bigger</b> than '+country2+'<br />';
 	if(data_map[indicator].data[period][country1]==data_map[indicator].data[period][country2]){
 		console.log("USLESS: Equal value "+indicator+"  -- "+country1+" ("+data_map[indicator].data[period][country1]+") and "+country2+" ("+data_map[indicator].data[period][country2]+")");
         nextActivity(); return;
 	}
     if(data_map[indicator].data[period][country1]<data_map[indicator].data[period][country2]){
         correct_answer=country2;
+		answer_msg='<br />'+country2+' <b>'+( Number(data_map[indicator].data[period][country2])/Number(data_map[indicator].data[period][country1])  ).toFixed(2)+' times bigger</b> than '+country1+'<br />';
+
     }
-	answer_msg='<br />'+period_map[period]+' '+indicator+'<b> '+country1+'</b> ==> '+Number(data_map[indicator].data[period][country1]).toFixed(2);
+	answer_msg+='<br />'+period_map[period]+' '+indicator+'<b> '+country1+'</b> ==> '+Number(data_map[indicator].data[period][country1]).toFixed(2);
 	answer_msg+='<br />'+period_map[period]+' '+indicator+'<b> '+country2+'</b> ==> '+Number(data_map[indicator].data[period][country2]).toFixed(2);
 
     activity_timer.start();
-    canvas_zone_answers.innerHTML=' \
-    Which is bigger in '+indicator+' ('+period_map[period]+')?<br />\
+    canvas_zone_question.innerHTML='Which is bigger in '+indicator+' ('+period_map[period]+')?';
+    canvas_zone_answers.innerHTML='\
     <div id="answer-'+country1+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aleft">'+country1+'</div>\
     <div id="answer-'+country2+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aright">'+country2+'</div>\
     ';
