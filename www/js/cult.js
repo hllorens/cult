@@ -11,6 +11,7 @@ var indicator_list=[];
 var country_list=[];
 var period_list=[];
 var period_map={};
+var lifes=3;
 /* encoded in the data file
 var period_correspondence={
 	previous_year:-1,
@@ -45,9 +46,9 @@ var session_data={
 var media_objects;
 var session_state="unset";
 var header_zone=document.getElementById('header');
+var header_text=undefined;
 var canvas_zone=document.getElementById('zone_canvas');
 var canvas_zone_vcentered=document.getElementById('zone_canvas_vcentered');
-var header_text;
 var canvas_zone_answers;
 var canvas_zone_question;
 
@@ -155,15 +156,13 @@ function gdisconnect(){
 		function(result) {
 			if (result.hasOwnProperty('success')) {
 				if(debug) console.log(result.success);
-				login_screen();
 			} else {
 				if(!result.hasOwnProperty('error')) result.error="NO JSON RETURNED";
 				alert('Failed to disconnect.</br>Result:'+ result.error);
 			}
-		}
+            login_screen();
+        }
 	);
-
-	return false;
 }
 
 function admin_screen(){
@@ -213,7 +212,8 @@ function menu_screen(){
 	if(is_app){
 		session_data.user='app...'; // find a way to set the usr, by google account
 	}
-	alert('user.email: '+user_data.email);
+	console.log('user.email: '+user_data.email);
+    alert('implementar el score y guardar los 3 highest scores de cada user con sus fechas.... the competition starts');
 	if(user_data.email==null){
 		login_screen();
 	}else{
@@ -269,11 +269,11 @@ function menu_screen(){
 	}
 }
 
-var countdown_limit_end_secs=1500;
+var countdown_limit_end_secs=25;
 var silly_cb=function(){
 	activity_timer.stop();
 	if(debug) console.log("question timeout!!!");
-	check_correct("timeout","incorrect");
+	check_correct("timeout","incorrect","Timeout! You have not answered");
 }
 var tricker_cb=function(){
 	if(debug) console.log("tricker progress "+activity_timer.seconds);
@@ -349,9 +349,11 @@ function check_correct(clicked_answer,correct_answer,optional_msg){
 		}
 	}else{
 		activity_results.result="incorrect";
+		lifes--;
+		update_lifes();
 		if(session_data.mode!="test"){
-			//audio_sprite.playSpriteRange("zfx_wrong"); // add a callback to move forward after the sound plays...
-			open_js_modal_content('<div class="js-modal-incorrect"><h1>INCORRECT</h1><br />Correct answer: <b>'+correct_answer+'</b> <br />'+optional_msg+'<br /><button onclick="nextActivity()">OK</button></div>');
+			//audio_sprite.playSpriteRange("zfx_wrong"); // add a callback to move forward after the sound plays... <br />Correct answer: <b>'+correct_answer+'</b>
+			open_js_modal_content('<div class="js-modal-incorrect"><h1>INCORRECT</h1> <br />'+optional_msg+'<br /><button onclick="nextActivity()">OK</button></div>');
 		}
 	}
 	//session_data.details.push(activity_results);
@@ -363,15 +365,28 @@ function check_correct(clicked_answer,correct_answer,optional_msg){
 	show_answer_timeout=setTimeout(function(){nextActivity()}, waiting_time);
 }
 
+function update_lifes(){
+	var elem_lifes=document.getElementById('current_lifes');
+	var lifes_representation='';
+	for (var i=0;i<lifes;i++){
+		lifes_representation+="O ";
+	}
+	elem_lifes.innerHTML=lifes_representation;
+}
+
 function nextActivity(){
-		alert('implementar q haya 3 vidas y que se vaya anotando el score y guardar los 3 highest scores de cada user con sus fechas.... the competition starts');
 	 clearTimeout(show_answer_timeout);
 	activity_timer.reset();
 	if(session_data.mode!="test") remove_modal();
-	if(Math.floor((Math.random() * 10))<2)
-		same_country_question(random_item(indicator_list));
-	else
-		diff_country_question(random_item(indicator_list));
+	if(lifes==0){
+		alert("YOU LOSE. END!");
+		send_session_data();
+	}else{
+		if(Math.floor((Math.random() * 10))<2)
+			same_country_question(random_item(indicator_list));
+		else
+			diff_country_question(random_item(indicator_list));
+	}
 }
 
 var same_country_question=function(indicator){
@@ -398,7 +413,7 @@ var same_country_question=function(indicator){
 		console.log("USLESS: Equal value "+country+" "+indicator+" -- "+period_map[period1]+" ("+data_map[indicator].data[period1][country]+") and "+period_map[period2]+" ("+data_map[indicator].data[period2][country]+")");
         nextActivity(); return;
 	}
-    if(data_map[indicator].data[period1][country]<data_map[indicator].data[period2][country]){
+    if(Number(data_map[indicator].data[period1][country])<Number(data_map[indicator].data[period2][country])){
         correct_answer=period_map[period2];
 		answer_msg='<br />'+period_map[period2]+' <b>'+( Number(data_map[indicator].data[period2][country])/Number(data_map[indicator].data[period1][country])  ).toFixed(2)+' times bigger</b> than '+period_map[period1]+'<br />';
     }
@@ -440,7 +455,7 @@ var diff_country_question=function(indicator){
 		console.log("USLESS: Equal value "+indicator+"  -- "+country1+" ("+data_map[indicator].data[period][country1]+") and "+country2+" ("+data_map[indicator].data[period][country2]+")");
         nextActivity(); return;
 	}
-    if(data_map[indicator].data[period][country1]<data_map[indicator].data[period][country2]){
+    if(Number(data_map[indicator].data[period][country1])<Number(data_map[indicator].data[period][country2])){
         correct_answer=country2;
 		answer_msg='<br />'+country2+' <b>'+( Number(data_map[indicator].data[period][country2])/Number(data_map[indicator].data[period][country1])  ).toFixed(2)+' times bigger</b> than '+country1+'<br />';
 
@@ -470,6 +485,34 @@ var load_period_list_from_indicator_ignore_last_year=function(indicator){
 		period_map[period]= data_map[indicator][period];
 	}
 }
+
+
+function send_session_data(){
+    remove_modal();
+	if(user_data.access_level=='invitee'){
+		canvas_zone_vcentered.innerHTML+='<br />Los resultados no se pueden guardar para\
+			usuarios "invitados"<br /><br />\
+		<br /><button id="go-back" onclick="menu_screen()">Volver</button>';
+		return;
+	}
+	
+	if(debug) console.log(JSON.stringify(session_data));
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "http://www.cognitionis.com/cult/www/"+backend_url+'ajaxdb.php',true);
+	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	xhr.responsetype="json";
+	xhr.send("action=send_session_data_post&json_string="+(JSON.stringify(session_data))); 
+	canvas_zone_vcentered.innerHTML='<br />Fin del Test<br />...Enviando test al servidor...<br /><br />';
+
+	xhr.onload = function () {
+		var data=JSON.parse(this.responseText);
+		canvas_zone_vcentered.innerHTML='<br />Fin del Test<br />Server message: '+data.msg+'<br /><br />\
+		<br /><button id="go-back" onclick="menu_screen()">Volver</button>';
+	};
+
+}
+
+
 
 
 

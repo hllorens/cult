@@ -1,6 +1,11 @@
 2015-08 GDP of BR, AR and then world has been updated (old values until 86 have been added since they were null before, and some values have been updated from 1987 maybe they were estimates before...)
-CHANGES ARE NOT BIG.
+2015-10 POPDENSITY changed (changes are not BIG)
 
+
+
+DETAILS 
+
+2015-08 CHANGES ARE NOT BIG.
 ERROR: gdp wld different! (/home/hector/cognitionis.com/cult/cron-scripts/../../cult-data/wld_gdp_wb_new.json)
 2,20c2,20
 < {indicator:{"id":"NY.GDP.MKTP.CD","value":"GDP (current US$)"},"country":{"id":"1W","value":"World"},"value":"11184185052528.4","decimal":"1","date":"1980"},

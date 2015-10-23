@@ -291,7 +291,7 @@ a#hamburger_icon svg {
 
 #time_left{
 	height:35px;
-	width:65%;
+	width:35%;
 	/*border-radius: 0px;
 	background: #f00;*/
 }
@@ -326,6 +326,10 @@ a#hamburger_icon svg {
 	padding: 10px;
 	text-align: center;
 }
+
+
+
+
 
 /*background-color
 

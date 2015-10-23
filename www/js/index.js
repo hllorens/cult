@@ -46,13 +46,13 @@ function splash_screen(){
 	ResourceLoader.load_media(images,sounds,menu_screen,false,debug);
 }
 
-// this will prevent things not being loaded
-// this will run after all resources are loaded (even those loaded from js)
-// NOTE: even ajax calls in menu_screen are waited for...
+// IMPORTANT: this should wait for all resources, even the jsons requested in js
+//            but it is proven false at least when a resource is not found
+//            Also this removed splash too early on those cases...
 window.onload = function () { 
 	if(debug) console.log("win.onload");
-	var splash=document.getElementById("splash_screen");
-	if(splash!=null && (ResourceLoader.lazy_audio==false || ResourceLoader.not_loaded['sounds'].length==0)){ splash.parentNode.removeChild(splash); }
+//	var splash=document.getElementById("splash_screen");
+//	if(splash!=null && (ResourceLoader.lazy_audio==false || ResourceLoader.not_loaded['sounds'].length==0)){ splash.parentNode.removeChild(splash); }
 }
 
 

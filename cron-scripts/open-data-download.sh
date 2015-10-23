@@ -48,7 +48,7 @@ for K in "${!INDICATORMAP[@]}";do
 			#echo "           exists compare";
 			cat $destination/${c}_${K}_wb.json     | sed "s/{\"indicator\"/\n{indicator/g" | sort > $destination/${c}_${K}_wb.json.sort
 			cat $destination/${c}_${K}_wb_new.json | sed "s/{\"indicator\"/\n{indicator/g" | sort > $destination/${c}_${K}_wb_new.json.sort
-			difference=`diff $destination/${c}_${K}_wb.json.sort $destination/${c}_${K}_wb_new.json.sort` 
+			difference=`diff $destination/${c}_${K}_wb.json.sort $destination/${c}_${K}_wb_new.json.sort | grep -v "per_page"` 
 			if [[ `echo $difference | wc -w` -gt 0 ]];then
 				if [[ `echo $difference | grep "\"${last_year}\"" | wc -w` -gt 0 && `echo $difference | grep -o "\"date\"" | wc -l` -eq 1 ]];then
 					echo "\nWARNING: $K $c    new data for $last_year (updating the file). $difference\n<br />\n" | tee -a $destination/ERROR.log;
