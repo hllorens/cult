@@ -213,7 +213,6 @@ function menu_screen(){
 		session_data.user='app...'; // find a way to set the usr, by google account
 	}
 	console.log('user.email: '+user_data.email);
-    alert('implementar el score y guardar los 3 highest scores de cada user con sus fechas.... the competition starts');
 	if(user_data.email==null){
 		login_screen();
 	}else{
@@ -297,6 +296,14 @@ var end_game=function(){
 }
 
 var play_game=function(){
+    session_data.type="qa";
+	session_data.num_correct=0;
+	var timestamp=new Date();
+	session_data.timestamp=timestamp.getFullYear()+"-"+
+		pad_string((timestamp.getMonth()+1),2,"0") + "-" + pad_string(timestamp.getDate(),2,"0") + " " +
+		 pad_string(timestamp.getHours(),2,"0") + ":"  + pad_string(timestamp.getMinutes(),2,"0");
+	lifes=3;
+	update_lifes_representation();
 	canvas_zone_vcentered.innerHTML=' \
 	<div id="question"></div>\
 	<div id="answers"></div>\
@@ -327,14 +334,6 @@ function check_correct(clicked_answer,correct_answer,optional_msg){
 		pad_string((timestamp.getMonth()+1),2,"0") + "-" + pad_string(timestamp.getDate(),2,"0") + " " +
 		 pad_string(timestamp.getHours(),2,"0") + ":"  + pad_string(timestamp.getMinutes(),2,"0") + 
 			":"  + pad_string(timestamp.getSeconds(),2,"0");
-	/*activity_timer.stop();
-	activity_results.type=session_data.type;
-	activity_results.mode=session_data.mode;
-	activity_results.level=session_data.level;
-	activity_results.activity=correct_answer;
-	activity_results.timestamp=timestamp_str;
-	activity_results.duration=activity_timer.seconds;
-	session_data.duration+=activity_timer.seconds;*/
 	if(typeof clicked_answer != "string"){ 
 		alert("ERROR: Unexpected answer... non-string");
 	}
@@ -350,7 +349,7 @@ function check_correct(clicked_answer,correct_answer,optional_msg){
 	}else{
 		activity_results.result="incorrect";
 		lifes--;
-		update_lifes();
+		update_lifes_representation();
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_wrong"); // add a callback to move forward after the sound plays... <br />Correct answer: <b>'+correct_answer+'</b>
 			open_js_modal_content('<div class="js-modal-incorrect"><h1>INCORRECT</h1> <br />'+optional_msg+'<br /><button onclick="nextActivity()">OK</button></div>');
@@ -365,7 +364,7 @@ function check_correct(clicked_answer,correct_answer,optional_msg){
 	show_answer_timeout=setTimeout(function(){nextActivity()}, waiting_time);
 }
 
-function update_lifes(){
+function update_lifes_representation(){
 	var elem_lifes=document.getElementById('current_lifes');
 	var lifes_representation='';
 	for (var i=0;i<lifes;i++){
@@ -389,6 +388,14 @@ function nextActivity(){
 	}
 }
 
+var calculate_times_bigger=function(a,b){
+	if (Number(a)*Number(b)<0){
+		return ((Number(a)+-2*Number(b))/(-1*Number(b))).toFixed(2);		
+	}else{
+		return (Number(a)/Number(b)).toFixed(2);
+	}
+}
+
 var same_country_question=function(indicator){
 	// create another class called countdown with 2 callbacks tricker and end
 	// setTimeout(function(){nextActivity()}, waiting_time);
@@ -408,14 +415,14 @@ var same_country_question=function(indicator){
     }
 
 	correct_answer=period_map[period1];
-	answer_msg='<br />'+period_map[period1]+' <b>'+( Number(data_map[indicator].data[period1][country])/Number(data_map[indicator].data[period2][country])  ).toFixed(2)+' times bigger</b> than '+period_map[period2]+'<br />';
+	answer_msg='<br />'+period_map[period1]+' <b>'+calculate_times_bigger(data_map[indicator].data[period1][country],data_map[indicator].data[period2][country])+' times bigger</b> than '+period_map[period2]+'<br />';
 	if(data_map[indicator].data[period1][country]==data_map[indicator].data[period2][country]){
 		console.log("USLESS: Equal value "+country+" "+indicator+" -- "+period_map[period1]+" ("+data_map[indicator].data[period1][country]+") and "+period_map[period2]+" ("+data_map[indicator].data[period2][country]+")");
         nextActivity(); return;
 	}
     if(Number(data_map[indicator].data[period1][country])<Number(data_map[indicator].data[period2][country])){
         correct_answer=period_map[period2];
-		answer_msg='<br />'+period_map[period2]+' <b>'+( Number(data_map[indicator].data[period2][country])/Number(data_map[indicator].data[period1][country])  ).toFixed(2)+' times bigger</b> than '+period_map[period1]+'<br />';
+		answer_msg='<br />'+period_map[period2]+' <b>'+calculate_times_bigger(data_map[indicator].data[period2][country],data_map[indicator].data[period1][country])+' times bigger</b> than '+period_map[period1]+'<br />';
     }
 	answer_msg+='<br />'+country+' '+indicator+'<b> '+period_map[period2]+'</b> ==> '+Number(data_map[indicator].data[period2][country]).toFixed(2);
 	answer_msg+='<br />'+country+' '+indicator+'<b> '+period_map[period1]+'</b> ==> '+Number(data_map[indicator].data[period1][country]).toFixed(2);
@@ -450,14 +457,14 @@ var diff_country_question=function(indicator){
     }
     // ------------------------------------------------------------
 	correct_answer=country1;
-	answer_msg='<br />'+country1+' <b>'+( Number(data_map[indicator].data[period][country1])/Number(data_map[indicator].data[period][country2])  ).toFixed(2)+' times bigger</b> than '+country2+'<br />';
+	answer_msg='<br />'+country1+' <b>'+calculate_times_bigger(data_map[indicator].data[period][country1],data_map[indicator].data[period][country2]) +' times bigger</b> than '+country2+'<br />';
 	if(data_map[indicator].data[period][country1]==data_map[indicator].data[period][country2]){
 		console.log("USLESS: Equal value "+indicator+"  -- "+country1+" ("+data_map[indicator].data[period][country1]+") and "+country2+" ("+data_map[indicator].data[period][country2]+")");
         nextActivity(); return;
 	}
     if(Number(data_map[indicator].data[period][country1])<Number(data_map[indicator].data[period][country2])){
         correct_answer=country2;
-		answer_msg='<br />'+country2+' <b>'+( Number(data_map[indicator].data[period][country2])/Number(data_map[indicator].data[period][country1])  ).toFixed(2)+' times bigger</b> than '+country1+'<br />';
+		answer_msg='<br />'+country2+' <b>'+calculate_times_bigger(data_map[indicator].data[period][country2],data_map[indicator].data[period][country1])+' times bigger</b> than '+country1+'<br />';
 
     }
 	answer_msg+='<br />'+period_map[period]+' '+indicator+'<b> '+country1+'</b> ==> '+Number(data_map[indicator].data[period][country1]).toFixed(2);
@@ -490,7 +497,7 @@ var load_period_list_from_indicator_ignore_last_year=function(indicator){
 function send_session_data(){
     remove_modal();
 	if(user_data.access_level=='invitee'){
-		canvas_zone_vcentered.innerHTML+='<br />Los resultados no se pueden guardar para\
+		canvas_zone_vcentered.innerHTML='<br />Los resultados no se pueden guardar para\
 			usuarios "invitados"<br /><br />\
 		<br /><button id="go-back" onclick="menu_screen()">Volver</button>';
 		return;

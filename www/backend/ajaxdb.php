@@ -53,32 +53,23 @@ if ($action == "get_users"){
 	$str_json=json_decode($_POST['json_string'],true);
 	$output["msg"]="success";
 	$type=$str_json["type"];
-	$mode=$str_json["mode"];
 	$user=$str_json["user"];
-	$subject=$str_json["subject"];
-	$age=$str_json["age"];
-	$num_answered=$str_json["num_answered"];
 	$num_correct=$str_json["num_correct"];
-	$result=0;
-	if(((int) $num_answered)!=0) $result= ((int) $num_correct) / ((int) $num_answered);
-	$level=$str_json["level"];
-	$duration=$str_json["duration"];
 	$timestamp=$str_json["timestamp"];
 
 	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of subject";return;}
 
 	$error=0;
-	
-	$sQuery = "INSERT INTO sessions(type,mode,user,subject,age,num_answered,num_correct,result,level,duration,timestamp)  VALUES ('$type','$mode','$user','$subject','$age','$num_answered','$num_correct','$result','$level','$duration','$timestamp');"; 
+	$sQuery = "INSERT INTO sessions(type,user,num_correct,timestamp)  VALUES ('$type','$user','$num_correct','$timestamp');"; 
 	$rResult = mysql_query( $sQuery, $db_connection );
 	if(!$rResult){ $output["msg"]=mysql_error()." -- ".$sQuery; $error=1;}
 	else{ 
-		$session_id=mysql_insert_id();
-		foreach ($str_json["details"] as $detail){
-			$sQuery = "INSERT INTO session_activities(type,mode,user,subject,session,activity,choice,result,level,duration,timestamp)  VALUES ('$type','$mode','$user','$subject','$session_id','".$detail["activity"]."','".$detail["choice"]."','".$detail["result"]."','$level','".$detail["duration"]."','".$detail["timestamp"]."')"; 
-			$rResult = mysql_query( $sQuery, $db_connection );
-			if(!$rResult){ $output["msg"]=mysql_error()." -- ".$sQuery; $error=1; break;}
-		}
+		$sQuery = "	DELETE FROM sessions WHERE id NOT IN (
+      	 SELECT id FROM (
+		  SELECT id FROM sessions WHERE user='$user' AND type='$type'
+		  ORDER BY num_correct*1 DESC LIMIT 3) s )";
+		$rResult = mysql_query( $sQuery, $db_connection );
+		if(!$rResult){ $output["msg"]=mysql_error()." -- ".$sQuery; $error=1;}
 		if($error==0) $output["msg"]="Success. Data session stored in the server. --"; // -- '.$sQuery.'"}';}
 	}
 
@@ -93,11 +84,10 @@ if ($action == "get_users"){
 
 	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of subject";return;}
 
-	$sQuery = "SELECT * FROM sessions WHERE user='$user' AND subject='$subject';";
+	$sQuery = "SELECT * FROM sessions WHERE user='$user';";
 	//echo "query: $sQuery ";
 	$output['general'] = array();
 	$output['general']['user'] = $user;
-	$output['general']['subject'] = $subject;
 	$output['elements'] = array();
 
 	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
@@ -106,47 +96,7 @@ if ($action == "get_users"){
 		$output['elements'][]=array();
 		$output['elements'][$element_count]['id'] = $aRow['id'];
 		$output['elements'][$element_count]['type']=$aRow['type'];
-		$output['elements'][$element_count]['mode']=$aRow['mode'];
-		$output['elements'][$element_count]['age']=$aRow['age'];
-		$output['elements'][$element_count]['num_answered']=$aRow['num_answered'];
 		$output['elements'][$element_count]['num_correct']=$aRow['num_correct'];
-		$output['elements'][$element_count]['result']=$aRow['result'];
-		$output['elements'][$element_count]['level']=$aRow['level'];
-		$output['elements'][$element_count]['duration']=$aRow['duration'];
-		$output['elements'][$element_count]['timestamp']=$aRow['timestamp'];
-		$element_count++;		
-	}
-
-	header('Content-type: application/json');
-	echo json_encode( $output );
-	//print_r($output);
-
-}else if ($action == "get_result_detail"){
-	$session=get_value("session");
-	$user=get_value("user");
-
-	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of subject ($user!=".$_SESSION['email'].")";return;}
-
-	$sQuery = "SELECT * FROM session_activities WHERE session='$session' AND user='$user';";
-	//echo "query: $sQuery ";
-	$output['general'] = array();
-	$output['general']['session'] = $session;
-	$output['elements'] = array();
-
-	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
-	$element_count=0;	
-	while ( $aRow = mysql_fetch_array( $rResult ) )	{
-		$output['elements'][]=array();
-		$output['elements'][$element_count]['id'] = $aRow['id'];
-		$output['elements'][$element_count]['type']=$aRow['type'];
-		$output['elements'][$element_count]['mode']=$aRow['mode'];
-		$output['elements'][$element_count]['user']=$aRow['user'];
-		$output['elements'][$element_count]['subject']=$aRow['subject'];
-		$output['elements'][$element_count]['activity']=$aRow['activity'];
-		$output['elements'][$element_count]['choice']=$aRow['choice'];
-		$output['elements'][$element_count]['result']=$aRow['result'];
-		$output['elements'][$element_count]['level']=$aRow['level'];
-		$output['elements'][$element_count]['duration']=$aRow['duration'];
 		$output['elements'][$element_count]['timestamp']=$aRow['timestamp'];
 		$element_count++;
 	}
