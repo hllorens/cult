@@ -148,6 +148,19 @@ button.button{
 button.backgroundRed{
     background-color: #faa;
 }
+button.backgroundBlue{
+    background-color:#240C6E;
+}
+
+.table-wo-border{
+	margin:0 auto;
+	text-align:left;
+}
+
+.table-wo-border td{
+	padding:0 15px;
+}
+
 
 #question{
     min-height: 100px;
@@ -314,6 +327,9 @@ a#hamburger_icon svg {
 	margin: 10% auto 0;
 	padding: 10px;
 	text-align: center;
+}
+.js-modal-correct h1{
+	color: #151;
 }
 
 .js-modal-incorrect{

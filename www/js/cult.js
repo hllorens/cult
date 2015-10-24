@@ -12,12 +12,10 @@ var country_list=[];
 var period_list=[];
 var period_map={};
 var lifes=3;
+var dificulty='normal'; // easy, difficult
 /* encoded in the data file
 var period_correspondence={
-	previous_year:-1,
-	last_lustrum:-4,
-	last_decade:-9,
-	last_2decade:-19
+	previous_year:-1, last_lustrum:-4,	last_decade:-9,	last_2decade:-19
 };*/
 
 // MEDIA
@@ -34,7 +32,7 @@ var activity_timer=new ActivityTimer();
 var user_data={};
 var session_data={
 	user: null,
-	level: "1",
+	level: "normal",
 	timestamp: "0000-00-00 00:00",
 	num_correct: 0,
 	num_answered: 0,
@@ -130,7 +128,7 @@ function signInCallback(authResult) {
 						console.log(result);
 						console.log("logged! "+result.email+" level:"+result.access_level);
 					}
-                    user_data.username=result.email;
+                    user_data.display_name=result.display_name;
                     user_data.email=result.email;
 					user_data.access_level=result.access_level;
 					session_data.user=result.email;
@@ -189,12 +187,51 @@ function set_user(){
 	menu_screen();
 }
 
+function options(){
+	canvas_zone_vcentered.innerHTML='\
+		  <br /><button id="op_difficult" class="button" onclick="session_data.level=\'difficult\';menu_screen()">Difficult</button>\
+		  <br /><button id="op_normal" class="button" onclick="session_data.level=\'normal\';menu_screen()">Normal</button>\
+		  <br /><button id="op_easy" class="button" onclick="session_data.level=\'easy\';menu_screen()">Easy</button>\
+		  <br /><br /><button class="button" onclick="menu_screen()">Back</button>\
+          ';
+	if(session_data.level=="difficult") document.getElementById('op_difficult').classList.add('backgroundBlue');
+	if(session_data.level=="normal") document.getElementById('op_normal').classList.add('backgroundBlue');
+	if(session_data.level=="easy") document.getElementById('op_easy').classList.add('backgroundBlue');
+}
+
+function top_scores(){
+	ajax_request_json(
+		backend_url+'ajaxdb.php?action=get_top_scores&user='+user_data.email, 
+		function(data) {
+			console.log(data);
+			var rtable='<table class="table-wo-border"><tr><td><b>Rank</b></td><td><b>Name</b></td><td><b>Score</b></td><td><b>Date</b></td></tr>';
+			for (var i=0;i<data.absolute_elements.length;i++){
+				var d=new Date(data.absolute_elements[i].timestamp.substr(0,10));
+				rtable+='<tr><td>'+(i+1)+'</td><td>'+data.absolute_elements[i].user.substr(0,8)+'</td><td style="text-align:right;">'+data.absolute_elements[i].num_correct+'</td><td>'+monthNames[d.getMonth()]+'-'+d.getFullYear()+'</td></tr>';
+			}
+			rtable+='<tr><td colspan="4"></td></tr>\
+					 <tr><td colspan="4"><b>User ranks</b></td></tr>';
+			for (var i=0;i<data.usr_elements.length;i++){
+				var d=new Date(data.usr_elements[i].timestamp.substr(0,10));
+				rtable+='<tr><td>xxx</td><td>'+data.usr_elements[i].user.substr(0,8)+'</td><td style="text-align:right;">'+data.usr_elements[i].num_correct+'</td><td>'+monthNames[d.getMonth()]+'-'+d.getFullYear()+'</td></tr>';
+			}
+			rtable+="</table>";
+			canvas_zone_vcentered.innerHTML='\
+				  TOP SCORES<br />Hall of Fame<br/>\
+				  '+rtable+'\
+				  <br /><button class="button" onclick="menu_screen()">Back</button>\
+				  ';		}
+	);
+
+}
+
+
 function show_profile(){
-	canvas_zone.innerHTML='\
-		  name:'+user_data.display_name+'\
-		  email:'+user_data.email+'\
-		  type: '+user_data.access_level+'\
-		  <button class="button" onclick="end_game()">Back</button>\
+	canvas_zone_vcentered.innerHTML='\
+		  name:'+user_data.display_name+'<br />\
+		  email:'+user_data.email+'<br />\
+		  type: '+user_data.access_level+'<br />\
+		  <br /><button class="button" onclick="menu_screen()">Back</button>\
           ';
 }
 
@@ -235,6 +272,7 @@ function menu_screen(){
 		<nav id="responsive_menu">\
 		<br /><button id="start-button" class="button" onclick="play_game()" disabled="true">Play</button> \
 		<br /><button id="exit" class="button" onclick="options()">Options</button> \
+		<br /><button id="exit" class="button" onclick="top_scores()">Top Scores</button> \
 		<br /><button id="exit" class="button exit" onclick="exit_app()">Exit</button> \
 		</nav>\
 		';
@@ -396,12 +434,20 @@ var calculate_times_bigger=function(a,b){
 	}
 }
 
+var match_level_difficulty=function(level, times_bigger){
+	//console.log(level+"  "+times_bigger);
+	if(level=='easy' && times_bigger<1.51) return false;
+	if(level=='normal' && times_bigger<1.26) return false;
+	if(level=='difficult' && times_bigger<1.01) return false;
+	return true;
+}
+
 var same_country_question=function(indicator){
 	// create another class called countdown with 2 callbacks tricker and end
 	// setTimeout(function(){nextActivity()}, waiting_time);
 	// So that each trick increases a progress bar and on end it stops and fails
 	// even in the tricker callback we can set red blink when there are 3 seconds left...
-	console.log("question for indicator="+indicator);
+	console.log("same country question for indicator="+indicator);
 	var country=random_item(country_list);
     var period1="last_year";
 	var period2=random_item(period_list); // last_year is already not in period_list
@@ -414,20 +460,24 @@ var same_country_question=function(indicator){
         }
     }
 
-	correct_answer=period_map[period1];
-	answer_msg='<br />'+period_map[period1]+' <b>'+calculate_times_bigger(data_map[indicator].data[period1][country],data_map[indicator].data[period2][country])+' times bigger</b> than '+period_map[period2]+'<br />';
+	var times_bigger;
 	if(data_map[indicator].data[period1][country]==data_map[indicator].data[period2][country]){
 		console.log("USLESS: Equal value "+country+" "+indicator+" -- "+period_map[period1]+" ("+data_map[indicator].data[period1][country]+") and "+period_map[period2]+" ("+data_map[indicator].data[period2][country]+")");
         nextActivity(); return;
-	}
-    if(Number(data_map[indicator].data[period1][country])<Number(data_map[indicator].data[period2][country])){
+	}else if(Number(data_map[indicator].data[period1][country])>Number(data_map[indicator].data[period2][country])){
+		correct_answer=period_map[period1];
+		times_bigger=calculate_times_bigger(data_map[indicator].data[period1][country],data_map[indicator].data[period2][country]);
+		answer_msg='<br />'+period_map[period1]+' <b>'+times_bigger+' times bigger</b> than '+period_map[period2]+'<br />';
+    }else if(Number(data_map[indicator].data[period1][country])<Number(data_map[indicator].data[period2][country])){
         correct_answer=period_map[period2];
-		answer_msg='<br />'+period_map[period2]+' <b>'+calculate_times_bigger(data_map[indicator].data[period2][country],data_map[indicator].data[period1][country])+' times bigger</b> than '+period_map[period1]+'<br />';
+		times_bigger=calculate_times_bigger(data_map[indicator].data[period2][country],data_map[indicator].data[period1][country]);
+		answer_msg='<br />'+period_map[period2]+' <b>'+times_bigger+' times bigger</b> than '+period_map[period1]+'<br />';
     }
-	answer_msg+='<br />'+country+' '+indicator+'<b> '+period_map[period2]+'</b> ==> '+Number(data_map[indicator].data[period2][country]).toFixed(2);
-	answer_msg+='<br />'+country+' '+indicator+'<b> '+period_map[period1]+'</b> ==> '+Number(data_map[indicator].data[period1][country]).toFixed(2);
+	if(!match_level_difficulty(session_data.level,times_bigger)){nextActivity();return;}
+	answer_msg+=add_answer_details(indicator,period1,period2,country,country);
+
     activity_timer.start();
-    canvas_zone_question.innerHTML='When was <b>'+country+' '+indicator+'</b> bigger?';
+    canvas_zone_question.innerHTML='When was <b>'+country+' '+data_map[indicator].indicator_sf+'</b> bigger?';
     canvas_zone_answers.innerHTML=' \
     <div id="answer-'+period_map[period2]+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aleft">'+period_map[period2]+'</div>\
     <div id="answer-'+period_map[period1]+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aright">'+period_map[period1]+'</div>\
@@ -435,10 +485,11 @@ var same_country_question=function(indicator){
 }
 
 var diff_country_question=function(indicator){
-	console.log("question for indicator="+indicator);
+	console.log("diff country question for indicator="+indicator);
     var period="last_year";
 	var country1=random_item(country_list);
 	var country2=random_item(country_list,country1);
+	var times_bigger;
     
     // ----can give more oportunities by trying alternatives:----
     // previous year, try a country diffenrent than country2... again
@@ -456,28 +507,63 @@ var diff_country_question=function(indicator){
         nextActivity(); return;
     }
     // ------------------------------------------------------------
-	correct_answer=country1;
-	answer_msg='<br />'+country1+' <b>'+calculate_times_bigger(data_map[indicator].data[period][country1],data_map[indicator].data[period][country2]) +' times bigger</b> than '+country2+'<br />';
 	if(data_map[indicator].data[period][country1]==data_map[indicator].data[period][country2]){
 		console.log("USLESS: Equal value "+indicator+"  -- "+country1+" ("+data_map[indicator].data[period][country1]+") and "+country2+" ("+data_map[indicator].data[period][country2]+")");
         nextActivity(); return;
-	}
-    if(Number(data_map[indicator].data[period][country1])<Number(data_map[indicator].data[period][country2])){
+	}else if(Number(data_map[indicator].data[period][country1])>Number(data_map[indicator].data[period][country2])){
+		correct_answer=country1;
+		times_bigger=calculate_times_bigger(data_map[indicator].data[period][country1],data_map[indicator].data[period][country2]);
+		answer_msg='<br />'+country1+' <b>'+times_bigger+' times bigger</b> than '+country2+'<br />';
+    }else if(Number(data_map[indicator].data[period][country1])<Number(data_map[indicator].data[period][country2])){
         correct_answer=country2;
-		answer_msg='<br />'+country2+' <b>'+calculate_times_bigger(data_map[indicator].data[period][country2],data_map[indicator].data[period][country1])+' times bigger</b> than '+country1+'<br />';
-
+		times_bigger=calculate_times_bigger(data_map[indicator].data[period][country2],data_map[indicator].data[period][country1]);
+		answer_msg='<br />'+country2+' <b>'+times_bigger+' times bigger</b> than '+country1+'<br />';
     }
-	answer_msg+='<br />'+period_map[period]+' '+indicator+'<b> '+country1+'</b> ==> '+Number(data_map[indicator].data[period][country1]).toFixed(2);
-	answer_msg+='<br />'+period_map[period]+' '+indicator+'<b> '+country2+'</b> ==> '+Number(data_map[indicator].data[period][country2]).toFixed(2);
+	if(!match_level_difficulty(session_data.level,times_bigger)){nextActivity();return;}
+	answer_msg+=add_answer_details(indicator,period,period,country1,country2);
 
     activity_timer.start();
-    canvas_zone_question.innerHTML='Which is bigger in '+indicator+' ('+period_map[period]+')?';
+    canvas_zone_question.innerHTML='Which is bigger in '+data_map[indicator].indicator_sf+' ('+period_map[period]+')?';
     canvas_zone_answers.innerHTML='\
     <div id="answer-'+country1+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aleft">'+country1+'</div>\
     <div id="answer-'+country2+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aright">'+country2+'</div>\
     ';
 }
 
+var add_answer_details=function(indicator,period1,period2,country1,country2){
+	var ret='<table class="table-wo-border">';
+	ret+='<tr><td>'+period_map[period1]+' '+indicator+'<b> '+country1+'</b> </td><td><b>'+
+			num_representation(Number(data_map[indicator].data[period1][country1]))+'</b></td></tr>';
+	ret+='<tr><td>'+period_map[period2]+' '+indicator+'<b> '+country2+'</b> </td><td><b>'+
+            num_representation(Number(data_map[indicator].data[period2][country2]))+'</b></td></tr>';
+	ret+="</table>"
+	return ret;
+}
+
+var num_representation=function(num, decimals, decimal_symbol,thousand_symbol){
+	// standard solution toLocaleString... but not supported in saffary
+    decimals = isNaN(decimals = Math.abs(decimals)) ? 2 : decimals;
+    decimal_symbol = decimal_symbol == undefined ? "." : decimal_symbol;
+    thousand_symbol = thousand_symbol == undefined ? "," : thousand_symbol; 
+    var sign = num < 0 ? "-" : "";
+	var integer_part=parseInt(num = Math.abs(+num || 0).toFixed(decimals)) + "";
+	var thousand_rest=(thousand_rest = integer_part.length) > 3 ? thousand_rest % 3 : 0;
+	var result=sign + (thousand_rest ? integer_part.substr(0,thousand_rest) + thousand_symbol : "")
+           + integer_part.substr(thousand_rest).replace(/(\d{3})(?=\d)/g, "$1" + thousand_symbol)
+           + (decimals ? decimal_symbol + Math.abs(num - integer_part).toFixed(decimals).slice(2):"")
+	if (integer_part.toString().length>12) result=integer_part.substr(0,integer_part.toString().length-12)+" Trillions";
+	else if (integer_part.toString().length>9)  result=integer_part.substr(0,integer_part.toString().length-9)+" Billions";
+	else if (integer_part.toString().length>6)  result=integer_part.substr(0,integer_part.toString().length-6)+" Millions";
+	
+	return result;
+}
+
+/*var num_easy_representation = function(c, d, t){
+var n = this, 
+    i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "", 
+    j = (j = i.length) > 3 ? j % 3 : 0;
+   return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+ };*/
 
 var load_country_list_from_indicator=function(indicator){
 	for (var country in data_map[indicator].data.last_year) {

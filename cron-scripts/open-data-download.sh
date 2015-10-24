@@ -33,7 +33,35 @@ INDICATORMAP[reserves]=FI.RES.TOTL.CD
 INDICATORMAP[laborforce]=SL.TLF.CACT.ZS
 INDICATORMAP[p15to64]=SP.POP.1564.TO.ZS
 INDICATORMAP[employed]=SL.EMP.TOTL.SP.ZS
+INDICATORMAP[unemployed]=SL.UEM.TOTL.ZS
 INDICATORMAP[pop65]=SP.POP.65UP.TO.ZS
+
+
+declare -A INDICATORSFMAP     # Create an associative array
+INDICATORSFMAP[population]="population"
+INDICATORSFMAP[popdensity]="population density (inhabitants per square km)"
+INDICATORSFMAP[popgrowth]="population growth (%)"
+
+INDICATORSFMAP[surfacekm]="surface (square km)"
+
+INDICATORSFMAP[lifeexpect]="life expectancy (in years)"
+
+INDICATORSFMAP[gdp]="GDP (total)"
+INDICATORSFMAP[gdppcap]="GDP per capita"
+INDICATORSFMAP[gdpgrowth]="GDP growth (%)"
+
+INDICATORSFMAP[surpdeficitgdp]="surplus-or-deficit/GDP (%)"
+INDICATORSFMAP[debtgdp]="debt/GDP (%)"
+INDICATORSFMAP[extdebt]="external debt"
+INDICATORSFMAP[inflation]="inflation"
+INDICATORSFMAP[reserves]="gold/silver reserves"
+
+INDICATORSFMAP[laborforce]="labor force (% of population)"
+INDICATORSFMAP[p15to64]="population aged between 15 and 64 (% of population)"
+INDICATORSFMAP[employed]="employed (% of population)"
+INDICATORSFMAP[unemployed]="unemployed (and seeking employment) population aged 15-64 (as % of population 15-64)" #ILO estimate
+INDICATORSFMAP[pop65]="population aged >65 (% of population)"
+
 
 sendemail="false"
 
@@ -50,8 +78,8 @@ for K in "${!INDICATORMAP[@]}";do
 			cat $destination/${c}_${K}_wb_new.json | sed "s/{\"indicator\"/\n{indicator/g" | sort > $destination/${c}_${K}_wb_new.json.sort
 			difference=`diff $destination/${c}_${K}_wb.json.sort $destination/${c}_${K}_wb_new.json.sort | grep -v "per_page"` 
 			if [[ `echo $difference | wc -w` -gt 0 ]];then
-				if [[ `echo $difference | grep "\"${last_year}\"" | wc -w` -gt 0 && `echo $difference | grep -o "\"date\"" | wc -l` -eq 1 ]];then
-					echo "\nWARNING: $K $c    new data for $last_year (updating the file). $difference\n<br />\n" | tee -a $destination/ERROR.log;
+				if [[ `echo $difference | grep "\"\(${last_year}\|${current_year}\)\"" | wc -w` -gt 0 && `echo $difference | grep -o "\"date\"" | wc -l` -eq 1 ]];then
+					echo "\nINFO: $K $c    new data for $last_year (updating the file). $difference\n<br />\n" | tee -a $destination/ERROR.log;
 					mv $destination/${c}_${K}_wb_new.json $destination/${c}_${K}_wb.json
 					rm -rf $destination/${c}_${K}_wb.json.sort $destination/${c}_${K}_wb_new.json $destination/${c}_${K}_wb_new.json.sort
 				else
@@ -68,7 +96,8 @@ for K in "${!INDICATORMAP[@]}";do
 		fi
 	done
 	echo "Generating data for the game!\n\n"
-	wget --timeout=180 -q -O $destination-game/${K}_wb.json http://www.cognitionis.com/cult/www/backend/format_data_for_the_game.php?indicator=$K > /home/hector/cron-scripts/data-generation.log;
+    rm -rf $destination-game/${K}_wb.json
+	wget --timeout=180 -q -O $destination-game/${K}_wb.json "http://www.cognitionis.com/cult/www/backend/format_data_for_the_game.php?indicator=${K}&indicator_sf=${INDICATORSFMAP[$K]}" > /home/hector/cron-scripts/data-generation.log;
 
 done
 

@@ -42,13 +42,16 @@ $last_2decade=$last_year-19;
 
 $data_directory='/home/hector/cognitionis.com/cult-data';
 $indicator='population';
+$indicator_sf='population';
 $data_source='wb';
 
 if(isset($_REQUEST['indicator']) ){$indicator=$_REQUEST['indicator'];}
+if(isset($_REQUEST['indicator_sf']) ){$indicator_sf=$_REQUEST['indicator_sf'];}
 if(isset($_REQUEST['data_source']) ){$data_source=$_REQUEST['data_source'];}
 
 $data_arr=array();
 $data_arr['indicator']=$indicator;
+$data_arr['indicator_sf']=$indicator_sf;
 $data_arr['last_year']=$last_year;
 $data_arr['previous_year']=$previous_year;
 $data_arr['last_lustrum']=$last_lustrum;

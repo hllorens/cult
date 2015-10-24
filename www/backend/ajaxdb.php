@@ -64,7 +64,7 @@ if ($action == "get_users"){
 	$rResult = mysql_query( $sQuery, $db_connection );
 	if(!$rResult){ $output["msg"]=mysql_error()." -- ".$sQuery; $error=1;}
 	else{ 
-		$sQuery = "	DELETE FROM sessions WHERE id NOT IN (
+		$sQuery = "	DELETE FROM sessions WHERE user='$user' AND id NOT IN (
       	 SELECT id FROM (
 		  SELECT id FROM sessions WHERE user='$user' AND type='$type'
 		  ORDER BY num_correct*1 DESC LIMIT 3) s )";
@@ -78,26 +78,40 @@ if ($action == "get_users"){
 	echo json_encode( $output );
 	//print_r($output);
 
-}else if ($action == "get_results"){
+}else if ($action == "get_top_scores"){
 	$user=get_value("user");
-	$subject=get_value("subject");
 
-	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of subject";return;}
-
-	$sQuery = "SELECT * FROM sessions WHERE user='$user';";
-	//echo "query: $sQuery ";
 	$output['general'] = array();
 	$output['general']['user'] = $user;
-	$output['elements'] = array();
+	$output['usr_elements'] = array();
+	$output['absolute_elements'] = array();
 
+	$sQuery = "SELECT * FROM sessions WHERE user='$user' ORDER BY num_correct DESC;";
+	//echo "query: $sQuery ";
 	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
 	$element_count=0;	
 	while ( $aRow = mysql_fetch_array( $rResult ) )	{
-		$output['elements'][]=array();
-		$output['elements'][$element_count]['id'] = $aRow['id'];
-		$output['elements'][$element_count]['type']=$aRow['type'];
-		$output['elements'][$element_count]['num_correct']=$aRow['num_correct'];
-		$output['elements'][$element_count]['timestamp']=$aRow['timestamp'];
+		// TODO find an easy way to gues the rank of the user scores (with the query)
+		$output['usr_elements'][]=array();
+		$output['usr_elements'][$element_count]['id'] = $aRow['id'];
+		$output['usr_elements'][$element_count]['user']=$aRow['user'];
+		$output['usr_elements'][$element_count]['type']=$aRow['type'];
+		$output['usr_elements'][$element_count]['num_correct']=$aRow['num_correct'];
+		$output['usr_elements'][$element_count]['timestamp']=$aRow['timestamp'];
+		$element_count++;
+	}
+
+	$sQuery = "SELECT * FROM sessions ORDER BY num_correct DESC LIMIT 10;";
+	//echo "query: $sQuery ";
+	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
+	$element_count=0;	
+	while ( $aRow = mysql_fetch_array( $rResult ) )	{
+		$output['absolute_elements'][]=array();
+		$output['absolute_elements'][$element_count]['id'] = $aRow['id'];
+		$output['absolute_elements'][$element_count]['user']=$aRow['user'];
+		$output['absolute_elements'][$element_count]['type']=$aRow['type'];
+		$output['absolute_elements'][$element_count]['num_correct']=$aRow['num_correct'];
+		$output['absolute_elements'][$element_count]['timestamp']=$aRow['timestamp'];
 		$element_count++;
 	}
 
@@ -238,6 +252,7 @@ if ($action == "get_users"){
 			));
 			$response = curl_exec($curl);
 			curl_close($curl);
+			//echo $response;
 			$userInfo = json_decode($response);
 			/*$userInfo = json_decode(
 			  $client::getIo()->authenticatedRequest($req)->getResponseBody());*/
@@ -259,20 +274,19 @@ if ($action == "get_users"){
 				$_SESSION['access_level'] = $aRow['access_level'];
 				// update the user last_login and last_provider
 				$sQuery = "UPDATE users  SET last_login='$timestamp_seconds',last_provider='google' WHERE email='".$_SESSION['email']."';";
+				//echo $sQuery;
 				$rResult = mysql_query( $sQuery, $db_connection );
 				if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysql_error()." -- ".$sQuery);}
 			}else{ //new user
-				$_SESSION['access_level'] = 'invitee';
+				$_SESSION['access_level'] = 'normal';
 				// insert the user in the db
-				mail("hectorlm1983@gmail.com","New afan-app user","NEW USER: ".$_SESSION['email'].". Change from 'invitee' to something else or DELETE");
+				mail("hectorlm1983@gmail.com","New cult user","NEW USER: ".$_SESSION['email'].". Should be 'normal' already... DELETE?");
 				$sQuery = "INSERT INTO users (email, display_name, access_level, last_login, last_provider, creation_timestamp) VALUES ('".$_SESSION['email']."', '".$_SESSION['display_name']."', '".$_SESSION['access_level']."', '$timestamp_seconds', 'google', '$timestamp_seconds');";
 				$rResult = mysql_query( $sQuery, $db_connection );
 				if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysql_error()." -- ".$sQuery);}
 			}
-			header('Content-type: application/json');
-			
 	}
-	$output['username']=$_SESSION['username'];
+	$output['display_name']=$_SESSION['display_name'];
 	$output['email']=$_SESSION['email'];
 	$output['access_level']=$_SESSION['access_level'];
 	$output['toksum']=substr($_SESSION['long_lived_access_token']->access_token,0,5);
