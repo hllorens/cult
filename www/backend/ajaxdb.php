@@ -86,16 +86,19 @@ if ($action == "get_users"){
 	$output['usr_elements'] = array();
 	$output['absolute_elements'] = array();
 
-	$sQuery = "SELECT * FROM sessions WHERE user='$user' ORDER BY num_correct DESC;";
+	$sQuery = "
+    SELECT z.rank, z.num_correct, z.timestamp FROM (
+    SELECT t.id, t.user, t.num_correct, t.timestamp, @rownum := @rownum + 1 AS rank
+    FROM sessions t, (SELECT @rownum := 0) r
+    ORDER BY num_correct DESC
+    ) as z WHERE user='$user' ORDER BY z.num_correct DESC LIMIT 1";
 	//echo "query: $sQuery ";
 	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
 	$element_count=0;	
 	while ( $aRow = mysql_fetch_array( $rResult ) )	{
 		// TODO find an easy way to gues the rank of the user scores (with the query)
 		$output['usr_elements'][]=array();
-		$output['usr_elements'][$element_count]['id'] = $aRow['id'];
-		$output['usr_elements'][$element_count]['user']=$aRow['user'];
-		$output['usr_elements'][$element_count]['type']=$aRow['type'];
+		$output['usr_elements'][$element_count]['rank'] = $aRow['rank'];
 		$output['usr_elements'][$element_count]['num_correct']=$aRow['num_correct'];
 		$output['usr_elements'][$element_count]['timestamp']=$aRow['timestamp'];
 		$element_count++;

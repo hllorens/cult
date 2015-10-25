@@ -161,6 +161,9 @@ button.backgroundBlue{
 	padding:0 15px;
 }
 
+.table-small{
+	font-size:16px;
+}
 
 #question{
     min-height: 100px;
@@ -287,9 +290,12 @@ a#hamburger_icon svg {
     vertical-align: middle;
 }
 
-#game_status{
-    float:right;
+#header_basic{
+    float:left;    
+}
+#header_status{
     color:#999;
+    float:right;
 }
 
 #current_lifes{
@@ -369,13 +375,21 @@ progress::-moz-progress-bar {background-color: #aaa !important;}
 @media screen and (max-width: 650px) {
 	#header{height:48px;}
 	#zone_canvas{top:48px;}
+   	#h1{font-size:14px;}
+	#zone_canvas{bottom:0;}
+   	#answers{width:80%;}
+    #time_left {width: 200px;}
+   	body{font-size:16px;}
 	#results-table{font-size: 16px;}
+    #menu-logo-div{display:none;height:0;margin:0;padding:0;}
+    #question{font-size: 16px;}
+    .table-wo-border{font-size: 16px;}
 }
 
 /* Small Landscape (e.g., Galaxy S4)*/
 @media screen and (max-height: 400px) and (min-width: 420px) {
-	#header{height:37px;}
-	#zone_canvas{top:37px;}
+	#header{height:42px;}
+	#zone_canvas{top:42px;}
 	/*#header{height:0px;}
 	#zone_canvas{top:0px;}*/ /*remove the header completely*/
 	#h1{font-size:14px;}
@@ -383,6 +397,8 @@ progress::-moz-progress-bar {background-color: #aaa !important;}
 	#answers{width:60%;}
 	body{font-size:16px;}
 	#menu-logo-div{display:none;height:0;margin:0;padding:0;}
+    #question{font-size: 16px;}
+    .table-wo-border{font-size: 16px;}
 }
 
 

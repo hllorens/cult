@@ -200,27 +200,50 @@ function options(){
 }
 
 function top_scores(){
+    canvas_zone_vcentered.innerHTML=' \
+    <div id="results-div">cargando resultados...</div> \
+    <br /><button id="go-back" onclick="menu_screen()">Volver</button> \
+    ';
 	ajax_request_json(
 		backend_url+'ajaxdb.php?action=get_top_scores&user='+user_data.email, 
 		function(data) {
-			console.log(data);
-			var rtable='<table class="table-wo-border"><tr><td><b>Rank</b></td><td><b>Name</b></td><td><b>Score</b></td><td><b>Date</b></td></tr>';
+			if(debug) console.log(data);
+			var rtable='<table class="table-wo-border table-small"><tr><td><b>Rank</b></td><td><b>Name</b></td><td><b>Score</b></td><td><b>Date</b></td></tr>';
 			for (var i=0;i<data.absolute_elements.length;i++){
 				var d=new Date(data.absolute_elements[i].timestamp.substr(0,10));
 				rtable+='<tr><td>'+(i+1)+'</td><td>'+data.absolute_elements[i].user.substr(0,8)+'</td><td style="text-align:right;">'+data.absolute_elements[i].num_correct+'</td><td>'+monthNames[d.getMonth()]+'-'+d.getFullYear()+'</td></tr>';
 			}
 			rtable+='<tr><td colspan="4"></td></tr>\
-					 <tr><td colspan="4"><b>User ranks</b></td></tr>';
+					 <tr><td colspan="4"><b>User rank</b></td></tr>';
 			for (var i=0;i<data.usr_elements.length;i++){
 				var d=new Date(data.usr_elements[i].timestamp.substr(0,10));
-				rtable+='<tr><td>xxx</td><td>'+data.usr_elements[i].user.substr(0,8)+'</td><td style="text-align:right;">'+data.usr_elements[i].num_correct+'</td><td>'+monthNames[d.getMonth()]+'-'+d.getFullYear()+'</td></tr>';
+				rtable+='<tr><td>'+data.usr_elements[i].rank+'</td><td>'+user_data.email.substr(0,8)+'</td><td style="text-align:right;">'+data.usr_elements[i].num_correct+'</td><td>'+monthNames[d.getMonth()]+'-'+d.getFullYear()+'</td></tr>';
 			}
 			rtable+="</table>";
 			canvas_zone_vcentered.innerHTML='\
 				  TOP SCORES<br />Hall of Fame<br/>\
 				  '+rtable+'\
 				  <br /><button class="button" onclick="menu_screen()">Back</button>\
-				  ';		}
+				  ';
+                  
+/*            
+            IMPROVE THE THING BELOW so it can take id (order), and that it can convert a date into month-year
+            document.getElementById("results-div").innerHTML="Resultados user: "+cache_user_subject_results[session_data.subject].general.user+" - subject: <b>"+cache_user_subject_results[session_data.subject].general.subject+"</b><br /><table id=\"results-table\"></table>";
+            var results_table=document.getElementById("results-table");
+            DataTableSimple.call(results_table, {
+                data: data.absolute_elements,
+                row_id: 'id',
+                pagination: 5,
+                columns: [
+                    { data: 'timestamp', col_header: 'Id', link_function_id: 'explore_result_detail' },
+                    { data: 'type', col_header: 'Tipo',  format: 'first_4'},
+                    { data: 'mode', col_header: 'Modo',  format: 'first_4'},
+                    { data: 'age', col_header: 'Edad' },
+                    { data: 'duration', col_header: 'Tiempo',  format: 'time_from_seconds_up_to_mins'}, 
+                    { data: 'result', col_header: '%', format: 'percentage_int' } 
+                ]
+            } );                  */
+        }
 	);
 
 }
@@ -263,8 +286,8 @@ function menu_screen(){
 		'+sign+'\
 	      <li><a href="#" onclick="exit_app()">exit app</a></li>\
 		</ul>';
-		header_zone.innerHTML='<a id="hamburger_icon" onclick="hamburger_toggle(event)"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\
-		<path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/></svg></a> <span id="header_text" onclick="menu_screen()">'+app_name+'</span> <div id="game_status"> Life: <span id="current_lifes">O O O</span>   Score: <span id="current_score_num">0</span></div>';
+		header_zone.innerHTML='<div id="header_basic"><a id="hamburger_icon" onclick="hamburger_toggle(event)"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\
+		<path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/></svg></a> <span id="header_text" onclick="menu_screen()">'+app_name+'</span></div> <div id="header_status"> Life: <span id="current_lifes">O O O</span>   Score: <span id="current_score_num">0</span></div>';
         header_text=document.getElementById('header_text');
 		// Optionally if(is_app) we could completely remove header...
 		canvas_zone_vcentered.innerHTML=' \
@@ -416,7 +439,6 @@ function nextActivity(){
 	activity_timer.reset();
 	if(session_data.mode!="test") remove_modal();
 	if(lifes==0){
-		alert("YOU LOSE. END!");
 		send_session_data();
 	}else{
 		if(Math.floor((Math.random() * 10))<2)
@@ -582,10 +604,10 @@ var load_period_list_from_indicator_ignore_last_year=function(indicator){
 
 function send_session_data(){
     remove_modal();
+    canvas_zone_vcentered.innerHTML='<h1>GAME OVER</h1>Your <b>score</b> is <b>'+session_data.num_correct+'</b>.';
 	if(user_data.access_level=='invitee'){
-		canvas_zone_vcentered.innerHTML='<br />Los resultados no se pueden guardar para\
-			usuarios "invitados"<br /><br />\
-		<br /><button id="go-back" onclick="menu_screen()">Volver</button>';
+		canvas_zone_vcentered.innerHTML+='<br />Invitees cannot sent scores to the server<br /><br />\
+		<br /><button id="go-back" onclick="menu_screen()">Back</button>';
 		return;
 	}
 	
@@ -595,12 +617,12 @@ function send_session_data(){
 	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	xhr.responsetype="json";
 	xhr.send("action=send_session_data_post&json_string="+(JSON.stringify(session_data))); 
-	canvas_zone_vcentered.innerHTML='<br />Fin del Test<br />...Enviando test al servidor...<br /><br />';
+	canvas_zone_vcentered.innerHTML+='<br />...Sending results to the server...<br />';
 
 	xhr.onload = function () {
 		var data=JSON.parse(this.responseText);
-		canvas_zone_vcentered.innerHTML='<br />Fin del Test<br />Server message: '+data.msg+'<br /><br />\
-		<br /><button id="go-back" onclick="menu_screen()">Volver</button>';
+        if(debug) console.log(data.msg);
+		canvas_zone_vcentered.innerHTML+='<br /><button id="go-back" onclick="menu_screen()">Back</button>';
 	};
 
 }
