@@ -1,0 +1,747 @@
+[
+	{
+		"fact" : "Neolithic Era",
+		"begin" : "-10000",
+		"end" : "-2000"
+	},
+	{
+		"fact" : "Writing and Civilization",
+		"begin" : "-3500",
+		"end" : "-600"
+	},
+	{
+		"fact" : "Ancient Greece (Greek Empire)",
+		"begin" : "-1200",
+		"end" : "146"
+	},
+	{
+		"fact" : "Rome foundation",
+		"begin" : "-753",
+		"end" : "-753"
+	},
+	{
+		"fact" : "Rome Republic",
+		"begin" : "-509",
+		"end" : "-45"
+	},
+	{
+		"fact" : "Alexander the great (of Macedonia)",
+		"begin" : "-356",
+		"end" : "-323"
+	},
+	{
+		"fact" : "Pre-Roman Europe (Greeks, Celts, Iberians, Berbers,...)",
+		"begin" : "-300",
+		"end" : "-270"
+	},
+	{
+		"fact" : "Julious Caesar Dictatorship",
+		"begin" : "-45",
+		"end" : "-44"
+	},
+	{
+		"fact" : "Roman Britain",
+		"begin" : "-43",
+		"end" : "410"
+	},
+	{
+		"fact" : "Roman Empire",
+		"begin" : "-27",
+		"end" : "476"
+	},
+	{
+		"fact" : "Western Roman Empire",
+		"begin" : "395",
+		"end" : "476"
+	},
+	{
+		"fact" : "Eastern Roman Empire (Bizantine Empire)",
+		"begin" : "395",
+		"end" : "1453"
+	},
+	{
+		"fact" : "European Tribes: Visigoths, Franks, Vandals, Goths, Angles, Saxons",
+		"begin" : "418",
+		"end" : "720"
+	},
+	{
+		"fact" : "Visigoths in Spain",
+		"begin" : "477",
+		"end" : "711"
+	},
+	{
+		"fact" : "Muslims in Spain",
+		"begin" : "711",
+		"end" : "1492"
+	},
+	{
+		"fact" : "Charles I (carlomagno)",
+		"begin" : "742",
+		"end" : "814"
+	},
+	{
+		"fact" : "House of Habsburg\/Austria",
+		"begin" : "1100",
+		"end" : "2000"
+	},
+	{
+		"fact" : "Ramon Berenguer I (Count of Barcelona)",
+		"begin" : "1023",
+		"end" : "1076"
+	},
+	{
+		"fact" : "Ramon Berenguer IV de Barcelona i Petronila d Arago",
+		"begin" : "1137",
+		"end" : "1137"
+	},
+	{
+		"fact" : "James I of Aragon Reign",
+		"begin" : "1213",
+		"end" : "1276"
+	},
+	{
+		"fact" : "Alfonso X the wise of Castile Reign",
+		"begin" : "1252",
+		"end" : "1284"
+	},
+	{
+		"fact" : "House of Bourbon",
+		"begin" : "1268",
+		"end" : "present"
+	},
+	{
+		"fact" : "Renaissance (art)",
+		"begin" : "1300",
+		"end" : "1602"
+	},
+	{
+		"fact" : "black death (bubonic)",
+		"begin" : "1320",
+		"end" : "1352"
+	},
+	{
+		"fact" : "Printing Press (difusion)",
+		"begin" : "1440",
+		"end" : "1440"
+	},
+	{
+		"fact" : "Colombus",
+		"begin" : "1451",
+		"end" : "1506"
+	},
+	{
+		"fact" : "Catholic Monarchs",
+		"begin" : "1475",
+		"end" : "1516"
+	},
+	{
+		"fact" : "America Discovery",
+		"begin" : "1492",
+		"end" : "1492"
+	},
+	{
+		"fact" : "Magellan",
+		"begin" : "1480",
+		"end" : "1521"
+	},
+	{
+		"fact" : "Elcano",
+		"begin" : "1476",
+		"end" : "1526"
+	},
+	{
+		"fact" : "Philip IV of France \/ Philip I of Spain",
+		"begin" : "1478",
+		"end" : "1506"
+	},
+	{
+		"fact" : "Charles I of Spain (V of Germany) Reign",
+		"begin" : "1516",
+		"end" : "1556"
+	},
+	{
+		"fact" : "First trip around the world",
+		"begin" : "1519",
+		"end" : "1522"
+	},
+	{
+		"fact" : "Protestant Reformation",
+		"begin" : "1517",
+		"end" : "1555"
+	},
+	{
+		"fact" : "Church of England",
+		"begin" : "1530",
+		"end" : "1530"
+	},
+	{
+		"fact" : "Council of Trent",
+		"begin" : "1545",
+		"end" : "1563"
+	},
+	{
+		"fact" : "Philip II of Spain Reign",
+		"begin" : "1556",
+		"end" : "1598"
+	},
+	{
+		"fact" : "Philip III Reign",
+		"begin" : "1598",
+		"end" : "1621"
+	},
+	{
+		"fact" : "Baroque-NeoClassicism",
+		"begin" : "1600",
+		"end" : "1800"
+	},
+	{
+		"fact" : "30 year war",
+		"begin" : "1618",
+		"end" : "1648"
+	},
+	{
+		"fact" : "Philip IV Reign",
+		"begin" : "1621",
+		"end" : "1665"
+	},
+	{
+		"fact" : "Charles II Reign",
+		"begin" : "1665",
+		"end" : "1700"
+	},
+	{
+		"fact" : "glorious revolution",
+		"begin" : "1688",
+		"end" : "1689"
+	},
+	{
+		"fact" : "[Central] Bank of England Creation",
+		"begin" : "1694",
+		"end" : "1694"
+	},
+	{
+		"fact" : "Spanish succession war",
+		"begin" : "1701",
+		"end" : "1715"
+	},
+	{
+		"fact" : "Almansa battle",
+		"begin" : "1707",
+		"end" : "1707"
+	},
+	{
+		"fact" : "Utrech Threaty",
+		"begin" : "1715",
+		"end" : "1715"
+	},
+	{
+		"fact" : "Adam Smith",
+		"begin" : "1723",
+		"end" : "1790"
+	},
+	{
+		"fact" : "Age of Enlightment\/Reason",
+		"begin" : "1650",
+		"end" : "1780"
+	},
+	{
+		"fact" : "Kant",
+		"begin" : "1724",
+		"end" : "1804"
+	},
+	{
+		"fact" : "Thomas Jefferson (US president)",
+		"begin" : "1743",
+		"end" : "1826"
+	},
+	{
+		"fact" : "seven years' war",
+		"begin" : "1756",
+		"end" : "1763"
+	},
+	{
+		"fact" : "Industrial Revolution",
+		"begin" : "1760",
+		"end" : "1820"
+	},
+	{
+		"fact" : "Andrew Jackson (US president)",
+		"begin" : "1767",
+		"end" : "1845"
+	},
+	{
+		"fact" : "Steam engine (Watt)",
+		"begin" : "1778",
+		"end" : "1778"
+	},
+	{
+		"fact" : "American Revolutionary War (Independence War)",
+		"begin" : "1775",
+		"end" : "1783"
+	},
+	{
+		"fact" : "US Independence",
+		"begin" : "1776",
+		"end" : "1776"
+	},
+	{
+		"fact" : "US Constitution",
+		"begin" : "1787",
+		"end" : "1787"
+	},
+	{
+		"fact" : "French Revolution",
+		"begin" : "1789",
+		"end" : "1799"
+	},
+	{
+		"fact" : "Napoleon",
+		"begin" : "1769",
+		"end" : "1821"
+	},
+	{
+		"fact" : "Simon Bolivar",
+		"begin" : "1783",
+		"end" : "1830"
+	},
+	{
+		"fact" : "First [Central] Bank of the US",
+		"begin" : "1791",
+		"end" : "1811"
+	},
+	{
+		"fact" : "Romanticism (art)",
+		"begin" : "1800",
+		"end" : "1850"
+	},
+	{
+		"fact" : "Ferdinand VII of Spain Reign",
+		"begin" : "1808",
+		"end" : "1833"
+	},
+	{
+		"fact" : "Mexican_War_of_Independence",
+		"begin" : "1810",
+		"end" : "1821"
+	},
+	{
+		"fact" : "Waterloo Battle",
+		"begin" : "1815",
+		"end" : "1815"
+	},
+	{
+		"fact" : "Lenin",
+		"begin" : "1870",
+		"end" : "1924"
+	},
+	{
+		"fact" : "Darwin",
+		"begin" : "1809",
+		"end" : "1882"
+	},
+	{
+		"fact" : "Karl Marx",
+		"begin" : "1818",
+		"end" : "1883"
+	},
+	{
+		"fact" : "Friedrich_Nietzsche",
+		"begin" : "1844",
+		"end" : "1900"
+	},
+	{
+		"fact" : "labor movement: socialism anarchism",
+		"begin" : "1830",
+		"end" : "1914"
+	},
+	{
+		"fact" : "Abraham Lincoln (US president)",
+		"begin" : "1809",
+		"end" : "1865"
+	},
+	{
+		"fact" : "Second [Central] Bank of US",
+		"begin" : "1816",
+		"end" : "1836"
+	},
+	{
+		"fact" : "US Free Banking Era",
+		"begin" : "1837",
+		"end" : "1862"
+	},
+	{
+		"fact" : "J.P. Morgan",
+		"begin" : "1837",
+		"end" : "1913"
+	},
+	{
+		"fact" : "J.D. Rockefeller",
+		"begin" : "1839",
+		"end" : "1937"
+	},
+	{
+		"fact" : "American Civil War",
+		"begin" : "1861",
+		"end" : "1865"
+	},
+	{
+		"fact" : "Internal Revenue Service (IRS)",
+		"begin" : "1862",
+		"end" : "1862"
+	},
+	{
+		"fact" : "US National [Central] Banks",
+		"begin" : "1963",
+		"end" : "1913"
+	},
+	{
+		"fact" : "henry ford",
+		"begin" : "1863",
+		"end" : "1947"
+	},
+	{
+		"fact" : "Gandhi",
+		"begin" : "1869",
+		"end" : "1948"
+	},
+	{
+		"fact" : "Freud",
+		"begin" : "1856",
+		"end" : "1939"
+	},
+	{
+		"fact" : "Ku Klux Klan",
+		"begin" : "1865",
+		"end" : "2015"
+	},
+	{
+		"fact" : "Realpolitik",
+		"begin" : "1853",
+		"end" : "1900"
+	},
+	{
+		"fact" : "Otto von Bismark",
+		"begin" : "1815",
+		"end" : "1940"
+	},
+	{
+		"fact" : "germany unification",
+		"begin" : "1871",
+		"end" : "1871"
+	},
+	{
+		"fact" : "italia unification",
+		"begin" : "1870",
+		"end" : "1931"
+	},
+	{
+		"fact" : "Alfonso XIII of Spain reign",
+		"begin" : "1886",
+		"end" : "1931"
+	},
+	{
+		"fact" : "Keynes",
+		"begin" : "1883",
+		"end" : "1946"
+	},
+	{
+		"fact" : "Hayek",
+		"begin" : "1899",
+		"end" : "1992"
+	},
+	{
+		"fact" : "European Imperialism. Colonization of Africa and Asia",
+		"begin" : "1880",
+		"end" : "1914"
+	},
+	{
+		"fact" : "Berlin conference",
+		"begin" : "1885",
+		"end" : "1885"
+	},
+	{
+		"fact" : "Suez Canal",
+		"begin" : "1865",
+		"end" : "1865"
+	},
+	{
+		"fact" : "First Spanish Republic",
+		"begin" : "1873",
+		"end" : "1874"
+	},
+	{
+		"fact" : "International Alliance of Women",
+		"begin" : "1904",
+		"end" : "1904"
+	},
+	{
+		"fact" : "US Bank Panic",
+		"begin" : "1907",
+		"end" : "1907"
+	},
+	{
+		"fact" : "Federal Reserve (fed, American Central Bank) creation",
+		"begin" : "1913",
+		"end" : "1913"
+	},
+	{
+		"fact" : "WWI",
+		"begin" : "1914",
+		"end" : "1918"
+	},
+	{
+		"fact" : "John F. Kennedy (US President)",
+		"begin" : "1917",
+		"end" : "1963"
+	},
+	{
+		"fact" : "influenza epidemic (flu pandemic)",
+		"begin" : "1918",
+		"end" : "1920"
+	},
+	{
+		"fact" : "Versailles",
+		"begin" : "1919",
+		"end" : "1919"
+	},
+	{
+		"fact" : "League of Nations",
+		"begin" : "1920",
+		"end" : "1946"
+	},
+	{
+		"fact" : "Ottoman Killing of ChristiansHitler",
+		"begin" : "1889",
+		"end" : "1945"
+	},
+	{
+		"fact" : "Musolini",
+		"begin" : "1905",
+		"end" : "1905"
+	},
+	{
+		"fact" : "Stalin",
+		"begin" : "1878",
+		"end" : "1953"
+	},
+	{
+		"fact" : "Churchill",
+		"begin" : "1874",
+		"end" : "1965"
+	},
+	{
+		"fact" : "Roosvelt",
+		"begin" : "1882",
+		"end" : "1945"
+	},
+	{
+		"fact" : "John Von Newman",
+		"begin" : "1903",
+		"end" : "1957"
+	},
+	{
+		"fact" : "Alan Turing",
+		"begin" : "1912",
+		"end" : "1954"
+	},
+	{
+		"fact" : "Great Depression",
+		"begin" : "1929",
+		"end" : "1939"
+	},
+	{
+		"fact" : "Second Spanish Republic",
+		"begin" : "1931",
+		"end" : "1939"
+	},
+	{
+		"fact" : "Spanish Civil War",
+		"begin" : "1936",
+		"end" : "1939"
+	},
+	{
+		"fact" : "Franco",
+		"begin" : "1892",
+		"end" : "1975"
+	},
+	{
+		"fact" : "Spain Franco's Dictatorship",
+		"begin" : "1939",
+		"end" : "1975"
+	},
+	{
+		"fact" : "WWII",
+		"begin" : "1939",
+		"end" : "1945"
+	},
+	{
+		"fact" : "Bretton Woods system",
+		"begin" : "1944",
+		"end" : "1971"
+	},
+	{
+		"fact" : "Hiroshima - Enola Gay and Nagasaki - Attomic Bombs",
+		"begin" : "1945",
+		"end" : "1945"
+	},
+	{
+		"fact" : "IMF creation",
+		"begin" : "1945",
+		"end" : "1945"
+	},
+	{
+		"fact" : "world bank creation",
+		"begin" : "1947",
+		"end" : "1947"
+	},
+	{
+		"fact" : "OECD",
+		"begin" : "1948",
+		"end" : "1948"
+	},
+	{
+		"fact" : "NATO",
+		"begin" : "1949",
+		"end" : "1949"
+	},
+	{
+		"fact" : "Warsaw Pact",
+		"begin" : "1955",
+		"end" : "1991"
+	},
+	{
+		"fact" : "Berlin Wall",
+		"begin" : "1961",
+		"end" : "1989"
+	},
+	{
+		"fact" : "Marshall Plan",
+		"begin" : "1947",
+		"end" : "1952"
+	},
+	{
+		"fact" : "Cold War",
+		"begin" : "1947",
+		"end" : "1991"
+	},
+	{
+		"fact" : "USSR",
+		"begin" : "1922",
+		"end" : "1991"
+	},
+	{
+		"fact" : "Ronald Regan",
+		"begin" : "1911",
+		"end" : "2004"
+	},
+	{
+		"fact" : "Margaret Thatcher",
+		"begin" : "1925",
+		"end" : "2013"
+	},
+	{
+		"fact" : "Vietnam War",
+		"begin" : "1955",
+		"end" : "1975"
+	},
+	{
+		"fact" : "European Union Formation",
+		"begin" : "1958",
+		"end" : "1958"
+	},
+	{
+		"fact" : "John F. Kennedy (US President) in office",
+		"begin" : "1961",
+		"end" : "1963"
+	},
+	{
+		"fact" : "Exhorbitant privilege (Gaulle predicting USD crisis)",
+		"begin" : "1965",
+		"end" : "1965"
+	},
+	{
+		"fact" : "US Black Civil Rigths",
+		"begin" : "1968",
+		"end" : "1968"
+	},
+	{
+		"fact" : "Richard Nixon (US President) in office",
+		"begin" : "1969",
+		"end" : "1974"
+	},
+	{
+		"fact" : "fiat currency (0% reserve ratio)",
+		"begin" : "1971",
+		"end" : "1971"
+	},
+	{
+		"fact" : "Spanish transition",
+		"begin" : "1975",
+		"end" : "1977"
+	},
+	{
+		"fact" : "Spanish Constitution of 1978",
+		"begin" : "1978",
+		"end" : "1978"
+	},
+	{
+		"fact" : "Maastricht Treaty",
+		"begin" : "1992",
+		"end" : "1992"
+	},
+	{
+		"fact" : "NAFTA",
+		"begin" : "1994",
+		"end" : "1994"
+	},
+	{
+		"fact" : "WTO Creation",
+		"begin" : "1995",
+		"end" : "1995"
+	},
+	{
+		"fact" : "ECB",
+		"begin" : "1998",
+		"end" : "1998"
+	},
+	{
+		"fact" : "NATO bombing of Yugoslavia",
+		"begin" : "1999",
+		"end" : "1999"
+	},
+	{
+		"fact" : "George W Bush (US presidnet) in office",
+		"begin" : "2001",
+		"end" : "2009"
+	},
+	{
+		"fact" : "US 9\/11 attacks",
+		"begin" : "2001",
+		"end" : "2001"
+	},
+	{
+		"fact" : "Euro Currency",
+		"begin" : "2002",
+		"end" : "2002"
+	},
+	{
+		"fact" : "Madrid 11M",
+		"begin" : "2004",
+		"end" : "2004"
+	},
+	{
+		"fact" : "7_July_2005_London_bombings",
+		"begin" : "2005",
+		"end" : "2005"
+	},
+	{
+		"fact" : "Lisbon Treaty",
+		"begin" : "2007",
+		"end" : "2007"
+	},
+	{
+		"fact" : "Major Banking Failed",
+		"begin" : "2008",
+		"end" : "2008"
+	}
+]

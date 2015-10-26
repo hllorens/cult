@@ -20,7 +20,7 @@ var period_correspondence={
 
 // MEDIA
 var images = [
-	"../../cult-media/img/clock.svg",
+//	"../../cult-media/img/clock.svg",
 	"../../cult-media/img/clock.png",
 	"../../cult-media/img/correct.png",
 	"../../cult-media/img/wrong.png"
@@ -304,22 +304,35 @@ function menu_screen(){
 		    ajax_request_json("backend/search_game_data_files.php?data_source="+data_source,function(json_filenames){
 		        //console.log(json_filenames)
 		        json_data_files=json_filenames;
-		        data_not_loaded_yet=json_filenames.length;
-		        for(var i=0;i<json_filenames.length;i++){
+		        data_not_loaded_yet=json_filenames.length+1;
+		        for(var i=0;i<=json_filenames.length;i++){
 		            if(debug) console.log('requesting '+json_filenames[i]);
-		            ajax_request_json(json_filenames[i],function(json){
-		                data_map[json.indicator]=json; 
-		                indicator_list.push(json.indicator);
-		                if(debug) console.log(json.indicator);
-		                data_not_loaded_yet--;
-		                if(data_not_loaded_yet==0){
-		                    // load countries and periods (only once)
-		                    load_country_list_from_indicator('population');
-		                    load_period_list_from_indicator_ignore_last_year('population');
-		                    document.getElementById("start-button").disabled=false;
-		                    if(user_data.access_level!='invitee'){console.log('logged as admin');}
-		                }
-		            });
+                    if(i<json_filenames.length){
+                        ajax_request_json(json_filenames[i],function(json){
+                            data_map[json.indicator]=json; 
+                            indicator_list.push(json.indicator);
+                            if(debug) console.log(json.indicator);
+                            data_not_loaded_yet--;
+                            if(data_not_loaded_yet==0){
+                                // load countries and periods (only once)
+                                load_country_list_from_indicator('population');
+                                load_period_list_from_indicator_ignore_last_year('population');
+                                document.getElementById("start-button").disabled=false;
+                            }
+                        });
+                    }else{
+                        ajax_request_json('./backend/history.tsv.json',function(json){
+                            data_map['history']=json; 
+                            if(debug) console.log('history loaded');
+                            data_not_loaded_yet--;
+                            if(data_not_loaded_yet==0){
+                                // load countries and periods (only once)
+                                load_country_list_from_indicator('population');
+                                load_period_list_from_indicator_ignore_last_year('population');
+                                document.getElementById("start-button").disabled=false;
+                            }
+                        });                        
+                    }
 		        }
 		    });
 		}else{
@@ -369,7 +382,7 @@ var play_game=function(){
 	<div id="question"></div>\
 	<div id="answers"></div>\
 	<div id="game-panel">\
-        <img src="'+media_objects.images['clock.svg'].src+'"/> &nbsp; <progress id="time_left" value="0" max="'+countdown_limit_end_secs+'"></progress>\
+        <img src="'+media_objects.images['clock.png'].src+'" style="width:30px;" /> &nbsp; <progress id="time_left" value="0" max="'+countdown_limit_end_secs+'"></progress>\
         <button class="button" onclick="end_game()">exit</button>\
     </div>\
 	';
@@ -441,10 +454,13 @@ function nextActivity(){
 	if(lifes==0){
 		send_session_data();
 	}else{
-		if(Math.floor((Math.random() * 10))<2)
+        var randnum=Math.floor((Math.random() * 10));
+		if(randnum<2)
 			same_country_question(random_item(indicator_list));
-		else
+		else if (randnum < 4)
 			diff_country_question(random_item(indicator_list));
+        else
+            history_question();
 	}
 }
 
@@ -463,6 +479,34 @@ var match_level_difficulty=function(level, times_bigger){
 	if(level=='difficult' && times_bigger<1.01) return false;
 	return true;
 }
+
+
+var history_question=function(){
+	console.log("history question");
+	var fact1=random_item(data_map.history);
+    var fact2=random_item(data_map.history,fact1.fact);
+    if(! (fact1.end<fact2.begin || fact2.end<fact1.begin)){
+        console.log("USLESS: overlapping facts "+fact1.fact+" "+fact2.fact+"");
+        nextActivity(); return;
+    }
+
+    correct_answer=fact1.fact;
+    if(Number(fact2.end) < Number(fact1.begin)){
+		correct_answer=fact2.fact;
+		answer_msg='<br />'+fact2.fact+' ('+fact2.begin+' -- '+fact2.end+')<br />was before<br />'+fact1.fact+' ('+fact1.begin+' <--> '+fact1.end+')<br />';
+    }else{
+		answer_msg='<br />'+fact1.fact+' ('+fact1.begin+' -- '+fact1.end+')<br />was before<br />'+fact2.fact+' ('+fact2.begin+' <--> '+fact2.end+')<br />';
+    }
+	//if(!match_level_difficulty(session_data.level,times_bigger)){nextActivity();return;}
+    activity_timer.start();
+    canvas_zone_question.innerHTML='What was before?';
+    canvas_zone_answers.innerHTML=' \
+    <div id="answer1" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aleft">'+fact1.fact+'</div>\
+    <div id="answer2" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aright">'+fact2.fact+'</div>\
+    ';
+}
+
+
 
 var same_country_question=function(indicator){
 	// create another class called countdown with 2 callbacks tricker and end
