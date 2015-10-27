@@ -90,8 +90,8 @@ if ($action == "get_users"){
     SELECT z.rank, z.num_correct, z.timestamp FROM (
     SELECT t.id, t.user, t.num_correct, t.timestamp, @rownum := @rownum + 1 AS rank
     FROM sessions t, (SELECT @rownum := 0) r
-    ORDER BY num_correct DESC
-    ) as z WHERE user='$user' ORDER BY z.num_correct DESC LIMIT 1";
+    ORDER BY num_correct+0 DESC
+    ) as z WHERE user='$user' ORDER BY z.num_correct+0 DESC LIMIT 1";
 	//echo "query: $sQuery ";
 	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
 	$element_count=0;	
@@ -104,7 +104,7 @@ if ($action == "get_users"){
 		$element_count++;
 	}
 
-	$sQuery = "SELECT * FROM sessions ORDER BY num_correct DESC LIMIT 10;";
+	$sQuery = "SELECT * FROM sessions ORDER BY num_correct+1 DESC LIMIT 10;";
 	//echo "query: $sQuery ";
 	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
 	$element_count=0;	

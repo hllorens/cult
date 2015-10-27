@@ -20,8 +20,8 @@ var period_correspondence={
 
 // MEDIA
 var images = [
-//	"../../cult-media/img/clock.svg",
 	"../../cult-media/img/clock.png",
+	"../../cult-media/img/clock.svg",
 	"../../cult-media/img/correct.png",
 	"../../cult-media/img/wrong.png"
 ];
@@ -83,12 +83,15 @@ ajax_request('backend/ajaxdb.php?action=gen_session_state',function(text) {
 
 function login_screen(){
 	header_zone.innerHTML='<h1>CULT Sign in</h1>';
+	var invitee_access="";
+	if(debug){
+		invitee_access='<br /><button id="exit" class="button exit" onclick="invitee_access();">Play as invitee (offline)</button>';
+	}
 	canvas_zone_vcentered.innerHTML='\
 	<div id="signinButton" class="button">With Google\
    <span class="icon"></span>\
     <span class="buttonText"></span>\
-	</div>\
-	<br /><button id="exit" class="button exit" onclick="invitee_access();">Play as invitee (offline)</button> \
+	</div>'+invitee_access+'\
 	<br /><button id="exit" class="button exit" onclick="exit_app();">Exit</button> \
 		';
 	gapi.signin.render('signinButton', {

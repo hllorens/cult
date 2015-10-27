@@ -310,7 +310,7 @@ a#hamburger_icon svg {
 
 #time_left{
 	height:35px;
-	width:35%;
+	width:200px; /*does not work with 300px or 35%... in chrome*/
 	/*border-radius: 0px;
 	background: #f00;*/
 }
