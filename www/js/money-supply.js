@@ -1,6 +1,16 @@
 "use strict";
 
 
+/**TODO "Economy is build and ruled by persons" (human world)
+* FIRST OF ALL CORRECT THE BOXES AND MAKE IT WRAP ASSETS AND ALL
+* -Replace show account by show element (elements are the actors of the economy)
+* -The element can be a: peson or company (owned by people, if public==all, if private==some)
+* -The elements have an account (money: either in banks or poket) and own assets (products [can be consumed], properties)
+* -Need to model space/land (e.g., add some properties equally divided e.g., 1000m)
+* -Need to model time (e.g., that way births/deaths, payments are controlled)
+*/
+
+
 var AccountEntry = function (concept, related_account, amount){
     this.concept=concept;
     this.related_account=related_account;
@@ -89,18 +99,7 @@ var markets={
                     return;
                 }*/
 }
-var accounts={
-    "add": function(name){
-                        if(accounts.hasOwnProperty(name)) throw Error('Account '+name+' already exists');
-                        accounts[name]=new Account(name);
-                        return accounts[name];
-                    },
-    "remove": function(name){
-                    if(!accounts.hasOwnProperty(name)) throw Error('Account '+name+' does not exist');
-                    delete accounts[name];
-                    return;
-                }
-}
+
 var elements={
     "add": function(name,element){
                         if(elements.hasOwnProperty(name)) throw Error('Element '+name+' already exists');
@@ -115,14 +114,14 @@ var elements={
 }
 /****************************************************/
 
-var are_accounts_balanced=function(obj){
+var are_accounts_balanced=function(){
         var temp_accounts_balance={};
-        for(var prop in obj) {
+        for(var prop in elements) {
             if (obj.hasOwnProperty(prop)) {
-                for(var i=0;i<obj[prop].entries.length;i++){
-                    if(obj[prop].entries[i].amount==0){alert(obj[prop].name+" entry"+i+" '"+obj[prop].entries[i].concept+"' is 0");return false;}
-                    temp_accounts_balance[obj[prop].name]+=obj[prop].entries[i].amount; // if negative will substract
-                    temp_accounts_balance[obj[prop].entries[i].related_account]-=obj[prop].entries[i].amount; // if negative will add
+                for(var i=0;i<elements[prop].account.entries.length;i++){
+                    if(elements[prop].account.entries[i].amount==0){alert(obj[prop].name+" entry"+i+" '"+elements[prop].account.entries[i].concept+"' is 0");return false;}
+                    temp_accounts_balance[obj[prop].name]+=elements[prop].account.entries[i].amount; // if negative will substract
+                    temp_accounts_balance[elements[prop].account.entries[i].related_account]-=elements[prop].account.entries[i].amount; // if negative will add
                 }
             }
        }
@@ -167,42 +166,11 @@ var objectOperations=function(obj) {
 }
 
 
-var banks=[];
-var banks_index={};
-
-var persons=[];
-var persons_index={};
 
 var page_div=document.getElementById('page');
 
-/*
-var Bank = function (name){
-    this.id=name;
-	this.customer_accounts={};
-}
-Bank.prototype.make_deposit=function(customer,credit){
-	if(!this.customer_accounts.hasOwnProperty(customer)){
-		var account=new Account(customer);
-		this.customer_accounts[customer]=account;		
-	}
-	this.customer_accounts[customer].debit+=credit;
-}
 
-var Person = function (name, credit, pbank){
-    this.id=name;
-    this.debit=0;
-    if (typeof(credit)==='undefined'){credit=10;}
-    this.credit=credit;
-    if (typeof(bank)==='undefined'){ // select random bank
-		pbank = banks[Math.floor(Math.random()*banks.length)].id;
-	}
-	this.bank=pbank;
-	banks_index[this.bank].make_deposit(name,credit);
-}
-Person.prototype.balance=function(){
-	return (this.credit - this.debit);
-}
-*/
+
 
 var get_elements_matching=function(obj, needle){
     var matching=[];
@@ -216,13 +184,37 @@ var get_elements_matching=function(obj, needle){
     return matching;
 }
 
-var show_account=function(name, optional_description){
-    if(!accounts.hasOwnProperty(name)){throw Error("Account "+name+" not found.");}
+var get_elements_type=function(obj, type){
+    var matching=[];
+    for(var prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+            if(obj[prop].constructor===type){
+                matching.push(prop);
+            }
+        }
+    }
+    return matching;
+}
+
+var show_element=function(name, optional_description){
+    if(!elements.hasOwnProperty(name)){throw Error("Element "+name+" not found.");}
     if (typeof(optional_description)==='undefined'){optional_description="";}
-    var account=accounts[name];
-    var html_ret='<div class="account_box">';
-    html_ret+='<h1>'+account.name+' '+optional_description+'</h1>'; 
-    html_ret+='<div class="entries">';   
+    var element=elements[name];
+	var use_class='account_box';
+	if(element.constructor===Person){use_class='person_box';}
+    var html_ret='<div class="'+use_class+'">';
+    html_ret+='<h1>'+element.name+' '+optional_description+'</h1>'; 
+	html_ret+=show_account(name);
+	html_ret+=show_assets(name);
+    html_ret+='</div>';
+    return html_ret;
+}
+
+
+var show_account=function(name){
+	var account=elements[name].account;
+    var html_ret='<h1>account</h1>'; 
+    html_ret+='<div class="entries">';
     for(var i=0;i<account.entries.length;i++){
         html_ret+=account.entries[i].concept+' units='+account.entries[i].amount+' rel_ac='+account.entries[i].related_account+'<br />';
     }
@@ -230,17 +222,16 @@ var show_account=function(name, optional_description){
     html_ret+='-------------<br/>';
     var balance=account.balance();
     var color_class='color-green';
-
     if(balance<0){color_class='color-red';}
-    html_ret+='<span class="color:'+color_class+'">'+balance+'</span></div>';
+    html_ret+='<span class="color:'+color_class+'">'+balance+'</span>';
     return html_ret;
 }
 
-var show_operations=function(obj){
+var show_operations=function(name){
     var content="";
-    var operations=objectOperations(obj);
+    var operations=objectOperations(elements[name]);
     for(var i=0;i<operations.length;i++){
-        content+='<button onclick="elements.'+obj.name+'.'+operation_prefix+operations[i]+'()">'+operations[i]+'</button>';
+        content+='<button onclick="elements.'+name+'.'+operation_prefix+operations[i]+'()">'+operations[i]+'</button>';
     }
     content+='<br />';
     open_js_modal_content_accept(content);
@@ -317,10 +308,37 @@ var buy_existing=function(buyer){
 
 // for both existing an unexisting...
 // var purchase_order (for stocks)
+/*
+var Bank = function (name){
+    this.id=name;
+	this.account=new Account(name);
+}
+Bank.prototype.make_deposit=function(customer,credit){
+	if(!this.customer_accounts.hasOwnProperty(customer)){
+		var account=new Account(customer);
+		this.customer_accounts[customer]=account;		
+	}
+	this.customer_accounts[customer].debit+=credit;
+}*/
+
+
+
+var Person = function (name){
+    this.name=name;
+	this.account=new Account(name);
+    this.assets=[];
+}
+Person.prototype.op_buy=function(){
+        remove_modal();
+        buy_existing(this.name)
+}
+//,"loan 
+/*		page_div.innerHTML+='&nbsp;&nbsp;&nbsp;'+persons[i].name+' debit: '+persons[i].debit+' credit: '+persons[i].credit+' balance: '+persons[i].balance()+'  - <button onclick="take_out_loan()">take-out loan</button> <button onclick="transfer()">transfer</button> <button onclick="withdraw()">withdraw</button> <button onclick="make_deposit()">make deposit</button> <br />';	
+*/
 
 var CentralBank=function(name){
     this.name=name;
-    this.account=accounts.add(name);
+	this.account=new Account(name);
     this.assets=[];
 }
 CentralBank.prototype.op_buy=function(){
@@ -357,7 +375,6 @@ var add_asset=function(element,market,units){
     if(!added) elements[element].assets.push(new Asset(market,units));
 }
 
-
 var show_assets=function(name){
     if(!elements.hasOwnProperty(name)){throw Error("Assets "+name+" not found.");}
     var element=elements[name];
@@ -366,14 +383,15 @@ var show_assets=function(name){
     for(var i=0;i<element.assets.length;i++){
         html_ret+=element.assets[i].market+' units='+element.assets[i].units+'<br />';
     }
-    html_ret+='-------------<br/>';
+    html_ret+='-------------<br/>'+element.assets.length;
     return html_ret;
 }
 
 
+
 var GovTreasury=function(name){
     this.name=name;
-    this.account=accounts.add(name);
+	this.account=new Account(name);
     this.assets=[];
 }
 GovTreasury.prototype.op_issue_bond=function(){
@@ -389,16 +407,20 @@ GovTreasury.prototype.op_invest=function(){alert("investing");}
 // initialize
 elements.add("central_bank", new CentralBank("central_bank"));
 elements.add("gov_treasury", new GovTreasury("gov_treasury"));
+elements.add("adam", new Person("adam"));
+elements.add("eve", new Person("eve"));
 markets["bonds"]=new Market("bonds");
+markets["wheat"]=new Market("wheat");
+markets["crops"]=new Market("crops");
 
 function show_situation(){
     page_div.innerHTML=""; //&lt;ECONOMY&gt;
-    page_div.innerHTML+=show_account("central_bank",'<button onclick="show_operations(elements.central_bank)">+</button>'); //,"loan interest ..., checking accounts 0%");
-    page_div.innerHTML+=show_assets("central_bank");
+    page_div.innerHTML+=show_element("central_bank",'<button id="central_bank" onclick="show_operations(this.id)">+</button>'); //,"loan interest ..., checking accounts 0%");
+    //page_div.innerHTML+=show_assets("central_bank");
     // show central bank operations...
 
-    page_div.innerHTML+=show_account("gov_treasury",'<button onclick="show_operations(elements.gov_treasury)">+</button>'); 
-    page_div.innerHTML+=show_assets("gov_treasury");
+    page_div.innerHTML+=show_element("gov_treasury",'<button id="gov_treasury" onclick="show_operations(this.id)">+</button>'); 
+    //page_div.innerHTML+=show_assets("gov_treasury");
     
     page_div.innerHTML+="<br />Markets:<br />"; //(loan interest %2, cheking accounts 0%, credit=negative)
     var markets_arr=objectProperties(markets);
@@ -407,16 +429,17 @@ function show_situation(){
     }
     
     page_div.innerHTML+="<br />Banks:<br />"; //(loan interest %2, cheking accounts 0%, credit=negative)
-    banks=get_elements_matching(accounts,"^bank[0-9]+$");
-    for(var i=0;i<banks.length;i++){
-        page_div.innerHTML+=show_account(bank[i],'<button>+</button>');
+    //banks=get_elements_matching(accounts,"^bank[0-9]+$");
+    //for(var i=0;i<banks.length;i++){
+     //   page_div.innerHTML+=show_account(bank[i],'<button>+</button>');
 //		page_div.innerHTML+="&nbsp;&nbsp;&nbsp;"+banks[i].name+": debit(deposits/checking (reserved, excess)): credit(loans): <br />";
 //		page_div.innerHTML+="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; debit(initial-reserve/interests/benefits (reserved)): credit(loans from central bank [virtual]): <br />";
-	}
+	//}
     
 	page_div.innerHTML+="<br />Persons: (operations include create a bank, if there are no banks... money goes to pocket)<br />";
+    var persons=get_elements_type(elements,Person);
 	for(var i=0;i<persons.length;i++){
-		page_div.innerHTML+='&nbsp;&nbsp;&nbsp;'+persons[i].name+' debit: '+persons[i].debit+' credit: '+persons[i].credit+' balance: '+persons[i].balance()+'  - <button onclick="take_out_loan()">take-out loan</button> <button onclick="transfer()">transfer</button> <button onclick="withdraw()">withdraw</button> <button onclick="make_deposit()">make deposit</button> <br />';	
+	    page_div.innerHTML+=show_element(persons[i],'<button id="'+persons[i]+'" onclick="show_operations(this.id)">+</button>'); 
 	}
 
 	page_div.innerHTML+="<br />Persons wallet/pocket (hidden, black): Show together with persons... For simplicity, assume money stored in banks (we can model this afterwards and see how central banks know the amount hidden, out of official circulation)<br />";
@@ -429,7 +452,7 @@ function show_situation(){
 	page_div.innerHTML+="Goods/Services supply:<br />";
 	page_div.innerHTML+="Inflation/Deflation: how banks remove money from circulation?<br />";
 	page_div.innerHTML+='<br /><br /><br /><button onclick="initial_state(2,2)">restart</button><button onclick="initial_state()">restart(configurable)</button>';
-	page_div.innerHTML+='<button onclick="are_accounts_balanced(accounts)">validate_balance</button>';
+	page_div.innerHTML+='<button onclick="are_accounts_balanced()">validate_balance</button>';
 }
 
 function take_out_loan(){

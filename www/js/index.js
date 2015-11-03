@@ -7,6 +7,9 @@ var QueryString=get_query_string();
 var debug=false;
 if(QueryString.hasOwnProperty('debug') && QueryString.debug=='true') debug=true;
 
+// responsive tunings
+prevent_scrolling();
+
 // variables
 var exit_url="http://www.cognitionis.com";
 var backend_url='backend/' //../backend

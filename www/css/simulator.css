@@ -12,6 +12,8 @@ body{margin:0 auto; padding:0; font:normal 14px Monospace, Arial, sans-serif; co
     width:100%;min-height:600px;background:#000;color:#eee;margin:0;padding:4px;
 }
 
+/*ALL BOXES CAN SHARE A CLASS WITH COMMON PROPERTIES...*/
+
 .account_box{
     font-size:12px;
     border:1px solid #eee;
@@ -29,6 +31,25 @@ body{margin:0 auto; padding:0; font:normal 14px Monospace, Arial, sans-serif; co
 .account_box.entries{
         background:#bbb;
 }
+
+.person_box{
+    font-size:12px;
+    border:1px solid #eee;
+    width:150px;
+    margin:4px;
+}
+.person_box h1{
+    font-size:15px;
+    width:100%;
+    margin:0;padding:0;
+    font-weight:bold;
+    color:#111;
+    background:#a63;
+}
+.person_box.entries{
+        background:#bbb;
+}
+
 
 
 .market_box{

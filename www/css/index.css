@@ -128,6 +128,7 @@ div.button{
 	display:inline-block; /*make the div adjust to the content*/
 	vertical-align: middle;
 	text-align:center;
+    padding:12px 5px 0px 5px;
 }
 
 
@@ -151,6 +152,10 @@ button.backgroundRed{
 button.backgroundBlue{
     background-color:#240C6E;
 }
+button.selectedOption{
+    background-color:#240C6E;
+    color:#fff;
+}
 
 .table-wo-border{
 	margin:0 auto;
@@ -159,6 +164,10 @@ button.backgroundBlue{
 
 .table-wo-border td{
 	padding:0 15px;
+}
+
+.small-font{
+	font-size:16px;
 }
 
 .table-small{

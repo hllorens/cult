@@ -57,9 +57,9 @@ INDICATORSFMAP[inflation]="inflation"
 INDICATORSFMAP[reserves]="gold/silver reserves"
 
 INDICATORSFMAP[laborforce]="labor force (% of population)"
-INDICATORSFMAP[p15to64]="population aged between 15 and 64 (% of population)"
-INDICATORSFMAP[employed]="employed (% of population)"
-INDICATORSFMAP[unemployed]="unemployed (and seeking employment) population aged 15-64 (as % of population 15-64)" #ILO estimate
+INDICATORSFMAP[p15to64]="population aged 15-64 (% of population)"
+INDICATORSFMAP[employed]="employed (as % of population aged 15-64)"
+INDICATORSFMAP[unemployed]="unemployed (as % of population aged 15-64)" #ILO estimate
 INDICATORSFMAP[pop65]="population aged >65 (% of population)"
 
 

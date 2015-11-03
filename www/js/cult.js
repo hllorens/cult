@@ -32,6 +32,7 @@ var activity_timer=new ActivityTimer();
 var user_data={};
 var session_data={
 	user: null,
+    type: "qa",
 	level: "normal",
 	timestamp: "0000-00-00 00:00",
 	num_correct: 0,
@@ -57,7 +58,6 @@ var answer_msg="";
 var show_answer_timeout;
 
 // LOAD DATA
-
 //date=1960:2014 
 // Pop density per km2			EN.POP.DNST
 // Pop growth %					SP.POP.GROW
@@ -77,18 +77,48 @@ var show_answer_timeout;
 // employed to 15+ pop			SL.EMP.TOTL.SP.ZS
 // +65                         	SP.POP.65UP.TO.ZS
 
+
+var EASY_FORBIDDEN_INDICATORS=['laborforce','p15to64'];
+var NORMAL_FORBIDDEN_INDICATORS=['surpdeficitgdp','reserves','inflation','gdp','gdppcap','gdpgrowth','extdebt','debtgdp'];
+var DIFFICULT_FORBIDDEN_INDICATORS=[];
+
+
+var match_level_forbidden_indicators=function(level,indicator){
+	if(level=='easy' && (EASY_FORBIDDEN_INDICATORS.indexOf(indicator)!=-1
+		|| !match_level_forbidden_indicators('normal',indicator)))
+		return false;
+	if(level=='normal' && (NORMAL_FORBIDDEN_INDICATORS.indexOf(indicator)!=-1
+		|| !match_level_forbidden_indicators('difficult',indicator)))
+		return false;
+	if(level=='difficult' && DIFFICULT_FORBIDDEN_INDICATORS.indexOf(indicator)!=-1)
+		return false;
+	return true;
+}
+
+var match_level_times_bigger_margin=function(level, times_bigger){
+	//console.log(level+"  "+times_bigger);
+	if(level=='easy' && times_bigger<1.51) return false;
+	if(level=='normal' && times_bigger<1.26) return false;
+	if(level=='difficult' && times_bigger<1.01) return false;
+	return true;
+}
+
+
 ajax_request('backend/ajaxdb.php?action=gen_session_state',function(text) {
 	session_state=text;	//console.log(session_state);
 });
+
+
+
 
 function login_screen(){
 	header_zone.innerHTML='<h1>CULT Sign in</h1>';
 	var invitee_access="";
 	if(debug){
-		invitee_access='<br /><button id="exit" class="button exit" onclick="invitee_access();">Play as invitee (offline)</button>';
+		invitee_access='<br /><button id="exit" class="button exit" onclick="invitee_access();">Invitee (offline)</button>';
 	}
 	canvas_zone_vcentered.innerHTML='\
-	<div id="signinButton" class="button">With Google\
+	<div id="signinButton" class="button">Google+\
    <span class="icon"></span>\
     <span class="buttonText"></span>\
 	</div>'+invitee_access+'\
@@ -197,9 +227,9 @@ function options(){
 		  <br /><button id="op_easy" class="button" onclick="session_data.level=\'easy\';menu_screen()">Easy</button>\
 		  <br /><br /><button class="button" onclick="menu_screen()">Back</button>\
           ';
-	if(session_data.level=="difficult") document.getElementById('op_difficult').classList.add('backgroundBlue');
-	if(session_data.level=="normal") document.getElementById('op_normal').classList.add('backgroundBlue');
-	if(session_data.level=="easy") document.getElementById('op_easy').classList.add('backgroundBlue');
+	if(session_data.level=="difficult") document.getElementById('op_difficult').classList.add('selectedOption');
+	if(session_data.level=="normal") document.getElementById('op_normal').classList.add('selectedOption');
+	if(session_data.level=="easy") document.getElementById('op_easy').classList.add('selectedOption');
 }
 
 function top_scores(){
@@ -208,7 +238,7 @@ function top_scores(){
     <br /><button id="go-back" onclick="menu_screen()">Volver</button> \
     ';
 	ajax_request_json(
-		backend_url+'ajaxdb.php?action=get_top_scores&user='+user_data.email, 
+		backend_url+'ajaxdb.php?action=get_top_scores&user='+user_data.email+'&type='+session_data.type+'&level='+session_data.level, 
 		function(data) {
 			if(debug) console.log(data);
 			var rtable='<table class="table-wo-border table-small"><tr><td><b>Rank</b></td><td><b>Name</b></td><td><b>Score</b></td><td><b>Date</b></td></tr>';
@@ -225,6 +255,7 @@ function top_scores(){
 			rtable+="</table>";
 			canvas_zone_vcentered.innerHTML='\
 				  TOP SCORES<br />Hall of Fame<br/>\
+				  <div class="small-font">type: '+session_data.type+'  level: '+session_data.level+'</div><br/>\
 				  '+rtable+'\
 				  <br /><button class="button" onclick="menu_screen()">Back</button>\
 				  ';
@@ -285,7 +316,7 @@ function menu_screen(){
 			sign='<li><a href="#" onclick="hamburger_close();login_screen()">sign in</a></li>';
 		}
 		// TODO if admin administrar... lo de sujetos puede ir aquí tb...
-		hamburger_menu_content.innerHTML=''+user_data.email.substr(0,10)+'<ul>\
+		hamburger_menu_content.innerHTML=''+get_reduced_display_name(user_data.display_name)+'<ul>\
 		'+sign+'\
 	      <li><a href="#" onclick="exit_app()">exit app</a></li>\
 		</ul>';
@@ -296,12 +327,16 @@ function menu_screen(){
 		canvas_zone_vcentered.innerHTML=' \
 		<div id="menu-logo-div"></div> \
 		<nav id="responsive_menu">\
-		<br /><button id="start-button" class="button" onclick="play_game()" disabled="true">Play</button> \
-		<br /><button id="exit" class="button" onclick="options()">Options</button> \
-		<br /><button id="exit" class="button" onclick="top_scores()">Top Scores</button> \
-		<br /><button id="exit" class="button exit" onclick="exit_app()">Exit</button> \
+		<br /><button id="start-button" class="button" disabled="true">Play</button> \
+		<br /><button id="options" class="button">Options</button> \
+		<br /><button id="top_scores" class="button">Top Scores</button> \
+		<br /><button id="exit_app" class="button exit">Exit</button> \
 		</nav>\
 		';
+        document.getElementById("start-button").addEventListener(clickOrTouch,function(){play_game();});
+        document.getElementById("options").addEventListener(clickOrTouch,function(){options();});
+        document.getElementById("top_scores").addEventListener(clickOrTouch,function(){top_scores();});
+        document.getElementById("exit_app").addEventListener(clickOrTouch,function(){exit_app();});
 		
 		if(json_data_files==undefined){
 		    ajax_request_json("backend/search_game_data_files.php?data_source="+data_source,function(json_filenames){
@@ -386,9 +421,10 @@ var play_game=function(){
 	<div id="answers"></div>\
 	<div id="game-panel">\
         <img src="'+media_objects.images['clock.png'].src+'" style="width:30px;" /> &nbsp; <progress id="time_left" value="0" max="'+countdown_limit_end_secs+'"></progress>\
-        <button class="button" onclick="end_game()">exit</button>\
+        <button id="exit_game_button" class="button">exit</button>\
     </div>\
 	';
+    document.getElementById("exit_game_button").addEventListener(clickOrTouch,function(){end_game();});
 	//get elements
 	dom_score_correct=document.getElementById('current_score_num');
 	canvas_zone_question=document.getElementById('question');
@@ -475,13 +511,7 @@ var calculate_times_bigger=function(a,b){
 	}
 }
 
-var match_level_difficulty=function(level, times_bigger){
-	//console.log(level+"  "+times_bigger);
-	if(level=='easy' && times_bigger<1.51) return false;
-	if(level=='normal' && times_bigger<1.26) return false;
-	if(level=='difficult' && times_bigger<1.01) return false;
-	return true;
-}
+
 
 
 var history_question=function(){
@@ -500,13 +530,19 @@ var history_question=function(){
     }else{
 		answer_msg='<br />'+fact1.fact+' ('+fact1.begin+' -- '+fact1.end+')<br />was before<br />'+fact2.fact+' ('+fact2.begin+' <--> '+fact2.end+')<br />';
     }
-	//if(!match_level_difficulty(session_data.level,times_bigger)){nextActivity();return;}
+	//if(!match_level_times_bigger_margin(session_data.level,times_bigger)){nextActivity();return;}
     activity_timer.start();
     canvas_zone_question.innerHTML='What was before?';
     canvas_zone_answers.innerHTML=' \
-    <div id="answer1" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aleft">'+fact1.fact+'</div>\
-    <div id="answer2" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aright">'+fact2.fact+'</div>\
+    <div id="answer1" class="answer aleft">'+fact1.fact+'</div>\
+    <div id="answer2" class="answer aright">'+fact2.fact+'</div>\
     ';
+    var boxes=document.getElementsByClassName("answer");
+    for(var i=0;i<boxes.length;i++){
+        boxes[i].addEventListener(clickOrTouch,function(){
+            check_correct(this.innerHTML,correct_answer,answer_msg)
+            });
+    }
 }
 
 
@@ -517,6 +553,10 @@ var same_country_question=function(indicator){
 	// So that each trick increases a progress bar and on end it stops and fails
 	// even in the tricker callback we can set red blink when there are 3 seconds left...
 	console.log("same country question for indicator="+indicator);
+	if(!match_level_forbidden_indicators(session_data.level,indicator)){
+		console.log(indicator+" not allowed in "+session_data.level);
+		nextActivity();return;
+	}
 	var country=random_item(country_list);
     var period1="last_year";
 	var period2=random_item(period_list); // last_year is already not in period_list
@@ -542,19 +582,29 @@ var same_country_question=function(indicator){
 		times_bigger=calculate_times_bigger(data_map[indicator].data[period2][country],data_map[indicator].data[period1][country]);
 		answer_msg='<br />'+period_map[period2]+' <b>'+times_bigger+' times bigger</b> than '+period_map[period1]+'<br />';
     }
-	if(!match_level_difficulty(session_data.level,times_bigger)){nextActivity();return;}
+	if(!match_level_times_bigger_margin(session_data.level,times_bigger)){nextActivity();return;}
 	answer_msg+=add_answer_details(indicator,period1,period2,country,country);
 
     activity_timer.start();
     canvas_zone_question.innerHTML='When was <b>'+country+' '+data_map[indicator].indicator_sf+'</b> bigger?';
     canvas_zone_answers.innerHTML=' \
-    <div id="answer-'+period_map[period2]+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aleft">'+period_map[period2]+'</div>\
-    <div id="answer-'+period_map[period1]+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aright">'+period_map[period1]+'</div>\
+    <div id="answer-'+period_map[period2]+'" class="answer aleft">'+period_map[period2]+'</div>\
+    <div id="answer-'+period_map[period1]+'" class="answer aright">'+period_map[period1]+'</div>\
     ';
+    var boxes=document.getElementsByClassName("answer");
+    for(var i=0;i<boxes.length;i++){
+        boxes[i].addEventListener(clickOrTouch,function(){
+            check_correct(this.innerHTML,correct_answer,answer_msg)
+            });
+    }    
 }
 
 var diff_country_question=function(indicator){
 	console.log("diff country question for indicator="+indicator);
+	if(!match_level_forbidden_indicators(session_data.level,indicator)){
+		console.log(indicator+" not allowed in "+session_data.level);
+		nextActivity();return;
+	}
     var period="last_year";
 	var country1=random_item(country_list);
 	var country2=random_item(country_list,country1);
@@ -588,15 +638,21 @@ var diff_country_question=function(indicator){
 		times_bigger=calculate_times_bigger(data_map[indicator].data[period][country2],data_map[indicator].data[period][country1]);
 		answer_msg='<br />'+country2+' <b>'+times_bigger+' times bigger</b> than '+country1+'<br />';
     }
-	if(!match_level_difficulty(session_data.level,times_bigger)){nextActivity();return;}
+	if(!match_level_times_bigger_margin(session_data.level,times_bigger)){nextActivity();return;}
 	answer_msg+=add_answer_details(indicator,period,period,country1,country2);
 
     activity_timer.start();
     canvas_zone_question.innerHTML='Which is bigger in '+data_map[indicator].indicator_sf+' ('+period_map[period]+')?';
     canvas_zone_answers.innerHTML='\
-    <div id="answer-'+country1+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aleft">'+country1+'</div>\
-    <div id="answer-'+country2+'" onclick="check_correct(this.innerHTML,correct_answer,answer_msg)" class="answer aright">'+country2+'</div>\
+    <div id="answer-'+country1+'" class="answer aleft">'+country1+'</div>\
+    <div id="answer-'+country2+'" class="answer aright">'+country2+'</div>\
     ';
+    var boxes=document.getElementsByClassName("answer");
+    for(var i=0;i<boxes.length;i++){
+        boxes[i].addEventListener(clickOrTouch,function(){
+            check_correct(this.innerHTML,correct_answer,answer_msg)
+            });
+    }    
 }
 
 var add_answer_details=function(indicator,period1,period2,country1,country2){

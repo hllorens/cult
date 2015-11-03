@@ -53,6 +53,7 @@ if ($action == "get_users"){
 	$str_json=json_decode($_POST['json_string'],true);
 	$output["msg"]="success";
 	$type=$str_json["type"];
+	$level=$str_json["level"];
 	$user=$str_json["user"];
 	$num_correct=$str_json["num_correct"];
 	$timestamp=$str_json["timestamp"];
@@ -60,13 +61,14 @@ if ($action == "get_users"){
 	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of subject";return;}
 
 	$error=0;
-	$sQuery = "INSERT INTO sessions(type,user,num_correct,timestamp)  VALUES ('$type','$user','$num_correct','$timestamp');"; 
+	$sQuery = "INSERT INTO sessions(type,level,user,num_correct,timestamp)  VALUES ('$type','$level','$user','$num_correct','$timestamp');"; 
 	$rResult = mysql_query( $sQuery, $db_connection );
 	if(!$rResult){ $output["msg"]=mysql_error()." -- ".$sQuery; $error=1;}
 	else{ 
-		$sQuery = "	DELETE FROM sessions WHERE user='$user' AND id NOT IN (
+		$sQuery = "	DELETE FROM sessions WHERE user='$user' AND type='$type' AND level='$level'
+         AND id NOT IN (
       	 SELECT id FROM (
-		  SELECT id FROM sessions WHERE user='$user' AND type='$type'
+		  SELECT id FROM sessions WHERE user='$user' AND type='$type' AND level='$level'
 		  ORDER BY num_correct*1 DESC LIMIT 3) s )";
 		$rResult = mysql_query( $sQuery, $db_connection );
 		if(!$rResult){ $output["msg"]=mysql_error()." -- ".$sQuery; $error=1;}
@@ -80,18 +82,23 @@ if ($action == "get_users"){
 
 }else if ($action == "get_top_scores"){
 	$user=get_value("user");
+	$type=get_value("type");
+	$level=get_value("level");
 
 	$output['general'] = array();
 	$output['general']['user'] = $user;
+	$output['general']['type'] = $type;
+	$output['general']['level'] = $level;
 	$output['usr_elements'] = array();
 	$output['absolute_elements'] = array();
 
 	$sQuery = "
     SELECT z.rank, z.num_correct, z.timestamp FROM (
-    SELECT t.id, t.user, t.num_correct, t.timestamp, @rownum := @rownum + 1 AS rank
+    SELECT t.id, t.user, t.type, t.level, t.num_correct, t.timestamp, @rownum := @rownum + 1 AS rank
     FROM sessions t, (SELECT @rownum := 0) r
+	WHERE t.type='$type' AND t.level='$level'
     ORDER BY num_correct+0 DESC
-    ) as z WHERE user='$user' ORDER BY z.num_correct+0 DESC LIMIT 1";
+    ) as z WHERE z.user='$user' AND z.type='$type' AND z.level='$level' ORDER BY z.num_correct+0 DESC LIMIT 1";
 	//echo "query: $sQuery ";
 	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
 	$element_count=0;	
@@ -104,7 +111,7 @@ if ($action == "get_users"){
 		$element_count++;
 	}
 
-	$sQuery = "SELECT * FROM sessions ORDER BY num_correct+1 DESC LIMIT 10;";
+	$sQuery = "SELECT * FROM sessions WHERE type='$type' AND level='$level' ORDER BY num_correct+1 DESC LIMIT 10;";
 	//echo "query: $sQuery ";
 	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
 	$element_count=0;	
