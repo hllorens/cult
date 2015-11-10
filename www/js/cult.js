@@ -160,15 +160,15 @@ function signInCallback(authResult) {
 					if(debug){
 						console.log(result);
 						console.log("logged! "+result.email+" level:"+result.access_level);
+                        alert("logged! "+result.email+" level:"+result.access_level);
 					}
+                    if(result.error!=""){alert(result.error); return;}
                     user_data.display_name=result.display_name;
                     user_data.email=result.email;
 					user_data.access_level=result.access_level;
 					session_data.user=result.email;
 					session_data.user_access_level=result.access_level;
-					//if(result.access_level=='admin'){ admin_screen();}
-					//else{
-						menu_screen();//}
+					menu_screen();
 				} else if (authResult['error']) {
 					alert('There was an error: ' + authResult['error']);
 				} else {

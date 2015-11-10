@@ -23,16 +23,27 @@
 	width: 50%;
 	position: relative;
 	margin: 10% auto;
-	padding: 2% 8% 2% 8%;
+	padding: 5px 2px 5px 10px;
 	background: #eee;
+}
+
+.js-modal-dialog h2{
+    padding:0;
+    margin: 10px 0 0 0;
+}
+
+.js-modal-dialog p{
+    margin: 0;
+    padding: 25px 15px 15px 5px;
+    text-align: justify;
 }
 
 .js-modal-dialog-progress {
 	width: 50%;
-	height:20px;
-	position: relative;
-	margin: 200px auto;
-	padding: 1% 2% 2% 2%;
+	min-height:20px;
+	/*position: relative;*/
+	margin: 240px auto;
+	padding: 0% 1% 1% 1%;
 	background: #eee;
 }
 
@@ -51,7 +62,10 @@
 progress {
 	width: 100%;
 	height: 5px;
-	/*height: 100%; breaks in chrome, ie, safari*/
+    margin:0; padding:0;
+    vertical-align:0;
+    display:block;
+	/*height: 100%; breaks in chrome, IE, safari*/
 }
 /* -------------------------------------------------------------------------- */
 
@@ -77,6 +91,17 @@ table { margin: 1em; border-collapse: collapse; }
 td, th { padding: .3em;  } 
 
 /* --------------------------------------------------------------------------*/
+
+
+
+
+
+
+
+
+
+
+
 /* HAMBURGER */
 a#hamburger_icon svg {
 	fill: #000;
@@ -97,6 +122,10 @@ a#hamburger_icon svg {
 	transform: translate(0, 0);
 }
 
+.hamburger_menu ul li a {
+    color:#eee;
+}
+
 a.boxclose{
     float:right;
     margin-top:10px;
@@ -111,10 +140,26 @@ a.boxclose{
     display: inline-block;
     /*line-height: 0px;*/
 	text-align: center;
-    padding: 8px 4px 0px 4px
+    padding: 8px 4px 0px 4px;
+    min-width:48px;
+    min-height:48px;
 }
 
 .boxclose:before {
     content: "X";
 }
+
+.small-text{
+    font-size:10px;
+    margin:0;
+    padding: 2px 5px;
+}
+
+
+
+
+
+
+
+
 

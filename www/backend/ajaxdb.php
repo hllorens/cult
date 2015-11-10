@@ -23,13 +23,10 @@ $action=get_value("action");
 $timestamp_seconds=date("Y-m-d H:i:s");
 
 // access info (if not WordPress)
-$db_user="hector";
-$db_pass="homohominilopus";
-$db_server="mysql.cognitionis.com";
-$db="cult_game";
+$db_credentials = json_decode(file_get_contents("/home/hector/secrets/db_credentials_cult-game.json"));
 
-$db_connection =  mysql_pconnect( $db_server, $db_user, $db_pass  ) or die( 'Could not open connection to server' );
-mysql_select_db( $db, $db_connection) or die( 'Could not select database '. $db );
+$db_connection =  mysql_pconnect( $db_credentials->db_server, $db_credentials->user, $db_credentials->pass  ) or die( 'Could not open connection to server' );
+mysql_select_db( $db_credentials->db_name, $db_connection) or die( 'Could not select database' );
 
 /* SET UTF-8 independently of the MySQL and PHP installation */
 mysql_query("SET NAMES 'utf8'");	
@@ -170,7 +167,7 @@ if ($action == "get_users"){
 		$client->setClientId($CLIENT_ID);
 		$client->setClientSecret($CLIENT_SECRET);
 		$client->setRedirectUri('postmessage');*/
-
+        $output['error']="";
 		if (empty($_SESSION['long_lived_access_token'])) {
 			if ( (get_value("state")) != ($_SESSION["state"]) ) {
 				header("Incorrect state, forgery attack?",true, 401);
@@ -286,14 +283,14 @@ if ($action == "get_users"){
 				$sQuery = "UPDATE users  SET last_login='$timestamp_seconds',last_provider='google' WHERE email='".$_SESSION['email']."';";
 				//echo $sQuery;
 				$rResult = mysql_query( $sQuery, $db_connection );
-				if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysql_error()." -- ".$sQuery);}
+				if(!$rResult){$output['error']="Error: ".mysql_error()." -- ".$sQuery;}
 			}else{ //new user
 				$_SESSION['access_level'] = 'normal';
 				// insert the user in the db
 				mail("hectorlm1983@gmail.com","New cult user","NEW USER: ".$_SESSION['email'].". Should be 'normal' already... DELETE?");
 				$sQuery = "INSERT INTO users (email, display_name, access_level, last_login, last_provider, creation_timestamp) VALUES ('".$_SESSION['email']."', '".$_SESSION['display_name']."', '".$_SESSION['access_level']."', '$timestamp_seconds', 'google', '$timestamp_seconds');";
 				$rResult = mysql_query( $sQuery, $db_connection );
-				if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysql_error()." -- ".$sQuery);}
+				if(!$rResult){$output['error']="Error: Exists. ".mysql_error()." -- ".$sQuery;}
 			}
 	}
 	$output['display_name']=$_SESSION['display_name'];
