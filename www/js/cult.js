@@ -82,6 +82,17 @@ var EASY_FORBIDDEN_INDICATORS=['laborforce','p15to64'];
 var NORMAL_FORBIDDEN_INDICATORS=['surpdeficitgdp','reserves','inflation','gdp','gdppcap','gdpgrowth','extdebt','debtgdp'];
 var DIFFICULT_FORBIDDEN_INDICATORS=[];
 
+var YEAR_DIFF_RANGE={
+    easy: {min:50,max:200},
+    normal: {min:5,max:100},
+    difficult: {min:1,max:50}
+};
+
+var TIMES_BIGGER_MIN={
+    easy: 1.51,
+    normal: 1.26,
+    difficult: 1.01
+};
 
 var match_level_forbidden_indicators=function(level,indicator){
 	if(level=='easy' && (EASY_FORBIDDEN_INDICATORS.indexOf(indicator)!=-1
@@ -97,10 +108,13 @@ var match_level_forbidden_indicators=function(level,indicator){
 
 var match_level_times_bigger_margin=function(level, times_bigger){
 	//console.log(level+"  "+times_bigger);
-	if(level=='easy' && times_bigger<1.51) return false;
-	if(level=='normal' && times_bigger<1.26) return false;
-	if(level=='difficult' && times_bigger<1.01) return false;
+	if(times_bigger<TIMES_BIGGER_MIN[level]) return false;
 	return true;
+}
+
+var match_level_year_diff_range=function(level, year_diff){
+	if(year_diff>=YEAR_DIFF_RANGE[level].min && year_diff<=YEAR_DIFF_RANGE[level].max) return true;
+	return false;
 }
 
 
@@ -162,7 +176,7 @@ function signInCallback(authResult) {
 						console.log("logged! "+result.email+" level:"+result.access_level);
                         alert("logged! "+result.email+" level:"+result.access_level);
 					}
-                    if(result.error!=""){alert(result.error); return;}
+                    if(result.hasOwnProperty('error') && result.error!=""){alert("LOGIN ERROR: "+result.error); return;}
                     user_data.display_name=result.display_name;
                     user_data.email=result.email;
 					user_data.access_level=result.access_level;
@@ -518,9 +532,16 @@ var history_question=function(){
 	console.log("history question");
 	var fact1=random_item(data_map.history);
     var fact2=random_item(data_map.history,fact1.fact);
+    // Makes sense to discard overlaps since the question is "what was before"
+    // and not "what satrted before" or "what ended before"
     if(! (fact1.end<fact2.begin || fact2.end<fact1.begin)){
         console.log("USLESS: overlapping facts "+fact1.fact+" "+fact2.fact+"");
         nextActivity(); return;
+    }
+    var year_diff=Math.abs(Number(fact1.begin) - Number(fact2.begin));
+    if(!match_level_year_diff_range(session_data.level,year_diff)){
+        console.log(year_diff+" does not match level "+session_data.level);
+        nextActivity();return;
     }
 
     correct_answer=fact1.fact;

@@ -23,7 +23,8 @@ $action=get_value("action");
 $timestamp_seconds=date("Y-m-d H:i:s");
 
 // access info (if not WordPress)
-$db_credentials = json_decode(file_get_contents("/home/hector/secrets/db_credentials_cult-game.json"));
+$db_credentials = json_decode(file_get_contents("../../../../secrets/db_credentials_cult-game.json"));
+$gclient_secret = json_decode(file_get_contents("../../../../secrets/gclient_secret_cult-game.json"));
 
 $db_connection =  mysql_pconnect( $db_credentials->db_server, $db_credentials->user, $db_credentials->pass  ) or die( 'Could not open connection to server' );
 mysql_select_db( $db_credentials->db_name, $db_connection) or die( 'Could not select database' );
@@ -148,7 +149,6 @@ if ($action == "get_users"){
 	$_SESSION["state"]=$state;
 	echo "$state";
 /*}else if ($action == "show_secret"){
-		$filec=file_get_contents("/home/hector/secrets/gclient_secret.json");
 		echo "$filec";
 		$gclient_secret = json_decode($filec);
 		echo "<br /><br />printr:";
@@ -159,7 +159,6 @@ if ($action == "get_users"){
 }else if ($action == "gconnect"){
 		// REQUEST contains the AuthCode
 		// you can store this in a json file for more security
-		$gclient_secret = json_decode(file_get_contents("/home/hector/secrets/gclient_secret_cult-game.json"));
 		$CLIENT_ID = $gclient_secret->client_id;
 		$CLIENT_SECRET = $gclient_secret->client_secret;
 		

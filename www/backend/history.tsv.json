@@ -700,7 +700,7 @@
 		"end" : "1995"
 	},
 	{
-		"fact" : "ECB",
+		"fact" : "ECB creation",
 		"begin" : "1998",
 		"end" : "1998"
 	},
@@ -740,7 +740,7 @@
 		"end" : "2007"
 	},
 	{
-		"fact" : "Major Banking Failed",
+		"fact" : "Lehman Brothers Bank crash",
 		"begin" : "2008",
 		"end" : "2008"
 	}
