@@ -3,10 +3,6 @@
 
 session_start(); 
 
-/*set_include_path(get_include_path() . PATH_SEPARATOR . '/home/hector/google-api-php-client/src/Google');
-////require_once '/home/hector/google-api-php-client/src/Google/autoload.php';
-require_once 'autoload.php';*/
-
 date_default_timezone_set('Europe/Madrid');
 
 function get_value($name){

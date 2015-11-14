@@ -1,6 +1,6 @@
 <?php
 
-$data_directory='../../../cult-data'; //$data_directory='/home/hector/cognitionis.com/cult-data';
+$data_directory='../../../cult-data'; 
 $indicator='population';
 $data_source='wb';
 

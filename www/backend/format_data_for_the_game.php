@@ -40,7 +40,7 @@ $last_2decade=$last_year-19;
 
 //echo "dates considered: $last_year $previous_year $last_lustrum $last_decade <br />";
 
-$data_directory='/home/hector/cognitionis.com/cult-data';
+$data_directory='../../../cult-data';
 $indicator='population';
 $indicator_sf='population';
 $data_source='wb';

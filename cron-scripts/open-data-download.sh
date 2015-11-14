@@ -97,13 +97,13 @@ for K in "${!INDICATORMAP[@]}";do
 	done
 	echo "Generating data for the game!\n\n"
     rm -rf $destination-game/${K}_wb.json
-	wget --timeout=180 -q -O $destination-game/${K}_wb.json "http://www.cognitionis.com/cult/www/backend/format_data_for_the_game.php?indicator=${K}&indicator_sf=${INDICATORSFMAP[$K]}" > /home/hector/cron-scripts/data-generation.log;
+	wget --timeout=180 -q -O $destination-game/${K}_wb.json "http://www.cognitionis.com/cult/www/backend/format_data_for_the_game.php?indicator=${K}&indicator_sf=${INDICATORSFMAP[$K]}" > $SCRIPT_PATH/data-generation.log;
 
 done
 
 if [ "$sendemail" == "true" ];then 
 	echo "sending email errors!"
-	wget --timeout=180 -q -O /home/hector/cron-scripts/data-download.log http://www.cognitionis.com/cult/www/backend/send-data-download-errors.php?autosecret=1secret > /home/hector/cron-scripts/last-download-data-errors.log; 
+	wget --timeout=180 -q -O $SCRIPT_PATH/data-download.log http://www.cognitionis.com/cult/www/backend/send-data-download-errors.php?autosecret=1secret > $SCRIPT_PATH/last-download-data-errors.log; 
 fi
 
 #wget -O proveta.json http://api.worldbank.org/countries/es/indicators/SP.POP.TOTL?format=json&per_page=500
