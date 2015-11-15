@@ -8,6 +8,19 @@
 * -The elements have an account (money: either in banks or poket) and own assets (products [can be consumed], properties)
 * -Need to model space/land (e.g., add some properties equally divided e.g., 1000m)
 * -Need to model time (e.g., that way births/deaths, payments are controlled)
+People working age initialization
+
+Adan and eve. Aged 18 both.
+No gov no central bank yet.
+They own all the land (square pixels as km2 of 250x250=42500km2)  equally divided.
+
+They are the first farmers and can have children
+
+Basic food is apple and to survive they eat 1kg a day
+No... apples are not durable... wheat? Grain? Crop? Nuts?
+
+They can produce superavit and then we can have gov and banks...
+
 */
 
 

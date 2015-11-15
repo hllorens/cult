@@ -74,7 +74,7 @@ a:hover{text-decoration:underline;}
 
 /* cognitionis responsive */
 img, embed, object, video {max-width: 100%;}
-nav a, button {min-width:48px;min-height:48px}
+nav a, button {min-width:48px;min-height:48px;cursor: pointer;}
 
 #page{
 	width:100%; max-width:1000px; min-width:320px;   
