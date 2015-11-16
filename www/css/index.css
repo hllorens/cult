@@ -129,6 +129,7 @@ div.button{
 	vertical-align: middle;
 	text-align:center;
     padding:12px 5px 0px 5px;
+    cursor:pointer;
 }
 
 
@@ -300,11 +301,19 @@ a#hamburger_icon svg {
 }
 
 #header_basic{
-    float:left;    
+    float:left;
+    height:40px; /*for IE, avoids auto greater height*/
 }
 #header_status{
     color:#999;
     float:right;
+}
+#header_text{
+    display:-ms-inline-grid; /*for IE, centers it a bit*/
+    color: #fff;
+}
+#header_text:hover{
+	cursor:pointer;
 }
 
 #current_lifes{
