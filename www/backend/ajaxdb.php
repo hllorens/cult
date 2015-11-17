@@ -148,7 +148,11 @@ if ($action == "get_users"){
     $CLIENT_ID = $gclient_secret->client_id;
     $CLIENT_SECRET = $gclient_secret->client_secret;
     $output['error']="";
-    if (empty($_SESSION['long_lived_access_token'])) {
+    $output['info']="";
+// if gconnect is called automatically with a code request saved in cookies the session access token might have expired already
+// I need to study this better... maybe have a job in the server that renews the token periodically... and in any case always try to use the token before login,
+// if it expired, obtain a new one...
+//    if (empty($_SESSION['long_lived_access_token'])) { 
         unset($_SESSION['long_lived_access_token']);
         unset($_SESSION['user_id']);
         unset($_SESSION['username']);
@@ -221,12 +225,13 @@ if ($action == "get_users"){
                     $sQuery = "INSERT INTO users (email, display_name, access_level, last_login, last_provider, creation_timestamp) VALUES ('".$_SESSION['email']."', '".$_SESSION['display_name']."', '".$_SESSION['access_level']."', '$timestamp_seconds', 'google', '$timestamp_seconds');";
                     $rResult = mysql_query( $sQuery, $db_connection );
                     if(!$rResult){$output['error']="Error: Exists. ".mysql_error()." -- ".$sQuery;}
+                    $output['info']="new user";
                 }else{
                     $output['error']="Error: empty user? no user info with the token?";
                 }
             }
         }
-    }
+//    }
     $output['user_id']=$_SESSION['user_id'];
     $output['display_name']=$_SESSION['display_name'];
     $output['picture']=$_SESSION['picture'];
@@ -277,3 +282,4 @@ if ($action == "get_users"){
 session_write_close(); // OPTIONAL: makes sure session is stored, may be add it as soon as vars are written..., should happen at the end of the script
 
 ?>
+

@@ -172,6 +172,9 @@ function signInCallback(authResult) {
 			function(result) {
                 if (result) {
                     if(result.hasOwnProperty('error') && result.error!=""){alert("LOGIN ERROR: "+result.error); return;}
+                    if(result.hasOwnProperty('info') && result.info=="new user"){
+                        open_js_modal_content("New user created successfully for: "+result.emial+".");
+                    }
                     if(debug){
                         console.log(result);
                         console.log("logged! "+result.email+" level:"+result.access_level);
@@ -549,9 +552,9 @@ var history_question=function(){
     correct_answer=fact1.fact;
     if(Number(fact2.end) < Number(fact1.begin)){
 		correct_answer=fact2.fact;
-		answer_msg='<br />'+fact2.fact+' ('+fact2.begin+' -- '+fact2.end+')<br />was before<br />'+fact1.fact+' ('+fact1.begin+' <--> '+fact1.end+')<br />';
+		answer_msg='<br />'+fact2.fact+' ('+fact2.begin+' <--> '+fact2.end+')<br />was before<br />'+fact1.fact+' ('+fact1.begin+' <--> '+fact1.end+')<br />';
     }else{
-		answer_msg='<br />'+fact1.fact+' ('+fact1.begin+' -- '+fact1.end+')<br />was before<br />'+fact2.fact+' ('+fact2.begin+' <--> '+fact2.end+')<br />';
+		answer_msg='<br />'+fact1.fact+' ('+fact1.begin+' <--> '+fact1.end+')<br />was before<br />'+fact2.fact+' ('+fact2.begin+' <--> '+fact2.end+')<br />';
     }
 	//if(!match_level_times_bigger_margin(session_data.level,times_bigger)){nextActivity();return;}
     activity_timer.start();
