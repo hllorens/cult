@@ -14,13 +14,16 @@ body{margin:0 auto; padding:0; font:normal 14px Monospace, Arial, sans-serif; co
 
 /*ALL BOXES CAN SHARE A CLASS WITH COMMON PROPERTIES...*/
 
-.account_box{
+
+
+.elem_box{
     font-size:12px;
     border:1px solid #eee;
     width:150px;
     margin:4px;
+    display:inline-block;
 }
-.account_box h1{
+.elem_box h1{
     font-size:15px;
     width:100%;
     margin:0;padding:0;
@@ -28,27 +31,26 @@ body{margin:0 auto; padding:0; font:normal 14px Monospace, Arial, sans-serif; co
     color:#111;
     background:#eee;
 }
-.account_box.entries{
+.elem_box.entries{
         background:#bbb;
 }
 
+.bank_box{
+    border-color:#faa;
+}
+.bank_box h1{
+    background:#faa;
+}
+
 .person_box{
-    font-size:12px;
-    border:1px solid #eee;
-    width:150px;
-    margin:4px;
+    border-color:#a63;
 }
 .person_box h1{
-    font-size:15px;
-    width:100%;
-    margin:0;padding:0;
-    font-weight:bold;
-    color:#111;
     background:#a63;
 }
-.person_box.entries{
-        background:#bbb;
-}
+
+
+
 
 
 
@@ -57,6 +59,7 @@ body{margin:0 auto; padding:0; font:normal 14px Monospace, Arial, sans-serif; co
     border:1px solid #33b;
     width:300px;
     margin:4px;
+    display:inline-block;
 }
 .market_box h1{
     font-size:15px;

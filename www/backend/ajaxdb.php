@@ -220,8 +220,8 @@ if ($action == "get_users"){
                     $rResult = mysql_query( $sQuery, $db_connection );
                     if(!$rResult){$output['error']="Error: ".mysql_error()." -- ".$sQuery;}
                 }else if(!empty($_SESSION['email'])){ //new user
-                    $_SESSION['access_level'] = 'invitee';
-                    mail("hectorlm1983@gmail.com","New afan-app user","NEW USER: ".$_SESSION['email'].". Change from 'invitee' to something else or DELETE");
+                    $_SESSION['access_level'] = 'normal';
+                    mail("hectorlm1983@gmail.com","New afan-app user","NEW USER: ".$_SESSION['email'].".  or DELETE");
                     $sQuery = "INSERT INTO users (email, display_name, access_level, last_login, last_provider, creation_timestamp) VALUES ('".$_SESSION['email']."', '".$_SESSION['display_name']."', '".$_SESSION['access_level']."', '$timestamp_seconds', 'google', '$timestamp_seconds');";
                     $rResult = mysql_query( $sQuery, $db_connection );
                     if(!$rResult){$output['error']="Error: Exists. ".mysql_error()." -- ".$sQuery;}

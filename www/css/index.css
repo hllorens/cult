@@ -317,7 +317,7 @@ a#hamburger_icon svg {
 }
 
 #current_lifes{
-    color:#00e;
+    color:#f00; /*#00e;*/
     font-weight:bold;
 }
 
@@ -345,24 +345,24 @@ a#hamburger_icon svg {
 }
 
 .js-modal-correct{
-	border: 10px solid #151;
-	background: #beb;
-	color: #151;
-	width: 85%;
+	border: 10px solid #171;
+	background: #dfd;
+	color: #171;
+	width: 95%;
 	position: relative;
 	margin: 10% auto 0;
 	padding: 10px;
 	text-align: center;
 }
 .js-modal-correct h1{
-	color: #151;
+	color: #171;
 }
 
 .js-modal-incorrect{
-	border: 10px solid #511;
-	background: #ebb;
-	color: #511;
-	width: 85%;
+	border: 10px solid #711;
+	background: #fdd;
+	color: #711;
+	width: 95%;
 	position: relative;
 	margin: 10% auto;
 	padding: 10px;

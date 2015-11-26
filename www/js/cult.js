@@ -173,7 +173,7 @@ function signInCallback(authResult) {
                 if (result) {
                     if(result.hasOwnProperty('error') && result.error!=""){alert("LOGIN ERROR: "+result.error); return;}
                     if(result.hasOwnProperty('info') && result.info=="new user"){
-                        open_js_modal_content("New user created successfully for: "+result.emial+".");
+                        open_js_modal_content_accept("<p>New user created successfully for: "+result.email+". The challenge begins!</p>");
                     }
                     if(debug){
                         console.log(result);
@@ -339,8 +339,8 @@ function menu_screen(){
 		'+sign+'\
 	      <li><a href="#" onclick="exit_app()">exit app</a></li>\
 		</ul>';
-		header_zone.innerHTML='<div id="header_basic"><a id="hamburger_icon" onclick="hamburger_toggle(event)"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\
-		<path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/></svg></a> <span id="header_text" onclick="menu_screen()">'+app_name+'</span></div> <div id="header_status"> Life: <span id="current_lifes">O O O</span>   Score: <span id="current_score_num">0</span></div>';
+        header_zone.innerHTML='<div id="header_basic"><a id="hamburger_icon" onclick="hamburger_toggle(event)"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\
+        <path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/></svg></a> <span id="header_text" onclick="menu_screen()">'+app_name+'</span></div> <div id="header_status"> </div>';
         header_text=document.getElementById('header_text');
 		// Optionally if(is_app) we could completely remove header...
 		canvas_zone_vcentered.innerHTML=' \
@@ -399,7 +399,7 @@ function menu_screen(){
 	}
 }
 
-var countdown_limit_end_secs=25;
+var countdown_limit_end_secs=30;
 var silly_cb=function(){
 	activity_timer.stop();
 	if(debug) console.log("question timeout!!!");
@@ -433,7 +433,10 @@ var play_game=function(){
 	session_data.timestamp=timestamp.getFullYear()+"-"+
 		pad_string((timestamp.getMonth()+1),2,"0") + "-" + pad_string(timestamp.getDate(),2,"0") + " " +
 		 pad_string(timestamp.getHours(),2,"0") + ":"  + pad_string(timestamp.getMinutes(),2,"0");
-	lifes=3;
+
+    var header_status=document.getElementById('header_status');
+    header_status.innerHTML=' Life: <span id="current_lifes">&hearts; &hearts; &hearts;</span>   Score: <span id="current_score_num">0</span>';
+    lifes=3;
 	update_lifes_representation();
 	canvas_zone_vcentered.innerHTML=' \
 	<div id="question"></div>\
@@ -492,7 +495,7 @@ function check_correct(clicked_answer,correct_answer,optional_msg){
 	
 	//dom_score_answered.innerHTML=session_data.num_answered;
 	var waiting_time=1000;
-	if(session_data.mode!="test") waiting_time=20000; 
+	if(session_data.mode!="test") waiting_time=120000; 
 	show_answer_timeout=setTimeout(function(){nextActivity()}, waiting_time);
 }
 
@@ -500,7 +503,7 @@ function update_lifes_representation(){
 	var elem_lifes=document.getElementById('current_lifes');
 	var lifes_representation='';
 	for (var i=0;i<lifes;i++){
-		lifes_representation+="O ";
+		lifes_representation+="&hearts; ";
 	}
 	elem_lifes.innerHTML=lifes_representation;
 }
@@ -552,9 +555,9 @@ var history_question=function(){
     correct_answer=fact1.fact;
     if(Number(fact2.end) < Number(fact1.begin)){
 		correct_answer=fact2.fact;
-		answer_msg='<br />'+fact2.fact+' ('+fact2.begin+' <--> '+fact2.end+')<br />was before<br />'+fact1.fact+' ('+fact1.begin+' <--> '+fact1.end+')<br />';
+		answer_msg='<br /><b>'+fact2.fact+'</b> (<b>'+fact2.begin+'</b> <--> '+fact2.end+')<br />was before<br /><b>'+fact1.fact+'</b> (<b>'+fact1.begin+'</b> <--> '+fact1.end+')<br />';
     }else{
-		answer_msg='<br />'+fact1.fact+' ('+fact1.begin+' <--> '+fact1.end+')<br />was before<br />'+fact2.fact+' ('+fact2.begin+' <--> '+fact2.end+')<br />';
+		answer_msg='<br /><b>'+fact1.fact+'</b> (<b>'+fact1.begin+'</b> <--> '+fact1.end+')<br />was before<br /><b>'+fact2.fact+'</b> (<b>'+fact2.begin+'</b> <--> '+fact2.end+')<br />';
     }
 	//if(!match_level_times_bigger_margin(session_data.level,times_bigger)){nextActivity();return;}
     activity_timer.start();
