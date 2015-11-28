@@ -22,12 +22,23 @@ No... apples are not durable... wheat? Grain? Crop? Nuts?
 They can produce superavit and then we can have gov and banks...
 
 */
-
+function toggle_element_visibility(elemid){
+    var elem=document.getElementById(elemid);
+    var elemlink=document.getElementById(elemid+'-link');
+    if(elem.style.display=="none"){
+        elem.style.display="block";
+        elemlink.innerHTML=elemlink.innerHTML.replace("+","-");
+    }else{
+       elem.style.display="none";
+       elemlink.innerHTML=elemlink.innerHTML.replace("-","+");
+    }
+    return false;
+}
 
 var AccountEntry = function (concept, related_account, amount){
     this.concept=concept;
     this.related_account=related_account;
-    this.amount=amount; //#positive debit, negative credit
+    this.amount=Number(amount); //#positive debit, negative credit
 }
 
 var Account = function (name){
@@ -43,9 +54,13 @@ Account.prototype.balance=function(){
 }
 
 // property
-var Asset = function (market, units){
+var Asset = function (market,units,value,rel_elem){
+    if(typeof(value)=='undefined') value=0;
+    if(typeof(rel_elem)=='undefined') rel_elem='';
     this.market=market;
     this.units=units; // always positive
+    this.value=value; // only money assets do have a value (deposits/loans)
+    this.rel_elem=rel_elem; // only loans/deposits have a rel_element
 }
 
 // market element
@@ -209,8 +224,9 @@ var show_element=function(name, optional_description){
 	if(element.constructor===Bank){use_class='bank_box';}
     var html_ret='<div class="elem_box '+use_class+'">';
     html_ret+='<h1>'+element.name+' '+optional_description+'</h1>'; 
-	html_ret+=show_account(name);
+	if(element.constructor===Bank){html_ret+='<span>interest: '+element.interest+'%</span><br /><span>reserv: $'+element.reserves+'</span><br /><span>excess: $'+element.excess+'</span>';}   
 	html_ret+=show_assets(name);
+	html_ret+=show_account(name);
     html_ret+='</div>';
     return html_ret;
 }
@@ -218,17 +234,54 @@ var show_element=function(name, optional_description){
 
 var show_account=function(name){
 	var account=elements[name].account;
-    var html_ret='<h1>account</h1>'; 
-    html_ret+='<div class="entries">';
+    var html_ret='<h1>account <a id="ac-'+name+'-link" href="#" onclick="toggle_element_visibility(\'ac-'+name+'\')" style="text-decoration:none; color:#fff;">+</a></h1>'; 
+    html_ret+='<div id="ac-'+name+'" class="entries" style="display:none;">';
     for(var i=0;i<account.entries.length;i++){
         html_ret+=account.entries[i].concept+' units='+account.entries[i].amount+' rel_ac='+account.entries[i].related_account+'<br />';
     }
-    html_ret+='</div>';
     html_ret+='-------------<br/>';
+    html_ret+='</div>';
     var balance=account.balance();
     var color_class='color-green';
     if(balance<0){color_class='color-red';}
     html_ret+='<span class="color:'+color_class+'">'+balance+'</span>';
+    return html_ret;
+}
+
+var get_classified_assets=function(name,class_arr){
+    if(!elements.hasOwnProperty(name)){throw Error("Assets "+name+" not found.");}
+    var element=elements[name];
+    // elements that do not fall in any of the classes in class_arr will be "other"
+    var classification={"other":{"assets":[],"value":0,"show_str":""}};
+    for(var i=0;i<class_arr.length;i++){
+        if(class_arr[i]=="other"){throw Error("get_classified_assets: class arr cannot contain 'other' since that class is added by default.");}
+        classification[class_arr[i]]={"assets":[],"value":0,"show_str":""};
+    }
+    for(var i=0;i<element.assets.length;i++){
+        var curr_class="other";
+        if(classification.hasOwnProperty(element.assets[i].market)){
+            curr_class=element.assets[i].market;
+        }
+        classification[curr_class].assets.push(element.assets[i]);
+        classification[curr_class].value+=element.assets[i].value;
+        classification[curr_class].show_str+=element.assets[i].market+' '+element.assets[i].units+'('+element.assets[i].value+')  '+element.assets[i].rel_elem+'<br />';
+    }
+    // add div wrappers for classes in the str
+    for(var i=0;i<class_arr.length;i++){
+        classification[class_arr[i]].show_str='<h1 class="asset_box">'+class_arr[i]+' ('+classification[class_arr[i]].assets.length +', $'+classification[class_arr[i]].value+') <a id="as-'+name+class_arr[i]+'-link" href="#" onclick="toggle_element_visibility(\'as-'+name+class_arr[i]+'\')" style="text-decoration:none; color:#fff;">+</a></h1>\
+                                                <div id="as-'+name+class_arr[i]+'" class="entries" style="display:none;">'+classification[class_arr[i]].show_str+'</div>'; 
+    }
+    return classification;
+}
+
+var show_assets=function(name){
+    if(!elements.hasOwnProperty(name)){throw Error("Assets "+name+" not found.");}
+    var element=elements[name];
+    /*classified in deposits, loans and other*/
+    var classified_assets=get_classified_assets(name,['deposits','loans']);  
+    var html_ret=classified_assets.deposits.show_str;
+    html_ret+=classified_assets.loans.show_str;
+    html_ret+=classified_assets.other.show_str;
     return html_ret;
 }
 
@@ -340,21 +393,52 @@ Person.prototype.op_create_business=function(){
         alert("under construction, this will cost 60k anonymous business, next shows a choice of business types, could even create a bank");
 }
 Person.prototype.op_take_out_loan=function(){
-        var loan_amount = prompt("Loan amount $", "");
-        var bank = prompt("Select a bank", "");
-        // interest magic here...
-        var loan=new Product("loan",this.name, 1, loan_amount); 
-        markets.loans.supply.push(loan);
-        this.assets.push(loan)
-        show_situation();
+    var amount = prompt("Loan amount $", "");
+    var bank = prompt("Select a bank", "");
+    if(elements[bank].excess>=amount){ 
+        // interest magic here...  this should also check if the customer is solvent (e.g., has enough money to pay interest immediately)
+        console.log("new loan $"+amount+" from "+bank+" to "+this.name);
+        transactions.push(new Transaction("new loan $"+amount+" from "+bank+" to "+this.name,bank,this.name,amount));
+        elements[this.name].account.entries.push(new AccountEntry('borrowing $'+amount+' from '+bank,bank,amount));
+        elements[bank].account.entries.push(new AccountEntry(this.name+' borrows $'+amount,this.name,-amount));
+        create_asset(this.name,'loans', 1,-Number(amount),bank);
+        create_asset(bank,'loans', 1,Number(amount),this.name);
+        elements[bank].update_precalculated();
+    }else{
+        alert("bank has not enough money (excess)");
+    }
+    show_situation();
 }
 Person.prototype.op_make_deposit=function(amount,bank){ //i.e., transfer
     if(typeof(amount)=='undefined') amount = prompt("Deposit amount $", "");
     if(typeof(bank)=='undefined') bank = prompt("Select a bank", "");
-    console.log("new deposit $"+amount+" from "+this.name+" to "+bank);
-    transactions.push(new Transaction("new deposit $"+amount+" from "+this.name+" to "+bank,this.name,bank,amount));
-    elements[this.name].account.entries.push(new AccountEntry('depositing $'+amount+' in '+bank,bank,-amount));
-    elements[bank].account.entries.push(new AccountEntry(this.name+' deposits $'+amount,this.name,amount));
+    if(this.account.balance()>=amount){ 
+        console.log("new deposit $"+amount+" from "+this.name+" to "+bank);
+        transactions.push(new Transaction("new deposit $"+amount+" from "+this.name+" to "+bank,this.name,bank,amount));
+        elements[this.name].account.entries.push(new AccountEntry('depositing $'+amount+' in '+bank,bank,-amount));
+        elements[bank].account.entries.push(new AccountEntry(this.name+' deposits $'+amount,this.name,amount));
+        create_asset(this.name,'deposits', 1,Number(amount),bank);
+        create_asset(bank,'deposits', 1,-Number(amount),this.name);
+        elements[bank].update_precalculated();
+    }else{
+        alert("yon don't have so much money to deposit");
+    }
+    /*SEE THE PAPER SHEET.
+    This goes to a special place in a bank entity "deposits" (not the account) and it shows who owns how much in deposits (asset, checkable money)
+    from these deposits the bank gets its own reseves and excess (not the account)
+    Then we have a special place "loans" which decrease the excess (if no excess, no loans)
+    Only the earned interest will go to the account when it is payed (and the account money of the bank as an organization can be itself deposited in their own bank and if that happens, then part of it can be re-lended...)
+    think of the account as "bank poket" (owned by the bank owners), THE OPERATING LIQUIDITY, this can be used to:
+        be depoisted and create more loans gaining more interest back to the pocket
+        to pay salaries
+        to pay dividends to bank owners (note that the first capital is the legal business capital and it is used as operating liquid... so normally no dividends are payed if the amount is lower than the initial calpital e.g., 60k)
+    
+    MUST CREATE AN ASSET IN FORM OF DEPOSIT IN THE PERSON... 
+    ...and must create a liability in the bank... somehow these must be linked... (in account entries they seem linked but this is more like a special kind of asset)
+    MONEY ASSET/LIABILITY (is like an asset IOU or YOM, with a value, and with an owner (acreedor "creditor" or debtor))
+        To simplify we could just place "rel_entity" so that when that money exchanges are created we create 2 of these entries
+        This resembles a lot to account entries but for "credit" instead of "base money" created by central bank.
+        LETS DESIGN this in a paper sheet...*/
     show_situation();
 }
 Person.prototype.op_consume=function(asset,units){
@@ -374,6 +458,7 @@ var CentralBank=function(name){
 	this.account=new Account(name);
     this.assets=[];
     this.interest=1;
+    this.reserve_ratio=0.1;
 }
 CentralBank.prototype.op_buy=function(){
         remove_modal();
@@ -383,12 +468,27 @@ CentralBank.prototype.op_modify_interest=function(){alert("trying to modify inte
 CentralBank.prototype.op_modify_reserve_fraction=function(){alert("trying to modify_reserve_fraction");}
 
 
-
 var Bank=function(name){
     this.name=name;
 	this.account=new Account(name);
     this.assets=[];
     this.interest=3;
+    
+    /*pre-calculated*/
+    this.classified_assets=undefined;
+    this.reserves=0;
+    this.excess=0;
+}
+Bank.prototype.update_precalculated=function(){
+    this.classified_assets=get_classified_assets(this.name,['deposits','loans']); 
+    this.reserves=-1*this.classified_assets.deposits.value*elements.central_bank.reserve_ratio;
+    this.excess=-1*this.classified_assets.deposits.value-this.reserves-this.classified_assets.loans.value;
+}
+Bank.prototype.reserves=function(){
+    return this.account.balance()*elements.central_bank.reserve_ratio;
+}
+Bank.prototype.excess=function(){
+    this.account.balance()-this.reserves();
 }
 Bank.prototype.op_buy=function(){
         remove_modal();
@@ -397,7 +497,13 @@ Bank.prototype.op_buy=function(){
 Bank.prototype.op_modify_interest=function(){
     this.interest=prompt("New interest %", "");
 }
-Bank.prototype.op_modify_grant_loan=function(){alert("granting a loan to a customer aking for it");}
+/*Bank.prototype.op_grant_loan=function(){
+    remove_modal();
+    console.log("granting a loan to a customer aking for it");
+    page_div.innerHTML="Demand:<br />"; 
+    page_div.innerHTML+=show_buyer_market_supply(this.name,'loans');
+    page_div.innerHTML+='<br /><button onclick="show_situation()">volver</button>';
+}*/
 
 
 
@@ -409,24 +515,31 @@ var destroy_asset=function(element_from_name,market, units){
     for(var i=0;i<elements[element_from_name].assets.length;i++){
         var asset=elements[element_from_name].assets[i];
         if(asset.market==market && asset.units>=units){
-               if(asset.units==units){
-                   elements[element_from_name].assets.splice(i,1);
-               }else{
-                   asset.units-=units;
-               }
-               removed=true;
-               break;
-           }
+            if(asset.units==units){
+               elements[element_from_name].assets.splice(i,1);
+            }else{
+               asset.units-=units;
+            }
+            removed=true;
+            break;
+        }
     }
     if(!removed) throw Error("Unable to remove asset from "+element_from_name);
 }
-var create_asset=function(element_to_name,market, units){
+var create_asset=function(element_to_name,market, units,value,rel){
     var added=false;
     for(var i=0;i<elements[element_to_name].assets.length;i++){
         var asset=elements[element_to_name].assets[i];
-        if(asset.market==market){ asset.units+=units; added=true; break}
+        if(asset.market==market && asset.rel_elem==rel){
+            if(value!=0)
+                asset.value+=value;
+            else{
+                asset.units+=units;
+            }
+            added=true; break;
+        }
     }
-    if(!added) elements[element_to_name].assets.push(new Asset(market,units));
+    if(!added) elements[element_to_name].assets.push(new Asset(market,units,value,rel));
 }
 
 var exchange_asset=function(element_from_name,element_to_name,market, units){
@@ -435,17 +548,7 @@ var exchange_asset=function(element_from_name,element_to_name,market, units){
 }
 
 
-var show_assets=function(name){
-    if(!elements.hasOwnProperty(name)){throw Error("Assets "+name+" not found.");}
-    var element=elements[name];
-    var html_ret='<h1>assets</h1>'; 
-    html_ret+='<div class="entries">';   
-    for(var i=0;i<element.assets.length;i++){
-        html_ret+=element.assets[i].market+' units='+element.assets[i].units+'<br />';
-    }
-    html_ret+='-------------<br/>'+element.assets.length;
-    return html_ret;
-}
+
 
 
 
@@ -519,12 +622,10 @@ function show_situation(){
 
     // THEN ALSO MODEL PROPERTIES(houses,cars), stocks (company capital, so everyone can be a bank owner)
     var m0=calc_m0();
-    var m1=m0+calc_m1();
+    var m1=calc_m1();
 	page_div.innerHTML+="<br /><br />";
 	page_div.innerHTML+='M0/MB (printed/digital real/base money supply, created by CB):<span id="m0">'+m0+'</span><br />';
 	page_div.innerHTML+='M1 (availabe money supply, M0 + created by private banks): <span id="m1">'+m1+'</span><br />';
-	page_div.innerHTML+="Goods/Services supply:<br />";
-	page_div.innerHTML+="Inflation/Deflation: how banks remove money from circulation?<br />";
 	page_div.innerHTML+='<br /><br /><br /><button onclick="initial_state(2,2)">restart</button><button onclick="initial_state()">restart(configurable)</button>';
 	page_div.innerHTML+='<button onclick="are_accounts_balanced()">validate_balance</button>';
 }
@@ -533,16 +634,25 @@ function show_situation(){
 
 
 function calc_m0(){
-    return -1*elements.central_bank.account.balance();;
+    return -1*elements.central_bank.account.balance();
 }
 
 function calc_m1(){
-    var ret=0;
+    var ret=calc_m0();
     // money created by private banks... under construction
+    // m1= m0 + checkable-deposits - reserves
+    // m1 = checkable deposits + peoples wallets
+    // m1 = m0 + banks loans (based on others deposits which are checkable in this simplifications)
+    var banks=get_elements_type(elements,Bank);
+    for(var i=0;i<banks.length;i++){
+        if(elements[banks[i]].classified_assets!=undefined) ret+=elements[banks[i]].classified_assets.loans.value;
+    }
     return ret;
 }
 
-
+function calc_m2(){
+    // m1 + savings-deposits ... we don't go that far... yet
+}
 
 function initial_state(num_banks,num_persons){
 	//alert("Central Bank (bank of banks) interest %1", "");
