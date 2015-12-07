@@ -241,14 +241,19 @@ function set_user(){
 
 function options(){
 	canvas_zone_vcentered.innerHTML='\
-		  <br /><button id="op_difficult" class="button" onclick="session_data.level=\'difficult\';menu_screen()">Difficult</button>\
-		  <br /><button id="op_normal" class="button" onclick="session_data.level=\'normal\';menu_screen()">Normal</button>\
-		  <br /><button id="op_easy" class="button" onclick="session_data.level=\'easy\';menu_screen()">Easy</button>\
-		  <br /><br /><button class="button" onclick="menu_screen()">Back</button>\
+		  <br /><button id="op_difficult" class="button">Difficult</button>\
+		  <br /><button id="op_normal" class="button">Normal</button>\
+		  <br /><button id="op_easy" class="button">Easy</button>\
+		  <br /><br /><button class="button" id="go-back">Back</button>\
           ';
 	if(session_data.level=="difficult") document.getElementById('op_difficult').classList.add('selectedOption');
 	if(session_data.level=="normal") document.getElementById('op_normal').classList.add('selectedOption');
 	if(session_data.level=="easy") document.getElementById('op_easy').classList.add('selectedOption');
+    document.getElementById("op_difficult").addEventListener(clickOrTouch,function(){session_data.level='difficult';options();});
+    document.getElementById("op_normal").addEventListener(clickOrTouch,function(){session_data.level='nomral';options();});
+    document.getElementById("op_easy").addEventListener(clickOrTouch,function(){session_data.level='easy';options();});
+    document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
+
 }
 
 function top_scores(){
