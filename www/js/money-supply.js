@@ -53,22 +53,23 @@ Account.prototype.balance=function(){
     return ret; //return (this.debit - this.credit);
 }
 
-// property
-var Asset = function (market,units,value,rel_elem){
-    if(typeof(value)=='undefined') value=0;
+// property TODO integrate products and assets in just one class
+var Asset = function (market,units,uprice,rel_elem){
+    if(typeof(uprice)=='undefined') uprice=0;
     if(typeof(rel_elem)=='undefined') rel_elem='';
     this.market=market;
-    this.units=units; // always positive
-    this.value=value; // only money assets do have a value (deposits/loans)
+    this.units=Number(units); // always positive
+    this.uprice=Number(uprice); // only money assets do have a value (deposits/loans)
     this.rel_elem=rel_elem; // only loans/deposits have a rel_element
 }
 
 // market element
-var Product = function (market, owner, units, unit_price){
+// TODO ---> product should probably be just an asset 
+var Product = function (market, owner, units, uprice){
     this.market=market;
     this.owner=owner;
-    this.units=units; // always positive
-    this.unit_price=unit_price; // always positive
+    this.units=Number(units); // always positive
+    this.uprice=Number(uprice); // always positive
 }
 
 var Market = function (name){
@@ -91,7 +92,7 @@ Market.prototype.remove_supply=function(supply_item_owner,units,uprice){
     for(var i=0;i<this.supply.length;i++){
         var product=this.supply[i];
         if(product.owner==supply_item_owner &&
-           product.units>=units && product.unit_price==uprice){
+           product.units>=units && product.uprice==uprice){
                if(product.units==units){
                    this.supply.splice(i,1);
                }else{
@@ -263,14 +264,17 @@ var get_classified_assets=function(name,class_arr){
             curr_class=element.assets[i].market;
         }
         classification[curr_class].assets.push(element.assets[i]);
-        classification[curr_class].value+=element.assets[i].value;
-        classification[curr_class].show_str+=element.assets[i].market+' '+element.assets[i].units+'('+element.assets[i].value+')  '+element.assets[i].rel_elem+'<br />';
+        classification[curr_class].value+=element.assets[i].units*element.assets[i].uprice;
+        classification[curr_class].show_str+=element.assets[i].market+' '+element.assets[i].units+'('+element.assets[i].uprice+')  '+element.assets[i].rel_elem+'<br />';
     }
     // add div wrappers for classes in the str
     for(var i=0;i<class_arr.length;i++){
         classification[class_arr[i]].show_str='<h1 class="asset_box">'+class_arr[i]+' ('+classification[class_arr[i]].assets.length +', $'+classification[class_arr[i]].value+') <a id="as-'+name+class_arr[i]+'-link" href="#" onclick="toggle_element_visibility(\'as-'+name+class_arr[i]+'\')" style="text-decoration:none; color:#fff;">+</a></h1>\
-                                                <div id="as-'+name+class_arr[i]+'" class="entries" style="display:none;">'+classification[class_arr[i]].show_str+'</div>'; 
+              <div id="as-'+name+class_arr[i]+'" class="entries" style="display:none;">'+classification[class_arr[i]].show_str+'</div>'; 
     }
+        classification['other'].show_str='<h1 class="asset_box">other ('+classification['other'].assets.length +', $'+classification['other'].value+') <a id="as-'+name+'other-link" href="#" onclick="toggle_element_visibility(\'as-'+name+'other\')" style="text-decoration:none; color:#fff;">+</a></h1>\
+              <div id="as-'+name+'other" class="entries" style="display:none;">'+classification['other'].show_str+'</div>'; 
+
     return classification;
 }
 
@@ -339,7 +343,7 @@ var show_buyer_market_supply=function(buyer, name){
 var exchange=function(buyer,market_name,seller,units,uprice){
     console.log("exchanging "+units+" "+market_name+" from "+seller+" to "+buyer+" for "+uprice);
     markets[market_name].remove_supply(seller,units,uprice);
-    exchange_asset(seller,buyer, market_name,units);
+    exchange_asset(seller,buyer, market_name,units,uprice);
     var value=units*uprice;
     transactions.push(new Transaction("exchanging "+units+" "+market_name+" from "+seller+" to "+buyer+" for "+uprice,seller,buyer,value));
     elements[seller].account.entries.push(new AccountEntry('selling '+market_name,buyer,value));
@@ -403,12 +407,21 @@ Person.prototype.op_take_out_loan=function(){
         elements[bank].account.entries.push(new AccountEntry(this.name+' borrows $'+amount,this.name,-amount));
         create_asset(this.name,'loans', 1,-Number(amount),bank);
         create_asset(bank,'loans', 1,Number(amount),this.name);
+		var interest=Number(amount)*elements[bank].interest;
+        create_asset(this.name,'interest', 1,-1*interest,bank);
+        create_asset(bank,'interest', 1,interest,this.name);
         elements[bank].update_precalculated();
     }else{
         alert("bank has not enough money (excess)");
     }
     show_situation();
 }
+Person.prototype.op_pay_debt=function(){
+	alert('create a select to pay certain debt');
+}
+
+
+
 Person.prototype.op_make_deposit=function(amount,bank){ //i.e., transfer
     if(typeof(amount)=='undefined') amount = prompt("Deposit amount $", "");
     if(typeof(bank)=='undefined') bank = prompt("Select a bank", "");
@@ -457,7 +470,8 @@ var CentralBank=function(name){
     this.name=name;
 	this.account=new Account(name);
     this.assets=[];
-    this.interest=1;
+    this.funds_interest=0.01; // fixed interet for inter-bank borrowings (banks borrow from other bank when they are falling short on reserves but still have loan demands they would like to cover)
+    this.discount_interest=0.02; // fixed interest when banks borrow from CB directly (always higher than funds interest since the bank should be in real trouble if no other bank wants to lend them money)
     this.reserve_ratio=0.1;
 }
 CentralBank.prototype.op_buy=function(){
@@ -472,7 +486,7 @@ var Bank=function(name){
     this.name=name;
 	this.account=new Account(name);
     this.assets=[];
-    this.interest=3;
+    this.interest=0.03;
     
     /*pre-calculated*/
     this.classified_assets=undefined;
@@ -497,15 +511,45 @@ Bank.prototype.op_buy=function(){
 Bank.prototype.op_modify_interest=function(){
     this.interest=prompt("New interest %", "");
 }
-/*Bank.prototype.op_grant_loan=function(){
-    remove_modal();
-    console.log("granting a loan to a customer aking for it");
-    page_div.innerHTML="Demand:<br />"; 
-    page_div.innerHTML+=show_buyer_market_supply(this.name,'loans');
-    page_div.innerHTML+='<br /><button onclick="show_situation()">volver</button>';
-}*/
+Bank.prototype.op_take_out_loan_from_another_bank=function(){
+	// TODO add parameters and handle well
+    var amount = prompt("Loan amount $", "");
+    var bank = prompt("Select a bank", "");
+	if(bank==undefined || bank==this.name){return;}
+    if(elements[bank].excess>=amount){ 
+        // interest magic here...  this should also check if the customer is solvent (e.g., has enough money to pay interest immediately)
+        console.log("new loan $"+amount+" from "+bank+" to "+this.name);
+        transactions.push(new Transaction("new loan $"+amount+" from "+bank+" to "+this.name,bank,this.name,amount));
+        elements[this.name].account.entries.push(new AccountEntry('borrowing $'+amount+' from '+bank,bank,amount));
+        elements[bank].account.entries.push(new AccountEntry(this.name+' borrows $'+amount,this.name,-amount));
+        create_asset(this.name,'loans', 1,-Number(amount),bank);
+        create_asset(bank,'loans', 1,Number(amount),this.name);
+		var interest=Number(amount)*elements.central_bank.funds_interest;
+        create_asset(this.name,'interest', 1,-1*interest,bank);
+        create_asset(bank,'interest', 1,interest,this.name);
+        elements[bank].update_precalculated();
+        elements[this.name].update_precalculated();
+    }else{
+        alert("bank has not enough money (excess)");
+    }
+    show_situation();
+}
 
-
+Bank.prototype.op_take_out_loan_from_CB=function(){
+	// TODO add parameters and handle well
+    var amount = prompt("Loan amount $", "");
+    console.log("new loan $"+amount+" from CB to "+this.name);
+    transactions.push(new Transaction("new loan $"+amount+" from CB to "+this.name,'central_bank',this.name,amount));
+    elements[this.name].account.entries.push(new AccountEntry('borrowing $'+amount+' from central_bank','central_bank',amount));
+    elements.central_bank.account.entries.push(new AccountEntry(this.name+' borrows $'+amount,this.name,-amount));
+    create_asset(this.name,'loans', 1,-Number(amount),'central_bank');
+    create_asset('central_bank','loans', 1,Number(amount),this.name);
+	var interest=Number(amount)*elements.central_bank.discount_interest;
+    create_asset(this.name,'interest', 1,-1*interest,'central_bank');
+    create_asset('central_bank','interest', 1,interest,this.name);
+    elements[this.name].update_precalculated();
+    show_situation();
+}
 
 
 
@@ -526,25 +570,26 @@ var destroy_asset=function(element_from_name,market, units){
     }
     if(!removed) throw Error("Unable to remove asset from "+element_from_name);
 }
-var create_asset=function(element_to_name,market, units,value,rel){
+var create_asset=function(element_to_name,market, units,uprice,rel){
+	if(typeof(rel)=='undefined') rel='';
     var added=false;
     for(var i=0;i<elements[element_to_name].assets.length;i++){
         var asset=elements[element_to_name].assets[i];
         if(asset.market==market && asset.rel_elem==rel){
-            if(value!=0)
-                asset.value+=value;
+            if(uprice!=0)
+                asset.uprice+=uprice;
             else{
                 asset.units+=units;
             }
             added=true; break;
         }
     }
-    if(!added) elements[element_to_name].assets.push(new Asset(market,units,value,rel));
+    if(!added) elements[element_to_name].assets.push(new Asset(market,units,uprice,rel));
 }
 
-var exchange_asset=function(element_from_name,element_to_name,market, units){
+var exchange_asset=function(element_from_name,element_to_name,market, units,uprice){
     destroy_asset(element_from_name,market, units);
-    create_asset(element_to_name,market, units);
+    create_asset(element_to_name,market, units, uprice);
 }
 
 
@@ -558,17 +603,18 @@ var GovTreasury=function(name){
     this.assets=[];
 }
 GovTreasury.prototype.op_issue_bond=function(units,uprice){
-        if (typeof(units)=='undefined'){units=prompt("units", "1");}
-        if (typeof(uprice)=='undefined'){uprice=prompt("units", "1000");;}
+        remove_modal();
+        if (typeof(units)=='undefined'){units=prompt("units", "1");	if(units==undefined) return;}
+        if (typeof(uprice)=='undefined'){uprice=prompt("uprice", "1000");if(uprice==undefined) return;}
         var bond=new Product("bonds",this.name, units, uprice); 
         markets.bonds.supply.push(bond);
         this.assets.push(bond);
         show_situation();
-        remove_modal();
     }
 GovTreasury.prototype.op_issue_labor=function(units,uprice){
-        if (typeof(units)=='undefined'){units=prompt("units", "1");}
-        if (typeof(uprice)=='undefined'){uprice=prompt("salary (negative) $", "-60000");}
+        remove_modal();
+        if (typeof(units)=='undefined'){units=prompt("units", "1");if(units==undefined) return;}
+        if (typeof(uprice)=='undefined'){uprice=prompt("salary (negative) $", "-60000");if(uprice==undefined) return;}
         var value=-1*units*uprice;
         if(value>this.account.balance()){
             alert("Insufficient money!");
@@ -578,7 +624,6 @@ GovTreasury.prototype.op_issue_labor=function(units,uprice){
             this.assets.push(labor);
         }
         show_situation();
-        remove_modal();
 }
 GovTreasury.prototype.op_collect_taxes=function(){alert("collecting_taxes");},
 GovTreasury.prototype.op_invest=function(){alert("investing");}
@@ -589,7 +634,6 @@ elements.add("gov_treasury", new GovTreasury("gov_treasury"));
 elements.add("adam", new Person("adam"));
 elements.add("eve", new Person("eve"));
 markets["bonds"]=new Market("bonds");
-markets["loans"]=new Market("loans");
 markets["labor"]=new Market("labor");
 markets["wheat"]=new Market("wheat");
 markets["crops"]=new Market("crops");
