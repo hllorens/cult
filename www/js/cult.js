@@ -330,8 +330,11 @@ function menu_screen(){
 	if(is_app){
 		session_data.user='app...'; // find a way to set the usr, by google account
 	}
-	console.log('user.email: '+user_data.email);
-	if(user_data.email==null){
+	if(debug) console.log('user.email: '+user_data.email);
+	if(session_state=="unset"){
+        canvas_zone_vcentered.innerHTML='...waiting for session state...';
+        setTimeout(function() {menu_screen()}, 2000); // add a counter and if it reaches something fail gracefully
+	}else if(user_data.email==null){
 		login_screen();
 	}else{
 		var sign='<li><a href="#" onclick="hamburger_close();show_profile()">profile</a></li>\
@@ -440,7 +443,7 @@ var play_game=function(){
 		 pad_string(timestamp.getHours(),2,"0") + ":"  + pad_string(timestamp.getMinutes(),2,"0");
 
     var header_status=document.getElementById('header_status');
-    header_status.innerHTML=' Life: <span id="current_lifes">&hearts; &hearts; &hearts;</span>   Score: <span id="current_score_num">0</span>';
+    header_status.innerHTML=' Life: <span id="current_lifes">&#9825; &#9825; &#9825;</span>   Score: <span id="current_score_num">0</span>';
     lifes=3;
 	update_lifes_representation();
 	canvas_zone_vcentered.innerHTML=' \
@@ -508,10 +511,10 @@ function update_lifes_representation(){
 	var elem_lifes=document.getElementById('current_lifes');
 	var lifes_representation='';
 	for (var i=0;i<lifes;i++){
-		lifes_representation+="&hearts; ";
+		lifes_representation+="&#9825; ";
 	}
 	elem_lifes.innerHTML=lifes_representation;
-}
+} 
 
 function nextActivity(){
 	 clearTimeout(show_answer_timeout);

@@ -42,6 +42,112 @@ if ($action == "get_users"){
 	}
 	header('Content-type: application/json');
 	echo json_encode( $output );
+}else if ($action == "get_alerts"){
+	$sQuery = "SELECT * FROM stock_alerts where user='".$_SESSION['email']."'";
+	//echo "query: $sQuery ";
+	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
+	while ( $aRow = mysql_fetch_array( $rResult ) ){
+		$output[$aRow['symbol']] = array();
+		$output[$aRow['symbol']]['id'] = $aRow['id'];
+		$output[$aRow['symbol']]['user'] = $aRow['user'];
+		$output[$aRow['symbol']]['symbol'] = $aRow['symbol'];
+		$output[$aRow['symbol']]['low'] = $aRow['low'];
+		$output[$aRow['symbol']]['high'] = $aRow['high'];
+		$output[$aRow['symbol']]['low_change_percentage'] = $aRow['low_change_percentage'];
+		$output[$aRow['symbol']]['high_change_percentage'] = $aRow['high_change_percentage'];
+    }
+	header('Content-type: application/json');
+	echo json_encode( $output );
+}else if ($action == "add_alert"){
+	$user=get_value('user');
+	$symbol=get_value('symbol');
+	$low=get_value('low');
+	$high=get_value('high');
+	$low_change_percentage=get_value('low_change_percentage');
+	$high_change_percentage=get_value('high_change_percentage');
+
+	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of alert";return;}
+
+	$sQuery = "INSERT INTO stock_alerts (user, symbol, low, high, low_change_percentage, high_change_percentage) VALUES ('$user', '$symbol', '$low', '$high', '$low_change_percentage', '$high_change_percentage');";
+	$rResult = mysql_query( $sQuery, $db_connection );
+	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysql_error()." -- ".$sQuery);}
+	$sQuery = "SELECT LAST_INSERT_ID() as lid;";
+	$rResult = mysql_query( $sQuery, $db_connection );
+	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: ".mysql_error()." -- ".$sQuery);}
+	$aRow = mysql_fetch_array( $rResult );
+	header('Content-type: application/json');
+	$output["success"]=$symbol;
+	$output["data"]=array();
+	$output["data"]["id"]=$aRow['lid'];
+	$output["data"]["user"]=$user;
+	$output["data"]["symbol"]=$symbol;
+	$output["data"]["low"]=$low;
+	$output["data"]["high"]=$high;
+	$output["data"]["low_change_percentage"]=$low_change_percentage;
+	$output["data"]["high_change_percentage"]=$high_change_percentage;
+	echo json_encode( $output );
+}else if ($action == "update_alert"){
+	$lid=get_value('lid');
+	$user=get_value('user');
+	$symbol=get_value('symbol');
+	$low=get_value('low');
+	$high=get_value('high');
+	$low_change_percentage=get_value('low_change_percentage');
+	$high_change_percentage=get_value('high_change_percentage');
+
+	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of alert";return;}
+
+	
+	$sQuery = "UPDATE stock_alerts  SET low='$low',high='$high',low_change_percentage='$low_change_percentage',high_change_percentage='$high_change_percentage' WHERE id=$lid;";
+	$rResult = mysql_query( $sQuery, $db_connection );
+	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysql_error()." -- ".$sQuery);}
+	header('Content-type: application/json');
+	$output["success"]=$symbol;
+	$output["data"]=array();
+	$output["data"]["id"]=$lid;
+	$output["data"]["user"]=$user;
+	$output["data"]["symbol"]=$symbol;
+	$output["data"]["low"]=$low;
+	$output["data"]["high"]=$high;
+	$output["data"]["low_change_percentage"]=$low_change_percentage;
+	$output["data"]["high_change_percentage"]=$high_change_percentage;
+	echo json_encode( $output );
+}else if ($action == "delete_alert"){
+	$lid=get_value('lid');
+	$symbol=get_value('symbol');
+	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of alert";return;}
+
+	$sQuery = "DELETE FROM stock_alerts WHERE id=$lid;";
+	$rResult = mysql_query( $sQuery, $db_connection );
+	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysql_error()." -- ".$sQuery);}
+	$output["success"]=$symbol;
+	header('Content-type: application/json');
+	echo json_encode( $output );
+}else if ($action == "send_session_data"){
+	$output["msg"]="success";
+	$reference=get_value("reference");
+	$user=get_value("user");
+	$subject=get_value("subject");
+	$age=get_value("age");
+	$num_answered=get_value("num_answered");
+	$num_correct=get_value("num_correct");
+	$result=0;
+	if(((int) $num_answered)!=0) $result= ((int) $num_correct) / ((int) $num_answered);
+	$level=get_value("level");
+	$duration=get_value("duration");
+	$timestamp=get_value("timestamp");
+
+	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of subject";return;}
+
+	$sQuery = "INSERT INTO sessions(reference,user,subject,age,num_answered,num_correct,result,level,duration,timestamp)  VALUES ('$reference','$user','$subject','$age','$num_answered','$num_correct','$result','$level','$duration','$timestamp');"; 
+	$rResult = mysql_query( $sQuery, $db_connection );
+	if(!$rResult){ $output["msg"]=mysql_error()." -- ".$sQuery; }
+	else{ $output["msg"]="Success. Data session stored in the server. --"; }
+	//else{$output='{"msg":"Success. Data session stored in the server. -- '.$sQuery.'"}';}	
+
+	header('Content-type: application/json');
+	echo json_encode( $output );
+	//print_r($output);
 }else if ($action == "send_session_data_post"){
 	$str_json=json_decode($_POST['json_string'],true);
 	$output["msg"]="success";
