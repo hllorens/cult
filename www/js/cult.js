@@ -26,7 +26,7 @@ var images = [
 	"../../cult-media/img/wrong.png"
 ];
 var sounds = [];
-
+var jsons=[];
 
 var activity_timer=new ActivityTimer();
 var user_data={};
@@ -126,6 +126,7 @@ ajax_request('backend/ajaxdb.php?action=gen_session_state',function(text) {
 
 
 function login_screen(){
+	if(debug){alert('login_screen called');}
 	header_zone.innerHTML='<h1>CULT Sign in</h1>';
 	var invitee_access="";
 	if(debug){
@@ -164,7 +165,7 @@ function invitee_access(){
 function signInCallback(authResult) {
 	//console.log(authResult);
 	if (authResult['code']) {
-		document.getElementById('signinButton').innerHTML="Loading...";
+		canvas_zone_vcentered.innerHTML='<div class="loader">Loading...</div>';
 		// Send one-time-code to server, if responds -> success
 		if(debug) console.log(authResult);
 		ajax_request_json(
@@ -175,11 +176,14 @@ function signInCallback(authResult) {
                     if(result.hasOwnProperty('info') && result.info=="new user"){
                         open_js_modal_content_accept("<p>New user created successfully for: "+result.email+". The challenge begins!</p>");
                     }
+                    
+                    
                     if(debug){
                         console.log(result);
                         console.log("logged! "+result.email+" level:"+result.access_level);
                         alert("logged! "+result.email+" level:"+result.access_level);
                     }
+                    user_data.info=result.info;
                     user_data.display_name=result.display_name;
                     user_data.user_id=result.user_id;
                     user_data.picture=result.picture;
@@ -190,8 +194,10 @@ function signInCallback(authResult) {
 					menu_screen();
 				} else if (authResult['error']) {
 					alert('There was an error: ' + authResult['error']);
+					login_screen();
 				} else {
 					alert('Failed to make a server-side call. Check your configuration and console.</br>Result:'+ result);
+					login_screen();
 				}
 			}
 		);

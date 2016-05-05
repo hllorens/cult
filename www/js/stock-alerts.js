@@ -10,7 +10,7 @@ var images = [
 	"../../cult-media/img/wrong.png"
 ];
 var sounds = [];
-
+var jsons=[];
 
 var user_data={};
 var stocks=undefined;
@@ -28,6 +28,7 @@ ajax_request('backend/ajaxdb.php?action=gen_session_state',function(text) {
 	session_state=text;	//console.log(session_state);
 });
 function login_screen(){
+	if(debug){alert('login_screen called');}
 	header_zone.innerHTML='<h1>Sign in</h1>';
 	var invitee_access="";
 	if(debug){
@@ -75,11 +76,14 @@ function signInCallback(authResult) {
                     if(result.hasOwnProperty('info') && result.info=="new user"){
                         open_js_modal_content_accept("<p>New user created successfully for: "+result.email+". The challenge begins!</p>");
                     }
+                    
+                    
                     if(debug){
                         console.log(result);
                         console.log("logged! "+result.email+" level:"+result.access_level);
                         alert("logged! "+result.email+" level:"+result.access_level);
                     }
+                    user_data.info=result.info;
                     user_data.display_name=result.display_name;
                     user_data.user_id=result.user_id;
                     user_data.picture=result.picture;
@@ -217,15 +221,19 @@ var manage_alerts=function(){
 	canvas_zone_vcentered.innerHTML=' \
     '+normal_opts+'\
 	<div id="results-div">loading alerts...</div> \
-	<br /><button id="go-back" class="minibutton fixed-bottom-right go-back" onclick="menu_screen()">&larr;</button> \
+	<br /><select id="symbols" style="display:none;"></select>\
+    <button id="go-back" class="minibutton fixed-bottom-right go-back" onclick="menu_screen()">&larr;</button> \
 	';
+	var sym_select_elem=document.getElementById('symbols');
+	select_fill_with_json(stocks,sym_select_elem,'IB:INDEXBME');
 	var user_alerts_data=[];
 	for(var key in cache_user_alerts){
 		if (cache_user_alerts.hasOwnProperty(key)) {
 			user_alerts_data.push(cache_user_alerts[key]);
 		}
 	}    
-    
+
+  
 	if(user_alerts_data.length==0){
 		document.getElementById("results-div").innerHTML="user: "+user_data.email+"<br />No alerts defined";
 	}else{
@@ -243,6 +251,7 @@ var manage_alerts=function(){
 				{ data: 'high'},
 				{ data: 'low_change_percentage', col_header: 'lpc'},
 				{ data: 'high_change_percentage', col_header: 'hpc'},
+				{ data: 'last_alerted_date', col_header: 'last alert'},
 				{ data: 'del', col_header: 'Op', link_function_id: 'delete_alert'}
 			]
 		} );
@@ -250,47 +259,66 @@ var manage_alerts=function(){
 };
 
 
-var add_alert=function(){
-	var accept_function=function(){
-		var myform=document.getElementById('my-form');
-		var myformsubmit=document.getElementById('my-form-submit');
-		if (!myform.checkValidity()){
-			if(debug) console.log("form error");
-			// TODO se puede abstraer merjor...
-		    myform.removeEventListener("submit", formValidationSafariSupport);
-		    myform.addEventListener("submit", formValidationSafariSupport);
-		    myformsubmit.removeEventListener("click", showFormAllErrorMessages);
-		    myformsubmit.addEventListener("click", showFormAllErrorMessages);
-			myformsubmit.click(); // won't submit (invalid), but show errors
-		}else{
-			open_js_modal_content('<h1>Adding... '+document.getElementById('new-symbol').value+'</h1>');
-            ajax_request_json(
-            backend_url+'ajaxdb.php?action=add_alert&user='+user_data.email+'&symbol='+document.getElementById('new-symbol').value+'&low='+document.getElementById('new-low').value+'&high='+document.getElementById('new-high').value+'&low_change_percentage='+document.getElementById('new-low_change_percentage').value+'&high_change_percentage='+document.getElementById('new-high_change_percentage').value,
-            function(data) {
-                if(data['success']!='undefined'){
-                    cache_user_alerts[data['success']]=data['data'];
-                    remove_modal();
-                    remove_modal("js-modal-window-alert");
-                    manage_alerts(); // to reload with the new user...
-                }else{
-                    alert("ERROR: "+JSON.stringify(data));
-                }
+
+var accept_add_alert=function(){
+	var myform=document.getElementById('my-form');
+	var myformsubmit=document.getElementById('my-form-submit');
+	if (!myform.checkValidity()){
+		if(debug) console.log("form error");
+		// TODO se puede abstraer merjor...
+	    myform.removeEventListener("submit", formValidationSafariSupport);
+	    myform.addEventListener("submit", formValidationSafariSupport);
+	    myformsubmit.removeEventListener("click", showFormAllErrorMessages);
+	    myformsubmit.addEventListener("click", showFormAllErrorMessages);
+		myformsubmit.click(); // won't submit (invalid), but show errors
+	}else{
+		open_js_modal_content('<h1>Adding... '+document.getElementById('new-symbol').value+'</h1>');
+        ajax_request_json(
+        backend_url+'ajaxdb.php?action=add_alert&user='+user_data.email+'&symbol='+document.getElementById('new-symbol').value+'&low='+document.getElementById('new-low').value+'&high='+document.getElementById('new-high').value+'&low_change_percentage='+document.getElementById('new-low_change_percentage').value+'&high_change_percentage='+document.getElementById('new-high_change_percentage').value,
+        function(data) {
+            if(data['success']!='undefined'){
+                cache_user_alerts[data['success']]=data['data'];
+                remove_modal();
+                remove_modal("js-modal-window-alert");
+                manage_alerts(); // to reload with the new user...
+            }else{
+                alert("ERROR: "+JSON.stringify(data));
             }
-            );
-		}
-	};
-	var cancel_function=function(){ remove_modal("js-modal-window-alert"); };
-	var form_html='<form id="my-form" action="javascript:void(0);"> \
+        }
+        );
+	}
+}
+
+
+var add_alert=function(){
+	//var sym_select_elem=document.getElementById('symbols');
+    //<select id="new-symbol">'+sym_select_elem.innerHTML+'</select>
+	canvas_zone_vcentered.innerHTML='<form id="my-form" action="javascript:void(0);"> \
 			<ul class="errorMessages"></ul>\
-			<label for="new-symbol">Sym</label><input id="new-symbol" type="text" required="required"  /><br /> \
-			<label for="new-low">low</label><input id="new-low" type="text" required="required" /><br /> \
-			<label for="new-high">high</label><input id="new-high" type="text"  required="required"  /><br /> \
-			<label for="new-low_change_percentage">low_change_percentage</label><input id="new-low_change_percentage" type="text" required="required"  /><br /> \
-			<label for="new-high_change_percentage">high_change_percentage</label><input id="new-high_change_percentage" type="text"  required="required" /><br /> \
+			<label for="new-symbol">Sym</label> <input id="new-symbol" autofocus type="text" name="q" placeholder="Symbol ..." required="required" /><br /> \
+			<label for="new-low">low</label> <input id="new-low" type="text" required="required" /><br /> \
+			<label for="new-high">high</label> <input id="new-high" type="text"  required="required"  /><br /> \
+			<label for="new-low_change_percentage">low_change_percentage</label> <input id="new-low_change_percentage" type="text" required="required"  /><br /> \
+			<label for="new-high_change_percentage">high_change_percentage</label> <input id="new-high_change_percentage" type="text"  required="required" /><br /> \
 			<input id="my-form-submit" type="submit" style="visibility:hidden;display:none" />\
-			</form>'; //title="Error: yyyy-mm-dd"		
-	open_js_modal_alert("Añadir Participante",form_html,accept_function,cancel_function);
-};
+			</form><button onclick="accept_add_alert()">Add</button><button onclick="manage_alerts()">Cancel</button>'; //title="Error: yyyy-mm-dd"
+        var search_select = new autoComplete({
+            selector: '#new-symbol',
+            minChars: 1,
+            source: function(term, suggest){
+                term = term.toLowerCase();
+                var choices = objectProperties(stocks);
+                var suggestions = [];
+                for (var i=0;i<choices.length;i++)
+                    if (~choices[i].toLowerCase().indexOf(term)) suggestions.push(choices[i]);
+                suggest(suggestions);
+            }
+        });
+}
+
+
+
+
 
 var edit_alert=function(sid){
 	var accept_function=function(){
@@ -363,7 +391,6 @@ var delete_alert=function(sid){
             backend_url+'ajaxdb.php?action=delete_alert&lid='+sid+'&symbol='+a2edit.symbol,
             function(data) {
                 if(data['success']!='undefined'){
-                    alert(data['success']+" "+cache_user_alerts);
                     delete cache_user_alerts[data['success']];
                     remove_modal();
                     remove_modal("js-modal-window-alert");

@@ -1,6 +1,7 @@
 The Java version developed with Alex Maté does not work anymore (it was Yahoo finance in csv and included IBEX...)
 
 http://www.google.com/finance/info?q=BME:SAN,BKIA
+http://www.google.com/finance/info?infotype=infoquoteall&q=C,JPM,AIG
 	INDEXBME:IB
 	BME:BKIA
 	BME:SAN

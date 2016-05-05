@@ -21,12 +21,12 @@ $timestamp_seconds=date("Y-m-d H:i:s");
 $db_credentials = json_decode(file_get_contents("../../../../secrets/db_credentials_cult-game.json"));
 $gclient_secret = json_decode(file_get_contents("../../../../secrets/gclient_secret_cult-game.json"));
 
-$db_connection =  mysql_pconnect( $db_credentials->db_server, $db_credentials->user, $db_credentials->pass  ) or die( 'Could not open connection to server' );
-mysql_select_db( $db_credentials->db_name, $db_connection) or die( 'Could not select database' );
+$db_connection =  mysqli_connect( $db_credentials->db_server, $db_credentials->user, $db_credentials->pass  ) or die( 'Could not open connection to server' );
+mysqli_select_db( $db_connection, $db_credentials->db_name) or die( 'Could not select database' );
 
 /* SET UTF-8 independently of the MySQL and PHP installation */
-mysql_query("SET NAMES 'utf8'");	
-mysql_query("set time_zone:='Europe/Madrid'");	
+mysqli_query($db_connection, "SET NAMES 'utf8'");	
+mysqli_query($db_connection, "set time_zone:='Europe/Madrid'");	
 
 $output=array();
 	
@@ -34,218 +34,14 @@ if ($action == "get_users"){
 	if($_SESSION['access_level']!='admin'){echo "ERROR: no admin";return;}
 	$sQuery = "SELECT * FROM users";
 	//echo "query: $sQuery ";
-	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
-	while ( $aRow = mysql_fetch_array( $rResult ) )	{
+	$rResult = mysqli_query( $db_connection, $sQuery ) or die(mysqli_error( $db_connection ));
+	while ( $aRow = mysqli_fetch_array( $rResult ) )	{
 		$output[$aRow['email']] = array();
 		$output[$aRow['email']]['email'] = $aRow['email'];
 		$output[$aRow['email']]['access_level'] = $aRow['access_level'];
 	}
 	header('Content-type: application/json');
 	echo json_encode( $output );
-}else if ($action == "get_alerts"){
-	$sQuery = "SELECT * FROM stock_alerts where user='".$_SESSION['email']."'";
-	//echo "query: $sQuery ";
-	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
-	while ( $aRow = mysql_fetch_array( $rResult ) ){
-		$output[$aRow['symbol']] = array();
-		$output[$aRow['symbol']]['id'] = $aRow['id'];
-		$output[$aRow['symbol']]['user'] = $aRow['user'];
-		$output[$aRow['symbol']]['symbol'] = $aRow['symbol'];
-		$output[$aRow['symbol']]['low'] = $aRow['low'];
-		$output[$aRow['symbol']]['high'] = $aRow['high'];
-		$output[$aRow['symbol']]['low_change_percentage'] = $aRow['low_change_percentage'];
-		$output[$aRow['symbol']]['high_change_percentage'] = $aRow['high_change_percentage'];
-    }
-	header('Content-type: application/json');
-	echo json_encode( $output );
-}else if ($action == "add_alert"){
-	$user=get_value('user');
-	$symbol=get_value('symbol');
-	$low=get_value('low');
-	$high=get_value('high');
-	$low_change_percentage=get_value('low_change_percentage');
-	$high_change_percentage=get_value('high_change_percentage');
-
-	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of alert";return;}
-
-	$sQuery = "INSERT INTO stock_alerts (user, symbol, low, high, low_change_percentage, high_change_percentage) VALUES ('$user', '$symbol', '$low', '$high', '$low_change_percentage', '$high_change_percentage');";
-	$rResult = mysql_query( $sQuery, $db_connection );
-	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysql_error()." -- ".$sQuery);}
-	$sQuery = "SELECT LAST_INSERT_ID() as lid;";
-	$rResult = mysql_query( $sQuery, $db_connection );
-	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: ".mysql_error()." -- ".$sQuery);}
-	$aRow = mysql_fetch_array( $rResult );
-	header('Content-type: application/json');
-	$output["success"]=$symbol;
-	$output["data"]=array();
-	$output["data"]["id"]=$aRow['lid'];
-	$output["data"]["user"]=$user;
-	$output["data"]["symbol"]=$symbol;
-	$output["data"]["low"]=$low;
-	$output["data"]["high"]=$high;
-	$output["data"]["low_change_percentage"]=$low_change_percentage;
-	$output["data"]["high_change_percentage"]=$high_change_percentage;
-	echo json_encode( $output );
-}else if ($action == "update_alert"){
-	$lid=get_value('lid');
-	$user=get_value('user');
-	$symbol=get_value('symbol');
-	$low=get_value('low');
-	$high=get_value('high');
-	$low_change_percentage=get_value('low_change_percentage');
-	$high_change_percentage=get_value('high_change_percentage');
-
-	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of alert";return;}
-
-	
-	$sQuery = "UPDATE stock_alerts  SET low='$low',high='$high',low_change_percentage='$low_change_percentage',high_change_percentage='$high_change_percentage' WHERE id=$lid;";
-	$rResult = mysql_query( $sQuery, $db_connection );
-	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysql_error()." -- ".$sQuery);}
-	header('Content-type: application/json');
-	$output["success"]=$symbol;
-	$output["data"]=array();
-	$output["data"]["id"]=$lid;
-	$output["data"]["user"]=$user;
-	$output["data"]["symbol"]=$symbol;
-	$output["data"]["low"]=$low;
-	$output["data"]["high"]=$high;
-	$output["data"]["low_change_percentage"]=$low_change_percentage;
-	$output["data"]["high_change_percentage"]=$high_change_percentage;
-	echo json_encode( $output );
-}else if ($action == "delete_alert"){
-	$lid=get_value('lid');
-	$symbol=get_value('symbol');
-	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of alert";return;}
-
-	$sQuery = "DELETE FROM stock_alerts WHERE id=$lid;";
-	$rResult = mysql_query( $sQuery, $db_connection );
-	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysql_error()." -- ".$sQuery);}
-	$output["success"]=$symbol;
-	header('Content-type: application/json');
-	echo json_encode( $output );
-}else if ($action == "send_session_data"){
-	$output["msg"]="success";
-	$reference=get_value("reference");
-	$user=get_value("user");
-	$subject=get_value("subject");
-	$age=get_value("age");
-	$num_answered=get_value("num_answered");
-	$num_correct=get_value("num_correct");
-	$result=0;
-	if(((int) $num_answered)!=0) $result= ((int) $num_correct) / ((int) $num_answered);
-	$level=get_value("level");
-	$duration=get_value("duration");
-	$timestamp=get_value("timestamp");
-
-	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of subject";return;}
-
-	$sQuery = "INSERT INTO sessions(reference,user,subject,age,num_answered,num_correct,result,level,duration,timestamp)  VALUES ('$reference','$user','$subject','$age','$num_answered','$num_correct','$result','$level','$duration','$timestamp');"; 
-	$rResult = mysql_query( $sQuery, $db_connection );
-	if(!$rResult){ $output["msg"]=mysql_error()." -- ".$sQuery; }
-	else{ $output["msg"]="Success. Data session stored in the server. --"; }
-	//else{$output='{"msg":"Success. Data session stored in the server. -- '.$sQuery.'"}';}	
-
-	header('Content-type: application/json');
-	echo json_encode( $output );
-	//print_r($output);
-}else if ($action == "send_session_data_post"){
-	$str_json=json_decode($_POST['json_string'],true);
-	$output["msg"]="success";
-	$type=$str_json["type"];
-	$level=$str_json["level"];
-	$user=$str_json["user"];
-	$num_correct=$str_json["num_correct"];
-	$timestamp=$str_json["timestamp"];
-
-	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of subject";return;}
-
-	$error=0;
-	$sQuery = "INSERT INTO sessions(type,level,user,num_correct,timestamp)  VALUES ('$type','$level','$user','$num_correct','$timestamp');"; 
-	$rResult = mysql_query( $sQuery, $db_connection );
-	if(!$rResult){ $output["msg"]=mysql_error()." -- ".$sQuery; $error=1;}
-	else{ 
-		$sQuery = "	DELETE FROM sessions WHERE user='$user' AND type='$type' AND level='$level'
-         AND id NOT IN (
-      	 SELECT id FROM (
-		  SELECT id FROM sessions WHERE user='$user' AND type='$type' AND level='$level'
-		  ORDER BY num_correct*1 DESC LIMIT 3) s )";
-		$rResult = mysql_query( $sQuery, $db_connection );
-		if(!$rResult){ $output["msg"]=mysql_error()." -- ".$sQuery; $error=1;}
-		if($error==0) $output["msg"]="Success. Data session stored in the server. --"; // -- '.$sQuery.'"}';}
-	}
-
-
-	header('Content-type: application/json');
-	echo json_encode( $output );
-	//print_r($output);
-
-}else if ($action == "get_top_scores"){
-	$user=get_value("user");
-	$type=get_value("type");
-	$level=get_value("level");
-
-
-	$output['general'] = array();
-	$output['general']['user'] = $user;
-	$output['general']['type'] = $type;
-	$output['general']['level'] = $level;
-	$output['usr_elements'] = array();
-	$output['absolute_elements'] = array();
-
-	$sQuery = "
-    SELECT z.rank, z.num_correct, z.timestamp FROM (
-    SELECT t.id, t.user, t.type, t.level, t.num_correct, t.timestamp, @rownum := @rownum + 1 AS rank
-    FROM sessions t, (SELECT @rownum := 0) r
-	WHERE t.type='$type' AND t.level='$level'
-    ORDER BY num_correct+0 DESC
-    ) as z WHERE z.user='$user' AND z.type='$type' AND z.level='$level' ORDER BY z.num_correct+0 DESC LIMIT 1";
-	//echo "query: $sQuery ";
-	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
-	$element_count=0;	
-	while ( $aRow = mysql_fetch_array( $rResult ) )	{
-		// TODO find an easy way to gues the rank of the user scores (with the query)
-		$output['usr_elements'][]=array();
-		$output['usr_elements'][$element_count]['rank'] = $aRow['rank'];
-		$output['usr_elements'][$element_count]['num_correct']=$aRow['num_correct'];
-		$output['usr_elements'][$element_count]['timestamp']=$aRow['timestamp'];
-		$element_count++;
-	}
-
-	$sQuery = "SELECT * FROM sessions WHERE type='$type' AND level='$level' ORDER BY num_correct+1 DESC LIMIT 10;";
-	//echo "query: $sQuery ";
-	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
-	$element_count=0;	
-	while ( $aRow = mysql_fetch_array( $rResult ) )	{
-		$output['absolute_elements'][]=array();
-		$output['absolute_elements'][$element_count]['id'] = $aRow['id'];
-		$output['absolute_elements'][$element_count]['user']=$aRow['user'];
-		$output['absolute_elements'][$element_count]['type']=$aRow['type'];
-		$output['absolute_elements'][$element_count]['num_correct']=$aRow['num_correct'];
-		$output['absolute_elements'][$element_count]['timestamp']=$aRow['timestamp'];
-		$element_count++;
-	}
-
-	header('Content-type: application/json');
-	echo json_encode( $output );
-	//print_r($output);
-
-}else if ($action == "delete_session"){
-	$id=get_value("id");
-	$user=get_value("user");
-	$subject=get_value("subject");
-	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of subject";return;}
-
-	// create a detailed acction log db so that we can recover actions, authors, dates and previous states
-	$sQuery = "DELETE FROM sessions WHERE id='$id' AND subject='$subject' AND user='$user';";
-
-	$rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
-	$rResult = mysql_query( $sQuery, $db_connection );
-	if(!$rResult){ $output["msg"]=mysql_error()." -- ".$sQuery; }
-	else{ $output["msg"]="Success. Session $id of $subject deleted. --"; }	
-
-	header('Content-type: application/json');
-	echo json_encode( $output );
-	//print_r($output);
 }else if ($action == "gen_session_state"){
 	$state = md5(rand());
 	$_SESSION["state"]=$state;
@@ -318,19 +114,19 @@ if ($action == "get_users"){
                 $_SESSION['picture'] = $userInfo->picture;
                 $_SESSION['email'] = $userInfo->email;
                 $sQuery = "SELECT * FROM users WHERE email='".$userInfo->email."'"; //echo "query: $sQuery ";
-                $rResult = mysql_query( $sQuery, $db_connection ) or die(mysql_error());
-                if ( $aRow = mysql_fetch_array( $rResult ) ){ //existing user
+                $rResult = mysqli_query( $db_connection, $sQuery ) or die(mysqli_error( $db_connection ));
+                if ( $aRow = mysqli_fetch_array( $rResult ) ){ //existing user
                     $_SESSION['access_level'] = $aRow['access_level'];
                     // update the user last_login and last_provider
                     $sQuery = "UPDATE users  SET last_login='$timestamp_seconds',last_provider='google' WHERE email='".$_SESSION['email']."';";
-                    $rResult = mysql_query( $sQuery, $db_connection );
-                    if(!$rResult){$output['error']="Error: ".mysql_error()." -- ".$sQuery;}
+                    $rResult = mysqli_query( $db_connection, $sQuery );
+                    if(!$rResult){$output['error']="Error: ".mysqli_error( $db_connection )." -- ".$sQuery;}
                 }else if(!empty($_SESSION['email'])){ //new user
                     $_SESSION['access_level'] = 'normal';
-                    mail("hectorlm1983@gmail.com","New afan-app user","NEW USER: ".$_SESSION['email'].".  or DELETE");
+                    mail("hectorlm1983@gmail.com","New cult user","NEW USER: ".$_SESSION['email'].".  or DELETE");
                     $sQuery = "INSERT INTO users (email, display_name, access_level, last_login, last_provider, creation_timestamp) VALUES ('".$_SESSION['email']."', '".$_SESSION['display_name']."', '".$_SESSION['access_level']."', '$timestamp_seconds', 'google', '$timestamp_seconds');";
-                    $rResult = mysql_query( $sQuery, $db_connection );
-                    if(!$rResult){$output['error']="Error: Exists. ".mysql_error()." -- ".$sQuery;}
+                    $rResult = mysqli_query( $db_connection, $sQuery );
+                    if(!$rResult){$output['error']="Error: Exists. ".mysqli_error( $db_connection )." -- ".$sQuery;}
                     $output['info']="new user";
                 }else{
                     $output['error']="Error: empty user? no user info with the token?";
@@ -379,6 +175,214 @@ if ($action == "get_users"){
 	}
 	header('Content-type: application/json');
 	echo json_encode( $output );
+}else if ($action == "get_alerts"){
+	$sQuery = "SELECT * FROM stock_alerts where user='".$_SESSION['email']."'";
+	//echo "query: $sQuery ";
+	$rResult = mysqli_query( $db_connection, $sQuery ) or die(mysqli_error( $db_connection ));
+	while ( $aRow = mysqli_fetch_array( $rResult ) ){
+		$output[$aRow['symbol']] = array();
+		$output[$aRow['symbol']]['id'] = $aRow['id'];
+		$output[$aRow['symbol']]['user'] = $aRow['user'];
+		$output[$aRow['symbol']]['symbol'] = $aRow['symbol'];
+		$output[$aRow['symbol']]['low'] = $aRow['low'];
+		$output[$aRow['symbol']]['high'] = $aRow['high'];
+		$output[$aRow['symbol']]['low_change_percentage'] = $aRow['low_change_percentage'];
+		$output[$aRow['symbol']]['high_change_percentage'] = $aRow['high_change_percentage'];
+		$output[$aRow['symbol']]['last_alerted_date'] = $aRow['last_alerted_date'];
+    }
+	header('Content-type: application/json');
+	echo json_encode( $output );
+}else if ($action == "add_alert"){
+	$user=get_value('user');
+	$symbol=get_value('symbol');
+	$low=get_value('low');
+	$high=get_value('high');
+	$low_change_percentage=get_value('low_change_percentage');
+	$high_change_percentage=get_value('high_change_percentage');
+
+	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of alert";return;}
+
+	$sQuery = "INSERT INTO stock_alerts (user, symbol, low, high, low_change_percentage, high_change_percentage) VALUES ('$user', '$symbol', '$low', '$high', '$low_change_percentage', '$high_change_percentage');";
+	$rResult = mysqli_query( $db_connection, $sQuery );
+	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysqli_error( $db_connection )." -- ".$sQuery);}
+	$sQuery = "SELECT LAST_INSERT_ID() as lid;";
+	$rResult = mysqli_query( $db_connection, $sQuery );
+	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: ".mysqli_error( $db_connection )." -- ".$sQuery);}
+	$aRow = mysqli_fetch_array( $rResult );
+	header('Content-type: application/json');
+	$output["success"]=$symbol;
+	$output["data"]=array();
+	$output["data"]["id"]=$aRow['lid'];
+	$output["data"]["user"]=$user;
+	$output["data"]["symbol"]=$symbol;
+	$output["data"]["low"]=$low;
+	$output["data"]["high"]=$high;
+	$output["data"]["low_change_percentage"]=$low_change_percentage;
+	$output["data"]["high_change_percentage"]=$high_change_percentage;
+	$output["data"]["last_alerted_date"]="";
+	echo json_encode( $output );
+}else if ($action == "update_alert"){
+	$lid=get_value('lid');
+	$user=get_value('user');
+	$symbol=get_value('symbol');
+	$low=get_value('low');
+	$high=get_value('high');
+	$low_change_percentage=get_value('low_change_percentage');
+	$high_change_percentage=get_value('high_change_percentage');
+
+	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of alert";return;}
+
+	
+	$sQuery = "UPDATE stock_alerts  SET low='$low',high='$high',low_change_percentage='$low_change_percentage',high_change_percentage='$high_change_percentage' WHERE id=$lid;";
+	$rResult = mysqli_query( $db_connection, $sQuery );
+	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysqli_error( $db_connection )." -- ".$sQuery);}
+	header('Content-type: application/json');
+	$output["success"]=$symbol;
+	$output["data"]=array();
+	$output["data"]["id"]=$lid;
+	$output["data"]["user"]=$user;
+	$output["data"]["symbol"]=$symbol;
+	$output["data"]["low"]=$low;
+	$output["data"]["high"]=$high;
+	$output["data"]["low_change_percentage"]=$low_change_percentage;
+	$output["data"]["high_change_percentage"]=$high_change_percentage;
+	$output["data"]["last_alerted_date"]="";
+	echo json_encode( $output );
+}else if ($action == "delete_alert"){
+	$lid=get_value('lid');
+	$symbol=get_value('symbol');
+	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of alert";return;}
+
+	$sQuery = "DELETE FROM stock_alerts WHERE id=$lid;";
+	$rResult = mysqli_query( $db_connection, $sQuery );
+	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysqli_error( $db_connection )." -- ".$sQuery);}
+	$output["success"]=$symbol;
+	header('Content-type: application/json');
+	echo json_encode( $output );
+}else if ($action == "send_session_data"){
+	$output["msg"]="success";
+	$reference=get_value("reference");
+	$user=get_value("user");
+	$subject=get_value("subject");
+	$age=get_value("age");
+	$num_answered=get_value("num_answered");
+	$num_correct=get_value("num_correct");
+	$result=0;
+	if(((int) $num_answered)!=0) $result= ((int) $num_correct) / ((int) $num_answered);
+	$level=get_value("level");
+	$duration=get_value("duration");
+	$timestamp=get_value("timestamp");
+
+	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of subject";return;}
+
+	$sQuery = "INSERT INTO sessions(reference,user,subject,age,num_answered,num_correct,result,level,duration,timestamp)  VALUES ('$reference','$user','$subject','$age','$num_answered','$num_correct','$result','$level','$duration','$timestamp');"; 
+	$rResult = mysqli_query( $db_connection, $sQuery );
+	if(!$rResult){ $output["msg"]=mysqli_error( $db_connection )." -- ".$sQuery; }
+	else{ $output["msg"]="Success. Data session stored in the server. --"; }
+	//else{$output='{"msg":"Success. Data session stored in the server. -- '.$sQuery.'"}';}	
+
+	header('Content-type: application/json');
+	echo json_encode( $output );
+	//print_r($output);
+}else if ($action == "send_session_data_post"){
+	$str_json=json_decode($_POST['json_string'],true);
+	$output["msg"]="success";
+	$type=$str_json["type"];
+	$level=$str_json["level"];
+	$user=$str_json["user"];
+	$num_correct=$str_json["num_correct"];
+	$timestamp=$str_json["timestamp"];
+
+	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of subject";return;}
+
+	$error=0;
+	$sQuery = "INSERT INTO sessions(type,level,user,num_correct,timestamp)  VALUES ('$type','$level','$user','$num_correct','$timestamp');"; 
+	$rResult = mysqli_query( $db_connection, $sQuery );
+	if(!$rResult){ $output["msg"]=mysqli_error( $db_connection )." -- ".$sQuery; $error=1;}
+	else{ 
+		$sQuery = "	DELETE FROM sessions WHERE user='$user' AND type='$type' AND level='$level'
+         AND id NOT IN (
+      	 SELECT id FROM (
+		  SELECT id FROM sessions WHERE user='$user' AND type='$type' AND level='$level'
+		  ORDER BY num_correct*1 DESC LIMIT 3) s )";
+		$rResult = mysqli_query( $db_connection, $sQuery );
+		if(!$rResult){ $output["msg"]=mysqli_error( $db_connection )." -- ".$sQuery; $error=1;}
+		if($error==0) $output["msg"]="Success. Data session stored in the server. --"; // -- '.$sQuery.'"}';}
+	}
+
+
+	header('Content-type: application/json');
+	echo json_encode( $output );
+	//print_r($output);
+
+}else if ($action == "get_top_scores"){
+	$user=get_value("user");
+	$type=get_value("type");
+	$level=get_value("level");
+
+
+
+	$output['general'] = array();
+	$output['general']['user'] = $user;
+	$output['general']['type'] = $type;
+	$output['general']['level'] = $level;
+	$output['usr_elements'] = array();
+	$output['absolute_elements'] = array();
+
+	$sQuery = "
+    SELECT z.rank, z.num_correct, z.timestamp FROM (
+    SELECT t.id, t.user, t.type, t.level, t.num_correct, t.timestamp, @rownum := @rownum + 1 AS rank
+    FROM sessions t, (SELECT @rownum := 0) r
+	WHERE t.type='$type' AND t.level='$level'
+    ORDER BY num_correct+0 DESC
+    ) as z WHERE z.user='$user' AND z.type='$type' AND z.level='$level' ORDER BY z.num_correct+0 DESC LIMIT 1";
+	//echo "query: $sQuery ";
+	$rResult = mysqli_query( $db_connection, $sQuery ) or die(mysqli_error( $db_connection ));
+	$element_count=0;	
+	while ( $aRow = mysqli_fetch_array( $rResult ) )	{
+		// TODO find an easy way to gues the rank of the user scores (with the query)
+		$output['usr_elements'][]=array();
+		$output['usr_elements'][$element_count]['rank'] = $aRow['rank'];
+		$output['usr_elements'][$element_count]['num_correct']=$aRow['num_correct'];
+		$output['usr_elements'][$element_count]['timestamp']=$aRow['timestamp'];
+		$element_count++;
+	}
+
+	$sQuery = "SELECT * FROM sessions WHERE type='$type' AND level='$level' ORDER BY num_correct+1 DESC LIMIT 10;";
+	//echo "query: $sQuery ";
+	$rResult = mysqli_query( $db_connection, $sQuery ) or die(mysqli_error( $db_connection ));
+	$element_count=0;	
+	while ( $aRow = mysqli_fetch_array( $rResult ) )	{
+		$output['absolute_elements'][]=array();
+		$output['absolute_elements'][$element_count]['id'] = $aRow['id'];
+		$output['absolute_elements'][$element_count]['user']=$aRow['user'];
+		$output['absolute_elements'][$element_count]['type']=$aRow['type'];
+		$output['absolute_elements'][$element_count]['num_correct']=$aRow['num_correct'];
+		$output['absolute_elements'][$element_count]['timestamp']=$aRow['timestamp'];
+		$element_count++;
+	}
+
+	header('Content-type: application/json');
+	echo json_encode( $output );
+	//print_r($output);
+
+}else if ($action == "delete_session"){
+	$id=get_value("id");
+	$user=get_value("user");
+	$subject=get_value("subject");
+	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of subject";return;}
+
+	// create a detailed acction log db so that we can recover actions, authors, dates and previous states
+	$sQuery = "DELETE FROM sessions WHERE id='$id' AND subject='$subject' AND user='$user';";
+
+	$rResult = mysqli_query( $db_connection, $sQuery ) or die(mysqli_error( $db_connection ));
+	$rResult = mysqli_query( $db_connection, $sQuery );
+	if(!$rResult){ $output["msg"]=mysqli_error( $db_connection )." -- ".$sQuery; }
+	else{ $output["msg"]="Success. Session $id of $subject deleted. --"; }	
+
+	header('Content-type: application/json');
+	echo json_encode( $output );
+	//print_r($output);
 }else{
 	$output['msg']="unsupported action";
 	header('Content-type: application/json');

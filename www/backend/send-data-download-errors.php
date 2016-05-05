@@ -15,16 +15,16 @@ error_reporting(E_STRICT);
 date_default_timezone_set('Europe/Madrid');
 $mail = new PHPMailer();
 
-//$mail->IsMail();
+$mail_credentials = json_decode(file_get_contents("/home/hector/secrets/mail-cognitionis.json"));
 $mail->IsSMTP(); // enable SMTP
 $mail->SMTPDebug = 1;  // debugging: 1 = errors and messages, 2 = messages only
 $mail->SMTPAuth   = true;                  // enable SMTP authentication
 $mail->SMTPSecure = "ssl";                 // sets the prefix to the servier
 $mail->Host       = "mail.cognitionis.com";      // sets GMAIL as the SMTP server
 $mail->Port       = 465;                   // set the SMTP port for the GMAIL server
-$mail->Username   = "info@cognitionis.com";  // GMAIL username
-$mail->Password   = "carpediem";            // GMAIL password
-// para arreglar en hotmail usar php mail sin phpmailer
+$mail->Username   = $mail_credentials->user;  // GMAIL username
+$mail->Password   = $mail_credentials->pass;  // GMAIL password
+
 
 $mail->charSet = "UTF-8";
 $mail->SetFrom('info@cognitionis.com');

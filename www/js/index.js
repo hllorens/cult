@@ -46,7 +46,7 @@ function onDeviceReady() {
 
 function splash_screen(){
 	// the default index.html might contain splash screen directly (more efficient)
-	ResourceLoader.load_media(images,sounds,menu_screen,false,debug);
+	ResourceLoader.load_media(images,sounds,jsons, menu_screen,false,debug);
 }
 
 // IMPORTANT: this should wait for all resources, even the jsons requested in js
