@@ -11,17 +11,8 @@ if(QueryString.hasOwnProperty('debug') && QueryString.debug=='true') debug=true;
 prevent_scrolling();
 
 // variables
-var exit_url="http://www.cognitionis.com";
 var backend_url='backend/' //../backend
 
-
-var exit_app=function(){
-		if(is_app){
-			navigator.app.exitApp();
-		}else{
-			location.href = exit_url;
-		}
-}
 
 var is_app=is_cordova();
 if(is_app){

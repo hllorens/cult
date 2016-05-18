@@ -11,12 +11,13 @@ function get_year($date_str){
 
 $activity_arr=array();
 
+$data_directory='../../../cult-data-game-unified/';
 $tsvfile="history.tsv";
 if( isset($_GET['file']) ){
 	$tsvfile=$_GET['file'];
 }
 
-$file = fopen($tsvfile,"r");
+$file = fopen($data_directory.$tsvfile,"r");
 $num_words=0;
 
 if($file!=false){
@@ -42,7 +43,7 @@ if($file!=false){
 header('Content-type: text/plain');
 
 
-$fp = fopen($tsvfile.'.json', 'w');
+$fp = fopen($data_directory.$tsvfile.'.json', 'w');
 fwrite($fp, json_encode($activity_arr));
 fclose($fp);
 

@@ -98,8 +98,9 @@ for K in "${!INDICATORMAP[@]}";do
 	echo "Generating data for the game!\n\n"
     rm -rf $destination-game/${K}_wb.json
 	wget --timeout=180 -q -O $destination-game/${K}_wb.json "http://www.cognitionis.com/cult/www/backend/format_data_for_the_game.php?indicator=${K}&indicator_sf=${INDICATORSFMAP[$K]}" > $SCRIPT_PATH/data-generation.log;
-
 done
+wget --timeout=180 -q -O $destination-game-unified/all_wb.json "http://www.cognitionis.com/cult/www/backend/format_data_for_the_game.php?indicator=all" > $SCRIPT_PATH/data-generation-game.log;
+
 
 if [ "$sendemail" == "true" ];then 
 	echo "sending email errors!"

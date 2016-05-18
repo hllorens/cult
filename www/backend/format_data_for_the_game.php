@@ -32,8 +32,16 @@
 		- SAME COUNTRY FOR DIFFERENT YEARS (ONLY PREVIOUS, LAST LUSTRUM, LAST_DECADE)
 */
 
+function country_translation($country_name){
+    if($country_name=="Egypt, Arab Rep.") return "Egypt";
+    if($country_name=="Korea, Rep.") return "South Korea";
+    return $country_name;
+}
+
 $last_year=intval(date("Y"))-1;
 $previous_year=$last_year-1;
+$previous_year2=$last_year-2;
+$previous_year3=$last_year-3;
 $last_lustrum=$last_year-4;
 $last_decade=$last_year-9;
 $last_2decade=$last_year-19;
@@ -50,33 +58,51 @@ if(isset($_REQUEST['indicator_sf']) ){$indicator_sf=$_REQUEST['indicator_sf'];}
 if(isset($_REQUEST['data_source']) ){$data_source=$_REQUEST['data_source'];}
 
 $data_arr=array();
-$data_arr['indicator']=$indicator;
-$data_arr['indicator_sf']=$indicator_sf;
-$data_arr['last_year']=$last_year;
-$data_arr['previous_year']=$previous_year;
-$data_arr['last_lustrum']=$last_lustrum;
-$data_arr['last_decade']=$last_decade;
-$data_arr['last_2decade']=$last_2decade;
-$data_arr['data_source']=$data_source;
-$data_arr['data']=array();
-$data_arr['data']['last_year']=array();
-$data_arr['data']['previous_year']=array();
-$data_arr['data']['last_lustrum']=array();
-$data_arr['data']['last_decade']=array();
-$data_arr['data']['last_2decade']=array();
-foreach(array_filter(glob($data_directory.'/*_'.$indicator.'_'.$data_source.'.json'), 'is_file') as $file) {
-	$string = file_get_contents($file);
-	$json_a = json_decode($string, true);
-	foreach ($json_a[1] as $item) {
-		if($item['date'] == $last_year ) $data_arr['data']['last_year'][$item['country']['value']]=$item["value"];
-		else if($item['date'] == $previous_year ) $data_arr['data']['previous_year'][$item['country']['value']]=$item["value"];
-		else if($item['date'] == $last_lustrum ) $data_arr['data']['last_lustrum'][$item['country']['value']]=$item["value"];
-		else if($item['date'] == $last_decade ) $data_arr['data']['last_decade'][$item['country']['value']]=$item["value"];
-		else if($item['date'] == $last_2decade ) $data_arr['data']['last_2decade'][$item['country']['value']]=$item["value"];
-	}
-}
 
-// TODO guardar esto en un fichero? llamar a este php desde otro q genera los ficheros
+if($indicator!='all'){
+    $data_arr['indicator']=$indicator;
+    $data_arr['indicator_sf']=$indicator_sf;
+    $data_arr['last_year']=$last_year;
+    $data_arr['previous_year']=$previous_year;
+    $data_arr['previous_year2']=$previous_year2;
+    $data_arr['previous_year3']=$previous_year3;
+    $data_arr['last_lustrum']=$last_lustrum;
+    $data_arr['last_decade']=$last_decade;
+    $data_arr['last_2decade']=$last_2decade;
+    $data_arr['data_source']=$data_source;
+    $data_arr['data']=array();
+    $data_arr['data']['last_year']=array();
+    $data_arr['data']['previous_year']=array();
+    $data_arr['data']['previous_year2']=array();
+    $data_arr['data']['previous_year3']=array();
+    $data_arr['data']['last_lustrum']=array();
+    $data_arr['data']['last_decade']=array();
+    $data_arr['data']['last_2decade']=array();
+    foreach(array_filter(glob($data_directory.'/*_'.$indicator.'_'.$data_source.'.json'), 'is_file') as $file) {
+        $string = file_get_contents($file);
+        $json_a = json_decode($string, true);
+        foreach ($json_a[1] as $item) {
+            $item['country']['value']=country_translation($item['country']['value']);
+            if($item['date'] == $last_year ) $data_arr['data']['last_year'][$item['country']['value']]=$item["value"];
+            else if($item['date'] == $previous_year ) $data_arr['data']['previous_year'][$item['country']['value']]=$item["value"];
+            else if($item['date'] == $previous_year2 ) $data_arr['data']['previous_year2'][$item['country']['value']]=$item["value"];
+            else if($item['date'] == $previous_year3 ) $data_arr['data']['previous_year3'][$item['country']['value']]=$item["value"];
+            else if($item['date'] == $last_lustrum ) $data_arr['data']['last_lustrum'][$item['country']['value']]=$item["value"];
+            else if($item['date'] == $last_decade ) $data_arr['data']['last_decade'][$item['country']['value']]=$item["value"];
+            else if($item['date'] == $last_2decade ) $data_arr['data']['last_2decade'][$item['country']['value']]=$item["value"];
+        }
+    }
+}else{
+    foreach(array_filter(glob($data_directory.'-game/*_'.$data_source.'.json'), 'is_file') as $file) {
+        $string = file_get_contents($file);
+        $json_a = json_decode($string, true);
+        $indicator=basename ( $file, '_'.$data_source.'.json');
+        $data_arr[$indicator]=$json_a;
+    }
+    $string = file_get_contents($data_directory.'-game-unified/history.tsv.json');
+    $json_a = json_decode($string, true);
+    $data_arr['history']=$json_a;
+}
 
 header('Content-type: application/json');
 echo json_encode( $data_arr );

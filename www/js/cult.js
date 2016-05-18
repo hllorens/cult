@@ -26,7 +26,9 @@ var images = [
 	"../../cult-media/img/wrong.png"
 ];
 var sounds = [];
-var jsons=[];
+var jsons=[
+	"../../cult-data-game-unified/all_wb.json"
+];
 
 var activity_timer=new ActivityTimer();
 var user_data={};
@@ -137,7 +139,6 @@ function login_screen(){
    <span class="icon"></span>\
     <span class="buttonText"></span>\
 	</div>'+invitee_access+'\
-	<br /><button id="exit" class="button exit" onclick="exit_app();">Exit</button> \
 		';
 	gapi.signin.render('signinButton', {
 	  'callback': 'signInCallback',
@@ -351,7 +352,6 @@ function menu_screen(){
 		// TODO if admin administrar... lo de sujetos puede ir aquí tb...
 		hamburger_menu_content.innerHTML=''+get_reduced_display_name(user_data.display_name)+'<ul>\
 		'+sign+'\
-	      <li><a href="#" onclick="exit_app()">exit app</a></li>\
 		</ul>';
         header_zone.innerHTML='<div id="header_basic"><a id="hamburger_icon" onclick="hamburger_toggle(event)"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">\
         <path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/></svg></a> <span id="header_text" onclick="menu_screen()">'+app_name+'</span></div> <div id="header_status"> </div>';
@@ -360,56 +360,25 @@ function menu_screen(){
 		canvas_zone_vcentered.innerHTML=' \
 		<div id="menu-logo-div"></div> \
 		<nav id="responsive_menu">\
-		<br /><button id="start-button" class="button" disabled="true">Play</button> \
+		<br /><button id="start-button" class="button">Play</button> \
+		<br /><button id="show-data" class="button">Learn Geo</button> \
+		<br /><button id="show-analysis" class="button">analysis</button> \
+		<br /><button id="show-history" class="button">Learn Hist</button> \
 		<br /><button id="options" class="button">Options</button> \
 		<br /><button id="top_scores" class="button">Top Scores</button> \
-		<br /><button id="exit_app" class="button exit">Exit</button> \
 		</nav>\
 		';
         document.getElementById("start-button").addEventListener(clickOrTouch,function(){play_game();});
+        document.getElementById("show-data").addEventListener(clickOrTouch,function(){show_data();});
+        document.getElementById("show-analysis").addEventListener(clickOrTouch,function(){show_analysis();});
+        document.getElementById("show-history").addEventListener(clickOrTouch,function(){show_history();});
         document.getElementById("options").addEventListener(clickOrTouch,function(){options();});
         document.getElementById("top_scores").addEventListener(clickOrTouch,function(){top_scores();});
-        document.getElementById("exit_app").addEventListener(clickOrTouch,function(){exit_app();});
-		
-		if(json_data_files==undefined){
-		    ajax_request_json("backend/search_game_data_files.php?data_source="+data_source,function(json_filenames){
-		        //console.log(json_filenames)
-		        json_data_files=json_filenames;
-		        data_not_loaded_yet=json_filenames.length+1;
-		        for(var i=0;i<=json_filenames.length;i++){
-		            if(debug) console.log('requesting '+json_filenames[i]);
-                    if(i<json_filenames.length){
-                        ajax_request_json(json_filenames[i],function(json){
-                            data_map[json.indicator]=json; 
-                            indicator_list.push(json.indicator);
-                            if(debug) console.log(json.indicator);
-                            data_not_loaded_yet--;
-                            if(data_not_loaded_yet==0){
-                                // load countries and periods (only once)
-                                load_country_list_from_indicator('population');
-                                load_period_list_from_indicator_ignore_last_year('population');
-                                document.getElementById("start-button").disabled=false;
-                            }
-                        });
-                    }else{
-                        ajax_request_json('./backend/history.tsv.json',function(json){
-                            data_map['history']=json; 
-                            if(debug) console.log('history loaded');
-                            data_not_loaded_yet--;
-                            if(data_not_loaded_yet==0){
-                                // load countries and periods (only once)
-                                load_country_list_from_indicator('population');
-                                load_period_list_from_indicator_ignore_last_year('population');
-                                document.getElementById("start-button").disabled=false;
-                            }
-                        });                        
-                    }
-		        }
-		    });
-		}else{
-		    document.getElementById("start-button").disabled=false;
-		    if(user_data.access_level!='invitee'){console.log('logged as admin');}
-		}
+        data_map=media_objects.jsons['all_wb.json'];
+		indicator_list=Object.keys(data_map);
+        indicator_list.splice(indicator_list.indexOf('history'));
+        load_country_list_from_indicator('population');
+        load_period_list_from_indicator_ignore_last_year('population');
 	}
 }
 
@@ -440,6 +409,134 @@ var end_game=function(){
 	menu_screen();
 }
 
+var show_data=function(country){
+    if(typeof(country)=='undefined') country='World';
+    //make a function to show a colored string of curr vs last lustrum
+	canvas_zone_vcentered.innerHTML=' \
+     <form id="my-form" action="javascript:void(0);"> \
+		<ul class="errorMessages"></ul>\
+		<input id="new-country" autofocus type="text" name="q" placeholder="'+country+'" required="required" />\
+			<input id="my-form-submit" type="submit" style="visibility:hidden;display:none" />\
+            <button onclick="show_data_country()">&gt;</button>\
+			</form>\
+     <table style="width:90%;margin:0 auto;padding:0;">\
+     '+get_colored_indicator_row('population',country)+'\
+     '+get_colored_indicator_row('surfacekm',country)+'\
+     '+get_colored_indicator_row('popdensity',country)+'\
+     '+get_colored_indicator_row('gdppcap',country)+'\
+     '+get_colored_indicator_row('pop65',country)+'\
+     '+get_colored_indicator_row('unemployed',country)+'\
+     '+get_colored_indicator_row('inflation',country)+'\
+     </table>\
+     <button id="go-back" class="button">back</button>\
+	';
+    var search_select = new autoComplete({
+        selector: '#new-country',
+        minChars: 1,
+        source: function(term, suggest){
+            term = term.toLowerCase();
+            var choices = country_list;
+            var suggestions = [];
+            for (var i=0;i<choices.length;i++)
+                if (~choices[i].toLowerCase().indexOf(term)) suggestions.push(choices[i]);
+            suggest(suggestions);
+        }
+    });
+    document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
+    document.getElementById('new-country').focus();
+    document.getElementById('new-country').onkeypress = function(e){
+        if (!e) e = window.event;
+        var keyCode = e.keyCode || e.which;
+        if (keyCode == '13'){
+            show_data_country();
+            return false;
+        }
+    }
+}
+
+var show_data_country=function(){
+    var country=document.getElementById('new-country').value;
+    show_data(country.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();})); // title for multi token e.g., United States
+    //   country.charAt(0).toUpperCase()+country.slice(1).toLowerCase() // only works for mono-token
+}
+
+var get_colored_indicator_row=function(indicator, country){
+    var indic=indicator;
+    var curr_period='last_year';
+    if(data_map[indicator].data[curr_period][country]==null){
+        indic=indicator+' (-1y)';
+        curr_period='previous_year';
+    }
+    if(data_map[indicator].data[curr_period][country]==null){
+        indic=indicator+' (-2y)';
+        curr_period='previous_year2';
+    }
+    var curr_val=Number(data_map[indicator].data[curr_period][country]);
+    var last_lustrum_val=Number(data_map[indicator].data.last_lustrum[country]);
+    var last_decade_val=Number(data_map[indicator].data.last_decade[country]);
+    var percentage_diff=num_representation(100*(curr_val-last_lustrum_val)/last_lustrum_val,0);
+    var percentage_diff2=num_representation(100*(curr_val-last_decade_val)/last_decade_val,0);
+    var extra='';
+    if(indicator=='gdppcap'){
+        if(percentage_diff.charAt(0)!='-' && percentage_diff2.charAt(0)=='-') extra='+tc';
+        if(percentage_diff.charAt(0)=='-' && percentage_diff2.charAt(0)!='-') extra='-tc';
+    }
+    if(indicator=='unemployed'){
+        if(percentage_diff.charAt(0)!='-' && percentage_diff2.charAt(0)=='-') extra='-tc';
+        if(percentage_diff.charAt(0)=='-' && percentage_diff2.charAt(0)!='-') extra='+tc';
+    }
+    return '<tr><td style="text-align:right;width:45%;">'+indic+':</td><td style="text-align:left;width:45%;">'+num_representation(curr_val,0)+' ('+get_formatted_diff_percentage(percentage_diff)+', '+get_formatted_diff_percentage(percentage_diff2)+') '+extra+'</td></tr>';
+}
+
+var get_formatted_diff_percentage=function(percentage_diff){
+    if(percentage_diff=="0" || percentage_diff=="-0"){percentage_diff="="}
+    else{
+        if((''+percentage_diff).indexOf('-')!=0){percentage_diff='<span style="color:green">+'+percentage_diff+'%</span>';}
+        else{percentage_diff='<span style="color:red">'+percentage_diff+'%</span>';}
+    }
+    return percentage_diff;
+}
+
+var show_history=function(){
+    alert('under construction');
+}
+
+var show_analysis=function(){
+    var keysSorted=[];
+    keysSorted['gdppcap']=get_sorted_countries_indicator('gdppcap');
+    keysSorted['unemployed']=get_sorted_countries_indicator('unemployed','asc');
+    canvas_zone_vcentered.innerHTML=' \
+    GDPPcap<br />\
+    gdppcap: '+keysSorted['gdppcap'].slice(0,4)+' ... '+keysSorted['gdppcap'].slice(-4)+'<br />\
+    unemployment: '+keysSorted['unemployed'].slice(0,4)+' ... '+keysSorted['unemployed'].slice(-4)+'<br />\
+     <button id="go-back" class="button">back</button>\
+    ';
+    document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
+}
+
+var get_sorted_countries_indicator=function(indicator,direction){
+    // pre-do the sortings when formatting the data new property sorted countries...
+    if(typeof(direction)=='undefined') direction='desc';
+    var curr_period='last_year';
+    if(data_map[indicator].data[curr_period]['World']==null){
+        curr_period='previous_year';
+    }
+    if(data_map[indicator].data[curr_period]['World']==null){
+        curr_period='previous_year2';
+    }
+    var list=data_map[indicator].data[curr_period];
+    var keysSorted = Object.keys(list).sort(function(a,b){return Number(list[b])-Number(list[a])});
+    if(direction=='asc') keysSorted = Object.keys(list).sort(function(a,b){return Number(list[a])-Number(list[b])});
+    var countries_to_del=['World'];
+    for(var i=0;i<keysSorted.length;i++){
+        if(list[keysSorted[i]]==null) countries_to_del.push(keysSorted[i]);
+    }
+    for(var i=0;i<countries_to_del.length;i++){
+        keysSorted.splice(keysSorted.indexOf(countries_to_del[i]),1);
+    }
+    return keysSorted;
+}
+
 var play_game=function(){
     session_data.type="qa";
 	session_data.num_correct=0;
@@ -465,7 +562,6 @@ var play_game=function(){
 	dom_score_correct=document.getElementById('current_score_num');
 	canvas_zone_question=document.getElementById('question');
 	canvas_zone_answers=document.getElementById('answers');
-	console.log("let's go, there are "+json_data_files.length+" indicator files. Countries in 'population' = "+country_list.length);
 	activity_timer.reset();
 	same_country_question(random_item(indicator_list));
 	// TODO to avoid recursion this should probably be a game status checker
@@ -714,6 +810,7 @@ var num_representation=function(num, decimals, decimal_symbol,thousand_symbol){
     decimal_symbol = decimal_symbol == undefined ? "." : decimal_symbol;
     thousand_symbol = thousand_symbol == undefined ? "," : thousand_symbol; 
     var sign = num < 0 ? "-" : "";
+    if(decimals==0) sign = num <=-1 ? "-" : "";
 	var integer_part=parseInt(num = Math.abs(+num || 0).toFixed(decimals)) + "";
 	var thousand_rest=(thousand_rest = integer_part.length) > 3 ? thousand_rest % 3 : 0;
 	var result=sign + (thousand_rest ? integer_part.substr(0,thousand_rest) + thousand_symbol : "")
