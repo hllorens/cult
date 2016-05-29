@@ -1,0 +1,65 @@
+
+{
+	"comment" : "gtbt: greater better, lwbt: lower better",
+	"health" :
+	{
+		"scoring" : [
+			{
+                "name": "inflation-acceptable",
+				"indicator" : "inflation",
+				"type" : "binary-range-val",
+				"min" : 0.1,
+				"max" : 2.1
+			},
+			{
+                "name": "gdppcap-eq-world",
+				"indicator" : "gdppcap",
+				"type" : "binary-min-val",
+				"weight" : 2,
+				"min" : "World"
+			},
+			{
+                "name": "employment-over-fifty",
+				"indicator" : "employed",
+				"type" : "binary-min-val",
+				"min" : 50
+			},
+			{
+                "name": "unemployment-below-eight",
+				"indicator" : "unemployed",
+				"type" : "binary-max-val",
+				"max" : 8
+			}
+		],
+		"debtgdp" :
+		{
+			"indicator" : "debtgdp",
+			"type" : "binary-ref",
+			"max" : 100
+		},
+		"surpdeficitgdp" :
+		{
+			"indicator" : "surpdeficitgdp",
+			"type" : "binary-ref",
+			"max" : 0
+		},
+        "inflation-perfect" :
+        {
+            "name": "inflation-perfect",
+            "indicator" : "inflation",
+            "type" : "binary-range-val",
+            "min" : 0.5,
+            "max" : 2
+        },
+		"untie-indicator" : "gdppcap"
+	},
+	"economy_perf" :
+	{
+		"scoring" : "average the percentage diff between gdppcap and employment both positive -10 * 0.3 , -5 *0,7 (to give importance to the most recent)"
+	},
+	"economy_oportunity" :
+	{
+		"scoring" : "find stronguest upturns in perf measure"
+	}
+
+}

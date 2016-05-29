@@ -8,6 +8,7 @@ var data_arr=[];
 // MEDIA
 var images = [];
 var sounds = [];
+var jsons = [];
 
 var header_zone=document.getElementById('header');
 var canvas_zone=document.getElementById('zone_canvas');
@@ -60,26 +61,21 @@ function menu_screen(){
 	
 	canvas_zone.innerHTML=' \
 	<div id="menu-content" class="text-center">\
-	<div id="menu-logo-div"></div> \
-	<nav id="responsive_menu">\
-	<br /><button id="exit" class="button exit" onclick="exit_app()">Salir</button> \
-	</nav>\
-	http://www.lucentia.es/productos/world-bank-visualization/\
 	</div>\
-	<div id="dashboard" style="width:100%;text-align:center">\
-		<div id="chart_div" style="width: 1115px; height: 400px;margin:0 auto;"></div>\
-		<div id="control1" style="width: 915px; height: 50px;;margin:0 auto;"></div>\
-		<div id="selector" style="width: 915px; height: 100px;margin:10px auto;display:none">\
-			<button onclick="changeChartColumns()" >Update (since does not accept onclick... find alernative pure js or html5)</button> Select items: <select id="selitems" class="chzn-select" multiple style="width: 800px; height: 50px;margin:0 auto;" >\
+	<div id="dashboard" style="width:90%;text-align:center">\
+		<div id="chart_div" style="width: 450px; height: 350px;margin:0 auto;"></div>\
+		<div id="control1" style="width: 450px; height: 50px;;margin:0 auto;"></div>\
+		<div id="selector" style="width: 450px; height: 100px;margin:10px auto;display:none">\
+			<button onclick="changeChartColumns()" >Update</button> items: <select id="selitems" class="chzn-select" multiple style="width: 95%; height: 50px;margin:0 auto;" >\
 				<!--<input type="button" onclick="changeChartColumns">-->		\
 			</select>\
 		</div>\
-		<div id="table_div" style="width:915px;;margin:0 auto;"></div>\
+		<div id="table_div" style="width:450px;margin:0 auto;"></div>\
 	</div>\
 	<div id="spinner" class="spinner" style="display:none"> 		<img id="img-spinner" src="images/spinner.gif" alt="Loading"/></div>\
 	<div id="output"></div>\
 	';
-
+    //http://www.lucentia.es/productos/world-bank-visualization/
 	
 	/*var sorted=sortArray(es_population);
 	$('#output').append("processed: <pre>"+JSON.stringify(sorted)+"</pre>");
@@ -229,17 +225,18 @@ function changeChartColumns() {
 	 for(var i=0;i<elements.length;i++){
 		elements[i].setView({'columns': arr});
 	 }
-	 for(var i=0;i<controls.length;i++){
-		controls[i].setView({'columns': arr});
-	 }	 
+     // no need to apply this to controls...
+	 //for(var i=0;i<controls.length;i++){
+		//controls[i].setView({'columns': arr});
+	 //}	 
 	 dashboard.bind(controls, elements);
 	if(arr.length<2){
 		alert("Note: No elements are selected and then there is nothing to represent.");
 		  dashboard.draw(data);
-		$("#"+elements[1].fg).hide();
+		//$("#"+elements[1].fg).hide();
 	}else{
 			$('div[id^=google-visualization-errors]').remove();
-		  $("#"+elements[1].fg).show();
+		  //$("#"+elements[1].fg).show();
 	 }
 	dashboard.draw(data);
 
@@ -312,14 +309,14 @@ function drawChart(raw_data) {
 	// Initialize dashboard
 	dashboard = new google.visualization.Dashboard(document.getElementById('dashboard'));
 	// Define a table
-	table = new google.visualization.ChartWrapper({
+	/*table = new google.visualization.ChartWrapper({
 		'chartType': 'Table',
 		'containerId': 'table_div',
 		'options': {
 		'width': '915px'
 		}
 	});
-	elements[elements.length]=table;
+	elements[elements.length]=table;*/
 
 
 		// Define controls

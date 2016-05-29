@@ -361,26 +361,41 @@ function menu_screen(){
 		<div id="menu-logo-div"></div> \
 		<nav id="responsive_menu">\
 		<br /><button id="start-button" class="button">Play</button> \
-		<br /><button id="show-data" class="button">Learn Geo</button> \
-		<br /><button id="show-analysis" class="button">analysis</button> \
-		<br /><button id="show-history" class="button">Learn Hist</button> \
+		<br /><button id="learn_menu" class="button">Learn</button> \
 		<br /><button id="options" class="button">Options</button> \
 		<br /><button id="top_scores" class="button">Top Scores</button> \
 		</nav>\
 		';
         document.getElementById("start-button").addEventListener(clickOrTouch,function(){play_game();});
-        document.getElementById("show-data").addEventListener(clickOrTouch,function(){show_data();});
-        document.getElementById("show-analysis").addEventListener(clickOrTouch,function(){show_analysis();});
-        document.getElementById("show-history").addEventListener(clickOrTouch,function(){show_history();});
+        document.getElementById("learn_menu").addEventListener(clickOrTouch,function(){learn_menu();});
         document.getElementById("options").addEventListener(clickOrTouch,function(){options();});
         document.getElementById("top_scores").addEventListener(clickOrTouch,function(){top_scores();});
         data_map=media_objects.jsons['all_wb.json'];
-		indicator_list=Object.keys(data_map);
-        indicator_list.splice(indicator_list.indexOf('history'));
-        load_country_list_from_indicator('population');
-        load_period_list_from_indicator_ignore_last_year('population');
+		if(indicator_list.length==0){
+            indicator_list=Object.keys(data_map);
+            indicator_list.splice(indicator_list.indexOf('history'));
+        } 
+        if(country_list.length==0) load_country_list_from_indicator('population');
+        if(period_list.length==0) load_period_list_from_indicator_ignore_last_year('population');
 	}
 }
+
+function learn_menu(){
+    canvas_zone_vcentered.innerHTML=' \
+    <div id="menu-logo-div"></div> \
+    <nav id="responsive_menu">\
+    <br /><button id="show_geo" class="button">Learn Geo</button> \
+    <br /><button id="show_geo_analysis" class="button">Geo Analysis</button> \
+    <br /><button id="show_history" class="button">Learn Hist</button> \
+    <br /><button id="go-back" class="button">back</button>\
+    </nav>\
+    ';
+    document.getElementById("show_geo").addEventListener(clickOrTouch,function(){show_geo();});
+    document.getElementById("show_geo_analysis").addEventListener(clickOrTouch,function(){show_geo_analysis();});
+    document.getElementById("show_history").addEventListener(clickOrTouch,function(){show_history();});
+    document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
+}
+
 
 var countdown_limit_end_secs=30;
 var silly_cb=function(){
@@ -409,7 +424,7 @@ var end_game=function(){
 	menu_screen();
 }
 
-var show_data=function(country){
+var show_geo=function(country){
     if(typeof(country)=='undefined') country='World';
     //make a function to show a colored string of curr vs last lustrum
 	canvas_zone_vcentered.innerHTML=' \
@@ -419,17 +434,26 @@ var show_data=function(country){
 			<input id="my-form-submit" type="submit" style="visibility:hidden;display:none" />\
             <button onclick="show_data_country()">&gt;</button>\
 			</form>\
-     <table style="width:90%;margin:0 auto;padding:0;">\
+     <table style="width:90%;margin:0 auto;padding:0;font-size:12px;">\
      '+get_colored_indicator_row('population',country)+'\
      '+get_colored_indicator_row('surfacekm',country)+'\
      '+get_colored_indicator_row('popdensity',country)+'\
-     '+get_colored_indicator_row('gdppcap',country)+'\
      '+get_colored_indicator_row('pop65',country)+'\
-     '+get_colored_indicator_row('unemployed',country)+'\
+     '+get_colored_indicator_row('gdppcap',country)+'\
+     '+get_colored_indicator_row('employed',country)+'\
+     '+get_colored_indicator_row('unemployed',country,'inversed')+'\
      '+get_colored_indicator_row('inflation',country)+'\
+     '+get_colored_indicator_row('health',country)+'\
+     '+get_colored_indicator_row('debtgdp',country)+'\
+     '+get_colored_indicator_row('surpdeficitgdp',country)+'\
      </table>\
      <button id="go-back" class="button">back</button>\
 	';
+
+/*
+     '+get_colored_indicator_row('debtgdp',country)+'\
+     '+get_colored_indicator_row('surpdeficitgdp',country)+'
+*/
     var search_select = new autoComplete({
         selector: '#new-country',
         minChars: 1,
@@ -442,12 +466,13 @@ var show_data=function(country){
             suggest(suggestions);
         }
     });
-    document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
+    document.getElementById("go-back").addEventListener(clickOrTouch,function(){learn_menu();});
     document.getElementById('new-country').focus();
     document.getElementById('new-country').onkeypress = function(e){
         if (!e) e = window.event;
         var keyCode = e.keyCode || e.which;
         if (keyCode == '13'){
+            search_select.destroy();
             show_data_country();
             return false;
         }
@@ -456,14 +481,16 @@ var show_data=function(country){
 
 var show_data_country=function(){
     var country=document.getElementById('new-country').value;
-    show_data(country.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();})); // title for multi token e.g., United States
+    show_geo(country.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();})); // title for multi token e.g., United States
     //   country.charAt(0).toUpperCase()+country.slice(1).toLowerCase() // only works for mono-token
 }
 
 var get_colored_indicator_row=function(indicator, country){
     var indic=indicator;
     var curr_period='last_year';
-    if(data_map[indicator].data[curr_period][country]==null){
+    var is_percentage=true;
+    var num_decimals=0;
+    if(data_map[indicator].data[curr_period][country]==null || data_map['health'].data[curr_period][country]==null){
         indic=indicator+' (-1y)';
         curr_period='previous_year';
     }
@@ -471,28 +498,67 @@ var get_colored_indicator_row=function(indicator, country){
         indic=indicator+' (-2y)';
         curr_period='previous_year2';
     }
+    if(indicator=='health' || indicator=='inflation' || indicator=='debtgdp' || indicator=='surpdeficitgdp'){
+        num_decimals=1;
+    }
+    if(indicator=='gdppcap' || indicator=='population' || indicator=='surfacekm') is_percentage=false;
+    if (data_map[indicator].data[curr_period][country]==null)
+        return '<tr><td style="text-align:right;width:45%;">'+indic+':</td><td style="text-align:left;width:45%;">-</td></tr>';
     var curr_val=Number(data_map[indicator].data[curr_period][country]);
     var last_lustrum_val=Number(data_map[indicator].data.last_lustrum[country]);
     var last_decade_val=Number(data_map[indicator].data.last_decade[country]);
-    var percentage_diff=num_representation(100*(curr_val-last_lustrum_val)/last_lustrum_val,0);
-    var percentage_diff2=num_representation(100*(curr_val-last_decade_val)/last_decade_val,0);
+    var percentage_diff=num_representation(get_relative_diff_safe(last_lustrum_val,curr_val,is_percentage),0);
+    var percentage_diff2=num_representation(get_relative_diff_safe(last_decade_val,curr_val,is_percentage),0);
+    var val_diff="";
+    var val_diff2="";
+    if(!is_percentage){
+        val_diff+= ' ['+num_representation(curr_val-last_lustrum_val,0)+']';
+        val_diff2+=' ['+num_representation(curr_val-last_decade_val,0)+']';
+    }
     var extra='';
-    if(indicator=='gdppcap'){
+    var lower_better=false;
+    if(indicator=='gdppcap' || indicator=='employed' || indicator=='health' || indicator=='surpdeficitgdp'){
         if(percentage_diff.charAt(0)!='-' && percentage_diff2.charAt(0)=='-') extra='+tc';
         if(percentage_diff.charAt(0)=='-' && percentage_diff2.charAt(0)!='-') extra='-tc';
     }
-    if(indicator=='unemployed'){
+    if(indicator=='unemployed' || indicator=='debtgdp'){
+        lower_better=true;
         if(percentage_diff.charAt(0)!='-' && percentage_diff2.charAt(0)=='-') extra='-tc';
         if(percentage_diff.charAt(0)=='-' && percentage_diff2.charAt(0)!='-') extra='+tc';
     }
-    return '<tr><td style="text-align:right;width:45%;">'+indic+':</td><td style="text-align:left;width:45%;">'+num_representation(curr_val,0)+' ('+get_formatted_diff_percentage(percentage_diff)+', '+get_formatted_diff_percentage(percentage_diff2)+') '+extra+'</td></tr>';
+    return '<tr><td style="text-align:right;width:45%;">'+indic+':</td><td style="text-align:left;width:45%;">'+num_representation(curr_val,num_decimals)+' ('+get_formatted_diff_percentage(percentage_diff,lower_better)+val_diff+', '+get_formatted_diff_percentage(percentage_diff2,lower_better)+val_diff2+') '+extra+'</td></tr>';
 }
 
-var get_formatted_diff_percentage=function(percentage_diff){
+
+
+// not so useful for percentages...
+var get_relative_diff_safe=function(refval,newval,is_percentage){
+    // if you are diffing 2 percentages it is clearer to just diff them
+    // otherwise relative diff is problematic if ref in range [1,-1]
+    // specially if 0
+    // this is not perfect, there is no mathematical solution for this
+    // only if you know all the values in the range you could normalize
+    // and scale to 100% and then just add or subtract
+    if(is_percentage) return (newval-refval);
+    if(refval<1 && refval>-1){
+            var norm=Math.abs(1-refval); // aproximatelly keep the magn
+            refval+=norm;newval+=norm;
+    }
+    return 100*(newval-refval)/Math.abs(refval);
+}
+
+var get_formatted_diff_percentage=function(percentage_diff,lower_better){
+    if(typeof(lower_better)=='undefined') lower_better=false;
+    var pos_color='green';
+    var neg_color='red';
+    if(lower_better){
+        pos_color='red';
+        neg_color='green';
+    }
     if(percentage_diff=="0" || percentage_diff=="-0"){percentage_diff="="}
     else{
-        if((''+percentage_diff).indexOf('-')!=0){percentage_diff='<span style="color:green">+'+percentage_diff+'%</span>';}
-        else{percentage_diff='<span style="color:red">'+percentage_diff+'%</span>';}
+        if((''+percentage_diff).indexOf('-')!=0){percentage_diff='<span style="color:'+pos_color+'">+'+percentage_diff+'%</span>';}
+        else{percentage_diff='<span style="color:'+neg_color+'">'+percentage_diff+'%</span>';}
     }
     return percentage_diff;
 }
@@ -501,17 +567,19 @@ var show_history=function(){
     alert('under construction');
 }
 
-var show_analysis=function(){
+var show_geo_analysis=function(){
     var keysSorted=[];
+    keysSorted['health']=get_sorted_countries_indicator('health');
     keysSorted['gdppcap']=get_sorted_countries_indicator('gdppcap');
     keysSorted['unemployed']=get_sorted_countries_indicator('unemployed','asc');
     canvas_zone_vcentered.innerHTML=' \
-    GDPPcap<br />\
+    Analysis<br />\
+    health: '+keysSorted['health'].slice(0,4)+' ... '+keysSorted['health'].slice(-4)+'<br />\
     gdppcap: '+keysSorted['gdppcap'].slice(0,4)+' ... '+keysSorted['gdppcap'].slice(-4)+'<br />\
     unemployment: '+keysSorted['unemployed'].slice(0,4)+' ... '+keysSorted['unemployed'].slice(-4)+'<br />\
      <button id="go-back" class="button">back</button>\
     ';
-    document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
+    document.getElementById("go-back").addEventListener(clickOrTouch,function(){learn_menu();});
 }
 
 var get_sorted_countries_indicator=function(indicator,direction){
@@ -810,7 +878,7 @@ var num_representation=function(num, decimals, decimal_symbol,thousand_symbol){
     decimal_symbol = decimal_symbol == undefined ? "." : decimal_symbol;
     thousand_symbol = thousand_symbol == undefined ? "," : thousand_symbol; 
     var sign = num < 0 ? "-" : "";
-    if(decimals==0) sign = num <=-1 ? "-" : "";
+    if(decimals==0) sign = num <-0.5 ? "-" : "";
 	var integer_part=parseInt(num = Math.abs(+num || 0).toFixed(decimals)) + "";
 	var thousand_rest=(thousand_rest = integer_part.length) > 3 ? thousand_rest % 3 : 0;
 	var result=sign + (thousand_rest ? integer_part.substr(0,thousand_rest) + thousand_symbol : "")

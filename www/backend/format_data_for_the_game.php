@@ -38,6 +38,46 @@ function country_translation($country_name){
     return $country_name;
 }
 
+function get_frist_last($arr,$n){
+    return array_merge(array_slice($arr,0,$n,true),array_slice($arr, -$n, $n,true));
+}
+
+function get_sorted_countries_indicator_report($data_map,$indicator,$direction){
+    $ret=array();
+    if(!isset($direction)) $direction='desc';
+    $curr_period='last_year';
+    if($data_map[$indicator]['data'][$curr_period]['World']==null){
+        $curr_period='previous_year';
+    }
+    if($data_map[$indicator]['data'][$curr_period]['World']==null){
+        $curr_period='previous_year2';
+    }
+    if($data_map[$indicator]['data'][$curr_period]['World']==null){
+        $curr_period='previous_year3';
+    }
+    if($data_map[$indicator]['data'][$curr_period]['World']==null){
+        return "No data for $indicator any year after $curr_period_str";
+    }
+    $curr_period_str=$data_map[$indicator][$curr_period];
+    $ret['year']=$curr_period_str;
+    //echo $curr_period;
+    if($direction=='desc') arsort($data_map[$indicator]['data'][$curr_period]);
+    if($direction=='asc')  asort($data_map[$indicator]['data'][$curr_period]);
+    
+    $countries_to_del=array('World');
+    foreach($data_map[$indicator]['data'][$curr_period] as $country){
+        if($data_map[$indicator]['data'][$curr_period][$country]==null) $countries_to_del[]=$country;
+    }
+    foreach($countries_to_del as $country){
+        array_slice($data_map[$indicator]['data'][$curr_period],array_search($country,array_keys($data_map[$indicator]['data'][$curr_period])),1,true);
+    }
+    //$sortedKeys=array_keys($data_map[$indicator]['data'][$curr_period]);
+    //return get_frist_last($sortedKeys,4);
+    // format the string as you want
+    $ret['list']=get_frist_last($data_map[$indicator]['data'][$curr_period],4);
+    return $ret;
+}
+
 $last_year=intval(date("Y"))-1;
 $previous_year=$last_year-1;
 $previous_year2=$last_year-2;
@@ -59,7 +99,81 @@ if(isset($_REQUEST['data_source']) ){$data_source=$_REQUEST['data_source'];}
 
 $data_arr=array();
 
-if($indicator!='all'){
+if($indicator=='all'){
+    foreach(array_filter(glob($data_directory.'-game/*_'.$data_source.'.json'), 'is_file') as $file) {
+        $string = json_decode(file_get_contents($file),true);
+        $indicator=basename ( $file, '_'.$data_source.'.json');
+        $data_arr[$indicator]=$string;
+    }
+    $string = json_decode(file_get_contents($data_directory.'-game-unified/history.tsv.json'),true);
+    $data_arr['history']=$string;
+    
+    // calculate country scoring (based on config) and add to analysis
+    $score_config = json_decode(file_get_contents('country_scoring.json'), true);
+    // TODO mimic js functionality and store in the json so it is pre-calculated
+    $periods=array_keys($data_arr['population']['data']);
+    $countries=array_keys($data_arr['population']['data']['previous_year']);    
+    
+    $data_arr['health']=$data_arr['population'];
+    $data_arr['health']['data']['data_source']='cult';
+    $data_arr['health']['data']['indicator']='health';
+    $data_arr['health']['data']['indicator_sf']='health(cult score)';
+    foreach($periods as $period){
+        // sort gdppcap descending
+        arsort($data_arr['gdppcap']['data'][$period]);
+        foreach($countries as $country){
+            #echo "<br /><br />$period $country<br />";
+            $data_arr['health']['data'][$period][$country]=0;
+            foreach($score_config['health']['scoring'] as $criterion){
+                if(!array_key_exists($criterion['indicator'],$data_arr)){echo "ERROR: indicator ".$criterion['indicator']." does not exist.";exit();}
+                if($data_arr[$criterion['indicator']]['data'][$period][$country]==null){
+                    $data_arr['health']['data'][$period][$country]=null;
+                    break;
+                }else{
+                    $score=0;
+                    switch($criterion['type']){
+                        case 'binary-range-val':
+                            if(!array_key_exists("min",$criterion) || !is_numeric($criterion['min'])){echo "ERROR: incorrect min in binary-range-val";exit();}
+                            if(!array_key_exists("max",$criterion) || !is_numeric($criterion['max'])){echo "ERROR: incorrect max in binary-range-val";exit();}
+                            if($data_arr[$criterion['indicator']]['data'][$period][$country]>=$criterion['min'] 
+                                    && $data_arr[$criterion['indicator']]['data'][$period][$country]<=$criterion['max'])
+                                $score=1;
+                            break;
+                        case 'binary-min-val':
+                            if(!array_key_exists("min",$criterion)){echo "ERROR: min is required in binary-min-val";exit();}
+                            if($criterion['min']=='World'){$criterion['min']=$data_arr[$criterion['indicator']]['data'][$period][$criterion['min']];}
+                            if(!is_numeric($criterion['min'])){echo "ERROR: non-numeric or World min in binary-min-val";exit();}
+                            if($data_arr[$criterion['indicator']]['data'][$period][$country]>=$criterion['min'])
+                                $score=1;
+                            break;
+                        case 'binary-max-val':
+                            if(!array_key_exists("max",$criterion)){echo "ERROR: max is required in binary-max-val";exit();}
+                            if($criterion['max']=='World'){$criterion['max']=$data_arr[$criterion['indicator']]['data'][$period][$criterion['max']];}
+                            if(!is_numeric($criterion['max'])){echo "ERROR: non-numeric or World max in binary-max-val";exit();}
+                            if($data_arr[$criterion['indicator']]['data'][$period][$country]<=$criterion['max'])
+                                $score=1;
+                            break;
+                    }
+                    if(array_key_exists("weight",$criterion)) $score=$score*$criterion['weight'];
+                    #echo $criterion['name']."=".$score;
+                    $data_arr['health']['data'][$period][$country]+=$score;
+                }
+            }
+            // untie
+            if($data_arr['gdppcap']['data'][$period][$country]!=null && 
+                $data_arr['gdppcap']['data'][$period][current(array_keys($data_arr['gdppcap']['data'][$period]))]!=null){
+                $data_arr['health']['data'][$period][$country]+=($data_arr['gdppcap']['data'][$period][$country]-1)/$data_arr['gdppcap']['data'][$period][current(array_keys($data_arr['gdppcap']['data'][$period]))];
+            }
+        }
+    }
+}else if($indicator=='analysis'){
+    $data_arr['analysis_report']=array(); // this is limited to the n-best-health, n-worst-health, n-best/worst-eco-perf, n-best/worst-eco-oportunity
+    $datamap = json_decode(file_get_contents($data_directory.'-game-unified/all_wb.json'), true);
+    $data_arr['analysis_report']['list_health']=get_sorted_countries_indicator_report($datamap,'health','desc');
+    // store in a separate file called $year.analysis-report.json
+    // if it does not exist -- send email
+    // if it exist but it is different -- send email
+}else{
     $data_arr['indicator']=$indicator;
     $data_arr['indicator_sf']=$indicator_sf;
     $data_arr['last_year']=$last_year;
@@ -92,16 +206,6 @@ if($indicator!='all'){
             else if($item['date'] == $last_2decade ) $data_arr['data']['last_2decade'][$item['country']['value']]=$item["value"];
         }
     }
-}else{
-    foreach(array_filter(glob($data_directory.'-game/*_'.$data_source.'.json'), 'is_file') as $file) {
-        $string = file_get_contents($file);
-        $json_a = json_decode($string, true);
-        $indicator=basename ( $file, '_'.$data_source.'.json');
-        $data_arr[$indicator]=$json_a;
-    }
-    $string = file_get_contents($data_directory.'-game-unified/history.tsv.json');
-    $json_a = json_decode($string, true);
-    $data_arr['history']=$json_a;
 }
 
 header('Content-type: application/json');

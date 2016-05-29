@@ -10,6 +10,7 @@ rm -rf $destination/*
 
 timestamp=`date +'%Y-%m-%d_%H-%M-%S'`
 current_year=`date +'%Y'`
+current_date=`date +'%Y-%m-%d'`
 stock_query="INDEXBME:IB";
 stock_query="$stock_query,BME:ACS,BME:ACX,BME:AENA,BME:AMS,BME:ANA,BME:BBVA,BME:BKIA,BME:BKT,BME:CBK,BME:DIA";
 stock_query="$stock_query,BME:ELE,BME:ENAG,BME:FCC,BME:FER,BME:GAM,BME:GAS,BME:GRLS,BME:IAG,BME:IBE,BME:IDR";
@@ -31,6 +32,7 @@ cat  $destination/stocks.json | tr -d "\n" | sed "s/^\/\/ //" > $destination/sto
 mv $destination/stocks.json2 $destination/stocks.json
 echo 'wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" > $SCRIPT_PATH/data-generation-stocks.log;'
 wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" >> $destination/ERROR.log;
+cp $destination/stocks.formated.json  ${destination}-historical/${current_date}.stocks.formated.json
 
 #process alerts...
 #wget --timeout=180 -q -O $destination/stock.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" > $SCRIPT_PATH/data-generation-stock.log;
