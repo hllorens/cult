@@ -18,6 +18,7 @@ stock_query="$stock_query,BME:ITX,BME:MAP,BME:MTS,BME:OHL,BME:POP,BME:REE,BME:RE
 stock_query="$stock_query,BME:TEF,BME:TL5,BME:TRE";
 stock_query="$stock_query,INDEXSTOXX:SX5E";
 stock_query="$stock_query,INDEXNASDAQ:NDX";
+stock_query="$stock_query,INDEXSP:.INX";
 stock_query="$stock_query,NASDAQ:GOOG,NASDAQ:MSFT,NASDAQ:YHOO,NASDAQ:EBAY,NASDAQ:FB,NASDAQ:TRIP,NASDAQ:AMZN";
 stock_query="$stock_query,NASDAQ:NUAN,NASDAQ:CMPR,NASDAQ:PCLN";
 stock_query="$stock_query,NYSE:ING";

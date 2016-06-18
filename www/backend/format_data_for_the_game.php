@@ -195,15 +195,52 @@ if($indicator=='all'){
     foreach(array_filter(glob($data_directory.'/*_'.$indicator.'_'.$data_source.'.json'), 'is_file') as $file) {
         $string = file_get_contents($file);
         $json_a = json_decode($string, true);
-        foreach ($json_a[1] as $item) {
-            $item['country']['value']=country_translation($item['country']['value']);
-            if($item['date'] == $last_year ) $data_arr['data']['last_year'][$item['country']['value']]=$item["value"];
-            else if($item['date'] == $previous_year ) $data_arr['data']['previous_year'][$item['country']['value']]=$item["value"];
-            else if($item['date'] == $previous_year2 ) $data_arr['data']['previous_year2'][$item['country']['value']]=$item["value"];
-            else if($item['date'] == $previous_year3 ) $data_arr['data']['previous_year3'][$item['country']['value']]=$item["value"];
-            else if($item['date'] == $last_lustrum ) $data_arr['data']['last_lustrum'][$item['country']['value']]=$item["value"];
-            else if($item['date'] == $last_decade ) $data_arr['data']['last_decade'][$item['country']['value']]=$item["value"];
-            else if($item['date'] == $last_2decade ) $data_arr['data']['last_2decade'][$item['country']['value']]=$item["value"];
+        //print_r($file);
+        //print_r($json_a);
+        if(count($json_a>1)){
+            foreach ($json_a[1] as $item) {
+                $item['country']['value']=country_translation($item['country']['value']);
+                if($item['date'] == $last_year ) $data_arr['data']['last_year'][$item['country']['value']]=$item["value"];
+                else if($item['date'] == $previous_year ) $data_arr['data']['previous_year'][$item['country']['value']]=$item["value"];
+                else if($item['date'] == $previous_year2 ) $data_arr['data']['previous_year2'][$item['country']['value']]=$item["value"];
+                else if($item['date'] == $previous_year3 ) $data_arr['data']['previous_year3'][$item['country']['value']]=$item["value"];
+                else if($item['date'] == $last_lustrum ) $data_arr['data']['last_lustrum'][$item['country']['value']]=$item["value"];
+                else if($item['date'] == $last_decade ) $data_arr['data']['last_decade'][$item['country']['value']]=$item["value"];
+                else if($item['date'] == $last_2decade ) $data_arr['data']['last_2decade'][$item['country']['value']]=$item["value"];
+            }
+        }else{
+            require("phpmailer/class.phpmailer.php");
+            error_reporting(E_STRICT);
+            date_default_timezone_set('Europe/Madrid');
+            $mail = new PHPMailer();
+
+            $mail_credentials = json_decode(file_get_contents("/home/hector/secrets/mail-cognitionis.json"));
+            $mail->IsSMTP(); // enable SMTP
+            $mail->SMTPDebug = 1;  // debugging: 1 = errors and messages, 2 = messages only
+            $mail->SMTPAuth   = true;                  // enable SMTP authentication
+            $mail->SMTPSecure = "ssl";                 // sets the prefix to the servier
+            $mail->Host       = "mail.cognitionis.com";      // sets GMAIL as the SMTP server
+            $mail->Port       = 465;                   // set the SMTP port for the GMAIL server
+            $mail->Username   = $mail_credentials->user;  // GMAIL username
+            $mail->Password   = $mail_credentials->pass;  // GMAIL password
+
+
+            $mail->charSet = "UTF-8";
+            $mail->SetFrom('info@cognitionis.com');
+            $mail->From="info@cognitionis.com";
+            $mail->FromName="cognitionis.com";
+            $mail->Sender="info@cognitionis.com"; // indicates ReturnPath header
+            $mail->AddReplyTo("info@cognitionis.com"); // indicates ReplyTo headers
+            $mail->IsHTML(true);
+
+            $subject="cognitionis.com/cult: ERROR FATAL descarga datos world bank";
+            $body=$file." is problematic...";
+            $mail->Subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
+            $mail->Body = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"></head><body><br />'.$body.'<br /><br /></body></html>';
+            $mail->AddAddress('hectorlm1983@gmail.com');
+            $mail->AddBCC("info@cognitionis.com");
+            if(!$mail->Send()){   $log.="<br />Error: " . $mail->ErrorInfo;}else{$log.="<br /><b>Email enviado a: hectorlm1983@gmail.com</b>";}
+            exit(1);
         }
     }
 }

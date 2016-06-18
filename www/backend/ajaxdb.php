@@ -28,8 +28,28 @@ mysqli_select_db( $db_connection, $db_credentials->db_name) or die( 'Could not s
 mysqli_query($db_connection, "SET NAMES 'utf8'");	
 mysqli_query($db_connection, "set time_zone:='Europe/Madrid'");	
 
+
+
+
+function submit_data($output){
+    if(!isset($_REQUEST['jsoncallback'])){
+        // to solve CORS
+        if(isset($_REQUEST['allow_null_CORS'])){header("Access-Control-Allow-Origin: null");}
+        else{header("Access-Control-Allow-Origin: *");}
+        // allow cookie passing in CORS (session maintenance)
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Methods: GET, POST"); // might want to add , PUT, DELETE, OPTIONS
+        header("Access-Control-Allow-Headers: *"); // Important X-Requested-With
+        header('Content-type: application/json');
+        echo json_encode( $output );
+    }else{
+        echo $_REQUEST['jsoncallback']."(JSON.parse('".json_encode( $output )."'))";
+    }
+}
+
+
 $output=array();
-	
+
 if ($action == "get_users"){
 	if($_SESSION['access_level']!='admin'){echo "ERROR: no admin";return;}
 	$sQuery = "SELECT * FROM users";
@@ -40,12 +60,12 @@ if ($action == "get_users"){
 		$output[$aRow['email']]['email'] = $aRow['email'];
 		$output[$aRow['email']]['access_level'] = $aRow['access_level'];
 	}
-	header('Content-type: application/json');
-	echo json_encode( $output );
+    submit_data($output);
 }else if ($action == "gen_session_state"){
 	$state = md5(rand());
 	$_SESSION["state"]=$state;
-	echo "$state";
+	$output['state']=$state;
+    submit_data($output);
 }else if ($action == "gconnect"){
     $CLIENT_ID = $gclient_secret->client_id;
     $CLIENT_SECRET = $gclient_secret->client_secret;
@@ -140,8 +160,7 @@ if ($action == "get_users"){
     $output['email']=$_SESSION['email'];
     $output['access_level']=$_SESSION['access_level'];
     $output['toksum']=substr($_SESSION['long_lived_access_token']->access_token,0,5);    
-    header('Content-type: application/json');
-    echo json_encode( $output );
+    submit_data($output);
 }else if ($action == "gdisconnect"){
 	if (empty($_SESSION['long_lived_access_token'])){
            $output['error']="No one is logged";
@@ -173,8 +192,7 @@ if ($action == "get_users"){
 			unset($_SESSION['picture']);
 		}
 	}
-	header('Content-type: application/json');
-	echo json_encode( $output );
+    submit_data($output);
 }else if ($action == "get_alerts"){
 	$sQuery = "SELECT * FROM stock_alerts where user='".$_SESSION['email']."'";
 	//echo "query: $sQuery ";
@@ -190,8 +208,7 @@ if ($action == "get_users"){
 		$output[$aRow['symbol']]['high_change_percentage'] = $aRow['high_change_percentage'];
 		$output[$aRow['symbol']]['last_alerted_date'] = $aRow['last_alerted_date'];
     }
-	header('Content-type: application/json');
-	echo json_encode( $output );
+    submit_data($output);
 }else if ($action == "add_alert"){
 	$user=get_value('user');
 	$symbol=get_value('symbol');
@@ -209,7 +226,6 @@ if ($action == "get_users"){
 	$rResult = mysqli_query( $db_connection, $sQuery );
 	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: ".mysqli_error( $db_connection )." -- ".$sQuery);}
 	$aRow = mysqli_fetch_array( $rResult );
-	header('Content-type: application/json');
 	$output["success"]=$symbol;
 	$output["data"]=array();
 	$output["data"]["id"]=$aRow['lid'];
@@ -220,7 +236,7 @@ if ($action == "get_users"){
 	$output["data"]["low_change_percentage"]=$low_change_percentage;
 	$output["data"]["high_change_percentage"]=$high_change_percentage;
 	$output["data"]["last_alerted_date"]="";
-	echo json_encode( $output );
+    submit_data($output);
 }else if ($action == "update_alert"){
 	$lid=get_value('lid');
 	$user=get_value('user');
@@ -236,7 +252,6 @@ if ($action == "get_users"){
 	$sQuery = "UPDATE stock_alerts  SET low='$low',high='$high',low_change_percentage='$low_change_percentage',high_change_percentage='$high_change_percentage' WHERE id=$lid;";
 	$rResult = mysqli_query( $db_connection, $sQuery );
 	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysqli_error( $db_connection )." -- ".$sQuery);}
-	header('Content-type: application/json');
 	$output["success"]=$symbol;
 	$output["data"]=array();
 	$output["data"]["id"]=$lid;
@@ -247,7 +262,7 @@ if ($action == "get_users"){
 	$output["data"]["low_change_percentage"]=$low_change_percentage;
 	$output["data"]["high_change_percentage"]=$high_change_percentage;
 	$output["data"]["last_alerted_date"]="";
-	echo json_encode( $output );
+    submit_data($output);
 }else if ($action == "delete_alert"){
 	$lid=get_value('lid');
 	$symbol=get_value('symbol');
@@ -257,8 +272,7 @@ if ($action == "get_users"){
 	$rResult = mysqli_query( $db_connection, $sQuery );
 	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysqli_error( $db_connection )." -- ".$sQuery);}
 	$output["success"]=$symbol;
-	header('Content-type: application/json');
-	echo json_encode( $output );
+    submit_data($output);
 }else if ($action == "send_session_data"){
 	$output["msg"]="success";
 	$reference=get_value("reference");
@@ -281,9 +295,7 @@ if ($action == "get_users"){
 	else{ $output["msg"]="Success. Data session stored in the server. --"; }
 	//else{$output='{"msg":"Success. Data session stored in the server. -- '.$sQuery.'"}';}	
 
-	header('Content-type: application/json');
-	echo json_encode( $output );
-	//print_r($output);
+    submit_data($output);
 }else if ($action == "send_session_data_post"){
 	$str_json=json_decode($_POST['json_string'],true);
 	$output["msg"]="success";
@@ -311,9 +323,7 @@ if ($action == "get_users"){
 	}
 
 
-	header('Content-type: application/json');
-	echo json_encode( $output );
-	//print_r($output);
+    submit_data($output);
 
 }else if ($action == "get_top_scores"){
 	$user=get_value("user");
@@ -362,9 +372,7 @@ if ($action == "get_users"){
 		$element_count++;
 	}
 
-	header('Content-type: application/json');
-	echo json_encode( $output );
-	//print_r($output);
+    submit_data($output);
 
 }else if ($action == "delete_session"){
 	$id=get_value("id");
@@ -380,13 +388,10 @@ if ($action == "get_users"){
 	if(!$rResult){ $output["msg"]=mysqli_error( $db_connection )." -- ".$sQuery; }
 	else{ $output["msg"]="Success. Session $id of $subject deleted. --"; }	
 
-	header('Content-type: application/json');
-	echo json_encode( $output );
-	//print_r($output);
+    submit_data($output);
 }else{
 	$output['msg']="unsupported action";
-	header('Content-type: application/json');
-	echo json_encode( $output );
+    submit_data($output);
 }
 
 session_write_close(); // OPTIONAL: makes sure session is stored, may be add it as soon as vars are written..., should happen at the end of the script

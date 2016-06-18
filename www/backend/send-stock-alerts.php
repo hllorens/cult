@@ -64,21 +64,21 @@ while ( $aRow = mysqli_fetch_array( $rResult ) ){
         
         $fact="";
         if(floatval(str_replace(",","",$stocks[$aRow['symbol']]['value'])) < floatval($aRow['low'])){
-            $fact+="-val";
+            $fact.="-val ".$stocks[$aRow['symbol']]['value'];
         }else if(floatval(str_replace(",","",$stocks[$aRow['symbol']]['value'])) > floatval($aRow['high'])){
-            $fact+="+val";
+            $fact.="+val ".$stocks[$aRow['symbol']]['value'];
         }
         if(floatval($stocks[$aRow['symbol']]['session_change_percentage']) < floatval($aRow['low_change_percentage'])){
-            $fact+="-%";
+            $fact.="-% ".$stocks[$aRow['symbol']]['session_change_percentage'];
         }else if(floatval($stocks[$aRow['symbol']]['session_change_percentage']) > floatval($aRow['high_change_percentage'])){
-            $fact+="+%";
+            $fact.="+% ".$stocks[$aRow['symbol']]['session_change_percentage'];
         }
         //update db last_alerted_date
         $sQuery2 = "UPDATE stock_alerts SET last_alerted_date='$timestamp_date' WHERE id=".$aRow['id'].";";
         echo $sQuery2;
         $rResult2 = mysqli_query( $db_connection, $sQuery2 );
         if(!$rResult2){ echo mysqli_error( $db_connection )." -- ".$sQuery2; }
-        $body=$stocks[$aRow['symbol']]['value']." is ".$stocks[$aRow['symbol']]['value']." (".$stocks[$aRow['symbol']]['session_change_percentage']."), your ranges: value[".$aRow['low']." -to- ".$aRow['high']."] percentage[".$aRow['low_change_percentage']." -to- ".$aRow['high_change_percentage']."]";
+        $body=$aRow['symbol']." is ".$stocks[$aRow['symbol']]['value']." (".$stocks[$aRow['symbol']]['session_change_percentage']."), your ranges: value[".$aRow['low']." -to- ".$aRow['high']."] percentage[".$aRow['low_change_percentage']." -to- ".$aRow['high_change_percentage']."]";
 
         send_alert($aRow['symbol']." ".$fact,$body,$aRow['user'], $mail);
 	}
@@ -87,7 +87,7 @@ while ( $aRow = mysqli_fetch_array( $rResult ) ){
 }
 
 function send_alert($symbol, $body, $user, $mail){
-	$subject="cognitionis.com stock: ".$symbol;
+	$subject="cult: ".$symbol;
 	$mail->Subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
 	$mail->Body = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"></head><body><br />'.$body.'<br /><br /></body></html>';
 	$mail->AddAddress($user);
