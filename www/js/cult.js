@@ -40,8 +40,7 @@ var backend_url='backend/' //../backend
 if(is_local()){backend_url='http://www.centroafan.com/dev-afan-app/www/backend/';}
 // MEDIA
 var images = [
-	"../../cult-media/img/clock.png",
-	"../../cult-media/img/clock.svg",
+//	"../../cult-media/img/clock.png or svg",
 	"../../cult-media/img/correct.png",
 	"../../cult-media/img/wrong.png"
 ];
@@ -638,9 +637,9 @@ var play_game=function(){
 	<div id="question"></div>\
 	<div id="answers"></div>\
 	<div id="game-panel">\
-        <img src="'+media_objects.images['clock.png'].src+'" style="width:30px;" /> &nbsp; <progress id="time_left" value="0" max="'+countdown_limit_end_secs+'"></progress>\
+	  <progress id="time_left" value="0" max="'+countdown_limit_end_secs+'"></progress>\
+        </div>\
         <button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
-    </div>\
 	';
     document.getElementById("go-back").addEventListener(clickOrTouch,function(){end_game();});
 	//get elements
@@ -674,7 +673,7 @@ function check_correct(clicked_answer,correct_answer,optional_msg){
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_correct");
 			dom_score_correct.innerHTML=session_data.num_correct;
-			open_js_modal_content('<div class="js-modal-correct"><h1>CORRECT</h1>'+optional_msg+'<br /><button onclick="nextActivity()">OK</button></div>');
+			open_js_modal_content('<div class="js-modal-correct"><h1>CORRECT</h1>'+optional_msg+'<br /><button class="coolbutton" onclick="nextActivity()">OK</button></div>');
 		}
 	}else{
 		activity_results.result="incorrect";
@@ -682,7 +681,7 @@ function check_correct(clicked_answer,correct_answer,optional_msg){
 		update_lifes_representation();
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_wrong"); // add a callback to move forward after the sound plays... <br />Correct answer: <b>'+correct_answer+'</b>
-			open_js_modal_content('<div class="js-modal-incorrect"><h1>INCORRECT</h1> <br />'+optional_msg+'<br /><button onclick="nextActivity()">OK</button></div>');
+			open_js_modal_content('<div class="js-modal-incorrect"><h1>INCORRECT</h1> <br />'+optional_msg+'<br /><button class="coolbutton" onclick="nextActivity()">OK</button></div>');
 		}
 	}
 	//session_data.details.push(activity_results);
@@ -750,9 +749,9 @@ var history_question=function(){
     correct_answer=fact1.fact;
     if(Number(fact2.end) < Number(fact1.begin)){
 		correct_answer=fact2.fact;
-		answer_msg='<br /><b>'+fact2.fact+'</b> (<b>'+fact2.begin+'</b> <--> '+fact2.end+')<br />was before<br /><b>'+fact1.fact+'</b> (<b>'+fact1.begin+'</b> <--> '+fact1.end+')<br />';
+		answer_msg='<br /><span>'+fact2.fact+'</span> (<b>'+fact2.begin+'</b> <--> '+fact2.end+')<br />was before<br /><span>'+fact1.fact+'</span> (<b>'+fact1.begin+'</b> <--> '+fact1.end+')<br />';
     }else{
-		answer_msg='<br /><b>'+fact1.fact+'</b> (<b>'+fact1.begin+'</b> <--> '+fact1.end+')<br />was before<br /><b>'+fact2.fact+'</b> (<b>'+fact2.begin+'</b> <--> '+fact2.end+')<br />';
+		answer_msg='<br /><span>'+fact1.fact+'</span> (<b>'+fact1.begin+'</b> <--> '+fact1.end+')<br />was before<br /><span>'+fact2.fact+'</span> (<b>'+fact2.begin+'</b> <--> '+fact2.end+')<br />';
     }
 	//if(!match_level_times_bigger_margin(session_data.level,times_bigger)){nextActivity();return;}
     activity_timer.start();
@@ -800,11 +799,11 @@ var same_country_question=function(indicator){
 	}else if(Number(data_map[indicator].data[period1][country])>Number(data_map[indicator].data[period2][country])){
 		correct_answer=period_map[period1];
 		times_bigger=calculate_times_bigger(data_map[indicator].data[period1][country],data_map[indicator].data[period2][country]);
-		answer_msg='<br />'+period_map[period1]+' <b>'+times_bigger+' times bigger</b> than '+period_map[period2]+'<br />';
+		answer_msg='<br /><span>'+period_map[period1]+'</span> <b>'+times_bigger+' times bigger</b> than <span>'+period_map[period2]+'</span><br />';
     }else if(Number(data_map[indicator].data[period1][country])<Number(data_map[indicator].data[period2][country])){
         correct_answer=period_map[period2];
 		times_bigger=calculate_times_bigger(data_map[indicator].data[period2][country],data_map[indicator].data[period1][country]);
-		answer_msg='<br />'+period_map[period2]+' <b>'+times_bigger+' times bigger</b> than '+period_map[period1]+'<br />';
+		answer_msg='<br /><span>'+period_map[period2]+'</span> <b>'+times_bigger+' times bigger</b> than <span>'+period_map[period1]+'</span><br />';
     }
 	if(!match_level_times_bigger_margin(session_data.level,times_bigger)){nextActivity();return;}
 	answer_msg+=add_answer_details(indicator,period1,period2,country,country);
@@ -857,11 +856,11 @@ var diff_country_question=function(indicator){
 	}else if(Number(data_map[indicator].data[period][country1])>Number(data_map[indicator].data[period][country2])){
 		correct_answer=country1;
 		times_bigger=calculate_times_bigger(data_map[indicator].data[period][country1],data_map[indicator].data[period][country2]);
-		answer_msg='<br />'+country1+' <b>'+times_bigger+' times bigger</b> than '+country2+'<br />';
+		answer_msg='<br /><span>'+country1+'</span> <b>'+times_bigger+' times bigger</b> than '+country2+'<br />';
     }else if(Number(data_map[indicator].data[period][country1])<Number(data_map[indicator].data[period][country2])){
         correct_answer=country2;
 		times_bigger=calculate_times_bigger(data_map[indicator].data[period][country2],data_map[indicator].data[period][country1]);
-		answer_msg='<br />'+country2+' <b>'+times_bigger+' times bigger</b> than '+country1+'<br />';
+		answer_msg='<br /><span>'+country2+'</span> <b>'+times_bigger+' times bigger</b> than <span>'+country1+'</span><br />';
     }
 	if(!match_level_times_bigger_margin(session_data.level,times_bigger)){nextActivity();return;}
 	answer_msg+=add_answer_details(indicator,period,period,country1,country2);

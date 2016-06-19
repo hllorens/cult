@@ -68,7 +68,7 @@ green B3E099
 
 
 html{margin:0; padding:0; background: #111;}
-body{margin:0 auto; padding:0; font:normal 28px Monospace, Arial, sans-serif; color:#555; width:100%;
+body{margin:0 auto; padding:0; font:normal 28px monospace, Arial, sans-serif; color:#555; width:100%;
     -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
     -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
     -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
@@ -114,16 +114,16 @@ min-height: 80%; CANNOT BE A PERCENTAGE :() min-width:640px; */
 	/*min-height: 600px;*/ /*BEST SOLUTION WOULD BE ADAPT PER DEVICE MAXHEIGHT*/
 }
 
-h1{font: normal 26px Monospace,Arial,sans-serif; margin: 5px; color: #722;}
+h1{font-size: 26px; margin: 5px; color: #722;}
 
 #header{display:block;position:absolute;top:0px; height:48px;width:100%;background-color:#111} /*overflow:hidden;*/
-#header h1{font: normal 22px Impact, Monospace,Arial,sans-serif; margin: 5px; color: #eee;}
+#header h1{font-size: 22px; margin: 5px; color: #eee;}
 #zone_canvas{position:absolute; overflow: hidden;background:#fff;top:48px; bottom:1%; width:100%;} /*#fee*/
 /*HEIGHT perhaps use variables? css3?*/
 
 select, button {font-family:inherit;font-size:inherit;}
 
-#zone_score{font: bold 14px Monospace, Verdana,Arial,sans-serif; padding: 5px;}
+#zone_score{font-weight: bold; font-size: 14px; padding: 5px;}
 .col_left{float: left;margin-left:10px;}
 .col_right{float: right; text-align: right; margin-right:10px;}
 #best_score{color: #111;}
@@ -415,26 +415,58 @@ a#hamburger_icon svg {
     font-weight:bold;
 }
 
+
 #time_left{
+  /* Reset the default appearance */
+  -webkit-appearance: none;
+     -moz-appearance: none;
+   appearance: none;
+        height:35px;
+        width:200px; /*does not work with 300px or 35%... in chrome*/
+	display:inline-block;
+     /*display: block;
+	position:relative;*/
+     vertical-align: middle;
+    border: none; /* reset in firefox */
+        /*border-radius: 0px;
+        background: #f00;*/
+	color:blue;
+       background:#ddd;
+       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+
+}
+#time_left::-webkit-progress-bar {  
 	height:35px;
-	width:200px; /*does not work with 300px or 35%... in chrome*/
-    display: inline;
-    vertical-align: middle;
-	/*border-radius: 0px;
-	background: #f00;*/
+	width:200px;
+       background:#ddd;
+       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
 }
-.progress-red{
-	color:#f00;
+#time_left::-webkit-progress-value {  
+       background:blue;
 }
-.progress-red::-webkit-progress-bar {
-	background:#f00;
-}
-.progress-red::-moz-progress-bar {
-	background:#f00;
+#time_left::-moz-progress-bar {
+       background:blue;
 }
 
+
+#time_left.progress-red{
+       color:#f00;
+}
+#time_left.progress-red::-webkit-progress-bar {  /* container */
+       background:#ddd;
+       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+}
+#time_left.progress-red::-webkit-progress-value { /* bar */
+       background:#f00;
+}
+#time_left.progress-red::-moz-progress-bar {
+       background:#f00;
+}
+
+
 .js-modal-correct{
-	border: 10px solid #171;
+	border: 4px solid #171;
+    	border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
 	background: #dfd;
 	color: #171;
 	width: 95%;
@@ -445,10 +477,17 @@ a#hamburger_icon svg {
 }
 .js-modal-correct h1{
 	color: #171;
+    	font-family: 'Patrick Hand SC', cursive;
+	font-size:38px;
+}
+.js-modal-correct span{
+    	font-family: 'Patrick Hand SC', cursive;
+	font-size:32px;
 }
 
 .js-modal-incorrect{
-	border: 10px solid #711;
+	border: 4px solid #711;
+    	border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
 	background: #fdd;
 	color: #711;
 	width: 95%;
@@ -456,6 +495,15 @@ a#hamburger_icon svg {
 	margin: 10% auto;
 	padding: 10px;
 	text-align: center;
+}
+.js-modal-incorrect h1{
+	color: #711;
+    	font-family: 'Patrick Hand SC', cursive;
+	font-size:38px;
+}
+.js-modal-incorrect span{
+    	font-family: 'Patrick Hand SC', cursive;
+	font-size:32px;
 }
 
 .autocomplete-suggestions {
