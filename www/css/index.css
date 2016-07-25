@@ -114,7 +114,7 @@ min-height: 80%; CANNOT BE A PERCENTAGE :() min-width:640px; */
 	/*min-height: 600px;*/ /*BEST SOLUTION WOULD BE ADAPT PER DEVICE MAXHEIGHT*/
 }
 
-h1{font-size: 26px; margin: 5px; color: #722;}
+/*h1{font-size: 26px; margin: 5px; color: #722;}*/
 
 #header{display:block;position:absolute;top:0px; height:48px;width:100%;background-color:#111} /*overflow:hidden;*/
 #header h1{font-size: 22px; margin: 5px; color: #eee;}
@@ -158,8 +158,8 @@ select, button {font-family:inherit;font-size:inherit;}
     background: transparent;
     /*padding: 1rem 1rem;*/
     margin: 8px 4px;
-    -webkit-transition: all .5s ease;
-    transition: all .5s ease;
+    -webkit-transition: all .15s ease;
+    transition: all .15s ease;
     color: #41403E;
     font-size: 32px; /*1.5rem;*/
     letter-spacing: 1px;
@@ -168,6 +168,11 @@ select, button {font-family:inherit;font-size:inherit;}
     /*box-shadow: 20px 38px 34px -26px rgba(0, 0, 0, 0.2);*/
     border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
 }
+button:active {
+  box-shadow: 2px 8px 4px -6px rgba(0, 0, 0, 0.8);
+  transform: translateY(3px);
+}
+
 
 
 div.button{
@@ -316,6 +321,7 @@ button.go-back{
     /*box-shadow: 20px 38px 34px -26px rgba(0, 0, 0, 0.2);*/
     /*border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;*/
 }
+
 .fixed-bottom-right{
 	position:absolute;
 	bottom:16px; right:16px;
@@ -420,17 +426,19 @@ a#hamburger_icon svg {
   /* Reset the default appearance */
   -webkit-appearance: none;
      -moz-appearance: none;
-   appearance: none;
-        height:35px;
-        width:200px; /*does not work with 300px or 35%... in chrome*/
+          appearance: none;
+              border: none; /* reset in firefox */
+              
+   height:35px;
+    width:200px; /*does not work with 300px or 35%... in chrome*/
 	display:inline-block;
      /*display: block;
 	position:relative;*/
      vertical-align: middle;
-    border: none; /* reset in firefox */
+
         /*border-radius: 0px;
         background: #f00;*/
-	color:blue;
+	   color:blue;
        background:#ddd;
        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
 

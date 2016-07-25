@@ -22,11 +22,29 @@ var header_zone=document.getElementById('header');
 var header_text=undefined;
 var canvas_zone=document.getElementById('zone_canvas');
 var canvas_zone_vcentered=document.getElementById('zone_canvas_vcentered');
+var backend_url='backend/' //../backend
 
 
-ajax_request('backend/ajaxdb.php?action=gen_session_state',function(text) {
-	session_state=text;	//console.log(session_state);
-});
+var internet_access=true;
+function check_internet_access(){
+    check_internet_access_with_img_url('http://www.cognitionis.com/cult-media/img/globe.png',set_internet_access_true,set_internet_access_false);
+}
+var set_internet_access_true=function(){
+    internet_access=true;
+    if(is_local()){session_state="offline";menu_screen();}
+    else{ajax_CORS_request_json(backend_url+'ajaxdb.php?action=gen_session_state',set_session_state);}
+}
+var set_internet_access_false=function(){
+    internet_access=false;
+    session_state="offline";
+    menu_screen();
+}
+var set_session_state=function(result) {
+    if(result.hasOwnProperty('error') && result.error!=""){alert("SET SESSION STATE ERROR: "+result.error); return;}
+    session_state=result.state; //console.log(session_state);
+    menu_screen();
+};
+
 function login_screen(){
 	if(debug){alert('login_screen called');}
 	header_zone.innerHTML='<h1>Sign in</h1>';
