@@ -61,6 +61,11 @@ if ($action == "get_users"){
 		$output[$aRow['email']]['access_level'] = $aRow['access_level'];
 	}
     submit_data($output);
+}else if ($action == "add_fact"){
+	$state = md5(rand());
+	$output['success']="success";    
+    mail("hectorlm1983@gmail.com","add ".get_value("fact")."(".$_SESSION['email'].")","Fact: ".get_value("fact")."\nbegin: ".get_value("begin")."\nend: ".get_value("end")."\n");
+    submit_data($output);
 }else if ($action == "gen_session_state"){
 	$state = md5(rand());
 	$_SESSION["state"]=$state;

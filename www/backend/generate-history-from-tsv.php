@@ -1,5 +1,6 @@
 <?php
 
+
 date_default_timezone_set('Europe/Madrid');
 
 $timestamp=date("Y-m-d H:i:s");
@@ -15,7 +16,8 @@ $pop_arr=array();
 
 $data_directory='../../../cult-data-game-unified/';
 
-$tsvfile="pagerank_en_2015-10.plus6.105k.sorted.norm.tsv";
+$tsvfile="pagerank_en_2015-10.plus6.105k.sorted.tsv"; // lacks renaissance
+
 if( isset($_GET['file']) ){
 	$tsvfile=$_GET['file'];
 }
@@ -25,7 +27,10 @@ $num_words=0;
 if($file!=false){
 	while(! feof($file)){
 	  $linearr=fgetcsv($file,0,"\t");
-	  if(count($linearr)<2 || strlen($linearr[1])==0 || strlen($linearr[1])==0) continue;
+	  if(count($linearr)<2 || strlen($linearr[0])==0 || strlen($linearr[1])==0){
+          echo "ignoring '".$line."'<br />";
+          continue;
+      }
 	  $wiki=trim($linearr[1]);
 	  $p=$linearr[0];
 	  $pop_arr[$wiki]=(int) $p;
@@ -36,6 +41,28 @@ if($file!=false){
 	echo "file not found $data_directory.$tsvfile";exit();
 }
 
+
+$tsvfile="pageinlinkCounts_en_2015_plus99.170k.sorted.norm.tsv"; // lacks others... why?
+$file = fopen($data_directory.$tsvfile,"r");
+$num_words=0;
+if($file!=false){
+	while(! feof($file)){
+	  $linearr=fgetcsv($file,0,"\t");
+	  if(count($linearr)<2 || strlen($linearr[0])==0 || strlen($linearr[1])==0){
+          echo "ignoring '".$line."'<br />";
+          continue;
+      }
+	  $wiki=trim($linearr[1]);
+	  $p=$linearr[0];
+      if (!array_key_exists($wiki,$pop_arr)){
+        $pop_arr[$wiki]=(int) $p;
+      }
+      //echo "$wiki <br />";
+	}
+	fclose($file);
+}else{
+	echo "file not found $data_directory.$tsvfile";exit();
+}
 
 
 $tsvfile="history.tsv";
@@ -53,13 +80,14 @@ if($file!=false){
 	  $fact=trim($linearr[0]);
 	  $begin=get_year($linearr[1]);
 	  $end=get_year($linearr[2]);
-	  $wiki=$linearr[3];
+	  $wiki=trim($linearr[3]);
 	  $p=0;
       //echo "search $wiki among ".count($pop_arr)."<br />";
       if (array_key_exists($wiki,$pop_arr)){
-        echo "found $wiki";
 		$p=$pop_arr[$wiki];
-	  }
+	  }else{
+        echo "Not found '$wiki'    ('$fact') <br />";
+      }
 	  $activity=array(
 	  		"fact" => $fact,
 	  		"begin" => $begin,
@@ -76,7 +104,7 @@ if($file!=false){
 }
 
 
-header('Content-type: text/plain');
+
 
 
 $fp = fopen($data_directory.$tsvfile.'.json', 'w');
