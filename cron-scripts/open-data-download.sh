@@ -69,6 +69,7 @@ sendemail="false"
 new_data=""
 
 echo "$timestamp Downloading from WB to $destination (last_year=${last_year})" | tee $destination-logs/ERROR.log
+mkdir -p $destination-$curr_date
 
 for K in "${!INDICATORMAP[@]}";do
 	echo $K;
