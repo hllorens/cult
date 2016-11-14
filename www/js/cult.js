@@ -115,8 +115,8 @@ var POPULARITY_MIN={
 };
 
 var YEAR_DIFF_RANGE={
-    easy: {min:50,max:200},
-    normal: {min:5,max:100},
+    easy: {min:50,max:250},
+    normal: {min:10,max:150},
     difficult: {min:1,max:50}
 };
 
@@ -419,6 +419,7 @@ function learn_menu(){
     <div id="menu-logo-div"></div> \
     <nav id="responsive_menu">\
     <br /><button id="show_geo" class="coolbutton">Learn Geo</button> \
+    <br /><button id="timeline_history" class="coolbutton">Timeline Hist</button> \
     <br /><button id="show_history" class="coolbutton">Learn Hist</button> \
     '+extra+'\
     <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
@@ -427,6 +428,7 @@ function learn_menu(){
     document.getElementById("show_geo").addEventListener(clickOrTouch,function(){show_geo();});
     if(document.getElementById('show_geo_analysis')!=null) document.getElementById("show_geo_analysis").addEventListener(clickOrTouch,function(){show_geo_analysis();});
     document.getElementById("show_history").addEventListener(clickOrTouch,function(){show_history();});
+    document.getElementById("timeline_history").addEventListener(clickOrTouch,function(){timeline_history();});
     document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
 }
 
@@ -638,9 +640,9 @@ var show_history=function(fact){
      <form id="my-form" action="javascript:void(0);"> \
 		<ul class="errorMessages"></ul>\
 		<input id="new-fact" autofocus type="text" name="q" placeholder="'+fact+'" class="coolbutton" required="required" />\
-			<input id="my-form-submit" type="submit" style="visibility:hidden;display:none" />\
-            <button onclick="show_data_fact()" class="coolbutton">&gt;</button>\
-			</form>\
+		<input id="my-form-submit" type="submit" style="visibility:hidden;display:none" />\
+        <button onclick="show_data_fact()" class="coolbutton">&gt;</button>\
+	</form>\
             '+content2show+'\
      <button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button>\
 	';
@@ -676,6 +678,9 @@ var show_history=function(fact){
         }
     }
 }
+
+
+
 var show_data_fact=function(){
     var fact=document.getElementById('new-fact').value;
     if(!fact_map.hasOwnProperty(fact)) fact=fact.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
@@ -691,6 +696,39 @@ var prev_fact=function(fact){
 
 var next_fact=function(fact){
     show_history(fact_list[fact_list.indexOf(fact)+1]);
+}
+
+var timeline_history=function(){
+    // we could add a fact parameter and allow search but for now just enable scrolling and show the list
+    //TODO
+    //  show only years until first - (except if it is the first), use pretty number for numbers > 4 digits K and M
+    //  enable scrolling!!! and disable it when clicking, back!
+    allow_scrolling();
+    var content2show="";
+    for(var i=0;i<fact_list.length;i++){
+        var fact=fact_list[i];
+        var fstyle="font-size:10px;";
+        if(match_level_history_pop('normal',fact_map[fact])){
+            fstyle="font-size:15px;";
+        }
+        if(match_level_history_pop('easy',fact_map[fact])){
+            fstyle="font-size:15px;font-weight:bold;";
+        }
+        // .replace(/^([-]?[0-9]+).*$/,'$1'). Not needed since it only has years already (cleand up before)
+        content2show+='\
+        <tr>\
+        <td style="text-align:right;width:3em;'+fstyle+'">'+fact_map[fact].begin+'</td>\
+        <td style="text-align:right;width:3em;'+fstyle+'">'+fact_map[fact].end.replace('present','now')+'</td>\
+        <td style="text-align:left;'+fstyle+'">'+fact+'</td></tr>\
+        ';
+    }
+    //border:1px solid black; 
+    canvas_zone_vcentered.innerHTML='<div style="overflow: auto;height: 95%;"><table style="width:94%;margin:0 auto;padding:0;">\
+            '+content2show+'\
+                </table></div><div style="overflow: hidden;height: 5%;"></div>\
+     <button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button>\
+    ';
+    document.getElementById("go-back").addEventListener(clickOrTouch,function(){prevent_scrolling();learn_menu();});
 }
 
 
@@ -892,20 +930,21 @@ var history_question=function(){
         fact1=random_item(data_map.history);
     }
     var fact2=random_item(data_map.history,fact1.fact);
-    while(!match_level_history_pop(session_data.level,fact2)){
-        console.log("fact "+fact2.wiki+" popularity="+fact2.p+" does not match level "+session_data.level);
+    var unblocker=0;
+    while(!match_level_history_pop(session_data.level,fact2) || !match_level_year_diff_range(session_data.level,year_diff)){
+        console.log("fact "+fact2.wiki+" popularity="+fact2.p+" or "+year_diff+" does not match level "+session_data.level);
         fact2=random_item(data_map.history);
+        year_diff=Math.abs(Number(fact1.begin) - Number(fact2.begin));
+        if(unblocker>100){
+            nextActivity();
+            return;
+        }
     }
     // Makes sense to discard overlaps since the question is "what was before"
     // and not "what satrted before" or "what ended before"
     if(! (fact1.end<fact2.begin || fact2.end<fact1.begin)){
         console.log("USLESS: overlapping facts "+fact1.fact+" "+fact2.fact+"");
         nextActivity(); return;
-    }
-    var year_diff=Math.abs(Number(fact1.begin) - Number(fact2.begin));
-    if(!match_level_year_diff_range(session_data.level,year_diff)){
-        console.log("year_diff="+year_diff+" does not match level "+session_data.level);
-        nextActivity();return;
     }
 
     correct_answer=fact1.fact;
