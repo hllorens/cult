@@ -115,8 +115,8 @@ var POPULARITY_MIN={
 };
 
 var YEAR_DIFF_RANGE={
-    easy: {min:50,max:250},
-    normal: {min:10,max:150},
+    easy: {min:150,max:250},
+    normal: {min:50,max:150},
     difficult: {min:1,max:50}
 };
 
