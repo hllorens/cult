@@ -930,11 +930,13 @@ var history_question=function(){
         fact1=random_item(data_map.history);
     }
     var fact2=random_item(data_map.history,fact1.fact);
+    var year_diff=Math.abs(Number(fact1.begin) - Number(fact2.begin));
     var unblocker=0;
     while(!match_level_history_pop(session_data.level,fact2) || !match_level_year_diff_range(session_data.level,year_diff)){
         console.log("fact "+fact2.wiki+" popularity="+fact2.p+" or "+year_diff+" does not match level "+session_data.level);
         fact2=random_item(data_map.history);
         year_diff=Math.abs(Number(fact1.begin) - Number(fact2.begin));
+        unblocker++;
         if(unblocker>100){
             nextActivity();
             return;
