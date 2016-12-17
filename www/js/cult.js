@@ -43,8 +43,8 @@ if(is_local()){backend_url='http://www.centroafan.com/dev-afan-app/www/backend/'
 // MEDIA
 var images = [
 //	"../../cult-media/img/clock.png or svg",
-	"../../cult-media/img/correct.png",
-	"../../cult-media/img/wrong.png"
+//	"../../cult-media/img/correct.png",
+//	"../../cult-media/img/wrong.png"
 ];
 var sounds = [];
 // More efficient for offline scenario to use require or dirctly iclude the data
@@ -169,14 +169,18 @@ function login_screen(){
     <span class="buttonText"></span>\
 	</div>'+invitee_access+'\
 		';
-	gapi.signin.render('signinButton', {
-	  'callback': 'signInCallback',
-	  'clientid': '718126583517-g98bubkmq93kb0mtlsn6saffqh0ctnug.apps.googleusercontent.com',
-	  'cookiepolicy': 'single_host_origin',
-	  'redirecturi': 'postmessage',
-	  'accesstype': 'offline',
-	  'scope': 'openid email'
-	}); 
+    if(internet_access && !is_local()){
+        gapi.signin.render('signinButton', {
+          'callback': 'signInCallback',
+          'clientid': '718126583517-g98bubkmq93kb0mtlsn6saffqh0ctnug.apps.googleusercontent.com',
+          'cookiepolicy': 'single_host_origin',
+          'redirecturi': 'postmessage',
+          'accesstype': 'offline',
+          'scope': 'openid email'
+        }); 
+    }else{
+        add_click_fancy("signinButton",login_bypass);
+    }
 }
 
 
@@ -189,6 +193,62 @@ function invitee_access(){
 	user_data.display_name='invitee';
 	user_data.access_level='invitee';
 	menu_screen();
+}
+
+
+var set_login_bypass=function(result) {
+    if (result) {
+        if(result.hasOwnProperty('error') && result.error!=""){
+            alert('LOGIN ERROR: '+user_bypass+' no existe. Server error:'+result.error); user_bypass=undefined; login_screen();
+        }else{
+            if(debug){
+                console.log(result);
+                console.log("logged bypass! "+result.email+" level:"+result.access_level);
+                alert("logged bypass! "+result.email+" level:"+result.access_level);
+            }
+            user_data=result;
+            localStorage.setItem("user_data", JSON.stringify(user_data));
+            menu_screen();
+        }
+    } else {
+        alert('Failed to make a server-side call. Check your configuration and console.</br>Result:'+ result);
+        login_screen();
+    }
+};
+
+function login_bypass(){
+    canvas_zone_vcentered.innerHTML='...loging in...';
+    if(user_bypass==undefined){
+        var default_user="";
+        if(localStorage.getItem("user_data")!=null){
+            user_data = JSON.parse(localStorage.getItem("user_data"));
+            if(user_data.hasOwnProperty('email')){
+                default_user=user_data.email;
+            }
+        }
+        user_bypass = prompt("email:",default_user);
+    }
+    
+    check_internet_access_with_img_url(
+        'http://www.centroafan.com/logo-afan.jpg',
+            function(){
+                internet_access=true;
+                ajax_CORS_request_json(backend_url+'ajaxdb.php?action=login_bypass&state='+session_state+'&user='+user_bypass,set_login_bypass);
+            },
+            function(){
+                internet_access=false;
+                user_data = JSON.parse(localStorage.getItem("user_data"));
+                if(user_data!=null && user_data.hasOwnProperty('email')){
+                    user_data=result;
+                    alert('No tienes acceso a internet. Pero hay datos para: '+user_data.email);
+                }else{
+                    alert('No tienes acceso a internet. Ni datos locales.');
+                    user_bypass=undefined;
+                }
+                menu_screen();
+            }
+        );
+    
 }
 
 
@@ -298,7 +358,7 @@ function top_scores(){
     <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
     ';
     document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
-	ajax_request_json(
+	ajax_CORS_request_json(
 		backend_url+'ajaxdb.php?action=get_top_scores&user='+user_data.email+'&type='+session_data.type+'&level='+session_data.level, 
 		function(data) {
 			if(debug) console.log(data);
@@ -1149,6 +1209,7 @@ var load_fact_list_and_map=function(){
 
 
 function send_session_data(){
+    // TODO improve this to make it cache/offline compatible
     remove_modal();
     canvas_zone_vcentered.innerHTML='<h1>GAME OVER</h1>Your <b>score</b> is <b>'+session_data.num_correct+'</b>.';
 	if(user_data.access_level=='invitee'){
