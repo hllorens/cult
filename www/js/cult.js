@@ -1,5 +1,17 @@
 "use strict";
 
+// Initialize Firebase
+var config = {
+    apiKey: "AIzaSyDn6s-P6h6MB-PKXKRaBHFvkaPBbyKssLg",
+    authDomain: "cult-game.firebaseapp.com",
+    databaseURL: "https://cult-game.firebaseio.com",
+    storageBucket: "cult-game.appspot.com",
+    messagingSenderId: "718126583517"
+};
+firebase.initializeApp(config);
+var sessions=undefined;
+var dbRef=firebase.database().ref().child('sessions');
+dbRef.on('value',snap=>sessions=snap.val());
 var app_name='CULT';
 
 var internet_access=true;
@@ -8,19 +20,15 @@ function check_internet_access(){
 }
 var set_internet_access_true=function(){
     internet_access=true;
-    if(is_local()){session_state="offline";menu_screen();}
-    else{ajax_CORS_request_json(backend_url+'ajaxdb.php?action=gen_session_state',set_session_state);}
+    if(is_local()){session_state="local-online";}
+    else{session_state="online";}
+    menu_screen();
 }
 var set_internet_access_false=function(){
     internet_access=false;
     session_state="offline";
     menu_screen();
 }
-var set_session_state=function(result) {
-    if(result.hasOwnProperty('error') && result.error!=""){alert("SET SESSION STATE ERROR: "+result.error); return;}
-    session_state=result.state; //console.log(session_state);
-    menu_screen();
-};
 
 
 // DATA vars, TODO all data will be already in the same format...
@@ -157,12 +165,10 @@ var match_level_history_pop=function(level, fact){
 
 
 function login_screen(){
-	if(debug){alert('login_screen called');}
+	//if(debug){alert('login_screen called');}
 	header_zone.innerHTML='<h1>CULT Sign in</h1>';
 	var invitee_access="";
-	if(debug){
-		invitee_access='<br /><button id="exit" class="button exit" onclick="invitee_access();">Invitee (offline)</button>';
-	}
+	//if(debug){		invitee_access='<br /><button id="exit" class="button exit" onclick="invitee_access();">Invitee (offline)</button>';	}
 	canvas_zone_vcentered.innerHTML='\
 	<div id="signinButton" class="button">login\
    <span class="icon"></span>\
@@ -170,7 +176,7 @@ function login_screen(){
 	</div>'+invitee_access+'\
 		';
     if(internet_access && !is_local()){
-        gapi.signin.render('signinButton', {
+        /*gapi.signin.render('signinButton', {
           'callback': 'signInCallback',
           'clientid': '718126583517-g98bubkmq93kb0mtlsn6saffqh0ctnug.apps.googleusercontent.com',
           'cookiepolicy': 'single_host_origin',
@@ -178,12 +184,68 @@ function login_screen(){
           'accesstype': 'offline',
           'scope': 'openid email'
         }); 
+        // firebase: 718126583517-dsh4gj37l8hihqrpeilrlo6jehsj51lf.apps.googleusercontent.com
+        */
+        add_click_fancy("signinButton",toggleSignIn);
     }else{
         add_click_fancy("signinButton",login_bypass);
     }
 }
 
+// configure google auth
+firebase.auth().getRedirectResult().then(function(result) {
+    /*if (result.credential) { var token = result.credential.accessToken;    }*/
+    //alert('signed in');
+    var user = result.user;
+}).catch(function(error) {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    // The email of the user's account used.
+    var email = error.email;
+    // The firebase.auth.AuthCredential type that was used.
+    var credential = error.credential;
+    if (errorCode === 'auth/account-exists-with-different-credential') {
+      alert('You have already signed up with a different auth provider for that email.');
+    } else {
+      console.error(error);
+    }
+});
 
+// Listening for auth state changes.
+// [START authstatelistener]
+firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+        // User is signed in.
+        if(debug){
+            console.log(user);
+            console.log("logged! "+user.email);
+        }
+        user_data.display_name=user.displayName
+        user_data.user_id=user.uid;
+        user_data.picture=user.photoURL;
+        user_data.email=user.email;
+        user_data.access_level='normal';
+        session_data.user=user.email;
+        session_data.user_access_level=user_data.access_level;
+        menu_screen();
+    } else {
+        // User is signed out.
+        login_screen();
+    }
+});
+// [END authstatelistener]
+
+function toggleSignIn() {
+    if (!firebase.auth().currentUser) {
+        var provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/plus.login');
+        firebase.auth().signInWithRedirect(provider); // alternative WithPopup(provider)
+    }else{
+        alert('error: already logged in with google');
+    }
+    document.getElementById('signinButton').disabled = true;
+}
 
 
 function invitee_access(){
@@ -228,12 +290,15 @@ function login_bypass(){
         }
         user_bypass = prompt("email:",default_user);
     }
-    
+    if(user_bypass==undefined || user_bypass.trim()==""){
+        login_screen();
+        return;
+    }
     check_internet_access_with_img_url(
         'http://www.centroafan.com/logo-afan.jpg',
             function(){
                 internet_access=true;
-                ajax_CORS_request_json(backend_url+'ajaxdb.php?action=login_bypass&state='+session_state+'&user='+user_bypass,set_login_bypass);
+                toggleSignIn();
             },
             function(){
                 internet_access=false;
@@ -252,79 +317,17 @@ function login_bypass(){
 }
 
 
-function signInCallback(authResult) {
-	//console.log(authResult);
-	if (authResult['code']) {
-		canvas_zone_vcentered.innerHTML='<div class="loader">Loading...</div>';
-		// Send one-time-code to server, if responds -> success
-		if(debug) console.log(authResult);
-		ajax_request_json(
-			backend_url+'ajaxdb.php?action=gconnect&state='+session_state+'&code='+authResult['code'],
-			function(result) {
-                if (result) {
-                    if(result.hasOwnProperty('error') && result.error!=""){alert("LOGIN ERROR: "+result.error); return;}
-                    if(result.hasOwnProperty('info') && result.info=="new user"){
-                        open_js_modal_content_accept("<p>New user created successfully for: "+result.email+". The challenge begins!</p>");
-                    }
-                    
-                    
-                    if(debug){
-                        console.log(result);
-                        console.log("logged! "+result.email+" level:"+result.access_level);
-                        alert("logged! "+result.email+" level:"+result.access_level);
-                    }
-                    user_data.info=result.info;
-                    user_data.display_name=result.display_name;
-                    user_data.user_id=result.user_id;
-                    user_data.picture=result.picture;
-                    user_data.email=result.email;
-					user_data.access_level=result.access_level;
-					session_data.user=result.email;
-					session_data.user_access_level=result.access_level;
-					menu_screen();
-				} else if (authResult['error']) {
-					alert('There was an error: ' + authResult['error']);
-					login_screen();
-				} else {
-					alert('Failed to make a server-side call. Check your configuration and console.</br>Result:'+ result);
-					login_screen();
-				}
-			}
-		);
-	}
-}
-
 function gdisconnect(){
 	hamburger_close();
 	if(user_data.email=='invitee'){ login_screen(); return;}
-	ajax_request_json(
-		backend_url+'ajaxdb.php?action=gdisconnect', 
-		function(result) {
-			if (result.hasOwnProperty('success')) {
-				if(debug) console.log(result.success);
-			} else {
-				if(!result.hasOwnProperty('error')) result.error="NO JSON RETURNED";
-				alert('Failed to disconnect.</br>Result:'+ result.error);
-			}
-            login_screen();
-        }
-	);
+    if(internet_access && !is_local() && firebase.auth().currentUser){
+        firebase.auth().signOut();
+        canvas_zone_vcentered.innerHTML=' signing out from google...';
+    }else{
+        user_bypass=undefined; login_screen(); return;
+    }
 }
 
-function admin_screen(){
-	ajax_request_json(
-		backend_url+'ajaxdb.php?action=get_users', 
-		function(data) {
-			var users=data;
-			canvas_zone_vcentered.innerHTML=' \
-				User:  <select id="users-select"></select> \
-				<br /><button onclick="set_user()" class="button">Acceder</button> \
-				';
-			users_select_elem=document.getElementById('users-select');
-			select_fill_with_json(users,users_select_elem);
-		}
-	);
-}
 
 
 function set_user(){
@@ -358,49 +361,32 @@ function top_scores(){
     <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
     ';
     document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
-	ajax_CORS_request_json(
-		backend_url+'ajaxdb.php?action=get_top_scores&user='+user_data.email+'&type='+session_data.type+'&level='+session_data.level, 
-		function(data) {
-			if(debug) console.log(data);
-			var rtable='<table class="table-wo-border table-small"><tr><td><b>Rank</b></td><td><b>Name</b></td><td><b>Score</b></td><td><b>Date</b></td></tr>';
-			for (var i=0;i<data.absolute_elements.length;i++){
-				var d=new Date(data.absolute_elements[i].timestamp.substr(0,10));
-				rtable+='<tr><td>'+(i+1)+'</td><td>'+data.absolute_elements[i].user.substr(0,8)+'</td><td style="text-align:right;">'+data.absolute_elements[i].num_correct+'</td><td>'+monthNames[d.getMonth()]+'-'+d.getFullYear()+'</td></tr>';
-			}
-			rtable+='<tr><td colspan="4"></td></tr>\
-					 <tr><td colspan="4"><b>User rank</b></td></tr>';
-			for (var i=0;i<data.usr_elements.length;i++){
-				var d=new Date(data.usr_elements[i].timestamp.substr(0,10));
-				rtable+='<tr><td>'+data.usr_elements[i].rank+'</td><td>'+user_data.email.substr(0,8)+'</td><td style="text-align:right;">'+data.usr_elements[i].num_correct+'</td><td>'+monthNames[d.getMonth()]+'-'+d.getFullYear()+'</td></tr>';
-			}
-			rtable+="</table>";
-			canvas_zone_vcentered.innerHTML='\
-				  TOP SCORES<br />Hall of Fame<br/>\
-				  <div class="small-font">type: '+session_data.type+'  level: '+session_data.level+'</div><br/>\
-				  '+rtable+'\
-				  <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
-				  ';
-                document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
-/*            
-            IMPROVE THE THING BELOW so it can take id (order), and that it can convert a date into month-year
-            document.getElementById("results-div").innerHTML="Resultados user: "+cache_user_subject_results[session_data.subject].general.user+" - subject: <b>"+cache_user_subject_results[session_data.subject].general.subject+"</b><br /><table id=\"results-table\"></table>";
-            var results_table=document.getElementById("results-table");
-            DataTableSimple.call(results_table, {
-                data: data.absolute_elements,
-                row_id: 'id',
-                pagination: 5,
-                columns: [
-                    { data: 'timestamp', col_header: 'Id', link_function_id: 'explore_result_detail' },
-                    { data: 'type', col_header: 'Tipo',  format: 'first_4'},
-                    { data: 'mode', col_header: 'Modo',  format: 'first_4'},
-                    { data: 'age', col_header: 'Edad' },
-                    { data: 'duration', col_header: 'Tiempo',  format: 'time_from_seconds_up_to_mins'}, 
-                    { data: 'result', col_header: '%', format: 'percentage_int' } 
-                ]
-            } );                  */
+    var rtable='<table class="table-wo-border table-small"><tr><td><b>Rank</b></td><td><b>Name</b></td><td><b>Score</b></td><td><b>Date</b></td></tr>';
+    var curr_rank=1;
+    var usr_rank='Not ranked yet';
+    // todo: method to sort them by num_correct and date (do it at the beginning...)
+    for (var prop in sessions[session_data.level]){
+        if (sessions[session_data.level].hasOwnProperty(prop)) {
+            var prop_val=sessions[session_data.level][prop];
+            var d=new Date(prop_val.timestamp.substr(0,10));
+            var line='<tr><td>'+curr_rank+'</td><td>'+firebaseCodec.decode(prop.substr(0,prop.indexOf('%40')))+'</td><td style="text-align:right;">'+prop_val.num_correct+'</td><td>'+monthNames[d.getMonth()]+'-'+d.getFullYear()+'</td></tr>';
+            rtable+=line;
+            if(prop=user_data.email) usr_rank=line;
+            curr_rank++;
         }
-	);
-
+        if(curr_rank==10) break;
+    }
+    rtable+='<tr><td colspan="4"></td></tr>\
+             <tr><td colspan="4"><b>User rank</b></td></tr>';
+    rtable+=usr_rank;
+    rtable+="</table>";
+    canvas_zone_vcentered.innerHTML='\
+          TOP SCORES<br />Hall of Fame<br/>\
+          <div class="small-font">type: '+session_data.type+'  level: '+session_data.level+'</div><br/>\
+          '+rtable+'\
+          <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
+          ';
+    document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
 }
 
 
@@ -1209,34 +1195,32 @@ var load_fact_list_and_map=function(){
 
 
 function send_session_data(){
-    // TODO improve this to make it cache/offline compatible
+  var enc_usr=firebaseCodec.encodeFully(user_data.email);
+  if(sessions[session_data.level].hasOwnProperty(enc_usr)){
+    var previous_best=sessions[session_data.level][enc_usr].num_correct;
+    if(previous_best<=session_data.num_correct){
+        firebase.database().ref('sessions/' + session_data.level + "/" + enc_usr).set({
+          num_correct: session_data.num_correct,
+          timestamp: session_data.timestamp
+        });
+    }//else{  // TODO better add this to the message...
+    //    alert('You already had a better score or '+previous_best);
+    //}
+  }
     remove_modal();
     canvas_zone_vcentered.innerHTML='<h1>GAME OVER</h1>Your <b>score</b> is <b>'+session_data.num_correct+'</b>.';
-	if(user_data.access_level=='invitee'){
-		canvas_zone_vcentered.innerHTML+='<br />Invitees cannot sent scores to the server<br /><br />\
-		<br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button>';
-        document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
-		return;
-	}
-	
-	if(debug) console.log(JSON.stringify(session_data));
-	var xhr = new XMLHttpRequest();
-	xhr.open("POST", "http://www.cognitionis.com/cult/www/"+backend_url+'ajaxdb.php',true);
-	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-	xhr.responsetype="json";
-	xhr.send("action=send_session_data_post&json_string="+(JSON.stringify(session_data))); 
-	canvas_zone_vcentered.innerHTML+='<br />...Sending results to the server...<br />';
-
-	xhr.onload = function () {
-		var data=JSON.parse(this.responseText);
-        if(debug) console.log(data.msg);
-		canvas_zone_vcentered.innerHTML+='Sent!<br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> ';
-        document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
-	};
-
+    canvas_zone_vcentered.innerHTML+='<br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> ';
+    document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
 }
 
 
-
-
+// firebase does not allow in keys: ".", "#", "$", "/", "[", or "]"
+var firebaseCodec = {
+	encodeFully: function(s) {
+		return encodeURIComponent(s).replace('.', '%2E');
+	},
+	decode: function(s) {
+		return decodeURIComponent(s);
+	}
+};
 
