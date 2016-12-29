@@ -11,7 +11,12 @@ var config = {
 firebase.initializeApp(config);
 var sessions=undefined;
 var dbRef=firebase.database().ref().child('sessions');
-dbRef.on('value',snap=>sessions=snap.val());
+dbRef.once('value',function(snap){sessions=snap.val()});
+var dbRefChat=firebase.database().ref().child('chat');
+var dbRefChallenge=undefined;
+var dbRefChallengeKey=undefined;
+//var dbRefChallengesPublic=firebase.database().ref().child('challenges');
+//dbRef.once('value',snap=>sessions=snap.val()); => not supported on IE (microsoft types would be useful to compile)
 var app_name='CULT';
 
 var internet_access=true;
@@ -228,6 +233,7 @@ firebase.auth().onAuthStateChanged(function(user) {
         user_data.access_level='normal';
         session_data.user=user.email;
         session_data.user_access_level=user_data.access_level;
+        localStorage.setItem("user_data", JSON.stringify(user_data));
         menu_screen();
     } else {
         // User is signed out.
@@ -402,6 +408,9 @@ function show_profile(){
 
 function menu_screen(){
 	allowBackExit();
+    dbRefChat.off();
+    console.log('menu screen');
+
 	media_objects=ResourceLoader.ret_media; // in theory all are loaded at this point
 	var splash=document.getElementById("splash_screen");
 	if(splash!=null && (ResourceLoader.lazy_audio==true || ResourceLoader.not_loaded['sounds'].length==0)){ splash.parentNode.removeChild(splash); }
@@ -417,10 +426,12 @@ function menu_screen(){
 	if(debug) console.log('user.email: '+user_data.email);
 	if(session_state=="unset"){
         canvas_zone_vcentered.innerHTML='...waiting for session state...';
-        setTimeout(function() {menu_screen()}, 2000); // add a counter and if it reaches something fail gracefully
+        //setTimeout(function() {menu_screen()}, 2000); // add a counter and if it reaches something fail gracefully
 	}else if(user_data.email==null){
 		login_screen();
 	}else{
+        firebase.database().ref().child('challenges-private/'+firebaseCodec.encodeFully(user_data.email)).on('value', function(snapshot) {handle_live_challenges(snapshot.val());});
+        // TODO: listen to new live challanges
 		var sign='<li><a href="#" onclick="hamburger_close();show_profile()">profile</a></li>\
                   <li><a href="#" onclick="hamburger_close();gdisconnect()">sign out</a></li>';
 		if(user_data.email=='invitee'){
@@ -438,12 +449,14 @@ function menu_screen(){
 		<div id="menu-logo-div"></div> \
 		<nav id="responsive_menu">\
 		<br /><button id="start-button" class="coolbutton">Play</button> \
+		<!--<br /><button id="chat-button" class="coolbutton">Chat</button>--> \
 		<br /><button id="learn_menu" class="coolbutton">Learn</button> \
 		<br /><button id="options" class="coolbutton">Options</button> \
 		<br /><button id="top_scores" class="coolbutton">Top Scores</button> \
 		</nav>\
 		';
-        document.getElementById("start-button").addEventListener(clickOrTouch,function(){play_game();});
+        document.getElementById("start-button").addEventListener(clickOrTouch,function(){play_menu();});
+        //document.getElementById("chat-button").addEventListener(clickOrTouch,function(){chat();});
         document.getElementById("learn_menu").addEventListener(clickOrTouch,function(){learn_menu();});
         document.getElementById("options").addEventListener(clickOrTouch,function(){options();});
         document.getElementById("top_scores").addEventListener(clickOrTouch,function(){top_scores();});
@@ -457,6 +470,192 @@ function menu_screen(){
         if(fact_list.length==0) load_fact_list_and_map();
 	}
 }
+
+
+function addMessage(chat) {
+    console.log('adding message '+chat.message);
+    var li = document.createElement('li');
+    var nameElm = document.createElement('b');
+    nameElm.innerText = chat.name.substr(0,chat.name.indexOf('@'))+': ';
+    li.appendChild(nameElm);
+    li.className = 'highlight';
+    var messageElm = document.createElement("span");
+    messageElm.innerText = chat.message;
+    li.appendChild(messageElm);
+    document.getElementById('messages').appendChild(li);
+    li.scrollIntoView(false);
+    document.getElementById('send').scrollIntoView(false);
+}
+
+function chat(){
+    // Listen for when child nodes get added to the collection
+    dbRefChat.on('child_added', function(snapshot) {
+        // Get the chat message from the snapshot and add it to the UI
+        var chat = snapshot.val();
+        addMessage(chat);
+    });
+
+    canvas_zone_vcentered.innerHTML=' \
+  <ul id="messages"></ul>\
+  <div id="footer">\
+    <input id="text"></input>\
+    <button id="send">Send</button>\
+  </div>\
+  <nav id="responsive_menu">\
+    <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
+    </nav>\
+    ';
+    document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
+
+  document.getElementById('send').addEventListener('click', function(evt) {
+    var chat = { name: user_data.email, message: document.getElementById('text').value };
+    dbRefChat.push().set(chat);
+    document.getElementById('text').value = '';
+  });
+}
+
+function play_menu(){
+    canvas_zone_vcentered.innerHTML=' \
+    <div id="menu-logo-div"></div> \
+    <nav id="responsive_menu">\
+    <br /><button id="play" class="coolbutton">Individual</button> \
+    <br /><button id="challenge" class="coolbutton">Challenge</button> \
+    <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
+    </nav>\
+    ';
+    document.getElementById("play").addEventListener(clickOrTouch,function(){play_game();});
+    document.getElementById("challenge").addEventListener(clickOrTouch,function(){challenge();});
+    document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
+}
+
+
+function handle_live_challenges(ch_status) {
+    if(ch_status!=undefined && ch_status!=null && ch_status!='null' && ch_status!=""){
+        console.log('ch_status '+ch_status);
+        dbRefChallenge=firebase.database().ref().child('challenges/'+ch_status);
+        dbRefChallengeKey=ch_status;
+        dbRefChallenge.on('value', function(snapshot) {handle_challenge(snapshot.val());});
+    }else{
+        console.log('ch_status undefined');
+    }
+}
+
+function handle_challenge(challenge){
+    console.log('challenge:'+JSON.stringify(challenge));
+    if(challenge==null || challenge==undefined){
+        dbRefChallenge.off();
+        dbRefChallenge=undefined;
+        dbRefChallengeKey=undefined;
+        console.log('challenge canceled!');
+        alert('challenge canceled!');
+        menu_screen();
+    }else{
+        if(challenge.game_on==false){
+            var usr_pos=challenge.usrs.indexOf(user_data.email);
+            if(challenge.seen[usr_pos]==false){
+                challenge.seen[usr_pos]=true;
+                dbRefChallenge.set(challenge);
+            }
+            var accept_button='';
+            if(challenge.accepted[usr_pos]==false){
+                accept_button='<button id="accept_challenge">accept</button>';
+            }
+            canvas_zone_vcentered.innerHTML=' \
+                challenge:'+JSON.stringify(challenge)+' \
+                '+accept_button+'\
+              ...waiting....\
+            <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
+            ';
+            document.getElementById("go-back").addEventListener(clickOrTouch,function(){cancel_challenge(challenge);}.bind(challenge));
+            if(challenge.accepted[usr_pos]==false){
+                document.getElementById("accept_challenge").addEventListener(clickOrTouch,function(){
+                    challenge.accepted[usr_pos]=true;
+                    dbRefChallenge.set(challenge);
+                 });
+            }
+            if(all_accepted(challenge) && challenge.roles[usr_pos]=='inviter'){
+                challenge.game_on=true;
+                challenge.question='GOOOOO';
+                dbRefChallenge.set(challenge);
+            }
+        }else{
+            // handle game
+            canvas_zone_vcentered.innerHTML=' \
+                question:'+challenge.question+' \
+            <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
+            ';
+            document.getElementById("go-back").addEventListener(clickOrTouch,function(){cancel_challenge(challenge);}.bind(challenge));
+        }
+    }
+}
+
+function all_accepted(challenge){
+    for (var i=0;i<challenge.usrs.length;i++){
+        if(challenge.accepted[i]==false) return false;
+    }
+    return true;
+}
+
+
+function cancel_challenge(challenge){
+    var updates = {};
+    console.log('canceling '+JSON.stringify(challenge));
+    for (var i=0;i<challenge.usrs.length;i++){
+        updates['challenges-private/'+firebaseCodec.encodeFully(challenge.usrs[i])] = null;
+    }
+    console.log('updates '+JSON.stringify(updates));
+    updates['challenges/'+dbRefChallengeKey] = null;
+    firebase.database().ref().update(updates);
+}
+
+function update_challenges(challenges) {
+    console.log('updating challenges');
+    for (var prop in challenges){
+        if (challenges.hasOwnProperty(prop)) {
+            var prop_val=challenges[prop];
+            var chbutton = document.createElement('li');
+            chbutton.innerText=prop_val.usr1.substr(0,prop_val.usr1.indexOf('@'));
+            chbutton.id=prop_val.usr1.substr(0,prop_val.usr1.indexOf('@')).replace(/\./g,'');
+            document.getElementById('challenges').appendChild(chbutton);
+        }
+    }
+}
+
+function challenge(){
+    canvas_zone_vcentered.innerHTML=' \
+      <div id="footer">\
+          Email to challenge: <input id="text" /><br />\
+        <button id="create">Challenge</button>\
+      </div>\
+        <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
+        ';
+    document.getElementById('create').addEventListener('click', function(evt) {
+        var newChallengeKey = firebase.database().ref().child('challenges').push().key;
+        var enc_usr=firebaseCodec.encodeFully(user_data.email);
+        var usr2=document.getElementById('text').value;
+        var enc_usr2=firebaseCodec.encodeFully(usr2);
+        var challange_instance={
+            usrs: [user_data.email, usr2],
+            roles: ['inviter','invitee'],
+            timestamp: get_timestamp_str(),
+            time_left: 60,
+            seen: [true, false],
+            accepted: [true, false],
+            scores: [0,0],
+            question: '',
+            answers: ['',''],
+            game_on:false
+        };
+        var updates = {};
+        updates['challenges/'+newChallengeKey] = challange_instance;
+        updates['challenges-private/'+enc_usr] = newChallengeKey;
+        updates['challenges-private/'+enc_usr2] = newChallengeKey;
+        firebase.database().ref().update(updates);
+    });
+    document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
+}
+
+
 
 function learn_menu(){
     var extra='';
@@ -1206,6 +1405,8 @@ function send_session_data(){
     }//else{  // TODO better add this to the message...
     //    alert('You already had a better score or '+previous_best);
     //}
+    // refresh top scores
+    dbRef.once('value',function(snap){sessions=snap.val()});
   }
     remove_modal();
     canvas_zone_vcentered.innerHTML='<h1>GAME OVER</h1>Your <b>score</b> is <b>'+session_data.num_correct+'</b>.';

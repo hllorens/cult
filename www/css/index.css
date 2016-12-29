@@ -74,6 +74,9 @@ body{margin:0 auto; padding:0; font:normal 28px monospace, Arial, sans-serif; co
     -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
 }
 
+#messages { width: 40em; border: 1px solid grey; min-height: 20em; font-size:12px; display:inline-block; list-style-type: none; text-align:left; padding:4px;}
+
+
 #splash_screen {
 	position: fixed;
 	top: 0; right: 0; bottom: 0; left: 0;
