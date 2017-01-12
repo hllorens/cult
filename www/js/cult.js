@@ -565,13 +565,14 @@ function handle_challenge(challenge){
         dbRefChallenge=undefined;
         dbRefChallengeKey=undefined;
         console.log('challenge over!');
-        alert('GAME OVER! Winner: '+challenge.usrs[get_winner_position(challenge)]);
+        alert('GAME OVER! Winner: '+get_winner_string(challenge));
         menu_screen();
     }else if(challenge.game_status=='waiting'){
         var usr_pos=challenge.usrs.indexOf(user_data.email);
         if(challenge.seen[usr_pos]==false){
-            challenge.seen[usr_pos]=true;
-            dbRefChallenge.set(challenge);
+            var updates = {};
+            updates['challenges/'+dbRefChallengeKey+'/seen/'+usr_pos] = true;
+            firebase.database().ref().update(updates);
         }
         var accept_button='';
         if(challenge.accepted[usr_pos]==false){
@@ -588,13 +589,15 @@ function handle_challenge(challenge){
             document.getElementById("accept_challenge").addEventListener(clickOrTouch,function(){
                 reset_local_game();
                 activity_timer.set_end_callback(silly_cb_challenge);
-                challenge.accepted[usr_pos]=true;
-                dbRefChallenge.set(challenge);
-             });
+                var updates = {};
+                updates['challenges/'+dbRefChallengeKey+'/accepted/'+usr_pos] = true;
+                firebase.database().ref().update(updates);
+                });
         }
         if(all_accepted(challenge) && challenge.roles[usr_pos]=='inviter'){
-            challenge.game_status='playing';
-            dbRefChallenge.set(challenge);
+            var updates = {};
+            updates['challenges/'+dbRefChallengeKey+'/game_status'] = 'playing';
+            firebase.database().ref().update(updates);
         }
     }else if(challenge.game_status=='playing'){
         var usr_pos=challenge.usrs.indexOf(user_data.email);
@@ -612,9 +615,12 @@ function handle_challenge(challenge){
             // TODO do something more fancy (like showing what each person answered ...)
             //diff_country_question_challenge(random_item(indicator_list),challenge);
             if(challenge.roles[usr_pos]=='inviter'){
-                challenge.answers=['',''];
-                challenge.game_status='playing';
-                dbRefChallenge.set(challenge);
+                setTimeout(function(){
+                    var updates = {};
+                    updates['challenges/'+dbRefChallengeKey+'/game_status'] = 'playing';
+                    updates['challenges/'+dbRefChallengeKey+'/answers'] = {'0':'','1':''};
+                    firebase.database().ref().update(updates);
+                }, 2000);
             }
         }else if(challenge.question!=null && challenge.question!='' && all_unanswered(challenge)){
             /////// re-implement this
@@ -666,10 +672,7 @@ var diff_country_question_challenge=function(indicator,challenge){
     var period="last_year";
 	var country1=random_item(country_list);
 	var country2=random_item(country_list,country1);
-    challenge.answer_options[0]=country1;
-    challenge.answer_options[1]=country2;
 	var times_bigger;
-    challenge.question='Which is bigger in '+data_map[indicator].indicator_sf+' ('+period_map[period]+')?';
     if(data_map[indicator].data[period][country1]==null){
         period="previous_year";
         if(data_map[indicator].data[period][country1]==null){
@@ -696,12 +699,18 @@ var diff_country_question_challenge=function(indicator,challenge){
     }
 	if(!match_level_times_bigger_margin(session_data.level,times_bigger)){diff_country_question_challenge(random_item(indicator_list),challenge);return;}
 	challenge.answer_msg+=add_answer_details(indicator,period,period,country1,country2);
-    challenge.game_status='waiting_answers';
     //update challenge
-    dbRefChallenge.set(challenge);
+    var updates = {};
+    updates['challenges/'+dbRefChallengeKey+'/game_status'] = 'waiting_answers';
+    updates['challenges/'+dbRefChallengeKey+'/question'] = 'Which is bigger in '+data_map[indicator].indicator_sf+' ('+period_map[period]+')?';
+    updates['challenges/'+dbRefChallengeKey+'/correct_answer'] = challenge.correct_answer;
+    updates['challenges/'+dbRefChallengeKey+'/answer_options'] = [country1,country2];
+    updates['challenges/'+dbRefChallengeKey+'/answer_msg'] = challenge.answer_msg;
+    firebase.database().ref().update(updates);
 }
 
 function check_correct_challenge(clicked_answer){
+    var updates = {};
     var challenge=session_data.challenge;
     // TODO handle all time-outs to check if someone might have left
     // What happens if the host leaves? how will others notice? create a game timeout or something
@@ -723,6 +732,7 @@ function check_correct_challenge(clicked_answer){
 	if (clicked_answer==challenge.correct_answer){
 		session_data.num_correct++;
         challenge.scores[usr_pos]++;
+        updates['challenges/'+dbRefChallengeKey+'/scores/'+usr_pos] = challenge.scores[usr_pos];
 		//activity_results.result="correct";
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_correct");
@@ -733,6 +743,7 @@ function check_correct_challenge(clicked_answer){
 		activity_results.result="incorrect";
         challenge.lifes[usr_pos]--;
         lifes=challenge.lifes[usr_pos];
+        updates['challenges/'+dbRefChallengeKey+'/lifes/'+usr_pos] = lifes;
 		update_lifes_representation();
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_wrong"); // add a callback to move forward after the sound plays... <br />Correct answer: <b>'+challenge.correct_answer+'</b>
@@ -740,12 +751,11 @@ function check_correct_challenge(clicked_answer){
 		}
 	}
     
-    //update challenge
-    challenge.answers[usr_pos]=clicked_answer;
-    
+  
     //session_data.details.push(activity_results);
     session_data.num_answered++;
-    dbRefChallenge.set(challenge);
+    updates['challenges/'+dbRefChallengeKey+'/answers/'+usr_pos] = clicked_answer;
+    firebase.database().ref().update(updates);
 	//dom_score_answered.innerHTML=session_data.num_answered;
 	//var waiting_time=1000;
 	//if(session_data.mode!="test") waiting_time=120000; 
@@ -766,10 +776,17 @@ var reset_local_game=function(){
 
 var get_winner_position=function(challenge){
     var winner=0;
-    for (var i=0;i<challenge.usrs.length;i++){
-        if(challenge.scores[i]>=challenge.scores[winner]) winner=i;
+    for (var i=1;i<challenge.usrs.length;i++){
+        if(challenge.scores[i]>challenge.scores[winner]) winner=i;
+        else if(challenge.scores[i]==challenge.scores[winner]) winner=-1;
     }
     return winner;
+}
+
+var get_winner_string=function(challenge){
+    var pos=get_winner_position(challenge);
+    if(pos==-1) return "tie";
+    else return challenge.usrs[pos];
 }
 
 function all_accepted(challenge){
@@ -848,7 +865,9 @@ function challenge(){
         <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
         ';
     document.getElementById('create').addEventListener('click', function(evt) {
-        var usr2=document.getElementById('text').value;
+        var usr2=document.getElementById('text').value.trim();
+        if(usr2.indexOf('@')==-1) usr2+='@gmail.com';
+        if(!usr2.match(/@[^@]+.(es|com|org)$/)) alert('invalid email');
         var enc_usr2=firebaseCodec.encodeFully(usr2);
         firebase.database().ref().child('challenges-private/'+enc_usr2).once('value', function(snapshot) {create_challange_if_available(snapshot.val());});
     });
@@ -856,26 +875,44 @@ function challenge(){
 }
 
 function create_challange_if_available(ch_status){
-    var usr2=document.getElementById('text').value;
+    var usr2=document.getElementById('text').value.trim();
+    if(usr2.indexOf('@')==-1) usr2+='@gmail.com';
+    if(!usr2.match(/@[^@]+.(es|com|org)$/)) alert('invalid email');
     var enc_usr2=firebaseCodec.encodeFully(usr2);
     if(ch_status!=undefined && ch_status!=null && ch_status!='null' && ch_status!=""){
         alert(usr2+' is already playing a challenge');
     }else{
         var newChallengeKey = firebase.database().ref().child('challenges').push().key;
         var enc_usr=firebaseCodec.encodeFully(user_data.email);
+        activity_timer.set_end_callback(silly_cb_challenge);
         var challange_instance={
             usrs: [user_data.email, usr2],
             roles: ['inviter','invitee'],
             timestamp: get_timestamp_str(),
             time_left: 60,
-            seen: [true, false],
-            accepted: [true, false],
-            scores: [0,0],
-            lifes: [3,3],
+            seen: {
+                '0':true,
+                '1':false
+            },
+            accepted: {
+                '0':true,
+                '1':false
+            },
+            scores: {
+                '0':0,
+                '1':0
+            },
+            lifes: {
+                '0':3,
+                '1':3
+            },
             question: '',
             answer_options: ['',''],
             answer_msg: '',
-            answers: ['',''],
+            answers: {
+                '0':'',
+                '1':''
+            },
             game_status:'waiting'
         };
         var updates = {};
@@ -1661,7 +1698,7 @@ function send_session_data(){
 // firebase does not allow in keys: ".", "#", "$", "/", "[", or "]"
 var firebaseCodec = {
 	encodeFully: function(s) {
-		return encodeURIComponent(s).replace('.', '%2E');
+		return encodeURIComponent(s).replace(/\./g, '%2E');
 	},
 	decode: function(s) {
 		return decodeURIComponent(s);

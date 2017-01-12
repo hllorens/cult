@@ -11,6 +11,7 @@ rm -rf $destination/*
 timestamp=`date +'%Y-%m-%d_%H-%M-%S'`
 current_year=`date +'%Y'`
 current_date=`date +'%Y-%m-%d'`
+
 stock_query="INDEXBME:IB";
 stock_query="$stock_query,BME:ACS,BME:ACX,BME:AENA,BME:AMS,BME:ANA,BME:BBVA,BME:BKIA,BME:BKT,BME:CBK,BME:DIA";
 stock_query="$stock_query,BME:ELE,BME:ENAG,BME:FCC,BME:FER,BME:GAM,BME:GAS,BME:GRLS,BME:IAG,BME:IBE,BME:IDR";
@@ -27,13 +28,33 @@ stock_query="$stock_query,NYSE:ING";
 sendemail="false"
 echo "$timestamp Downloading to $destination (timestamp=${timestamp})" | tee $destination/ERROR.log
 
+# GETTING THE YELD
+vals=","
+for i in $(echo ${stock_query} | sed "s/,/\n/g");do
+    echo "Getting div/yield for $i"; 
+    theinfo=`echo "https://www.google.com/finance?q=$i" | wget -O- -i- | tr "\n" " " |  sed "s/<td/\ntd/g" | sed "s/<\/td>/\n/g" | sed "s/<\/table>/\n/g" | grep "^td " | sed "s/&nbsp;//g"`
+    yieldval=`echo "$theinfo"  | grep -A 1 dividend_yield | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/^[^\/]*\/\([^[:blank:]]*\)[[:blank:]]*/\1/"`
+    divval=`echo "$theinfo"  | grep -A 1 dividend_yield | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/^\([^\/]*\)\/[[:blank:]]*/\1/"`
+    epsval=`echo "$theinfo"  | grep -A 1 pe_ratio | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
+    perval=`echo "$theinfo"  | grep -A 1 "\"eps\"" | tail -n 1 | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
+    roeval=`echo "$theinfo"  | grep -A 1 "Return on average equity" | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
+    vals="${vals},\"$i\": {\"yield\": \"$yieldval\",\"dividend\": \"$divval\",\"eps\": \"$epsval\",\"per\": \"$perval\",\"roe\": \"$roeval\" }"
+    sleep 1; # to avoid overloading google
+done
+echo "{ ${vals} }" | sed "s/,,//g" > $destination/dividend_yield.json
+
+
+# GETTING STOCK INFO
 echo "  wget -O $destination/stocks.json \"http://www.google.com/finance/info?q=${stock_query}\"";
 wget -O $destination/stocks.json "http://www.google.com/finance/info?q=${stock_query}" 2> /dev/null
 cat  $destination/stocks.json | tr -d "\n" | sed "s/^\/\/ //" > $destination/stocks.json2
 mv $destination/stocks.json2 $destination/stocks.json
+
+wget -O san.txt https://www.google.com/finance?q=
 echo 'wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" > $SCRIPT_PATH/data-generation-stocks.log;'
 wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" >> $destination/ERROR.log;
 cp $destination/stocks.formated.json  ${destination}-historical/${current_date}.stocks.formated.json
+
 
 #process alerts...
 #wget --timeout=180 -q -O $destination/stock.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" > $SCRIPT_PATH/data-generation-stock.log;
