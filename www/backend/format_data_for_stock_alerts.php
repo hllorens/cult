@@ -19,6 +19,13 @@ foreach ($json_a as $item) {
 	$symbol_object['session_change_percentage']=$item['cp'];
 	$symbol_object['yield']=$json_a2[$item['e'].':'.$item['t']]['yield'];
 	$symbol_object['dividend']=$json_a2[$item['e'].':'.$item['t']]['dividend'];
+    $symbol_object['divs-per-year']="0";
+    $symbol_object['dividend-total-year']="0";
+    if(floatval($symbol_object['dividend'])!=0){
+        $symbol_object['divs-per-year']="".round(((floatval($symbol_object['yield'])/100)*floatval($symbol_object['value']))/floatval($symbol_object['dividend']));
+        $symbol_object['dividend-total-year']="".floatval($symbol_object['dividend'])*floatval($symbol_object['divs-per-year']);
+    }
+
 	$symbol_object['eps']=$json_a2[$item['e'].':'.$item['t']]['eps'];
 	$symbol_object['per']=$json_a2[$item['e'].':'.$item['t']]['per'];
 	$symbol_object['roe']=$json_a2[$item['e'].':'.$item['t']]['roe'];

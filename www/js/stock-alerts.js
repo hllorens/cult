@@ -204,10 +204,12 @@ function menu_screen(){
 		<div id="menu-logo-div"></div> \
 		<nav id="responsive_menu">\
 		<br /><button id="start-button" class="button" disabled="true">Config alerts</button> \
+		<br /><button id="analysis-button" class="button" disabled="true">Analysis</button> \
 		<br /><button id="exit_app" class="button exit">Exit</button> \
 		</nav>\
 		';
         document.getElementById("start-button").addEventListener(clickOrTouch,function(){manage_alerts();});
+        document.getElementById("analysis-button").addEventListener(clickOrTouch,function(){show_analysis();});
         document.getElementById("exit_app").addEventListener(clickOrTouch,function(){exit_app();});
 		if(cache_user_alerts==null){
 			ajax_request_json(
@@ -223,12 +225,67 @@ function menu_screen(){
 				    if(debug) console.log(json_data)
 				    stocks=json_data;
 		            document.getElementById("start-button").disabled=false;
+		            document.getElementById("analysis-button").disabled=false;
 				});
 			}else{
 				document.getElementById("start-button").disabled=false;
+                document.getElementById("analysis-button").disabled=false;
 			}
 		}
 	}
+}
+
+
+var show_analysis=function(){
+	preventBackExit();
+	header_text.innerHTML=' &larr; '+app_name+' menu';
+	canvas_zone_vcentered.innerHTML=' \
+	<div id="results-div">loading alerts...</div> \
+	<br />\
+    <button id="go-back" class="minibutton fixed-bottom-right go-back">&larr;</button> \
+	';
+    var keysSorted={};
+    keysSorted['yield']=get_sorted_stocks('yield');
+    //keysSorted['gdppcap']=get_sorted_countries_indicator('gdppcap');
+	var user_alerts_data=[];
+	for(var i=0;i<keysSorted['yield'].length;i++){
+		user_alerts_data.push(stocks[keysSorted['yield'][i]]);
+	}    
+	if(user_alerts_data.length==0){
+		document.getElementById("results-div").innerHTML="nothing...";
+	}else{
+		document.getElementById("results-div").innerHTML="<table id=\"results-table\"></table>";
+		var results_table=document.getElementById("results-table");
+		DataTableSimple.call(results_table, {
+			data: user_alerts_data,
+			pagination: 8,
+			row_id: 'id',
+			row_id_prefix: 'row-ana',
+			columns: [
+				{ data: 'name', col_header: 'Sym',  format: 'first_12'},
+				{ data: 'value'},
+				{ data: 'dividend-total-year', col_header: 'div_y'},
+				{ data: 'yield', col_header: 'yield%'},
+				{ data: 'per'}
+			]
+		} );
+	}
+
+    document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
+}
+
+var get_sorted_stocks=function(indicator,direction){
+    if(typeof(direction)=='undefined') direction='desc';
+    var keysSorted = Object.keys(stocks).sort(function(a,b){return Number(stocks[b][indicator])-Number(stocks[a][indicator])});
+    if(direction=='asc') keysSorted = Object.keys(stocks).sort(function(a,b){return Number(stocks[a][indicator])-Number(stocks[b][indicator])});
+    var to_del=['.INX:INDEXSP','SX5E:INDEXSTOXX','NDX:INDEXNASDAQ','IB:INDEXBME'];
+    for(var i=0;i<keysSorted.length;i++){
+        if(stocks[keysSorted[i]]==null) to_del.push(keysSorted[i]);
+    }
+    for(var i=0;i<to_del.length;i++){
+        keysSorted.splice(keysSorted.indexOf(to_del[i]),1);
+    }
+    return keysSorted;
 }
 
 
@@ -292,7 +349,7 @@ var accept_add_alert=function(){
 	}else{
 		open_js_modal_content('<h1>Adding... '+document.getElementById('new-symbol').value+'</h1>');
         ajax_request_json(
-        backend_url+'ajaxdb.php?action=add_alert&user='+user_data.email+'&symbol='+document.getElementById('new-symbol').value+'&low='+document.getElementById('new-low').value+'&high='+document.getElementById('new-high').value+'&low_change_percentage='+document.getElementById('new-low_change_percentage').value+'&high_change_percentage='+document.getElementById('new-high_change_percentage').value,
+        backend_url+'ajaxdb.php?action=add_alert&user='+user_data.email+'&symbol='+document.getElementById('new-symbol').value+'&low='+document.getElementById('new-low').value+'&high='+document.getElementById('new-high').value+'&low_change_percentage='+document.getElementById('new-low_change_percentage').value+'&high_change_percentage='+document.getElementById('new-high_change_percentage').value+'&low_yield='+document.getElementById('new-low_yield').value+'&high_yield='+document.getElementById('new-high_yield').value,
         function(data) {
             if(data['success']!='undefined'){
                 cache_user_alerts[data['success']]=data['data'];
@@ -314,10 +371,12 @@ var add_alert=function(){
 	canvas_zone_vcentered.innerHTML='<form id="my-form" action="javascript:void(0);"> \
 			<ul class="errorMessages"></ul>\
 			<label for="new-symbol">Sym</label> <input id="new-symbol" autofocus type="text" name="q" placeholder="Symbol ..." required="required" /><br /> \
-			<label for="new-low">low</label> <input id="new-low" type="text" required="required" /><br /> \
+			<label for="new-low">low</label> <input id="new-low" type="text" required="required" /> \
 			<label for="new-high">high</label> <input id="new-high" type="text"  required="required"  /><br /> \
-			<label for="new-low_change_percentage">low_change_percentage</label> <input id="new-low_change_percentage" type="text" required="required"  /><br /> \
-			<label for="new-high_change_percentage">high_change_percentage</label> <input id="new-high_change_percentage" type="text"  required="required" /><br /> \
+			<label for="new-low_change_percentage">change_% low</label> <input id="new-low_change_percentage" type="text" required="required"  /> \
+			<label for="new-high_change_percentage">high</label> <input id="new-high_change_percentage" type="text"  required="required" /><br /> \
+			<label for="new-low_yield">yield_% low</label> <input id="new-low_yield" type="text" required="required"  /> \
+			<label for="new-high_yield">high</label> <input id="new-high_yield" type="text"  required="required" /><br /> \
 			<input id="my-form-submit" type="submit" style="visibility:hidden;display:none" />\
 			</form><button onclick="accept_add_alert()">Add</button><button onclick="manage_alerts()">Cancel</button>'; //title="Error: yyyy-mm-dd"
         var search_select = new autoComplete({
@@ -356,7 +415,7 @@ var edit_alert=function(sid){
                 alert('The user not yet activated.');
             }else{
                 ajax_request_json(
-                backend_url+'ajaxdb.php?action=update_alert&lid='+sid+'&user='+user_data.email+'&symbol='+document.getElementById('new-symbol').value+'&low='+document.getElementById('new-low').value+'&high='+document.getElementById('new-high').value+'&low_change_percentage='+document.getElementById('new-low_change_percentage').value+'&high_change_percentage='+document.getElementById('new-high_change_percentage').value,
+                backend_url+'ajaxdb.php?action=update_alert&lid='+sid+'&user='+user_data.email+'&symbol='+document.getElementById('new-symbol').value+'&low='+document.getElementById('new-low').value+'&high='+document.getElementById('new-high').value+'&low_change_percentage='+document.getElementById('new-low_change_percentage').value+'&high_change_percentage='+document.getElementById('new-high_change_percentage').value+'&low_yield='+document.getElementById('new-low_yield').value+'&high_yield='+document.getElementById('new-high_yield').value,
                 function(data) {
                     if(data['success']!='undefined'){
                         cache_user_alerts[data['success']]=data['data'];
@@ -382,10 +441,12 @@ var edit_alert=function(sid){
 			<ul class="errorMessages"></ul>\
 			<label>User</label><input type="text" readonly="readonly" value="'+a2edit.user+'" /><br /> \
 			<label for="new-symbol">Sym</label><input id="new-symbol" type="text" required="required" readonly="readonly" value="'+a2edit.symbol+'" /><br /> \
-			<label for="new-low">low</label><input id="new-low" type="text" required="required" value="'+a2edit.low+'" /><br /> \
+			<label for="new-low">low</label><input id="new-low" type="text" required="required" value="'+a2edit.low+'" /> \
 			<label for="new-high">high</label><input id="new-high" type="text"  required="required" value="'+a2edit.high+'" /><br /> \
-			<label for="new-low_change_percentage">low_change_percentage</label><input id="new-low_change_percentage" type="text" required="required" value="'+a2edit.low_change_percentage+'" /><br /> \
-			<label for="new-high_change_percentage">high_change_percentage</label><input id="new-high_change_percentage" type="text"  required="required" value="'+a2edit.high_change_percentage+'" /><br /> \
+			<label for="new-low_change_percentage">change % low</label><input id="new-low_change_percentage" type="text" required="required" value="'+a2edit.low_change_percentage+'" /> \
+			<label for="new-high_change_percentage">high</label><input id="new-high_change_percentage" type="text"  required="required" value="'+a2edit.high_change_percentage+'" /><br /> \
+			<label for="new-low_yield">yield_% low</label> <input id="new-low_yield" type="text" required="required"  value="'+a2edit.low_yield+'" /> \
+			<label for="new-high_yield">high</label> <input id="new-high_yield" type="text"  required="required"  value="'+a2edit.high_yield+'" /><br /> \
 			<input id="my-form-submit" type="submit" style="visibility:hidden;display:none" />\
 			</form>'; //title="Error: yyyy-mm-dd"		
 	open_js_modal_alert("Editar Participante",form_html,accept_function,cancel_function);

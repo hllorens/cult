@@ -245,6 +245,8 @@ if ($action == "get_users"){
 		$output[$aRow['symbol']]['high'] = $aRow['high'];
 		$output[$aRow['symbol']]['low_change_percentage'] = $aRow['low_change_percentage'];
 		$output[$aRow['symbol']]['high_change_percentage'] = $aRow['high_change_percentage'];
+		$output[$aRow['symbol']]['low_yield'] = $aRow['low_yield'];
+		$output[$aRow['symbol']]['high_yield'] = $aRow['high_yield'];
 		$output[$aRow['symbol']]['last_alerted_date'] = $aRow['last_alerted_date'];
     }
     submit_data($output);
@@ -255,6 +257,8 @@ if ($action == "get_users"){
 	$high=get_value('high');
 	$low_change_percentage=get_value('low_change_percentage');
 	$high_change_percentage=get_value('high_change_percentage');
+	$low_yield=get_value('low_yield');
+	$high_yield=get_value('high_yield');
 
 	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of alert";return;}
 
@@ -274,6 +278,8 @@ if ($action == "get_users"){
 	$output["data"]["high"]=$high;
 	$output["data"]["low_change_percentage"]=$low_change_percentage;
 	$output["data"]["high_change_percentage"]=$high_change_percentage;
+	$output["data"]["low_yield"]=$low_yield;
+	$output["data"]["high_yield"]=$high_yield;
 	$output["data"]["last_alerted_date"]="";
     submit_data($output);
 }else if ($action == "update_alert"){
@@ -284,11 +290,10 @@ if ($action == "get_users"){
 	$high=get_value('high');
 	$low_change_percentage=get_value('low_change_percentage');
 	$high_change_percentage=get_value('high_change_percentage');
-
+	$low_yield=get_value('low_yield');
+	$high_yield=get_value('high_yield');
 	if($_SESSION['access_level']!='admin' && $user!=$_SESSION['email']){echo "ERROR: no admin or owner of alert";return;}
-
-	
-	$sQuery = "UPDATE stock_alerts  SET low='$low',high='$high',low_change_percentage='$low_change_percentage',high_change_percentage='$high_change_percentage' WHERE id=$lid;";
+	$sQuery = "UPDATE stock_alerts  SET low='$low',high='$high',low_change_percentage='$low_change_percentage',high_change_percentage='$high_change_percentage',low_yield='$low_yield',high_yield='$high_yield' WHERE id=$lid;";
 	$rResult = mysqli_query( $db_connection, $sQuery );
 	if(!$rResult){header('HTTP/1.1 500 Internal Server Error');die("Error: Exists. ".mysqli_error( $db_connection )." -- ".$sQuery);}
 	$output["success"]=$symbol;
@@ -300,6 +305,8 @@ if ($action == "get_users"){
 	$output["data"]["high"]=$high;
 	$output["data"]["low_change_percentage"]=$low_change_percentage;
 	$output["data"]["high_change_percentage"]=$high_change_percentage;
+	$output["data"]["low_yield"]=$low_yield;
+	$output["data"]["high_yield"]=$high_yield;
 	$output["data"]["last_alerted_date"]="";
     submit_data($output);
 }else if ($action == "delete_alert"){

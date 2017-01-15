@@ -21,8 +21,8 @@ stock_query="$stock_query,INDEXSTOXX:SX5E";
 stock_query="$stock_query,INDEXNASDAQ:NDX";
 stock_query="$stock_query,INDEXSP:.INX";
 stock_query="$stock_query,NASDAQ:GOOG,NASDAQ:GOOGL,NASDAQ:MSFT,NASDAQ:YHOO,NASDAQ:EBAY,NASDAQ:FB,NASDAQ:TRIP,NASDAQ:AMZN";
-stock_query="$stock_query,NASDAQ:NUAN,NASDAQ:CMPR,NASDAQ:PCLN,NASDAQ:TSLA";
-stock_query="$stock_query,NYSE:ING";
+stock_query="$stock_query,NASDAQ:NUAN,NASDAQ:CMPR,NASDAQ:PCLN,NASDAQ:TSLA,NYSE:PSX,NASDAQ:AAPL,NASDAQ:FOXA,NASDAQ:BKCC";
+stock_query="$stock_query,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:KO,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:VZ,NYSE:GM,NYSE:SSI";
 
 
 sendemail="false"
@@ -34,7 +34,7 @@ for i in $(echo ${stock_query} | sed "s/,/\n/g");do
     echo "Getting div/yield for $i"; 
     theinfo=`echo "https://www.google.com/finance?q=$i" | wget -O- -i- | tr "\n" " " |  sed "s/<td/\ntd/g" | sed "s/<\/td>/\n/g" | sed "s/<\/table>/\n/g" | grep "^td " | sed "s/&nbsp;//g"`
     yieldval=`echo "$theinfo"  | grep -A 1 dividend_yield | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/^[^\/]*\/\([^[:blank:]]*\)[[:blank:]]*/\1/"`
-    divval=`echo "$theinfo"  | grep -A 1 dividend_yield | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/^\([^\/]*\)\/[[:blank:]]*/\1/"`
+    divval=`echo "$theinfo"  | grep -A 1 dividend_yield | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/^\([^\/]*\)\/.*\$/\1/"`
     epsval=`echo "$theinfo"  | grep -A 1 pe_ratio | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
     perval=`echo "$theinfo"  | grep -A 1 "\"eps\"" | tail -n 1 | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
     roeval=`echo "$theinfo"  | grep -A 1 "Return on average equity" | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`

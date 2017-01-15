@@ -1292,7 +1292,6 @@ var add_fact_send=function(){
 
 }
 
-
 var show_geo_analysis=function(){
     var keysSorted=[];
     keysSorted['health']=get_sorted_countries_indicator('health');

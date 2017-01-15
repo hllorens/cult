@@ -59,7 +59,9 @@ while ( $aRow = mysqli_fetch_array( $rResult ) ){
             floatval(str_replace(",","",$stocks[$aRow['symbol']]['value'])) < floatval($aRow['low']) ||
             floatval(str_replace(",","",$stocks[$aRow['symbol']]['value'])) > floatval($aRow['high']) ||
             floatval($stocks[$aRow['symbol']]['session_change_percentage']) < floatval($aRow['low_change_percentage']) ||
-            floatval($stocks[$aRow['symbol']]['session_change_percentage']) > floatval($aRow['high_change_percentage'])             
+            floatval($stocks[$aRow['symbol']]['session_change_percentage']) > floatval($aRow['high_change_percentage']) ||
+            floatval(str_replace(",","",$stocks[$aRow['symbol']]['yield'])) < floatval($aRow['low_yield']) ||
+            floatval(str_replace(",","",$stocks[$aRow['symbol']]['yield'])) > floatval($aRow['high_yield'])
             ) ){
         
         $fact="";
@@ -73,13 +75,20 @@ while ( $aRow = mysqli_fetch_array( $rResult ) ){
         }else if(floatval($stocks[$aRow['symbol']]['session_change_percentage']) > floatval($aRow['high_change_percentage'])){
             $fact.="+% ".$stocks[$aRow['symbol']]['session_change_percentage'];
         }
+        if(floatval(str_replace(",","",$stocks[$aRow['symbol']]['yield'])) < floatval($aRow['low_yield'])){
+            $fact.="-yield ".$stocks[$aRow['symbol']]['yield'];
+        }else if(floatval(str_replace(",","",$stocks[$aRow['symbol']]['yield'])) > floatval($aRow['high_yield'])){
+            $fact.="+yield ".$stocks[$aRow['symbol']]['yield'];
+        }
+
         //update db last_alerted_date
         $sQuery2 = "UPDATE stock_alerts SET last_alerted_date='$timestamp_date' WHERE id=".$aRow['id'].";";
         echo $sQuery2;
         $rResult2 = mysqli_query( $db_connection, $sQuery2 );
         if(!$rResult2){ echo mysqli_error( $db_connection )." -- ".$sQuery2; }
-        $body=$aRow['symbol']." is ".$stocks[$aRow['symbol']]['value']." (".$stocks[$aRow['symbol']]['session_change_percentage']."), your ranges: value[".$aRow['low']." -to- ".$aRow['high']."] percentage[".$aRow['low_change_percentage']." -to- ".$aRow['high_change_percentage']."]";
-
+        $body=$aRow['symbol']." is ".$stocks[$aRow['symbol']]['value']." (".$stocks[$aRow['symbol']]['session_change_percentage']."), your ranges: <br /> value[".$aRow['low']." -to- ".$aRow['high']."] <br />\
+              percentage[".$aRow['low_change_percentage']." -to- ".$aRow['high_change_percentage']."]<br /> \
+              yield[".$aRow['low_yield']." -to- ".$aRow['high_yield']."]";
         send_alert($aRow['symbol']." ".$fact,$body,$aRow['user'], $mail);
 	}
 	//print_r($aRow);
