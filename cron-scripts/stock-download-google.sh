@@ -35,22 +35,34 @@ for i in $(echo ${stock_query} | sed "s/,/\n/g");do
     theinfo=`echo "https://www.google.com/finance?q=$i" | wget -O- -i- | tr "\n" " " |  sed "s/<td/\ntd/g" | sed "s/<\/td>/\n/g" | sed "s/<\/table>/\n/g" | grep "^td " | sed "s/&nbsp;//g"`
     yieldval=`echo "$theinfo"  | grep -A 1 dividend_yield | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/^[^\/]*\/\([^[:blank:]]*\)[[:blank:]]*/\1/"`
     divval=`echo "$theinfo"  | grep -A 1 dividend_yield | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/^\([^\/]*\)\/.*\$/\1/"`
-    epsval=`echo "$theinfo"  | grep -A 1 pe_ratio | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
-    perval=`echo "$theinfo"  | grep -A 1 "\"eps\"" | tail -n 1 | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
+    perval=`echo "$theinfo"  | grep -A 1 pe_ratio | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
+    epsval=`echo "$theinfo"  | grep -A 1 "\"eps\"" | tail -n 1 | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
     roeval=`echo "$theinfo"  | grep -A 1 "Return on average equity" | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
-    vals="${vals},\"$i\": {\"yield\": \"$yieldval\",\"dividend\": \"$divval\",\"eps\": \"$epsval\",\"per\": \"$perval\",\"roe\": \"$roeval\" }"
+    range_52week=`echo "$theinfo"  | grep -A 1 range_52week | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
+    vals="${vals},\"$i\": {\"yield\": \"$yieldval\",\"dividend\": \"$divval\",\"eps\": \"$epsval\",\"per\": \"$perval\",\"roe\": \"$roeval\",\"range_52week\": \"$range_52week\" }"
     sleep 1; # to avoid overloading google
 done
-echo "{ ${vals} }" | sed "s/,,//g" > $destination/dividend_yield.json
+echo "{ ${vals} }" | sed "s/,,//g" > $destination/dividend_yield.new.json
+if [ `cat $destination/dividend_yield.json | wc -c` -le 2000 ];then
+    echo "ERROR: Dividend/yield info is too small... < 2000 chars " >> $destination/ERROR.log;
+    exit 1;
+else
+    mv $destination/dividend_yield.new.json $destination/dividend_yield.json
+fi
 
 
 # GETTING STOCK INFO
 echo "  wget -O $destination/stocks.json \"http://www.google.com/finance/info?q=${stock_query}\"";
-wget -O $destination/stocks.json "http://www.google.com/finance/info?q=${stock_query}" 2> /dev/null
+wget -O $destination/stocks.new.json "http://www.google.com/finance/info?q=${stock_query}" 2> /dev/null
+if [ `cat $destination/stocks.new.json | wc -c` -le 2000 ];then
+    echo "ERROR: stocks.new.json is too small... < 2000 chars " >> $destination/ERROR.log;
+    exit 1;
+else
+    mv $destination/stocks.new.json $destination/stocks.json
+fi
 cat  $destination/stocks.json | tr -d "\n" | sed "s/^\/\/ //" > $destination/stocks.json2
 mv $destination/stocks.json2 $destination/stocks.json
 
-wget -O san.txt https://www.google.com/finance?q=
 echo 'wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" > $SCRIPT_PATH/data-generation-stocks.log;'
 wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" >> $destination/ERROR.log;
 cp $destination/stocks.formated.json  ${destination}-historical/${current_date}.stocks.formated.json
