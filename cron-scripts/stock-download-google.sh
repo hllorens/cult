@@ -43,7 +43,7 @@ for i in $(echo ${stock_query} | sed "s/,/\n/g");do
     sleep 1; # to avoid overloading google
 done
 echo "{ ${vals} }" | sed "s/,,//g" > $destination/dividend_yield.new.json
-if [ `cat "$destination/dividend_yield.new.json" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/dividend_yield.json | wc -c` -le 2000 ];then
+if [ `cat "$destination/dividend_yield.new.json" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/dividend_yield.new.json | wc -c` -le 2000 ];then
     echo "ERROR: Dividend/yield info is not valid json or too small... < 2000 chars " >> $destination/ERROR.log;
     exit 1;
 else
@@ -53,15 +53,14 @@ fi
 
 # GETTING STOCK INFO
 echo "  wget -O $destination/stocks.json \"http://www.google.com/finance/info?q=${stock_query}\"";
-wget -O $destination/stocks.new.json "http://www.google.com/finance/info?q=${stock_query}" 2> /dev/null
-if [ `cat "$destination/stocks.new.json" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/stocks.new.json | wc -c` -le 2000 ];then
-    echo "ERROR: stocks.new.json is not valid json or too small... < 2000 chars " >> $destination/ERROR.log;
+wget -O $destination/stocks.json "http://www.google.com/finance/info?q=${stock_query}" 2> /dev/null
+cat  $destination/stocks.json | tr -d "\n" | sed "s/^\/\/ //" > $destination/stocks.json2
+if [ `cat "$destination/stocks.json2" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/stocks.json2 | wc -c` -le 2000 ];then
+    echo "ERROR: stocks.json2 is not valid json or too small... < 2000 chars " >> $destination/ERROR.log;
     exit 1;
 else
-    mv $destination/stocks.new.json $destination/stocks.json
+    mv $destination/stocks.json2 $destination/stocks.json
 fi
-cat  $destination/stocks.json | tr -d "\n" | sed "s/^\/\/ //" > $destination/stocks.json2
-mv $destination/stocks.json2 $destination/stocks.json
 
 echo 'wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" > $SCRIPT_PATH/data-generation-stocks.log;'
 wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" >> $destination/ERROR.log;
