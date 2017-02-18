@@ -6,7 +6,8 @@ destination="$SCRIPT_PATH/../../cult-data-stock-google";
 if [ ! -d $destination ];then echo "ERROR $destination does not exist"; exit -1; fi
 echo "$SCRIPT_PATH and $destination"
 
-rm -rf $destination/*
+rm -rf $destination/*.log $destination/dividend_yield.json $destination/stocks.json
+
 
 timestamp=`date +'%Y-%m-%d_%H-%M-%S'`
 current_year=`date +'%Y'`
@@ -32,15 +33,16 @@ echo "$timestamp Downloading to $destination (timestamp=${timestamp})" | tee $de
 # GETTING THE YELD
 vals=","
 for i in $(echo ${stock_query} | sed "s/,/\n/g");do
-    echo "Getting div/yield for $i"; 
+    echo "Getting div/yield for $i" | tee -a $destination/ERROR.log; 
     theinfo=`echo "https://www.google.com/finance?q=$i" | wget -O- -i- | tr "\n" " " |  sed "s/<td/\ntd/g" | sed "s/<\/td>/\n/g" | sed "s/<\/table>/\n/g" | grep "^td " | sed "s/&nbsp;//g"`
     yieldval=`echo "$theinfo"  | grep -A 1 dividend_yield | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/^[^\/]*\/\([^[:blank:]]*\)[[:blank:]]*/\1/"`
     divval=`echo "$theinfo"  | grep -A 1 dividend_yield | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/^\([^\/]*\)\/.*\$/\1/"`
     perval=`echo "$theinfo"  | grep -A 1 pe_ratio | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
+    betaval=`echo "$theinfo"  | grep -A 1 "\"beta\"" | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
     epsval=`echo "$theinfo"  | grep -A 1 "\"eps\"" | tail -n 1 | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
     roeval=`echo "$theinfo"  | grep -A 1 "Return on average equity" | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
-    range_52week=`echo "$theinfo"  | grep -A 1 range_52week | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
-    vals="${vals},\"$i\": {\"yield\": \"$yieldval\",\"dividend\": \"$divval\",\"eps\": \"$epsval\",\"per\": \"$perval\",\"roe\": \"$roeval\",\"range_52week\": \"$range_52week\" }"
+    range_52week=`echo "$theinfo"  | grep -A 1 range_52week | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/,//g"`
+    vals="${vals},\"$i\": {\"yield\": \"$yieldval\",\"dividend\": \"$divval\",\"eps\": \"$epsval\",\"beta\": \"$betaval\",\"per\": \"$perval\",\"roe\": \"$roeval\",\"range_52week\": \"$range_52week\" }"
     sleep 1; # to avoid overloading google
 done
 echo "{ ${vals} }" | sed "s/,,//g" > $destination/dividend_yield.new.json
@@ -51,32 +53,44 @@ else
     mv $destination/dividend_yield.new.json $destination/dividend_yield.json
 fi
 
+echo 'Getting div/yield finished SUCCESS' | tee -a $destination/ERROR.log;
 
 # GETTING STOCK INFO
-echo "  wget -O $destination/stocks.json \"http://www.google.com/finance/info?q=${stock_query}\"";
+echo "  wget -O $destination/stocks.json \"http://www.google.com/finance/info?q=${stock_query}\"" | tee -a $destination/ERROR.log;
 wget -O $destination/stocks.json "http://www.google.com/finance/info?q=${stock_query}" 2> /dev/null
 cat  $destination/stocks.json | tr -d "\n" | sed "s/^\/\/ //" > $destination/stocks.json2
 if [ `cat "$destination/stocks.json2" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/stocks.json2 | wc -c` -le 2000 ];then
-    echo "ERROR: stocks.json2 is not valid json or too small... < 2000 chars " >> $destination/ERROR.log;
+    echo "ERROR: stocks.json2 is not valid json or too small... < 2000 chars " | tee -a $destination/ERROR.log;
     exit 1;
 else
+    echo " mv $destination/stocks.json2 $destination/stocks.json" | tee -a $destination/ERROR.log; 
     mv $destination/stocks.json2 $destination/stocks.json
 fi
 
-echo 'wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" > $SCRIPT_PATH/data-generation-stocks.log;'
-wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" >> $destination/ERROR.log;
-cp $destination/stocks.formated.json  ${destination}-historical/${current_date}.stocks.formated.json
+echo 'wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php"' | tee -a $destination/ERROR.log;
+
+# use new here ... keep the log somewhere of the wget...
+
+wget --timeout=180 -q -O $destination/stocks.formated.json2 "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" 2>&1 >> $destination/ERROR.log;
+if [ `cat "$destination/stocks.formated.json2" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/stocks.formated.json2 | wc -c` -le 2000 ];then
+    echo "ERROR: stocks.formated.json2 is not valid json or too small... < 2000 chars " >> $destination/ERROR.log;
+    exit 1;
+else
+    echo "mv $destination/stocks.formated.json2 $destination/stocks.formated.json" | tee -a $destination/ERROR.log; 
+    mv $destination/stocks.formated.json2 $destination/stocks.formated.json
+    cp $destination/stocks.formated.json  ${destination}-historical/${current_date}.stocks.formated.json
+fi
 
 
 #process alerts...
 #wget --timeout=180 -q -O $destination/stock.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" > $SCRIPT_PATH/data-generation-stock.log;
 
 if [ "$sendemail" == "true" ];then 
-	echo "sending email errors!"
+	echo "sending email errors!" | tee -a $destination/ERROR.log; 
 	wget --timeout=180 -q -O $destination/data-download.log http://www.cognitionis.com/cult/www/backend/send-data-download-errors.php?autosecret=1secret > $destination/last-download-data-errors.log; 
 fi
-echo "sending email alerts if any!"
-wget --timeout=180 -q -O $destination/stock-alerts.log http://www.cognitionis.com/cult/www/backend/send-stock-alerts.php?autosecret=1secret > $destination/last-stock-alerts-errors.log; 
+echo "sending email alerts if any!" | tee -a $destination/ERROR.log; 
+wget --timeout=180 -q -O $destination/stock-alerts.log http://www.cognitionis.com/cult/www/backend/send-stock-alerts-fire.php?autosecret=1secret > $destination/last-stock-alerts-errors.log; 
 
 
 

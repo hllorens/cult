@@ -30,7 +30,7 @@ foreach ($json_a as $item) {
 	$symbol_object=array();
 	$symbol_object['name']=$item['t'];
 	$symbol_object['market']=$item['e'];
-	$symbol_object['value']=$item['l'];
+	$symbol_object['value']=str_replace(",","",$item['l']);
 	$symbol_object['session_change']=$item['c'];
 	$symbol_object['session_change_percentage']=$item['cp'];
 	$symbol_object['yield']=$json_a2[$item['e'].':'.$item['t']]['yield'];
@@ -39,15 +39,18 @@ foreach ($json_a as $item) {
     $symbol_object['range_52week_high']="0";
     $symbol_object['range_52week_low']="0";
     $symbol_object['range_52week_heat']="0";
+    $symbol_object['range_52week_volatility']="0";
     if(strpos($symbol_object['range_52week'], '- ') !== false){
         $parts = explode('- ', $symbol_object['range_52week']);
         $symbol_object['range_52week_low']=$parts[0];
         $symbol_object['range_52week_high']=$parts[1];
         $symbol_object['range_52week_heat']="".toFixed((floatval($symbol_object['value'])-floatval($symbol_object['range_52week_low']))/(floatval($symbol_object['range_52week_high'])-floatval($symbol_object['range_52week_low'])));
+        $symbol_object['range_52week_volatility']="".toFixed((floatval($symbol_object['range_52week_high'])-floatval($symbol_object['range_52week_low']))/(floatval($symbol_object['range_52week_high'])));
     }
     $symbol_object['divs_per_year']="0";
     $symbol_object['dividend_total_year']="0";
     $symbol_object['yield_per_ratio']="0";
+	$symbol_object['beta']=$json_a2[$item['e'].':'.$item['t']]['beta'];
 	$symbol_object['eps']=$json_a2[$item['e'].':'.$item['t']]['eps'];
 	$symbol_object['per']=$json_a2[$item['e'].':'.$item['t']]['per'];
 	$symbol_object['roe']=$json_a2[$item['e'].':'.$item['t']]['roe'];

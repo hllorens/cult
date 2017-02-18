@@ -113,4 +113,4 @@ function send_alert($symbol, $body, $user, $mail){
 }
 
 
-
+?>
