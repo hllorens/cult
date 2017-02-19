@@ -1,7 +1,7 @@
 <?php
 header('Content-type: application/json');
 $data_directory='../../../cult-data-stock-google';
-
+$timestamp_date=date("Y-m-d");
 $data_object=array();
 $file3=$data_directory.'/stocks.formated.json';
 $string3 = file_get_contents($file3);
@@ -29,6 +29,9 @@ function toFixed($number, $decimals=2) {
 foreach ($json_a as $item) {
 	$symbol_object=array();
 	$symbol_object['name']=$item['t'];
+    if($symbol_object['name']=='GOOG'){
+        $symbol_object['date']=$timestamp_date;
+    }
 	$symbol_object['market']=$item['e'];
 	$symbol_object['value']=str_replace(",","",$item['l']);
 	$symbol_object['session_change']=$item['c'];
