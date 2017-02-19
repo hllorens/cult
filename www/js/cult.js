@@ -575,13 +575,23 @@ function handle_challenge(challenge){
             firebase.database().ref().update(updates);
         }
         var accept_button='';
+        var seen_info='';
         if(challenge.accepted[usr_pos]==false){
             accept_button='<button id="accept_challenge">accept</button>';
         }
+        if(challenge.roles[usr_pos]=='inviter'){
+            seen_info='<br />Has the other player seen the challenge? ';
+            if(!challenge.seen[(usr_pos+1)%challenge.seen.length]){
+                seen_info+='Not yet (waiting)';
+            }else{
+                seen_info+='Yes';
+            }
+        }
+        //challenge:'+JSON.stringify(challenge)+'
         canvas_zone_vcentered.innerHTML=' \
-            challenge:'+JSON.stringify(challenge)+' \
-            '+accept_button+'\
-          ...waiting....\
+          '+seen_info+'<br />\
+          ...waiting....<br />\
+          '+accept_button+'\
         <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
         ';
         document.getElementById("go-back").addEventListener(clickOrTouch,function(){cancel_challenge(challenge);}.bind(challenge));
