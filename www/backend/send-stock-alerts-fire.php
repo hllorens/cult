@@ -104,7 +104,11 @@ foreach ($alerts as $usr => $ualerts) {
         }else if(array_key_exists("high_per",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['per'])) > floatval($alert['high_per'])){
             $fact.="+per ".$stocks[$alert['symbol']]['per'];
         }
-
+        if(array_key_exists("low_eps",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) < floatval($alert['low_eps'])){
+            $fact.="-eps ".$stocks[$alert['symbol']]['eps'];
+        }else if(array_key_exists("high_eps",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) > floatval($alert['high_eps'])){
+            $fact.="+eps ".$stocks[$alert['symbol']]['eps'];
+        }
         if($fact!=""){
             $alerts_log[$usr.'_'.$symbol]=$timestamp_date;
             $curl = curl_init();
@@ -123,6 +127,7 @@ foreach ($alerts as $usr => $ualerts) {
             $body=$alert['symbol']." ".$fact."<br />".$alert['symbol']." your ranges:<br />\
                   value  ".$stocks[$alert['symbol']]['value']." [".$alert['low']." -to- ".$alert['high']."] <br />
                   percentage  ".$stocks[$alert['symbol']]['session_change_percentage']."[".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
+                  eps  ".$stocks[$alert['symbol']]['eps']."[".$alert['low_eps']." -to- ".$alert['high_eps']."]<br />
                   per  ".$stocks[$alert['symbol']]['per']."[".$alert['low_per']." -to- ".$alert['high_per']."]<br />
                   yield  ".$stocks[$alert['symbol']]['yield']." [".$alert['low_yield']." -to- ".$alert['high_yield']."]";
             send_alert($alert['symbol']." ".$fact,$body,$usr_decoded, $mail);

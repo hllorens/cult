@@ -48,6 +48,7 @@ done
 echo "{ ${vals} }" | sed "s/,,//g" > $destination/dividend_yield.new.json
 if [ `cat "$destination/dividend_yield.new.json" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/dividend_yield.new.json | wc -c` -le 2000 ];then
     echo "ERROR: Dividend/yield info is not valid json or too small... < 2000 chars " >> $destination/ERROR.log;
+    cat "$destination/dividend_yield.new.json" >> $destination/ERROR.log;
     cat $destination/ERROR.log | mail -s "ERROR in stock download" hectorlm1983@gmail.com
     exit 1;
 else
@@ -62,6 +63,7 @@ wget -O $destination/stocks.json "http://www.google.com/finance/info?q=${stock_q
 cat  $destination/stocks.json | tr -d "\n" | sed "s/^\/\/ //" > $destination/stocks.json2
 if [ `cat "$destination/stocks.json2" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/stocks.json2 | wc -c` -le 2000 ];then
     echo "ERROR: stocks.json2 is not valid json or too small... < 2000 chars " | tee -a $destination/ERROR.log;
+    cat "$destination/stocks.json2" >> $destination/ERROR.log;
     cat $destination/ERROR.log | mail -s "ERROR in stock download" hectorlm1983@gmail.com
     exit 1;
 else
@@ -76,6 +78,7 @@ echo 'wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cog
 wget --timeout=180 -q -O $destination/stocks.formated.json2 "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" 2>&1 >> $destination/ERROR.log;
 if [ `cat "$destination/stocks.formated.json2" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/stocks.formated.json2 | wc -c` -le 2000 ];then
     echo "ERROR: stocks.formated.json2 is not valid json or too small... < 2000 chars " >> $destination/ERROR.log;
+    cat "$destination/stocks.formated.json2" >> $destination/ERROR.log;
     cat $destination/ERROR.log | mail -s "ERROR in stock download" hectorlm1983@gmail.com
     exit 1;
 else
