@@ -104,9 +104,9 @@ foreach ($alerts as $usr => $ualerts) {
         }else if(array_key_exists("high_per",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['per'])) > floatval($alert['high_per'])){
             $fact.="+per ".$stocks[$alert['symbol']]['per'];
         }
-        if(array_key_exists("low_eps",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) < floatval($alert['low_eps'])){
+        if(array_key_exists("low_eps",$alert) && $stocks[$alert['symbol']]['eps']!="" && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) < floatval($alert['low_eps'])){
             $fact.="-eps ".$stocks[$alert['symbol']]['eps'];
-        }else if(array_key_exists("high_eps",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) > floatval($alert['high_eps'])){
+        }else if(array_key_exists("high_eps",$alert) && $stocks[$alert['symbol']]['eps']!="" && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) > floatval($alert['high_eps'])){
             $fact.="+eps ".$stocks[$alert['symbol']]['eps'];
         }
         if($fact!=""){
