@@ -48,7 +48,9 @@ done
 echo "{ ${vals} }" | sed "s/,,//g" > $destination/dividend_yield.new.json
 if [ `cat "$destination/dividend_yield.new.json" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/dividend_yield.new.json | wc -c` -le 2000 ];then
     echo "ERROR: Dividend/yield info is not valid json or too small... < 2000 chars " >> $destination/ERROR.log;
+    echo "START $destination/dividend_yield.new.json" >> $destination/ERROR.log;
     cat "$destination/dividend_yield.new.json" >> $destination/ERROR.log;
+    echo "END $destination/dividend_yield.new.json" >> $destination/ERROR.log;
     cp $destination/ERROR.log ${destination}-errors/ERROR-$timestamp.log
     cat $destination/ERROR.log | mail -s "ERROR in stock download" hectorlm1983@gmail.com
     exit 1;
@@ -64,8 +66,11 @@ wget -O $destination/stocks.json "http://www.google.com/finance/info?q=${stock_q
 cat  $destination/stocks.json | tr -d "\n" | sed "s/^\/\/ //" > $destination/stocks.json2
 if [ `cat "$destination/stocks.json2" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/stocks.json2 | wc -c` -le 2000 ];then
     echo "ERROR: stocks.json2 is not valid json or too small... < 2000 chars " | tee -a $destination/ERROR.log;
+    echo "START $destination/stocks.json2" >> $destination/ERROR.log;
     cat "$destination/stocks.json2" >> $destination/ERROR.log;
+    echo "END $destination/stocks.json2" >> $destination/ERROR.log;
     cp $destination/ERROR.log ${destination}-errors/ERROR-$timestamp.log
+    cp $destination/stocks.json ${destination}-errors/stocks-$timestamp.json
     cat $destination/ERROR.log | mail -s "ERROR in stock download" hectorlm1983@gmail.com
     exit 1;
 else
@@ -81,6 +86,7 @@ wget --timeout=180 -q -O $destination/stocks.formated.json2 "http://www.cognitio
 if [ `cat "$destination/stocks.formated.json2" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/stocks.formated.json2 | wc -c` -le 2000 ];then
     echo "ERROR: stocks.formated.json2 is not valid json or too small... < 2000 chars " >> $destination/ERROR.log;
     cat "$destination/stocks.formated.json2" >> $destination/ERROR.log;
+    echo "END $destination/stocks.formated.json2" >> $destination/ERROR.log;
     cp $destination/ERROR.log ${destination}-errors/ERROR-$timestamp.log
     cat $destination/ERROR.log | mail -s "ERROR in stock download" hectorlm1983@gmail.com
     exit 1;
@@ -101,5 +107,5 @@ fi
 echo "sending email alerts if any!" | tee -a $destination/ERROR.log; 
 wget --timeout=180 -q -O $destination/stock-alerts.log http://www.cognitionis.com/cult/www/backend/send-stock-alerts-fire.php?autosecret=1secret&gendate=$current_date > $destination/last-stock-alerts-errors.log; 
 
-cp $destination/ERROR.log ${destination}-errors/SUCCESS-$timestamp.log
+cp $destination/ERROR.log ${destination}/SUCCESS-$timestamp.log
 

@@ -1,7 +1,10 @@
 <?php
 header('Content-type: application/json');
 $data_directory='../../../cult-data-stock-google';
+
+date_default_timezone_set('Europe/Madrid');
 $timestamp_date=date("Y-m-d");
+$timestamp_simplif=date("d H:i");
 $data_object=array();
 $file3=$data_directory.'/stocks.formated.json';
 $string3 = file_get_contents($file3);
@@ -30,7 +33,7 @@ foreach ($json_a as $item) {
 	$symbol_object=array();
 	$symbol_object['name']=$item['t'];
     if($symbol_object['name']=='GOOG'){
-        $symbol_object['date']=$timestamp_date;
+        $symbol_object['date']=$timestamp_simplif;
     }
 	$symbol_object['market']=$item['e'];
 	$symbol_object['value']=str_replace(",","",$item['l']);
