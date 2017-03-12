@@ -18,6 +18,7 @@ var dbRefChallengeKey=undefined;
 //var dbRefChallengesPublic=firebase.database().ref().child('challenges');
 //dbRef.once('value',snap=>sessions=snap.val()); => not supported on IE (microsoft types would be useful to compile)
 var app_name='CULT';
+var listening_private_challenges=false;
 
 var internet_access=true;
 function check_internet_access(){
@@ -117,7 +118,7 @@ var show_answer_timeout;
 
 
 var EASY_FORBIDDEN_INDICATORS=['laborforce','p15to64'];
-var NORMAL_FORBIDDEN_INDICATORS=['surpdeficitgdp','reserves','inflation','gdp','gdppcap','gdpgrowth','extdebt','debtgdp'];
+var NORMAL_FORBIDDEN_INDICATORS=['surpdeficitgdp','reserves','inflation','gdp','gdppcap','gdpgrowth','extdebt','debtgdp','pop65'];
 var DIFFICULT_FORBIDDEN_INDICATORS=[];
 
 // Pagerank or inlinks normalized to 0-10000
@@ -410,7 +411,7 @@ function menu_screen(){
 	allowBackExit();
     dbRefChat.off();
     console.log('menu screen');
-
+    lifes=3;
 	media_objects=ResourceLoader.ret_media; // in theory all are loaded at this point
 	var splash=document.getElementById("splash_screen");
 	if(splash!=null && (ResourceLoader.lazy_audio==true || ResourceLoader.not_loaded['sounds'].length==0)){ splash.parentNode.removeChild(splash); }
@@ -430,7 +431,10 @@ function menu_screen(){
 	}else if(user_data.email==null){
 		login_screen();
 	}else{
-        firebase.database().ref().child('challenges-private/'+firebaseCodec.encodeFully(user_data.email)).on('value', function(snapshot) {handle_live_challenges(snapshot.val());});
+        if(!listening_private_challenges){
+            firebase.database().ref().child('challenges-private/'+firebaseCodec.encodeFully(user_data.email)).on('value', function(snapshot) {handle_live_challenges(snapshot.val());});
+            listening_private_challenges=true;
+        }
         // TODO: listen to new live challanges
 		var sign='<li><a href="#" onclick="hamburger_close();show_profile()">profile</a></li>\
                   <li><a href="#" onclick="hamburger_close();gdisconnect()">sign out</a></li>';
@@ -553,7 +557,7 @@ function handle_challenge(challenge){
         dbRefChallenge=undefined;
         dbRefChallengeKey=undefined;
         console.log('challenge canceled!');
-        alert('challenge canceled!');
+        //alert('challenge canceled!');
         menu_screen();
     }else if(challenge.game_status=='over'){
         /////// re-implement this
@@ -613,7 +617,7 @@ function handle_challenge(challenge){
         var usr_pos=challenge.usrs.indexOf(user_data.email);
         if(challenge.roles[usr_pos]=='inviter'){
             if(two_alive(challenge)){
-                    diff_country_question_challenge('population',challenge);
+                    diff_country_question_challenge(random_item(indicator_list),challenge);
             }else{
                 finish_challenge(challenge);
             }
@@ -633,14 +637,16 @@ function handle_challenge(challenge){
                 }, 2000);
             }
         }else if(challenge.question!=null && challenge.question!='' && all_unanswered(challenge)){
+            var usr_pos=challenge.usrs.indexOf(user_data.email);
             /////// re-implement this
             clearTimeout(show_answer_timeout);
             activity_timer.reset();
             if(session_data.mode!="test") remove_modal();
             ///////
             var header_status=document.getElementById('header_status');
-            header_status.innerHTML=' Life: <span id="current_lifes">&#9825; &#9825; &#9825;</span>   Score: <span id="current_score_num">0</span>';
+            header_status.innerHTML='Life: <span id="current_lifes">&#9825; &#9825; &#9825;</span> Sc: <span id="current_score_num">0</span> Enemy: <span id="current_lifes2">&#9825; &#9825; &#9825;</span>';
             update_lifes_representation();
+            update_lifes2_representation(usr_pos,challenge);
             canvas_zone_vcentered.innerHTML=' \
             <div id="question"></div>\
             <div id="answers"></div>\
@@ -653,6 +659,7 @@ function handle_challenge(challenge){
             dom_score_correct=document.getElementById('current_score_num');
             canvas_zone_question=document.getElementById('question');
             canvas_zone_answers=document.getElementById('answers');
+            dom_score_correct.innerHTML=challenge.scores[usr_pos];
 
             activity_timer.start();
             canvas_zone_question.innerHTML=challenge.question;
@@ -754,7 +761,7 @@ function check_correct_challenge(clicked_answer){
         challenge.lifes[usr_pos]--;
         lifes=challenge.lifes[usr_pos];
         updates['challenges/'+dbRefChallengeKey+'/lifes/'+usr_pos] = lifes;
-		update_lifes_representation();
+		//update_lifes_representation();
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_wrong"); // add a callback to move forward after the sound plays... <br />Correct answer: <b>'+challenge.correct_answer+'</b>
 			open_js_modal_content('<div class="js-modal-incorrect"><h1>INCORRECT</h1> <br />'+challenge.answer_msg+'<br /></div>');
@@ -1427,6 +1434,15 @@ function update_lifes_representation(){
 	}
 	elem_lifes.innerHTML=lifes_representation;
 } 
+
+function update_lifes2_representation(usr_pos,challenge){
+	var elem_lifes2=document.getElementById('current_lifes2');
+	var lifes_representation2='';
+	for (var i=0;i<challenge.lifes[(usr_pos+1)%2];i++){
+		lifes_representation2+="X ";
+	}
+	elem_lifes2.innerHTML=lifes_representation2.trim();
+}
 
 function nextActivity(){
 	 clearTimeout(show_answer_timeout);
