@@ -10,8 +10,10 @@ var config = {
 };
 firebase.initializeApp(config);
 var sessions=undefined;
+var top_scores_sessions=undefined;
 var dbRef=firebase.database().ref().child('sessions');
 dbRef.once('value',function(snap){sessions=snap.val()});
+firebase.database().ref().child('top_scores').once('value',function(snap){top_scores_sessions=snap.val()});
 var dbRefChat=firebase.database().ref().child('chat');
 var dbRefChallenge=undefined;
 var dbRefChallengeKey=undefined;
@@ -117,8 +119,8 @@ var show_answer_timeout;
 // +65                         	SP.POP.65UP.TO.ZS
 
 
-var EASY_FORBIDDEN_INDICATORS=['laborforce','p15to64'];
-var NORMAL_FORBIDDEN_INDICATORS=['surpdeficitgdp','reserves','inflation','gdp','gdppcap','gdpgrowth','extdebt','debtgdp','pop65'];
+var EASY_FORBIDDEN_INDICATORS=['popdensity'];
+var NORMAL_FORBIDDEN_INDICATORS=['surpdeficitgdp','reserves','inflation','gdp','gdppcap','gdpgrowth','extdebt','debtgdp','pop65','laborforce','p15to64','popgrowth'];
 var DIFFICULT_FORBIDDEN_INDICATORS=[];
 
 // Pagerank or inlinks normalized to 0-10000
@@ -136,8 +138,8 @@ var YEAR_DIFF_RANGE={
 
 var TIMES_BIGGER_MIN={
     easy: 1.51,
-    normal: 1.26,
-    difficult: 1.01
+    normal: 1.10,
+    difficult: 0.9
 };
 
 var match_level_forbidden_indicators=function(level,indicator){
@@ -367,18 +369,27 @@ function top_scores(){
     <div id="results-div">cargando resultados...</div> \
     <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
     ';
+    var enc_usr=firebaseCodec.encodeFully(user_data.email);
+    var last_best=0;
+    var last_date=0;
+    var usr_rank='<tr><td>Not top</td><td>'+user_data.email.replace('@gmail.com','')+'</td><td style="text-align:right;">-</td><td>-</td></tr>';
+    if(sessions[session_data.level].hasOwnProperty(enc_usr)){
+        var d=new Date(sessions[session_data.level][enc_usr].timestamp.substr(0,10));
+        usr_rank='<tr><td>-</td><td>'+user_data.email.replace('@gmail.com','')+'</td><td style="text-align:right;">'+sessions[session_data.level][enc_usr].num_correct+'</td><td>'+monthNames[d.getMonth()]+'-'+d.getFullYear()+'</td></tr>';
+    }
     document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
     var rtable='<table class="table-wo-border table-small"><tr><td><b>Rank</b></td><td><b>Name</b></td><td><b>Score</b></td><td><b>Date</b></td></tr>';
     var curr_rank=1;
-    var usr_rank='Not ranked yet';
+
     // todo: method to sort them by num_correct and date (do it at the beginning...)
-    for (var prop in sessions[session_data.level]){
-        if (sessions[session_data.level].hasOwnProperty(prop)) {
-            var prop_val=sessions[session_data.level][prop];
+    // convert to array add email into element and use homes.sort(function(a, b) {    return parseFloat(a.price) - parseFloat(b.price); }); store in a global var so only done once...
+    for (var prop in top_scores_sessions[session_data.level]){
+        if (top_scores_sessions[session_data.level].hasOwnProperty(prop)) {
+            var prop_val=top_scores_sessions[session_data.level][prop];
             var d=new Date(prop_val.timestamp.substr(0,10));
-            var line='<tr><td>'+curr_rank+'</td><td>'+firebaseCodec.decode(prop.substr(0,prop.indexOf('%40')))+'</td><td style="text-align:right;">'+prop_val.num_correct+'</td><td>'+monthNames[d.getMonth()]+'-'+d.getFullYear()+'</td></tr>';
+            var line='<tr><td>'+curr_rank+'</td><td>'+prop_val.name+'</td><td style="text-align:right;">'+prop_val.num_correct+'</td><td>'+monthNames[d.getMonth()]+'-'+d.getFullYear()+'</td></tr>';
             rtable+=line;
-            if(prop=user_data.email) usr_rank=line;
+            if(prop_val.name==user_data.email) usr_rank=line;
             curr_rank++;
         }
         if(curr_rank==10) break;
@@ -617,7 +628,9 @@ function handle_challenge(challenge){
         var usr_pos=challenge.usrs.indexOf(user_data.email);
         if(challenge.roles[usr_pos]=='inviter'){
             if(two_alive(challenge)){
-                    diff_country_question_challenge(random_item(indicator_list),challenge);
+                var randnum=Math.floor((Math.random() * 10));
+                if (randnum <= 5) diff_country_question_challenge(random_item(indicator_list),challenge);
+                else history_question_challenge(challenge);
             }else{
                 finish_challenge(challenge);
             }
@@ -628,6 +641,7 @@ function handle_challenge(challenge){
             // do the checking and trigger a timeout to trigger playing again
             // TODO do something more fancy (like showing what each person answered ...)
             //diff_country_question_challenge(random_item(indicator_list),challenge);
+            document.getElementById('enemy_answer').innerHTML='Enemy: '+challenge.answers[(usr_pos+1)%2];
             if(challenge.roles[usr_pos]=='inviter'){
                 setTimeout(function(){
                     var updates = {};
@@ -726,6 +740,52 @@ var diff_country_question_challenge=function(indicator,challenge){
     firebase.database().ref().update(updates);
 }
 
+var history_question_challenge=function(challenge){
+	console.log("history question");
+	var fact1=random_item(data_map.history);
+    while(!match_level_history_pop(session_data.level,fact1)){
+        console.log("fact "+fact1.wiki+" popularity="+fact1.p+" does not match level "+session_data.level);
+        fact1=random_item(data_map.history);
+    }
+    var fact2=random_item(data_map.history,fact1.fact);
+    var year_diff=Math.abs(Number(fact1.begin) - Number(fact2.begin));
+    var unblocker=0;
+    while(!match_level_history_pop(session_data.level,fact2) || !match_level_year_diff_range(session_data.level,year_diff)){
+        console.log("fact "+fact2.wiki+" popularity="+fact2.p+" or "+year_diff+" does not match level "+session_data.level);
+        fact2=random_item(data_map.history);
+        year_diff=Math.abs(Number(fact1.begin) - Number(fact2.begin));
+        unblocker++;
+        if(unblocker>100){
+            nextActivity();
+            return;
+        }
+    }
+    // Makes sense to discard overlaps since the question is "what was before"
+    // and not "what satrted before" or "what ended before"
+    if(! (fact1.end<fact2.begin || fact2.end<fact1.begin)){
+        console.log("USLESS: overlapping facts "+fact1.fact+" "+fact2.fact+"");
+        history_question_challenge(challenge); return;
+    }
+
+    correct_answer=fact1.fact;
+    if(Number(fact2.end) < Number(fact1.begin)){
+		challenge.correct_answer=fact2.fact;
+		challenge.answer_msg='<br /><span>'+fact2.fact+'</span> (<b>'+fact2.begin+'</b> <--> '+fact2.end+')<br />was before<br /><span>'+fact1.fact+'</span> (<b>'+fact1.begin+'</b> <--> '+fact1.end+')<br />';
+    }else{
+		challenge.answer_msg='<br /><span>'+fact1.fact+'</span> (<b>'+fact1.begin+'</b> <--> '+fact1.end+')<br />was before<br /><span>'+fact2.fact+'</span> (<b>'+fact2.begin+'</b> <--> '+fact2.end+')<br />';
+    }
+
+    //update challenge
+    var updates = {};
+    updates['challenges/'+dbRefChallengeKey+'/game_status'] = 'waiting_answers';
+    updates['challenges/'+dbRefChallengeKey+'/question'] = 'What was before?';
+    updates['challenges/'+dbRefChallengeKey+'/correct_answer'] = challenge.correct_answer;
+    updates['challenges/'+dbRefChallengeKey+'/answer_options'] = [fact1.fact,fact2.fact];
+    updates['challenges/'+dbRefChallengeKey+'/answer_msg'] = challenge.answer_msg;
+    firebase.database().ref().update(updates);
+}
+
+
 function check_correct_challenge(clicked_answer){
     var updates = {};
     var challenge=session_data.challenge;
@@ -754,7 +814,7 @@ function check_correct_challenge(clicked_answer){
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_correct");
 			dom_score_correct.innerHTML=session_data.num_correct;
-			open_js_modal_content('<div class="js-modal-correct"><h1>CORRECT</h1>'+challenge.answer_msg+'<br /></div>');
+			open_js_modal_content('<div class="js-modal-correct"><h1>CORRECT</h1>'+challenge.answer_msg+'<br /><span id="enemy_answer">Enemy: waiting...</span></div>');
 		}
 	}else{
 		activity_results.result="incorrect";
@@ -764,7 +824,7 @@ function check_correct_challenge(clicked_answer){
 		//update_lifes_representation();
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_wrong"); // add a callback to move forward after the sound plays... <br />Correct answer: <b>'+challenge.correct_answer+'</b>
-			open_js_modal_content('<div class="js-modal-incorrect"><h1>INCORRECT</h1> <br />'+challenge.answer_msg+'<br /></div>');
+			open_js_modal_content('<div class="js-modal-incorrect"><h1>INCORRECT</h1> <br />'+challenge.answer_msg+'<br /><span id="enemy_answer">Enemy: waiting...</span></div>');
 		}
 	}
     
@@ -1439,7 +1499,7 @@ function update_lifes2_representation(usr_pos,challenge){
 	var elem_lifes2=document.getElementById('current_lifes2');
 	var lifes_representation2='';
 	for (var i=0;i<challenge.lifes[(usr_pos+1)%2];i++){
-		lifes_representation2+="X ";
+		lifes_representation2+="&#9825; ";
 	}
 	elem_lifes2.innerHTML=lifes_representation2.trim();
 }
@@ -1452,9 +1512,9 @@ function nextActivity(){
 		send_session_data();
 	}else{
         var randnum=Math.floor((Math.random() * 10));
-		if(randnum<2)
+		if(randnum<3)
 			same_country_question(random_item(indicator_list));
-		else if (randnum < 4)
+		else if (randnum <= 6)
 			diff_country_question(random_item(indicator_list));
         else
             history_question();
@@ -1558,7 +1618,10 @@ var same_country_question=function(indicator){
 		times_bigger=calculate_times_bigger(data_map[indicator].data[period2][country],data_map[indicator].data[period1][country]);
 		answer_msg='<br /><span>'+period_map[period2]+'</span> <b>'+times_bigger+' times bigger</b> than <span>'+period_map[period1]+'</span><br />';
     }
-	if(!match_level_times_bigger_margin(session_data.level,times_bigger)){nextActivity();return;}
+	if(!match_level_times_bigger_margin(session_data.level,times_bigger)){
+        console.log('match_level_times_bigger_margin not enough');
+        nextActivity();return;
+    }
 	answer_msg+=add_answer_details(indicator,period1,period2,country,country);
 
     activity_timer.start();
@@ -1699,20 +1762,55 @@ var load_fact_list_and_map=function(){
 
 
 function send_session_data(){
-  var enc_usr=firebaseCodec.encodeFully(user_data.email);
-  if(sessions[session_data.level].hasOwnProperty(enc_usr)){
-    var previous_best=sessions[session_data.level][enc_usr].num_correct;
+    var enc_usr=firebaseCodec.encodeFully(user_data.email);
+    var previous_best=0;
+    if(sessions[session_data.level].hasOwnProperty(enc_usr)){
+        previous_best=sessions[session_data.level][enc_usr].num_correct;
+    }
     if(previous_best<=session_data.num_correct){
+        // if inside top
+        console.log('num_correct '+session_data.num_correct);
+        if(session_data.num_correct>=top_scores_sessions[session_data.level][top_scores_sessions[session_data.level].length-1].num_correct){
+            console.log('store top');
+            for (var i=0;i<top_scores_sessions[session_data.level].length;i++){
+                if(session_data.num_correct>top_scores_sessions[session_data.level][i].num_correct){
+                    top_scores_sessions[session_data.level].splice(i, 0, {
+                              name: user_data.email.replace('@gmail.com',''),
+                              num_correct: session_data.num_correct,
+                              timestamp: session_data.timestamp
+                            }
+                    );
+                    if(top_scores_sessions[session_data.level].length>100){
+                        top_scores_sessions[session_data.level]=top_scores_sessions[session_data.level].slice(0, 100);
+                    }
+                    console.log('storing position'+i);
+                    firebase.database().ref('top_scores/' + session_data.level).set(top_scores_sessions[session_data.level]);
+                    firebase.database().ref().child('top_scores').once('value',function(snap){top_scores_sessions=snap.val()});
+                    break;
+                }
+            }
+        }else if (top_scores_sessions[session_data.level].length<100){
+            console.log('store top last position '+top_scores_sessions[session_data.level].length);
+            top_scores_sessions[session_data.level][top_scores_sessions[session_data.level].length]={
+                      name: user_data.email.replace('@gmail.com',''),
+                      num_correct: session_data.num_correct,
+                      timestamp: session_data.timestamp
+                    };
+            firebase.database().ref('top_scores/' + session_data.level).set(top_scores_sessions[session_data.level]);
+            firebase.database().ref().child('top_scores').once('value',function(snap){top_scores_sessions=snap.val()});
+        }
+        
+        console.log('store result ');
         firebase.database().ref('sessions/' + session_data.level + "/" + enc_usr).set({
           num_correct: session_data.num_correct,
           timestamp: session_data.timestamp
         });
-    }//else{  // TODO better add this to the message...
-    //    alert('You already had a better score or '+previous_best);
-    //}
-    // refresh top scores
+    }else{
+        console.log('worse than previous best score of the user');
+    }
+    // update top-scores
     dbRef.once('value',function(snap){sessions=snap.val()});
-  }
+
     remove_modal();
     canvas_zone_vcentered.innerHTML='<h1>GAME OVER</h1>Your <b>score</b> is <b>'+session_data.num_correct+'</b>.';
     canvas_zone_vcentered.innerHTML+='<br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> ';
