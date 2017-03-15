@@ -383,13 +383,17 @@ function top_scores(){
 
     // todo: method to sort them by num_correct and date (do it at the beginning...)
     // convert to array add email into element and use homes.sort(function(a, b) {    return parseFloat(a.price) - parseFloat(b.price); }); store in a global var so only done once...
+    var ranked=false;
     for (var prop in top_scores_sessions[session_data.level]){
         if (top_scores_sessions[session_data.level].hasOwnProperty(prop)) {
             var prop_val=top_scores_sessions[session_data.level][prop];
             var d=new Date(prop_val.timestamp.substr(0,10));
             var line='<tr><td>'+curr_rank+'</td><td>'+prop_val.name+'</td><td style="text-align:right;">'+prop_val.num_correct+'</td><td>'+monthNames[d.getMonth()]+'-'+d.getFullYear()+'</td></tr>';
             rtable+=line;
-            if(prop_val.name==user_data.email) usr_rank=line;
+            if(prop_val.name==user_data.email.replace('@gmail.com','') && !ranked){
+                usr_rank=line;
+                ranked=true;
+            }
             curr_rank++;
         }
         if(curr_rank==10) break;
