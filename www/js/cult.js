@@ -119,8 +119,8 @@ var show_answer_timeout;
 // +65                         	SP.POP.65UP.TO.ZS
 
 
-var EASY_FORBIDDEN_INDICATORS=['popdensity'];
-var NORMAL_FORBIDDEN_INDICATORS=['surpdeficitgdp','reserves','inflation','gdp','gdppcap','gdpgrowth','extdebt','debtgdp','pop65','laborforce','p15to64','popgrowth'];
+var EASY_FORBIDDEN_INDICATORS=['lifeexpect', 'unemployed'];
+var NORMAL_FORBIDDEN_INDICATORS=['popdensity','employed','surpdeficitgdp','reserves','inflation','gdp','gdppcap','gdpgrowth','extdebt','debtgdp','pop65','laborforce','p15to64','popgrowth'];
 var DIFFICULT_FORBIDDEN_INDICATORS=[];
 
 // Pagerank or inlinks normalized to 0-10000
