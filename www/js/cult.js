@@ -138,8 +138,8 @@ var YEAR_DIFF_RANGE={
 
 var TIMES_BIGGER_MIN={
     easy: 1.51,
-    normal: 1.10,
-    difficult: 0.9
+    normal: 1.25,
+    difficult: 1.05
 };
 
 var match_level_forbidden_indicators=function(level,indicator){
