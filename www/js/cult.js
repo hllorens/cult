@@ -760,7 +760,7 @@ var history_question_challenge=function(challenge){
         year_diff=Math.abs(Number(fact1.begin) - Number(fact2.begin));
         unblocker++;
         if(unblocker>100){
-            nextActivity();
+            history_question_challenge(challenge);
             return;
         }
     }
@@ -946,7 +946,7 @@ function challenge(){
         <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
         ';
     document.getElementById('create').addEventListener('click', function(evt) {
-        var usr2=document.getElementById('text').value.trim();
+        var usr2=document.getElementById('text').value.trim().toLowerCase();
         if(usr2.indexOf('@')==-1) usr2+='@gmail.com';
         if(!usr2.match(/@[^@]+.(es|com|org)$/)) alert('invalid email');
         var enc_usr2=firebaseCodec.encodeFully(usr2);
