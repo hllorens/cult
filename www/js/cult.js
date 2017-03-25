@@ -645,7 +645,7 @@ function handle_challenge(challenge){
             // do the checking and trigger a timeout to trigger playing again
             // TODO do something more fancy (like showing what each person answered ...)
             //diff_country_question_challenge(random_item(indicator_list),challenge);
-            document.getElementById('enemy_answer').innerHTML='Enemy: '+challenge.answers[(usr_pos+1)%2];
+            document.getElementById('enemy_answer').innerHTML='Enemy(lifes='+challenge.lifes[(usr_pos+1)%2]+'): '+challenge.answers[(usr_pos+1)%2];
             if(challenge.roles[usr_pos]=='inviter'){
                 setTimeout(function(){
                     var updates = {};
@@ -771,7 +771,7 @@ var history_question_challenge=function(challenge){
         history_question_challenge(challenge); return;
     }
 
-    correct_answer=fact1.fact;
+    challenge.correct_answer=fact1.fact;
     if(Number(fact2.end) < Number(fact1.begin)){
 		challenge.correct_answer=fact2.fact;
 		challenge.answer_msg='<br /><span>'+fact2.fact+'</span> (<b>'+fact2.begin+'</b> <--> '+fact2.end+')<br />was before<br /><span>'+fact1.fact+'</span> (<b>'+fact1.begin+'</b> <--> '+fact1.end+')<br />';
@@ -818,7 +818,8 @@ function check_correct_challenge(clicked_answer){
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_correct");
 			dom_score_correct.innerHTML=session_data.num_correct;
-			open_js_modal_content('<div class="js-modal-correct"><h1>CORRECT</h1>'+challenge.answer_msg+'<br /><span id="enemy_answer">Enemy: waiting...</span></div>');
+			open_js_modal_content('<div class="js-modal-correct"><h1>CORRECT</h1>'+challenge.answer_msg+'<br />\
+            <span id="enemy_answer">Enemy (lifes='+challenge.lifes[(usr_pos+1)%2]+'): waiting...</span></div>');
 		}
 	}else{
 		activity_results.result="incorrect";
@@ -828,7 +829,9 @@ function check_correct_challenge(clicked_answer){
 		//update_lifes_representation();
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_wrong"); // add a callback to move forward after the sound plays... <br />Correct answer: <b>'+challenge.correct_answer+'</b>
-			open_js_modal_content('<div class="js-modal-incorrect"><h1>INCORRECT</h1> <br />'+challenge.answer_msg+'<br /><span id="enemy_answer">Enemy: waiting...</span></div>');
+			open_js_modal_content('<div class="js-modal-incorrect"><h1>INCORRECT</h1> <br />'+challenge.answer_msg+'<br />\
+                                    you('+clicked_answer+')!=corr('+challenge.correct_answer+')<br />\
+                                    <span id="enemy_answer">Enemy (lifes='+challenge.lifes[(usr_pos+1)%2]+'): waiting...</span></div>');
 		}
 	}
     
@@ -983,10 +986,7 @@ function create_challange_if_available(ch_status){
                 '0':0,
                 '1':0
             },
-            lifes: {
-                '0':3,
-                '1':3
-            },
+            lifes: [3,3],
             question: '',
             answer_options: ['',''],
             answer_msg: '',
