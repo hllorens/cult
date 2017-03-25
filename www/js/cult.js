@@ -609,7 +609,7 @@ function handle_challenge(challenge){
         //challenge:'+JSON.stringify(challenge)+'
         canvas_zone_vcentered.innerHTML=' \
           '+seen_info+'<br />\
-          ...waiting....<br />\
+          ...waiting '+challenge.usrs[(usr_pos+1)%challenge.usrs.length]+'...<br />\
           '+accept_button+'\
         <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
         ';
