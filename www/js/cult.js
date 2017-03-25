@@ -946,17 +946,17 @@ function challenge(){
         <br /><button id="go-back" class="minibutton fixed-bottom-right go-back">&lt;</button> \
         ';
     document.getElementById('create').addEventListener('click', function(evt) {
-        var usr2=document.getElementById('text').value.trim().toLowerCase();
+        var usr2=document.getElementById('text').value.toLowerCase().trim();
         if(usr2.indexOf('@')==-1) usr2+='@gmail.com';
         if(!usr2.match(/@[^@]+.(es|com|org)$/)) alert('invalid email');
-        var enc_usr2=firebaseCodec.encodeFully(usr2);
+        var enc_usr2=firebaseCodec.encodeFully(usr2.toLowerCase());
         firebase.database().ref().child('challenges-private/'+enc_usr2).once('value', function(snapshot) {create_challange_if_available(snapshot.val());});
     });
     document.getElementById("go-back").addEventListener(clickOrTouch,function(){menu_screen();});
 }
 
 function create_challange_if_available(ch_status){
-    var usr2=document.getElementById('text').value.trim();
+    var usr2=document.getElementById('text').value.toLowerCase().trim();
     if(usr2.indexOf('@')==-1) usr2+='@gmail.com';
     if(!usr2.match(/@[^@]+.(es|com|org)$/)) alert('invalid email');
     var enc_usr2=firebaseCodec.encodeFully(usr2);
