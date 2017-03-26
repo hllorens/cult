@@ -645,14 +645,14 @@ function handle_challenge(challenge){
             // do the checking and trigger a timeout to trigger playing again
             // TODO do something more fancy (like showing what each person answered ...)
             //diff_country_question_challenge(random_item(indicator_list),challenge);
-            document.getElementById('enemy_answer').innerHTML='Enemy(lifes='+challenge.lifes[(usr_pos+1)%2]+'): '+challenge.answers[(usr_pos+1)%2];
+            document.getElementById('enemy_answer').innerHTML='Enemy('+get_lifes_representation(challenge.lifes[(usr_pos+1)%2])+'): '+challenge.answers[(usr_pos+1)%2];
             if(challenge.roles[usr_pos]=='inviter'){
                 setTimeout(function(){
                     var updates = {};
                     updates['challenges/'+dbRefChallengeKey+'/game_status'] = 'playing';
                     updates['challenges/'+dbRefChallengeKey+'/answers'] = {'0':'','1':''};
                     firebase.database().ref().update(updates);
-                }, 2000);
+                }, 3000);
             }
         }else if(challenge.question!=null && challenge.question!='' && all_unanswered(challenge)){
             var usr_pos=challenge.usrs.indexOf(user_data.email);
@@ -819,7 +819,8 @@ function check_correct_challenge(clicked_answer){
 			//audio_sprite.playSpriteRange("zfx_correct");
 			dom_score_correct.innerHTML=session_data.num_correct;
 			open_js_modal_content('<div class="js-modal-correct"><h1>CORRECT</h1>'+challenge.answer_msg+'<br />\
-            <span id="enemy_answer">Enemy (lifes='+challenge.lifes[(usr_pos+1)%2]+'): waiting...</span></div>');
+            You ('+get_lifes_representation(challenge.lifes[usr_pos])+'):'+clicked_answer+' (correct)<br />\
+            <span id="enemy_answer">Enemy ('+get_lifes_representation(challenge.lifes[(usr_pos+1)%2])+'): waiting...</span></div>');
 		}
 	}else{
 		activity_results.result="incorrect";
@@ -830,8 +831,9 @@ function check_correct_challenge(clicked_answer){
 		if(session_data.mode!="test"){
 			//audio_sprite.playSpriteRange("zfx_wrong"); // add a callback to move forward after the sound plays... <br />Correct answer: <b>'+challenge.correct_answer+'</b>
 			open_js_modal_content('<div class="js-modal-incorrect"><h1>INCORRECT</h1> <br />'+challenge.answer_msg+'<br />\
-                                    you('+clicked_answer+')!=corr('+challenge.correct_answer+')<br />\
-                                    <span id="enemy_answer">Enemy (lifes='+challenge.lifes[(usr_pos+1)%2]+'): waiting...</span></div>');
+                                    correct: '+challenge.correct_answer+'<br />\
+                                    You ('+get_lifes_representation(challenge.lifes[usr_pos])+'):'+clicked_answer+' (incorrect)<br />\
+                                    <span id="enemy_answer">Enemy ('+get_lifes_representation(challenge.lifes[(usr_pos+1)%2])+'): waiting...</span></div>');
 		}
 	}
     
@@ -1488,24 +1490,22 @@ function check_correct(clicked_answer,correct_answer,optional_msg){
 
 
 
-
+function get_lifes_representation(lif){
+	var lifes_representation='';
+	for (var i=0;i<lif;i++){
+		lifes_representation+="&#9825; ";
+	}
+    return lifes_representation.trim();
+}
 
 function update_lifes_representation(){
 	var elem_lifes=document.getElementById('current_lifes');
-	var lifes_representation='';
-	for (var i=0;i<lifes;i++){
-		lifes_representation+="&#9825; ";
-	}
-	elem_lifes.innerHTML=lifes_representation;
-} 
+	elem_lifes.innerHTML=get_lifes_representation(lifes)+" ";
+}
 
 function update_lifes2_representation(usr_pos,challenge){
 	var elem_lifes2=document.getElementById('current_lifes2');
-	var lifes_representation2='';
-	for (var i=0;i<challenge.lifes[(usr_pos+1)%2];i++){
-		lifes_representation2+="&#9825; ";
-	}
-	elem_lifes2.innerHTML=lifes_representation2.trim();
+	elem_lifes2.innerHTML=get_lifes_representation(challenge.lifes[(usr_pos+1)%2]);
 }
 
 function nextActivity(){
