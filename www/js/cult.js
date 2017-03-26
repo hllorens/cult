@@ -652,7 +652,7 @@ function handle_challenge(challenge){
                     updates['challenges/'+dbRefChallengeKey+'/game_status'] = 'playing';
                     updates['challenges/'+dbRefChallengeKey+'/answers'] = {'0':'','1':''};
                     firebase.database().ref().update(updates);
-                }, 3000);
+                }, 4000);
             }
         }else if(challenge.question!=null && challenge.question!='' && all_unanswered(challenge)){
             var usr_pos=challenge.usrs.indexOf(user_data.email);
