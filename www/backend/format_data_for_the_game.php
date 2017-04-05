@@ -219,7 +219,7 @@ if($indicator=='all'){
             $mail->SMTPDebug = 1;  // debugging: 1 = errors and messages, 2 = messages only
             $mail->SMTPAuth   = true;                  // enable SMTP authentication
             $mail->SMTPSecure = "ssl";                 // sets the prefix to the servier
-            $mail->Host       = "mail.cognitionis.com";      // sets GMAIL as the SMTP server
+            $mail->Host       = $mail_credentials->smtp_host;      // sets GMAIL as the SMTP server
             $mail->Port       = 465;                   // set the SMTP port for the GMAIL server
             $mail->Username   = $mail_credentials->user;  // GMAIL username
             $mail->Password   = $mail_credentials->pass;  // GMAIL password
