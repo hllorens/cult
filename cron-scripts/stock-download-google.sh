@@ -22,9 +22,12 @@ stock_query="$stock_query,INDEXSTOXX:SX5E";
 stock_query="$stock_query,INDEXNASDAQ:NDX";
 stock_query="$stock_query,INDEXSP:.INX";
 stock_query="$stock_query,NASDAQ:GOOG,NASDAQ:GOOGL,NASDAQ:MSFT,NASDAQ:YHOO,NASDAQ:EBAY,NASDAQ:FB,NASDAQ:TRIP,NASDAQ:AMZN";
-stock_query="$stock_query,NASDAQ:NUAN,NASDAQ:CMPR,NASDAQ:PCLN,NASDAQ:TSLA,NYSE:PSX,NASDAQ:AAPL,NASDAQ:FOXA,NASDAQ:BKCC";
-stock_query="$stock_query,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:KO,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:VZ,NYSE:GM,NYSE:SSI";
-stock_query="$stock_query,NYSE:TM,FRA:VOW";
+stock_query="$stock_query,NASDAQ:NUAN,NASDAQ:CMPR,NASDAQ:PCLN,NYSE:PSX,NASDAQ:AAPL,NASDAQ:FOXA,NASDAQ:BKCC";
+stock_query="$stock_query,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:KO,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:VZ,NYSE:SSI";
+stock_query="$stock_query,NASDAQ:SPWR,NASDAQ:TSLA";  # ,NASDAQ:SCTY acquired by TESLA 2016/2017?
+stock_query="$stock_query,NASDAQ:NFLX,NYSE:TWX,NASDAQ:CMCSA"; # HBO is part of time Warner
+stock_query="$stock_query,NYSE:TM,FRA:VOW,NYSE:GM"; # Uber is not yet in stock, IPO estimated 2017
+
 
 
 sendemail="false"
@@ -34,7 +37,8 @@ echo "$timestamp Downloading to $destination (timestamp=${timestamp})" | tee $de
 vals=","
 for i in $(echo ${stock_query} | sed "s/,/\n/g");do
     echo "Getting div/yield for $i" | tee -a $destination/ERROR.log; 
-    theinfo=`echo "https://www.google.com/finance?q=$i" | wget -O- -i- | tr "\n" " " |  sed "s/<td/\ntd/g" | sed "s/<\/td>/\n/g" | sed "s/<\/table>/\n/g" | grep "^td " | sed "s/&nbsp;//g"`
+    theinfo=`echo "https://www.google.com/finance?q=$i" | wget -O- -i- | tr "\n" " " |  sed "s/<title>/\ntd <title>/g" | sed "s/<\/title>/\n/g" |  sed "s/<td/\ntd/g" | sed "s/<\/td>/\n/g" | sed "s/<\/table>/\n/g" | grep "^td " | sed "s/&nbsp;//g"`
+    title=`echo "$theinfo"  | grep "<title>" | sed "s/^[^>]*>[[:blank:]]*\([^:]*\):.*\$/\1/" | sed "s/ S\.\?A\.\?\$//"`
     yieldval=`echo "$theinfo"  | grep -A 1 dividend_yield | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/^[^\/]*\/\([^[:blank:]]*\)[[:blank:]]*/\1/"`
     divval=`echo "$theinfo"  | grep -A 1 dividend_yield | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/^\([^\/]*\)\/.*\$/\1/"`
     perval=`echo "$theinfo"  | grep -A 1 pe_ratio | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
@@ -42,7 +46,7 @@ for i in $(echo ${stock_query} | sed "s/,/\n/g");do
     epsval=`echo "$theinfo"  | grep -A 1 "\"eps\"" | tail -n 1 | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
     roeval=`echo "$theinfo"  | grep -A 1 "Return on average equity" | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
     range_52week=`echo "$theinfo"  | grep -A 1 range_52week | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/,//g"`
-    vals="${vals},\"$i\": {\"yield\": \"$yieldval\",\"dividend\": \"$divval\",\"eps\": \"$epsval\",\"beta\": \"$betaval\",\"per\": \"$perval\",\"roe\": \"$roeval\",\"range_52week\": \"$range_52week\" }"
+    vals="${vals},\"$i\": {\"title\": \"$title\",\"yield\": \"$yieldval\",\"dividend\": \"$divval\",\"eps\": \"$epsval\",\"beta\": \"$betaval\",\"per\": \"$perval\",\"roe\": \"$roeval\",\"range_52week\": \"$range_52week\" }"
     sleep 1; # to avoid overloading google
 done
 echo "{ ${vals} }" | sed "s/,,//g" > $destination/dividend_yield.new.json

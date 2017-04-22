@@ -39,6 +39,7 @@ foreach ($json_a as $item) {
 	$symbol_object['value']=str_replace(",","",$item['l']);
 	$symbol_object['session_change']=$item['c'];
 	$symbol_object['session_change_percentage']=$item['cp'];
+	$symbol_object['title']=substr($json_a2[$item['e'].':'.$item['t']]['title'],0,30);
 	$symbol_object['yield']=$json_a2[$item['e'].':'.$item['t']]['yield'];
 	$symbol_object['dividend']=$json_a2[$item['e'].':'.$item['t']]['dividend'];
 	$symbol_object['range_52week']=trim($json_a2[$item['e'].':'.$item['t']]['range_52week']);
