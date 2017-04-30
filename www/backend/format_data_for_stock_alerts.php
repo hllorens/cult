@@ -25,6 +25,10 @@ if ($json_a === null && json_last_error() !== JSON_ERROR_NONE) {
     exit(0);
 }
 
+$file=$data_directory.'/eps-hist.json';
+$string = file_get_contents($file);
+$json_a4 = json_decode($string, true);
+
 function toFixed($number, $decimals=2) {
   return number_format($number, $decimals, ".", "");
 }
@@ -70,7 +74,13 @@ foreach ($json_a as $item) {
             $symbol_object['yield_per_ratio']="".toFixed((floatval($symbol_object['yield'])/floatval($symbol_object['per'])));
         }
     }
-	$data_object[$item['t'].':'.$item['e']]=$symbol_object;
+    $symbol_object['eps_hist']=array();
+    if(array_key_exists($item['t'].':'.$item['e'],$json_a4)){
+        foreach ($json_a4[$item['t'].':'.$item['e']]['eps-hist'] as $elem) {
+            $symbol_object['eps_hist'][]=[$elem[0],$elem[1]];
+        }
+    }
+    $data_object[$item['t'].':'.$item['e']]=$symbol_object;
 }
 
 echo json_encode( $data_object );

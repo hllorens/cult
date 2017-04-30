@@ -2,6 +2,7 @@
 
 SCRIPT_PATH=$(dirname "$(readlink -e "${BASH_SOURCE[0]}")")
 destination="$SCRIPT_PATH/../../cult-data-stock-google";
+destination_eps_hist="$SCRIPT_PATH/../../cult-data-stock-eps-hist";
 
 if [ ! -d $destination ];then echo "ERROR $destination does not exist"; exit -1; fi
 echo "$SCRIPT_PATH and $destination"
@@ -38,7 +39,7 @@ vals=","
 for i in $(echo ${stock_query} | sed "s/,/\n/g");do
     echo "Getting div/yield for $i" | tee -a $destination/ERROR.log; 
     theinfo=`echo "https://www.google.com/finance?q=$i" | wget -O- -i- | tr "\n" " " |  sed "s/<title>/\ntd <title>/g" | sed "s/<\/title>/\n/g" |  sed "s/<td/\ntd/g" | sed "s/<\/td>/\n/g" | sed "s/<\/table>/\n/g" | grep "^td " | sed "s/&nbsp;//g"`
-    title=`echo "$theinfo"  | grep "<title>" | sed "s/^[^>]*>[[:blank:]]*\([^:]*\):.*\$/\1/" | sed "s/ S\.\?A\.\?\$//"`
+    title=`echo "$theinfo"  | grep "<title>" | sed "s/^[^>]*>[[:blank:]]*\([^:]*\):.*\$/\1/" | sed "s/ S\.\?A\.\?\$//" | sed "s/ [Ii][Nn][Cc]\.\?\$//"`
     yieldval=`echo "$theinfo"  | grep -A 1 dividend_yield | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/^[^\/]*\/\([^[:blank:]]*\)[[:blank:]]*/\1/"`
     divval=`echo "$theinfo"  | grep -A 1 dividend_yield | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/" | sed "s/^\([^\/]*\)\/.*\$/\1/"`
     perval=`echo "$theinfo"  | grep -A 1 pe_ratio | grep '="val"' | sed "s/^[^>]*>\([^[:blank:]]*\)[[:blank:]]*/\1/"`
@@ -82,10 +83,18 @@ else
     mv $destination/stocks.json2 $destination/stocks.json
 fi
 
+# UPDATE eps-hist
+echo 'wget --timeout=180 -q -O $destination/eps-hist.json "http://www.cognitionis.com/cult/www/backend/update_eps_hist.php"' | tee -a $destination/ERROR.log;
+wget --timeout=180 -q -O $destination/eps-hist.json "http://www.cognitionis.com/cult/www/backend/update_eps_hist.php" 2>&1 >> $destination/ERROR.log;
+diff $destination/eps-hist.json $destination_eps_hist/eps-hist.json >> $destination/ERROR.log;
+if [ $? -eq 1 ];then
+    if [ `sed "s/,/\n/g" $destination/eps-hist.json | wc -l` -gt `sed "s/,/\n/g" $destination_eps_hist/eps-hist.json | wc -l` ];then 
+        cp $destination/eps-hist.json $destination_eps_hist/eps-hist.json
+        cp $destination/eps-hist.json  ${destination}-historical/${current_date}.eps-hist.json
+    fi
+fi
+
 echo 'wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php"' | tee -a $destination/ERROR.log;
-
-# use new here ... keep the log somewhere of the wget...
-
 wget --timeout=180 -q -O $destination/stocks.formated.json2 "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" 2>&1 >> $destination/ERROR.log;
 if [ `cat "$destination/stocks.formated.json2" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/stocks.formated.json2 | wc -c` -le 2000 ];then
     echo "ERROR: stocks.formated.json2 is not valid json or too small... < 2000 chars " >> $destination/ERROR.log;
@@ -101,9 +110,7 @@ else
 fi
 
 
-#process alerts...
-#wget --timeout=180 -q -O $destination/stock.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" > $SCRIPT_PATH/data-generation-stock.log;
-
+echo "process alerts..."
 if [ "$sendemail" == "true" ];then 
 	echo "sending email errors!" | tee -a $destination/ERROR.log; 
 	wget --timeout=180 -q -O $destination/data-download.log http://www.cognitionis.com/cult/www/backend/send-data-download-errors.php?autosecret=1secret > $destination/last-download-data-errors.log; 
