@@ -7,7 +7,7 @@ destination_eps_hist="$SCRIPT_PATH/../../cult-data-stock-eps-hist";
 if [ ! -d $destination ];then echo "ERROR $destination does not exist"; exit -1; fi
 echo "$SCRIPT_PATH and $destination"
 
-rm -rf $destination/*.log $destination/dividend_yield.json $destination/stocks.json
+rm -rf $destination/*.log $destination/dividend_yield.json $destination/stocks.json $destination/stocks.formated.json2 $destination/eps-hist.json
 
 
 timestamp=`date +'%Y-%m-%d_%H-%M-%S'`

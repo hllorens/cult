@@ -28,6 +28,11 @@ if ($json_a === null && json_last_error() !== JSON_ERROR_NONE) {
 $file=$data_directory.'/eps-hist.json';
 $string = file_get_contents($file);
 $json_a4 = json_decode($string, true);
+if ($json_a4 === null){
+    echo "ERROR in ".$file." check it with pretty print...";
+    exit(0);
+}
+
 
 function toFixed($number, $decimals=2) {
   return number_format($number, $decimals, ".", "");
@@ -78,6 +83,13 @@ foreach ($json_a as $item) {
     if(array_key_exists($item['t'].':'.$item['e'],$json_a4)){
         foreach ($json_a4[$item['t'].':'.$item['e']]['eps-hist'] as $elem) {
             $symbol_object['eps_hist'][]=[$elem[0],$elem[1]];
+        }
+        if(count($symbol_object['eps_hist'])>1){
+            //echo $symbol_object['name']."<br />\n"."<br />\n";
+            $eps_hist_last_diff=((floatval(end($symbol_object['eps_hist'])[1])-floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1]))/abs(floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1])));
+            if ($eps_hist_last_diff<-0.10){
+                $symbol_object['eps_hist_last_down']=toFixed($eps_hist_last_diff*100,0);
+            }
         }
     }
     $data_object[$item['t'].':'.$item['e']]=$symbol_object;

@@ -28,16 +28,16 @@ foreach ($json_a as $item) {
             $symbol_object['eps-hist']=[[$fdate,$item['eps']]];
             $data_object[$item['name'].':'.$item['market']]=$symbol_object;
         }else{
-            //if($item['name']=='SAN'){
+            if($item['name']=='EBAY'){
                 $last_eps=end($data_object[$item['name'].':'.$item['market']]['eps-hist'])[1];
-                //echo (floatval($item['eps'])."-".floatval($last_eps))."=".abs(abs(floatval($item['eps']))-abs(floatval($last_eps)))." and 1%=".(abs(floatval($last_eps))*0.1)."<br />\n";
+                echo (floatval($item['eps'])."-".floatval($last_eps))."=".abs(abs(floatval($item['eps']))-abs(floatval($last_eps)))." and 1%=".(abs(floatval($last_eps))*0.1)."<br />\n";
                 if($item['eps']!=$last_eps && abs(floatval($item['eps'])-floatval($last_eps))>(abs(floatval($last_eps))*0.01)){ //
-                    //echo $item['name']."new=".$item['eps']."  last=".$last_eps."<br />\n";
+                    echo $item['name']."new=".$item['eps']."  last=".$last_eps."<br />\n";
                     // not only equal but a diff greater than the 1% of the old value
                     // and not possibly next day...
                     $data_object[$item['name'].':'.$item['market']]['eps-hist'][]=[$fdate,$item['eps']];
                 }
-            //}
+            }
         }
     }
 }
