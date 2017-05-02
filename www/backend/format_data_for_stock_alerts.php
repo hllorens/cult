@@ -87,7 +87,7 @@ foreach ($json_a as $item) {
         if(count($symbol_object['eps_hist'])>1){
             //echo $symbol_object['name']."<br />\n"."<br />\n";
             $eps_hist_last_diff=((floatval(end($symbol_object['eps_hist'])[1])-floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1]))/abs(floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1])));
-            if ($eps_hist_last_diff<-0.10){
+            if ($eps_hist_last_diff<-0.06){ // more than 5% annual which is about 20% quarterly
                 $symbol_object['eps_hist_last_down']=toFixed($eps_hist_last_diff*100,0);
             }
         }

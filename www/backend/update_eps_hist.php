@@ -13,7 +13,7 @@ function toFixed($number, $decimals=2) {
 
 
 
-$file=$data_directory.'/stocks.json';
+$file=$data_directory.'/dividend_yield.json';
 $json_a = json_decode(file_get_contents($file),true);
 $file=$data_directory2.'/eps-hist.json';
 $data_object = json_decode(file_get_contents($file),true);
@@ -25,19 +25,19 @@ foreach ($json_a as $item) {
             $symbol_object=array();
             $symbol_object['name']=$item['name'];
             $symbol_object['market']=$item['market'];
-            $symbol_object['eps-hist']=[[$fdate,$item['eps']]];
+            $symbol_object['eps-hist']=[[$timestamp_date,$item['eps']]];
             $data_object[$item['name'].':'.$item['market']]=$symbol_object;
         }else{
-            if($item['name']=='EBAY'){
+            //if($item['name']=='EBAY'){
                 $last_eps=end($data_object[$item['name'].':'.$item['market']]['eps-hist'])[1];
-                echo (floatval($item['eps'])."-".floatval($last_eps))."=".abs(abs(floatval($item['eps']))-abs(floatval($last_eps)))." and 1%=".(abs(floatval($last_eps))*0.1)."<br />\n";
+                //echo (floatval($item['eps'])."-".floatval($last_eps))."=".abs(abs(floatval($item['eps']))-abs(floatval($last_eps)))." and 1%=".(abs(floatval($last_eps))*0.1)."<br />\n";
                 if($item['eps']!=$last_eps && abs(floatval($item['eps'])-floatval($last_eps))>(abs(floatval($last_eps))*0.01)){ //
-                    echo $item['name']."new=".$item['eps']."  last=".$last_eps."<br />\n";
+                    //echo $item['name']."new=".$item['eps']."  last=".$last_eps."<br />\n";
                     // not only equal but a diff greater than the 1% of the old value
                     // and not possibly next day...
-                    $data_object[$item['name'].':'.$item['market']]['eps-hist'][]=[$fdate,$item['eps']];
+                    $data_object[$item['name'].':'.$item['market']]['eps-hist'][]=[$timestamp_date,$item['eps']];
                 }
-            }
+            //}
         }
     }
 }
