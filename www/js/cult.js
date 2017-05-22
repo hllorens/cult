@@ -1,6 +1,6 @@
 "use strict";
 
-// Initialize Firebase
+// Initialize Firebase!
 var config = {
     apiKey: "AIzaSyDn6s-P6h6MB-PKXKRaBHFvkaPBbyKssLg",
     authDomain: "cult-game.firebaseapp.com",
@@ -578,14 +578,24 @@ function handle_challenge(challenge){
         /////// re-implement this
         clearTimeout(show_answer_timeout);
         activity_timer.reset();
-        if(session_data.mode!="test") remove_modal();
+        if(session_data.mode!="test"){ remove_modal();}
         ///////
+        var usr_pos=challenge.usrs.indexOf(user_data.email);
         dbRefChallenge.off();
         dbRefChallenge=undefined;
         dbRefChallengeKey=undefined;
         console.log('challenge over!');
-        alert('GAME OVER! Winner: '+get_winner_string(challenge));
-        menu_screen();
+        canvas_zone_vcentered.innerHTML=' \
+          GAME OVER! <br /><br />Winner: '+get_winner_string(challenge)+'<br />\
+          <button id="accept_over">accept</button>\
+        <br />\
+        ';
+		document.getElementById("accept_over").addEventListener(clickOrTouch,function(){
+			var updates = {};
+			updates['challenges-private/'+firebaseCodec.encodeFully(challenge.usrs[usr_pos])] = null;
+			firebase.database().ref().update(updates);
+			menu_screen();
+		});
     }else if(challenge.game_status=='waiting'){
         var usr_pos=challenge.usrs.indexOf(user_data.email);
         if(challenge.seen[usr_pos]==false){
@@ -920,9 +930,10 @@ function cancel_challenge(challenge){
 function finish_challenge(challenge){
     var updates = {};
     console.log('game over '+JSON.stringify(challenge));
-    for (var i=0;i<challenge.usrs.length;i++){
-        updates['challenges-private/'+firebaseCodec.encodeFully(challenge.usrs[i])] = null;
-    }
+	// to be done by each user (so game over is shown for both)
+    //for (var i=0;i<challenge.usrs.length;i++){
+    //    updates['challenges-private/'+firebaseCodec.encodeFully(challenge.usrs[i])] = null;
+    //}
     console.log('updates '+JSON.stringify(updates));
     challenge.game_status='over';
     updates['challenges/'+dbRefChallengeKey] = challenge;

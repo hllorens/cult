@@ -111,6 +111,9 @@ foreach ($alerts as $usr => $ualerts) {
         }else if(array_key_exists("high_eps",$alert) && $stocks[$alert['symbol']]['eps']!="" && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) >= floatval($alert['high_eps'])){
             $fact.="+eps ".$stocks[$alert['symbol']]['eps'];
         }
+        if(array_key_exists("low_sell",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['value'])) <= floatval($alert['low_sell'])){
+            $fact.="Sold (stop-loss) ".$stocks[$alert['symbol']]['value'];
+        }
         if($fact!=""){
             $alerts_log[$usr.'_'.$symbol]=$timestamp_date;
             $curl = curl_init();
@@ -126,8 +129,8 @@ foreach ($alerts as $usr => $ualerts) {
             //echo $sQuery2;
             //$rResult2 = mysqli_query( $db_connection, $sQuery2 );
             //if(!$rResult2){ echo mysqli_error( $db_connection )." -- ".$sQuery2; }
-            $body=$alert['symbol']." ".$fact."<br />".$alert['symbol']." your ranges:<br />\
-                  value  ".$stocks[$alert['symbol']]['value']." [".$alert['low']." -to- ".$alert['high']."] <br />
+            $body=$alert['symbol']." ".$fact."<br /><br />your ranges:<br />
+                  value  ".$stocks[$alert['symbol']]['value']." [".$alert['low']." -to- ".$alert['high']."], low sell (stoploss): ".$alert['low_sell']."<br />
                   percentage  ".$stocks[$alert['symbol']]['session_change_percentage']."[".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
                   eps  ".$stocks[$alert['symbol']]['eps']."[".$alert['low_eps']." -to- ".$alert['high_eps']."]<br />
                   per  ".$stocks[$alert['symbol']]['per']."[".$alert['low_per']." -to- ".$alert['high_per']."]<br />
@@ -140,8 +143,8 @@ foreach ($alerts as $usr => $ualerts) {
 }
 
 
-function send_alert($symbol, $body, $user, $mail){
-	$subject="cult: ".$symbol;
+function send_alert($subject, $body, $user, $mail){
+	$subject="cult: ".$subject;
 	$mail->Subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
 	$mail->Body = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"></head><body><br />'.$body.'<br /><br /></body></html>';
 	$mail->AddAddress($user);
