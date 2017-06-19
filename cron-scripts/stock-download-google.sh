@@ -17,7 +17,8 @@ current_date=`date +'%Y-%m-%d'`
 stock_query="INDEXBME:IB";
 stock_query="$stock_query,BME:ACS,BME:ACX,BME:AENA,BME:AMS,BME:ANA,BME:BBVA,BME:BKIA,BME:BKT,BME:CBK,BME:DIA";
 stock_query="$stock_query,BME:ELE,BME:ENAG,BME:FCC,BME:FER,BME:GAM,BME:GAS,BME:GRLS,BME:IAG,BME:IBE,BME:IDR";
-stock_query="$stock_query,BME:ITX,BME:MAP,BME:MTS,BME:OHL,BME:POP,BME:REE,BME:REP,BME:SABE,BME:SAN,BME:SCYR";
+stock_query="$stock_query,BME:ITX,BME:MAP,BME:MTS,BME:OHL,BME:REE,BME:REP,BME:SABE,BME:SAN,BME:SCYR";
+# IBEX quebrados o quitados: ,BME:POP
 stock_query="$stock_query,BME:TEF,BME:TL5,BME:TRE";
 stock_query="$stock_query,INDEXSTOXX:SX5E";
 stock_query="$stock_query,INDEXNASDAQ:NDX";
@@ -100,7 +101,7 @@ if [ $? -eq 1 ];then
     fi
 fi
 
-echo 'wget --timeout=180 -q -O $destination/stocks.formated.json "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php"' | tee -a $destination/ERROR.log;
+echo 'wget --timeout=180 -q -O $destination/stocks.formated.json2 "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php"' | tee -a $destination/ERROR.log;
 wget --timeout=180 -q -O $destination/stocks.formated.json2 "http://www.cognitionis.com/cult/www/backend/format_data_for_stock_alerts.php" 2>&1 >> $destination/ERROR.log;
 if [ `cat "$destination/stocks.formated.json2" | json_pp -f json  > /dev/null;echo $?` -ne 0 -o `cat $destination/stocks.formated.json2 | wc -c` -le 2000 ];then
     echo "ERROR: stocks.formated.json2 is not valid json or too small... < 2000 chars " >> $destination/ERROR.log;
@@ -113,6 +114,8 @@ else
     echo "mv $destination/stocks.formated.json2 $destination/stocks.formated.json" | tee -a $destination/ERROR.log; 
     mv $destination/stocks.formated.json2 $destination/stocks.formated.json
     cp $destination/stocks.formated.json  ${destination}-historical/${current_date}.stocks.formated.json
+    # comment out this line when you finish debug
+    #cp $destination/stocks.formated.json  ${destination}-historical/${timestamp}.debug.stocks.formated.json
 fi
 
 

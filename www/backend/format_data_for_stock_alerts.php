@@ -61,7 +61,10 @@ foreach ($json_a as $item) {
         $symbol_object['range_52week_low']=$parts[0];
         $symbol_object['range_52week_high']=$parts[1];
         $symbol_object['range_52week_heat']="".toFixed((floatval($symbol_object['value'])-floatval($symbol_object['range_52week_low']))/(floatval($symbol_object['range_52week_high'])-floatval($symbol_object['range_52week_low'])));
-        $symbol_object['range_52week_volatility']="".toFixed((floatval($symbol_object['range_52week_high'])-floatval($symbol_object['range_52week_low']))/(floatval($symbol_object['range_52week_high'])));
+        // you could use "low" or "high" but using "low" is what if val 3 to 6 then volat = 100% == 2x
+        $symbol_object['range_52week_volatility']="".toFixed((floatval($symbol_object['range_52week_high'])-floatval($symbol_object['range_52week_low']))/(floatval($symbol_object['range_52week_low'])));
+        // to show the 2x format or 1.3x, we can do it in js to avoid making json bigger
+        //$symbol_object['range_52week_volatility_times']="".toFixed(((floatval($symbol_object['range_52week_high'])-floatval($symbol_object['range_52week_low']))/(floatval($symbol_object['range_52week_low'])))+1,1);
     }
     $symbol_object['divs_per_year']="0";
     $symbol_object['dividend_total_year']="0";
@@ -79,6 +82,7 @@ foreach ($json_a as $item) {
             $symbol_object['yield_per_ratio']="".toFixed((floatval($symbol_object['yield'])/floatval($symbol_object['per'])));
         }
     }
+    $symbol_object['eps_hist_last_diff']=0;
     $symbol_object['eps_hist']=array();
     if(array_key_exists($item['t'].':'.$item['e'],$json_a4)){
         foreach ($json_a4[$item['t'].':'.$item['e']]['eps-hist'] as $elem) {
@@ -87,8 +91,27 @@ foreach ($json_a as $item) {
         if(count($symbol_object['eps_hist'])>1){
             //echo $symbol_object['name']."<br />\n"."<br />\n";
             $eps_hist_last_diff=((floatval(end($symbol_object['eps_hist'])[1])-floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1]))/abs(floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1])));
-            if ($eps_hist_last_diff<-0.06){ // more than 5% annual which is about 20% quarterly
-                $symbol_object['eps_hist_last_down']=toFixed($eps_hist_last_diff*100,0);
+            if ($eps_hist_last_diff<-0.04){ // more than 5% annual which is about 20% quarterly
+                $symbol_object['eps_hist_last_down']=toFixed($eps_hist_last_diff*100,0); // FOR BACKWARDS COMPATIBILITY
+            }
+            if ($eps_hist_last_diff<-0.04 || $eps_hist_last_diff>0.04){ // more than 5% annual which is about 20% quarterly  
+                $symbol_object['eps_hist_last_diff']=toFixed($eps_hist_last_diff*100,0);
+            }else{
+                $symbol_object['eps_hist_last_diff']=0;
+            }
+            if(count($symbol_object['eps_hist'])>2){
+                // 4 possibilities down-down down-up up-down up-up
+                $eps_hist_penultimate_diff=((floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1])-floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-3][1]))/abs(floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-3][1])));
+                $symbol_object['eps_hist_trend']="-";
+                if      ($eps_hist_penultimate_diff>0 && $eps_hist_last_diff >0){
+                    $symbol_object['eps_hist_trend']="/";
+                }else if($eps_hist_penultimate_diff<0 && $eps_hist_last_diff >0){
+                    $symbol_object['eps_hist_trend']="v";
+                }else if($eps_hist_penultimate_diff>0 && $eps_hist_last_diff <0){
+                    $symbol_object['eps_hist_trend']="^";
+                }else if($eps_hist_penultimate_diff<0 && $eps_hist_last_diff <0){
+                    $symbol_object['eps_hist_trend']="\\";
+                }
             }
         }
     }

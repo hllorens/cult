@@ -64,7 +64,7 @@ while ( $aRow = mysqli_fetch_array( $rResult ) ){
             floatval(str_replace(",","",$stocks[$aRow['symbol']]['yield'])) > floatval($aRow['high_yield'])
             ) ){
         
-        $fact="";
+        $fact="DEPRECATEEEEEEDD     DEPRECATEEEEEEDD";
         if(floatval(str_replace(",","",$stocks[$aRow['symbol']]['value'])) < floatval($aRow['low'])){
             $fact.="-val ".$stocks[$aRow['symbol']]['value'];
         }else if(floatval(str_replace(",","",$stocks[$aRow['symbol']]['value'])) > floatval($aRow['high'])){
@@ -97,8 +97,8 @@ while ( $aRow = mysqli_fetch_array( $rResult ) ){
 
 function send_alert($symbol, $body, $user, $mail){
 	$subject="cult: ".$symbol;
-	$mail->Subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
-	$mail->Body = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"></head><body><br />'.$body.'<br /><br /></body></html>';
+	$mail->Subject = "=?UTF-8?B?" . base64_encode($subject+"deprecated") . "?=";
+	$mail->Body = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"></head><body><br />DEPRECATEEEEEEDD '.$body.'<br /><br /></body></html>';
 	$mail->AddAddress($user);
 	$mail->AddBCC("info@cognitionis.com");
 	if(!$mail->Send()){   

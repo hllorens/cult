@@ -42,6 +42,7 @@ echo json_encode($alerts_log)."<br />";
 $updates="empty";
 $log="BEGIN ";
 $timestamp_date=date("Y-m-d");
+$timestamp=date("Y-m-d H:i");
 
 
 
@@ -115,6 +116,14 @@ foreach ($alerts as $usr => $ualerts) {
             $fact.="Sold (stop-loss) ".$stocks[$alert['symbol']]['value'];
         }
         if($fact!=""){
+            if(array_key_exists("eps_hist",$stocks[$alert['symbol']])){
+                $last_n_eps=array_slice($stocks[$alert['symbol']]['eps_hist'],-3);
+                $extra="<br />EPS Hist:";
+                for ($i = 0; $i < count($last_n_eps); $i++){
+                    $extra.=" [".$last_n_eps[$i][0].",".$last_n_eps[$i][1]."]";
+                }
+                $extra.="<br />";
+            }
             $alerts_log[$usr.'_'.$symbol]=$timestamp_date;
             $curl = curl_init();
             curl_setopt( $curl, CURLOPT_URL, $FIREBASE . 'alerts_log.json' ); ///'.$usr.'_'.$symbol.'
@@ -129,12 +138,21 @@ foreach ($alerts as $usr => $ualerts) {
             //echo $sQuery2;
             //$rResult2 = mysqli_query( $db_connection, $sQuery2 );
             //if(!$rResult2){ echo mysqli_error( $db_connection )." -- ".$sQuery2; }
-            $body=$alert['symbol']." ".$fact."<br /><br />your ranges:<br />
-                  value  ".$stocks[$alert['symbol']]['value']." [".$alert['low']." -to- ".$alert['high']."], low sell (stoploss): ".$alert['low_sell']."<br />
-                  percentage  ".$stocks[$alert['symbol']]['session_change_percentage']."[".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
-                  eps  ".$stocks[$alert['symbol']]['eps']."[".$alert['low_eps']." -to- ".$alert['high_eps']."]<br />
-                  per  ".$stocks[$alert['symbol']]['per']."[".$alert['low_per']." -to- ".$alert['high_per']."]<br />
-                  yield  ".$stocks[$alert['symbol']]['yield']." [".$alert['low_yield']." -to- ".$alert['high_yield']."]";
+            $body=" <br />".$alert['symbol']." <b>".$fact."</b><br /><br />usr: ".$usr_decoded." ranges:<br />
+                  Value:  ".$stocks[$alert['symbol']]['value']." [".$alert['low']." -to- ".$alert['high']."], low sell (stoploss): ".$alert['low_sell']."<br />
+                  Change(%):  ".$stocks[$alert['symbol']]['session_change_percentage']."[".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
+                  EPS:    ".$stocks[$alert['symbol']]['eps']."[".$alert['low_eps']." -to- ".$alert['high_eps']."]<br />
+                  Per:    ".$stocks[$alert['symbol']]['per']."[".$alert['low_per']." -to- ".$alert['high_per']."]<br />
+                  Yield   ".$stocks[$alert['symbol']]['yield']." [".$alert['low_yield']." -to- ".$alert['high_yield']."]<br />
+                  ".$extra."
+                  <br /><br />
+                  Go to <a href=\"http://www.cognitionis.com/stockionic/\">stockionic</a> to change it.<br /><br />
+                  Date: ".$timestamp."<br />
+                  ";
+            if($usr_decoded=="hectorlm1983@gmail.com"){
+                $body.="                  ----<br />
+                  Json string debug:<br />".$string;
+            }
             send_alert($alert['symbol']." ".$fact,$body,$usr_decoded, $mail);
             echo '  '.$body.'<br />';
         }
