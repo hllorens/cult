@@ -23,16 +23,21 @@ stock_query="$stock_query,BME:TEF,BME:TL5,BME:TRE";
 stock_query="$stock_query,INDEXSTOXX:SX5E";
 stock_query="$stock_query,INDEXNASDAQ:NDX";
 stock_query="$stock_query,INDEXSP:.INX";
-stock_query="$stock_query,NASDAQ:GOOG,NASDAQ:GOOGL,NASDAQ:MSFT,NASDAQ:EBAY,NASDAQ:TRIP,NASDAQ:AMZN"; # ,NASDAQ:YHOO no longer a company but a fund (AABA)
+stock_query="$stock_query,NASDAQ:GOOG,NASDAQ:GOOGL,NASDAQ:MSFT,NASDAQ:EBAY,NASDAQ:AMZN"; # ,NASDAQ:YHOO no longer a company but a fund (AABA)
 stock_query="$stock_query,NASDAQ:FB,NYSE:TWTR,NYSE:SNAP";
-stock_query="$stock_query,NASDAQ:NUAN,NASDAQ:CMPR,NASDAQ:PCLN,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:FOXA,NASDAQ:BKCC";
+stock_query="$stock_query,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:BKCC";
+stock_query="$stock_query,NASDAQ:PCLN,NASDAQ:TRIP,NASDAQ:EXPE";
 stock_query="$stock_query,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:SSI";
 stock_query="$stock_query,NYSE:KO,NYSE:DPS,VTX:NESN,NYSE:PEP,EPA:BN";
 stock_query="$stock_query,NYSE:VZ,NYSE:T,NASDAQ:VOD";
 stock_query="$stock_query,NYSE:XOM,NYSE:DIS";
+stock_query="$stock_query,NASDAQ:NFLX,NYSE:TWX,NASDAQ:CMCSA,NASDAQ:FOXA"; # HBO is part of time Warner
+stock_query="$stock_query,NYSE:TM,FRA:VOW,NYSE:GM,EPA:UG,NYSE:F";
 stock_query="$stock_query,NASDAQ:SPWR,NASDAQ:TSLA";  # ,NASDAQ:SCTY acquired by TESLA 2016/2017?
-stock_query="$stock_query,NASDAQ:NFLX,NYSE:TWX,NASDAQ:CMCSA"; # HBO is part of time Warner
-stock_query="$stock_query,NYSE:TM,FRA:VOW,NYSE:GM,EPA:UG,NYSE:F"; # Uber is not yet in stock, IPO estimated 2017
+
+# FUTURE:
+# Uber is not yet in stock, IPO estimated 2017
+# MagicLeap virutal reality (GOOG will buy it?)
 
 
 
