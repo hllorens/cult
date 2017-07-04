@@ -31,6 +31,7 @@ stock_query="$stock_query,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,N
 stock_query="$stock_query,NYSE:KO,NYSE:DPS,VTX:NESN,NYSE:PEP,EPA:BN";
 stock_query="$stock_query,NYSE:VZ,NYSE:T,NASDAQ:VOD";
 stock_query="$stock_query,NYSE:XOM,NYSE:DIS";
+stock_query="$stock_query,NYSE:SNE,OTCMKTS:NTDOY";
 stock_query="$stock_query,NASDAQ:NFLX,NYSE:TWX,NASDAQ:CMCSA,NASDAQ:FOXA"; # HBO is part of time Warner
 stock_query="$stock_query,NYSE:TM,FRA:VOW,NYSE:GM,EPA:UG,NYSE:F";
 stock_query="$stock_query,NASDAQ:SPWR,NASDAQ:TSLA";  # ,NASDAQ:SCTY acquired by TESLA 2016/2017?

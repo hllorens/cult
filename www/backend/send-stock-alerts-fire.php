@@ -141,6 +141,7 @@ foreach ($alerts as $usr => $ualerts) {
             $body=" <br />".$alert['symbol']." <b>".$fact."</b><br /><br />usr: ".$usr_decoded." ranges:<br />
                   Value:  ".$stocks[$alert['symbol']]['value']." [".$alert['low']." -to- ".$alert['high']."], low sell (stoploss): ".$alert['low_sell']."<br />
                   Change(%):  ".$stocks[$alert['symbol']]['session_change_percentage']."[".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
+                  Range52w:  ".$stocks[$alert['symbol']]['range_52week_low']." -- ".$stocks[$alert['symbol']]['range_52week_high']." current %: ".$stocks[$alert['symbol']]['range_52week_heat']." volat: ".$stocks[$alert['symbol']]['range_52week_volatility']."<br />
                   EPS:    ".$stocks[$alert['symbol']]['eps']."[".$alert['low_eps']." -to- ".$alert['high_eps']."]<br />
                   Per:    ".$stocks[$alert['symbol']]['per']."[".$alert['low_per']." -to- ".$alert['high_per']."]<br />
                   Yield   ".$stocks[$alert['symbol']]['yield']." [".$alert['low_yield']." -to- ".$alert['high_yield']."]<br />
