@@ -151,8 +151,7 @@ foreach ($alerts as $usr => $ualerts) {
                   Date: ".$timestamp."<br />
                   ";
             if($usr_decoded=="hectorlm1983@gmail.com"){
-                $body.="                  ----<br />
-                  Json string debug:<br />".$string;
+                $body.="                  ----<br />Json string debug:<br />turned off for now...."; //.$string;
             }
             send_alert($alert['symbol']." ".$fact,$body,$usr_decoded, $mail);
             echo '  '.$body.'<br />';

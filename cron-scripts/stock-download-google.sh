@@ -40,6 +40,8 @@ stock_query="$stock_query,NASDAQ:SPWR,NASDAQ:TSLA";  # ,NASDAQ:SCTY acquired by 
 # Uber is not yet in stock, IPO estimated 2017
 # MagicLeap virutal reality (GOOG will buy it?)
 
+# SEE HOW WE COULD ADD USDEUR to alert the user when dollar is expensive (close to 1...). Low pri
+#https://finance.google.com/finance?q=usdeur
 
 
 sendemail="false"
