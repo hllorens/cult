@@ -1,60 +1,26 @@
 <?php
 
-$the_url='http://www.google.com/finance/info?q=';
+echo "start stock_cron.php<br />";
+
+// fopen with w overwrites existing file
+$stock_cron_log = fopen("stock_cron.log", "w") or die("Unable to open/create stock_cron.log!");
+fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_cron.php\n");
+
+fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_list.php\n");
+require_once 'stock_list.php';
+
+fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_curl_all_basic.php\n");
+require_once 'stock_curl_all_basic.php';
+
+require_once 'stock_curl_usdeur.php';
+// handle adding eurval to nasdaq & nyse
+// handling adding details
+// handling epshist...
 
 
-$the_url_query="INDEXBME:IB";
-$the_url_query="$the_url_query,BME:ACS,BME:ACX,BME:AENA,BME:AMS,BME:ANA,BME:BBVA,BME:BKIA,BME:BKT,BME:CBK,BME:DIA";
-$the_url_query="$the_url_query,BME:ELE,BME:ENAG,BME:FCC,BME:FER,BME:SGRE,BME:GAS,BME:GRLS,BME:IAG,BME:IBE,BME:IDR"; # BME:GAM -> BME:SGRE
-$the_url_query="$the_url_query,BME:ITX,BME:MAP,BME:MTS,BME:OHL,BME:REE,BME:REP,BME:SABE,BME:SAN,BME:SCYR";
-# IBEX quebrados o quitados: ,BME:POP
-$the_url_query="$the_url_query,BME:TEF,BME:TL5,BME:TRE";
-$the_url_query="$the_url_query,INDEXSTOXX:SX5E";
-$the_url_query="$the_url_query,INDEXNASDAQ:NDX";
-$the_url_query="$the_url_query,INDEXSP:.INX";
-$the_url_query="$the_url_query,NASDAQ:GOOG,NASDAQ:GOOGL,NASDAQ:MSFT,NASDAQ:EBAY,NASDAQ:AMZN"; # ,NASDAQ:YHOO no longer a company but a fund (AABA)
-$the_url_query="$the_url_query,NASDAQ:FB,NYSE:TWTR,NYSE:SNAP";
-$the_url_query="$the_url_query,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:BKCC";
-$the_url_query="$the_url_query,NASDAQ:PCLN,NASDAQ:TRIP,NASDAQ:EXPE";
-$the_url_query="$the_url_query,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:SSI";
-$the_url_query="$the_url_query,NYSE:KO,NYSE:DPS,VTX:NESN,NYSE:PEP,EPA:BN";
-$the_url_query="$the_url_query,NYSE:VZ,NYSE:T,NASDAQ:VOD";
-$the_url_query="$the_url_query,NYSE:XOM,NYSE:DIS";
-$the_url_query="$the_url_query,NYSE:SNE,OTCMKTS:NTDOY";
-$the_url_query="$the_url_query,NASDAQ:NFLX,NYSE:TWX,NASDAQ:CMCSA,NASDAQ:FOXA"; # HBO is part of time Warner
-$the_url_query="$the_url_query,NYSE:TM,FRA:VOW,NYSE:GM,EPA:UG,NYSE:F";
-$the_url_query="$the_url_query,NASDAQ:SPWR,NASDAQ:TSLA";  # ,NASDAQ:SCTY acquired by TESLA 2016/2017?
-
-# FUTURE:
-# Uber is not yet in stock, IPO estimated 2017
-# MagicLeap virutal reality (GOOG will buy it?)
-
-# SEE HOW WE COULD ADD USDEUR to alert the user when dollar is expensive (close to 1...). Low pri
-#https://finance.google.com/finance?q=usdeur
-
-
-$url_and_query=$the_url.$the_url_query;
-
-$curl = curl_init();
-curl_setopt( $curl, CURLOPT_URL, $url_and_query );
-curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
-$response = curl_exec( $curl );
-curl_close( $curl );
-$response=preg_replace('/\n/', '', $response);
-$response=preg_replace('/\/\/\s*/', '', $response);
-$json_out=json_decode($response,true);
-
-//echo "$url_and_query<br />$response<br /><pre>$json_out</pre><br />hola<br />";
-//print_r($json_out);
-//echo "----------------";
-//var_dump($json_out);
-//json_encode( $data_object )
-
-$myfile = fopen("stocks.json", "w") or die("Unable to open file!");
-fwrite($myfile, $response);
-fclose($myfile);
-
-echo "done";
+fwrite($stock_cron_log, date('Y-m-d H:i:s')." done with stock_cron.php\n");
+echo "done with stock_cron.php, see stock_cron.log<br />";
+fclose($stock_cron_log);
 
 
 /*

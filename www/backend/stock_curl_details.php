@@ -1,47 +1,20 @@
 <?php
 
-header('Content-type: text/html; charset=UTF-8'); // probably not necessary
+require_once 'stock_list.php';
 
-//ini_set('display_errors', 1);
-//ini_set('display_startup_errors', 1);
-//error_reporting(E_ALL);
+echo date('Y-m-d H:i:s')." starting stock_curl_details.php<br />";
 
-$the_url_query="INDEXBME:IB";
-$the_url_query="$the_url_query,BME:ACS,BME:ACX,BME:AENA,BME:AMS,BME:ANA,BME:BBVA,BME:BKIA,BME:BKT,BME:CBK,BME:DIA";
-$the_url_query="$the_url_query,BME:ELE,BME:ENAG,BME:FCC,BME:FER,BME:SGRE,BME:GAS,BME:GRLS,BME:IAG,BME:IBE,BME:IDR"; # BME:GAM -> BME:SGRE
-$the_url_query="$the_url_query,BME:ITX,BME:MAP,BME:MTS,BME:OHL,BME:REE,BME:REP,BME:SABE,BME:SAN,BME:SCYR";
-# IBEX quebrados o quitados: ,BME:POP
-$the_url_query="$the_url_query,BME:TEF,BME:TL5,BME:TRE";
-$the_url_query="$the_url_query,INDEXSTOXX:SX5E";
-$the_url_query="$the_url_query,INDEXNASDAQ:NDX";
-$the_url_query="$the_url_query,INDEXSP:.INX";
-$the_url_query="$the_url_query,NASDAQ:GOOG,NASDAQ:GOOGL,NASDAQ:MSFT,NASDAQ:EBAY,NASDAQ:AMZN"; # ,NASDAQ:YHOO no longer a company but a fund (AABA)
-$the_url_query="$the_url_query,NASDAQ:FB,NYSE:TWTR,NYSE:SNAP";
-$the_url_query="$the_url_query,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:BKCC";
-$the_url_query="$the_url_query,NASDAQ:PCLN,NASDAQ:TRIP,NASDAQ:EXPE";
-$the_url_query="$the_url_query,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:SSI";
-$the_url_query="$the_url_query,NYSE:KO,NYSE:DPS,VTX:NESN,NYSE:PEP,EPA:BN";
-$the_url_query="$the_url_query,NYSE:VZ,NYSE:T,NASDAQ:VOD";
-$the_url_query="$the_url_query,NYSE:XOM,NYSE:DIS";
-$the_url_query="$the_url_query,NYSE:SNE,OTCMKTS:NTDOY";
-$the_url_query="$the_url_query,NASDAQ:NFLX,NYSE:TWX,NASDAQ:CMCSA,NASDAQ:FOXA"; # HBO is part of time Warner
-$the_url_query="$the_url_query,NYSE:TM,FRA:VOW,NYSE:GM,EPA:UG,NYSE:F";
-$the_url_query="$the_url_query,NASDAQ:SPWR,NASDAQ:TSLA";  # ,NASDAQ:SCTY acquired by TESLA 2016/2017?
+$num_stocks_to_curl=5;
+$stock_last_detail_updated=0;
+if(file_exists ( 'stock_last_detail_updated.txt' )){
+    $stock_last_detail_updated=intval(fgets(fopen('stock_last_detail_updated.txt', 'r')));
+}
 
-$the_url_query="BME:ACS";
+$the_url_query_arr = explode(",", $the_url_query);
 
-# FUTURE:
-# Uber is not yet in stock, IPO estimated 2017
-# MagicLeap virutal reality (GOOG will buy it?)
-
-# SEE HOW WE COULD ADD USDEUR to alert the user when dollar is expensive (close to 1...). Low pri
-#https://finance.google.com/finance?q=usdeur
-
-$the_url='https://www.google.com/finance?q=';
 
 
 $vals=",";
-$the_url_query_arr = explode(",", $the_url_query);
 for ($i=0;$i<count($the_url_query_arr);$i++){
     echo $the_url_query_arr[$i]." $i<br />";
     $url_and_query=$the_url.$the_url_query_arr[$i];
@@ -107,6 +80,7 @@ for ($i=0;$i<count($the_url_query_arr);$i++){
     //var_dump($td_array);
     sleep(0.1);
 }
+echo date('Y-m-d H:i:s')." ending stock_curl_details.php<br />";
 
 
 
