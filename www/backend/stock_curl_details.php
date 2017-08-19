@@ -4,20 +4,23 @@ require_once 'stock_list.php';
 
 echo date('Y-m-d H:i:s')." starting stock_curl_details.php<br />";
 
-$num_stocks_to_curl=5;
+$num_stocks_to_curl=1;
 $stock_last_detail_updated=0;
 if(file_exists ( 'stock_last_detail_updated.txt' )){
     $stock_last_detail_updated=intval(fgets(fopen('stock_last_detail_updated.txt', 'r')));
 }
-
-$the_url_query_arr = explode(",", $the_url_query);
-
+echo " curr num to curl $stock_last_detail_updated num_stocks_to_curl=$num_stocks_to_curl<br />";
 
 
+
+$the_url="https://www.google.com/finance?q=";
 $vals=",";
-for ($i=0;$i<count($the_url_query_arr);$i++){
-    echo $the_url_query_arr[$i]." $i<br />";
-    $url_and_query=$the_url.$the_url_query_arr[$i];
+$the_url_query_arr = explode(",", $stock_list);
+for ($i=0;$i<$num_stocks_to_curl;$i++){
+    $current_num_to_curl=($stock_last_detail_updated+$i) % count($the_url_query_arr);
+    echo $the_url_query_arr[$current_num_to_curl]." $current_num_to_curl<br />";
+    $url_and_query=$the_url.$the_url_query_arr[$current_num_to_curl];
+    echo $the_url_query_arr[$current_num_to_curl]." $current_num_to_curl  $url_and_query<br />";
     $curl = curl_init();
     curl_setopt( $curl, CURLOPT_URL, $url_and_query );
     curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
@@ -75,11 +78,21 @@ for ($i=0;$i<count($the_url_query_arr);$i++){
     $market=$query_arr[0];
     
     $vals="$vals,\"".$the_url_query_arr[$i]."\": {\"name\": \"$name\",\"market\": \"$market\",\"title\": \"$title\",\"yield\": \"$yieldval\",\"dividend\": \"$divval\",\"eps\": \"$epsval\",\"beta\": \"$betaval\",\"per\": \"$perval\",\"roe\": \"$roeval\",\"range_52week\": \"$range_52week\" }";
-    echo $vals;
+    echo $vals."<br />";
+    
+    // ADD HERE EPS HISTORY UPDATE
+    
     //preg_match("/^(td.*)$/m", $response, $td_array);
     //var_dump($td_array);
     sleep(0.1);
 }
+
+// update last updated number
+$stock_last_detail_updated=$stock_last_detail_updated+$num_stocks_to_curl;
+$stock_last_detail_updated_f = fopen("stock_last_detail_updated.txt", "w") or die("Unable to open file!");
+fwrite($stock_last_detail_updated_f, $stock_last_detail_updated);
+fclose($stock_last_detail_updated_f);
+
 echo date('Y-m-d H:i:s')." ending stock_curl_details.php<br />";
 
 

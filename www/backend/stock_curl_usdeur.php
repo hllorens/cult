@@ -1,5 +1,6 @@
 <?php
 
+echo date('Y-m-d H:i:s')." starting stock_curl_usdeur.php<br />";
 $url_and_query='https://www.google.com/finance?q=usdeur';
 $curl = curl_init();
 curl_setopt( $curl, CURLOPT_URL, $url_and_query );
@@ -15,5 +16,6 @@ curl_close( $curl );
     $usdeurval=$usdeurval[1];
 echo "<br />usdeur=$usdeurval<br />";
 $usdeur=floatval($usdeurval);
+echo date('Y-m-d H:i:s')." ending stock_curl_usdeur.php<br />";
 
 ?>

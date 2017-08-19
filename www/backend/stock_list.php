@@ -1,6 +1,6 @@
 <?php
 
-echo "starting stock_list.php<br />";
+echo date('Y-m-d H:i:s')." starting stock_list.php<br />";
 $stock_list="INDEXBME:IB";
 $stock_list="$stock_list,BME:ACS,BME:ACX,BME:AENA,BME:AMS,BME:ANA,BME:BBVA,BME:BKIA,BME:BKT,BME:CBK,BME:DIA";
 $stock_list="$stock_list,BME:ELE,BME:ENAG,BME:FCC,BME:FER,BME:SGRE,BME:GAS,BME:GRLS,BME:IAG,BME:IBE,BME:IDR"; # BME:GAM -> BME:SGRE
@@ -28,6 +28,6 @@ $stock_list="$stock_list,NASDAQ:SPWR,NASDAQ:TSLA";  # ,NASDAQ:SCTY acquired by T
 # Uber is not yet in stock, IPO estimated 2017
 # MagicLeap virutal reality (GOOG will buy it?)
 # MCD (McDonald's), ...
-echo "ending stock_list.php<br />";
+echo date('Y-m-d H:i:s')." ending stock_list.php<br />";
 
 ?>

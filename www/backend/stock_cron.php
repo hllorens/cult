@@ -1,6 +1,6 @@
 <?php
 
-echo "start stock_cron.php<br />";
+echo date('Y-m-d H:i:s')." start stock_cron.php<br />";
 
 // fopen with w overwrites existing file
 $stock_cron_log = fopen("stock_cron.log", "w") or die("Unable to open/create stock_cron.log!");
@@ -12,14 +12,18 @@ require_once 'stock_list.php';
 fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_curl_all_basic.php\n");
 require_once 'stock_curl_all_basic.php';
 
+fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_curl_usdeur.php\n");
 require_once 'stock_curl_usdeur.php';
 // handle adding eurval to nasdaq & nyse
 // handling adding details
 // handling epshist...
 
+fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_curl_details.php\n");
+require_once 'stock_curl_details.php';
+
 
 fwrite($stock_cron_log, date('Y-m-d H:i:s')." done with stock_cron.php\n");
-echo "done with stock_cron.php, see stock_cron.log<br />";
+echo date('Y-m-d H:i:s')." done with stock_cron.php, see stock_cron.log<br />";
 fclose($stock_cron_log);
 
 
