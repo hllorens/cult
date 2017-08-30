@@ -267,10 +267,7 @@ if(!file_exists( date("Y-m").'.stocks.formatted.json' )){
     fclose($stocks_formatted_json_fileb);
 }
 
-// send alert bulcks only 1 email...
-// TODO TODO
-//echo "sending email alerts if any!" | tee -a $destination/ERROR.log; 
-//wget --timeout=180 -q -O $destination/stock-alerts.log http://www.cognitionis.com/cult/www/backend/send-stock-alerts-fire.php?autosecret=1secret&gendate=$current_date > $destination/last-stock-alerts-errors.log; 
+// send alert bulcks only 1 email..., if too long then create another cron for this
 fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_send-alert-fire.php\n");
 require_once 'stock_send-alert-fire.php';
 
