@@ -1,4 +1,7 @@
-2017-08-19 02:48:57 starting stock_cron.php
-2017-08-19 02:48:57 starting stock_list.php
-2017-08-19 02:48:57 starting stock_curl_all_basic.php
-2017-08-19 02:48:58 done with stock_cron.php
+2017-08-30 15:10:48 starting stock_cron.php
+2017-08-30 15:10:48 starting stock_list.php
+2017-08-30 15:10:48 starting stock_curl_all_basic.php
+2017-08-30 15:10:48 starting stock_curl_usdeur.php
+2017-08-30 15:10:49 starting stock_curl_details.php
+2017-08-30 15:10:53 updating stocks.formated.json
+2017-08-30 15:10:53 done with stock_cron.php

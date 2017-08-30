@@ -1,5 +1,7 @@
 <?php
 
+// USAGE: provides $usdeur variable for other scripts to use
+
 echo date('Y-m-d H:i:s')." starting stock_curl_usdeur.php<br />";
 $url_and_query='https://www.google.com/finance?q=usdeur';
 $curl = curl_init();
