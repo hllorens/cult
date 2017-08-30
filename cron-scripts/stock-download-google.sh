@@ -16,8 +16,8 @@ current_date=`date +'%Y-%m-%d'`
 
 stock_query="INDEXBME:IB";
 stock_query="$stock_query,BME:ACS,BME:ACX,BME:AENA,BME:AMS,BME:ANA,BME:BBVA,BME:BKIA,BME:BKT,BME:CABK,BME:DIA";
-stock_query="$stock_query,BME:ELE,BME:ENAG,BME:FCC,BME:FER,BME:SGRE,BME:GAS,BME:GRF,BME:IAG,BME:IBE,BME:IDR"; # BME:GAM -> BME:SGRE
-stock_query="$stock_query,BME:ITX,BME:MAP,BME:MEL,BME:MTS,BME:OHL,BME:REE,BME:REP,BME:SABE,BME:SAN,BME:SCYR";
+stock_query="$stock_query,BME:ELE,BME:ENG,BME:FCC,BME:FER,BME:SGRE,BME:GAS,BME:GRF,BME:IAG,BME:IBE,BME:IDR"; # BME:GAM -> BME:SGRE
+stock_query="$stock_query,BME:ITX,BME:MAP,BME:MEL,BME:MTS,BME:OHL,BME:REE,BME:REP,BME:SAB,BME:SAN,BME:SCYR";
 # IBEX quebrados o quitados: ,BME:POP
 stock_query="$stock_query,BME:TEF,BME:TL5,BME:TRE";
 stock_query="$stock_query,INDEXSTOXX:SX5E";

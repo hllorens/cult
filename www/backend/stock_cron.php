@@ -1,6 +1,6 @@
 <?php
 
-// the aim of this php is to get stocks.formated.json,
+// the aim of this php is to get stocks.formatted.json,
 //     if a file like that exists it will be updated incrementally 
 //     otherwise it will be created from the scratch
 
@@ -21,12 +21,12 @@ function toFixed($number, $decimals=2) {
 }
 
 
-$stocks_formated_arr=array(); // to store stocks.formated, typo "formatted"
-if(file_exists ( 'stocks.formated.json' )){
-    echo "stocks.formated.json exists -> reading...<br />";
-    $stocks_formated_arr = json_decode(file_get_contents('stocks.formated.json'), true);
+$stocks_formatted_arr=array(); // to store stocks.formatted, typo "formatted"
+if(file_exists ( 'stocks.formatted.json' )){
+    echo "stocks.formatted.json exists -> reading...<br />";
+    $stocks_formatted_arr = json_decode(file_get_contents('stocks.formatted.json'), true);
 }else{
-    echo "stocks.formated.json does NOT exist -> using an empty array<br />";
+    echo "stocks.formatted.json does NOT exist -> using an empty array<br />";
 }
 
 echo date('Y-m-d H:i:s')." start stock_cron.php<br />";
@@ -61,9 +61,9 @@ foreach ($stock_all_basic_arr as $item) {
     if($debug) echo "encoding ".$item['t'].":".$item['e']."<br />";
     
     // load info if exists
-    if(array_key_exists($item['t'].":".$item['e'],$stocks_formated_arr)){
+    if(array_key_exists($item['t'].":".$item['e'],$stocks_formatted_arr)){
         if($debug) echo "loading existing info for ".$item['t'].":".$item['e']."<br />";
-        $symbol_object=$stocks_formated_arr[$item['t'].":".$item['e']];
+        $symbol_object=$stocks_formatted_arr[$item['t'].":".$item['e']];
     }
 
     // refresh basic info
@@ -225,27 +225,27 @@ foreach ($stock_all_basic_arr as $item) {
 
 
     }
-    $stocks_formated_arr[$item['t'].':'.$item['e']]=$symbol_object;
+    $stocks_formatted_arr[$item['t'].':'.$item['e']]=$symbol_object;
 }
 // --------------------------------------------- 
 
 
-$stocks_formated_arr_json_str=json_encode( $stocks_formated_arr );
+$stocks_formatted_arr_json_str=json_encode( $stocks_formatted_arr );
 
-// update stocks.formated.json
-echo date('Y-m-d H:i:s')." updating stocks.formated.json\n";
-fwrite($stock_cron_log, date('Y-m-d H:i:s')." updating stocks.formated.json\n");
-$stocks_formated_json_file = fopen("stocks.formated.json", "w") or die("Unable to open file stocks.formated.json!");
-fwrite($stocks_formated_json_file, $stocks_formated_arr_json_str);
-fclose($stocks_formated_json_file);
+// update stocks.formatted.json
+echo date('Y-m-d H:i:s')." updating stocks.formatted.json\n";
+fwrite($stock_cron_log, date('Y-m-d H:i:s')." updating stocks.formatted.json\n");
+$stocks_formatted_json_file = fopen("stocks.formatted.json", "w") or die("Unable to open file stocks.formatted.json!");
+fwrite($stocks_formatted_json_file, $stocks_formatted_arr_json_str);
+fclose($stocks_formatted_json_file);
 
 // backup history (monthly)
-if(!file_exists( date("Y-m").'.stocks.formated.json' )){
-    echo "creating backup: ".date("Y-m").".stocks.formated.json<br />";
-    fwrite($stock_cron_log, date('Y-m-d H:i:s')." creating backup: ".date("Y-m").".stocks.formated.json\n");
-    $stocks_formated_json_fileb = fopen(date("Y-m").".stocks.formated.json", "w") or die("Unable to open file stocks.formated.json!");
-    fwrite($stocks_formated_json_fileb, $stocks_formated_arr_json_str);
-    fclose($stocks_formated_json_fileb);
+if(!file_exists( date("Y-m").'.stocks.formatted.json' )){
+    echo "creating backup: ".date("Y-m").".stocks.formatted.json<br />";
+    fwrite($stock_cron_log, date('Y-m-d H:i:s')." creating backup: ".date("Y-m").".stocks.formatted.json\n");
+    $stocks_formatted_json_fileb = fopen(date("Y-m").".stocks.formatted.json", "w") or die("Unable to open file stocks.formatted.json!");
+    fwrite($stocks_formatted_json_fileb, $stocks_formatted_arr_json_str);
+    fclose($stocks_formatted_json_fileb);
 }
 
 // send alert bulcks only 1 email...

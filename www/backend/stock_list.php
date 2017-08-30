@@ -5,8 +5,8 @@ echo date('Y-m-d H:i:s')." starting stock_list.php<br />";
 $stock_list="INDEXBME:IB";
 
 $stock_list="$stock_list,BME:ACS,BME:ACX,BME:AENA,BME:AMS,BME:ANA,BME:BBVA,BME:BKIA,BME:BKT,BME:CABK,BME:DIA";
-$stock_list="$stock_list,BME:ELE,BME:ENAG,BME:FCC,BME:FER,BME:SGRE,BME:GAS,BME:GRF,BME:IAG,BME:IBE,BME:IDR"; // BME:GAM -> BME:SGRE
-$stock_list="$stock_list,BME:ITX,BME:MAP,BME:MEL,BME:MTS,BME:OHL,BME:REE,BME:REP,BME:SABE,BME:SAN,BME:SCYR";
+$stock_list="$stock_list,BME:ELE,BME:ENG,BME:FCC,BME:FER,BME:SGRE,BME:GAS,BME:GRF,BME:IAG,BME:IBE,BME:IDR"; // BME:GAM -> BME:SGRE
+$stock_list="$stock_list,BME:ITX,BME:MAP,BME:MEL,BME:MTS,BME:OHL,BME:REE,BME:REP,BME:SAB,BME:SAN,BME:SCYR";
 $stock_list="$stock_list,BME:TEF,BME:TL5,BME:TRE";
 // IBEX quebrados o quitados: ,BME:POP
 
