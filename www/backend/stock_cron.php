@@ -4,9 +4,9 @@
 //     if a file like that exists it will be updated incrementally 
 //     otherwise it will be created from the scratch
 
-if(!isset($_GET['autosecret']) || $_GET['autosecret']!='1secret'){
-	exit("Permission denied");
-}
+//if(!isset($_GET['autosecret']) || $_GET['autosecret']!='1secret'){
+//	exit("Permission denied");
+//}
 
 
 date_default_timezone_set('Europe/Madrid');
