@@ -4,6 +4,11 @@
 //     if a file like that exists it will be updated incrementally 
 //     otherwise it will be created from the scratch
 
+if(!isset($_GET['autosecret']) || $_GET['autosecret']!='1secret'){
+	exit("Permission denied");
+}
+
+
 date_default_timezone_set('Europe/Madrid');
 $timestamp_date=date("Y-m-d");
 $timestamp_simplif=date("d H:i");
@@ -266,6 +271,9 @@ if(!file_exists( date("Y-m").'.stocks.formatted.json' )){
 // TODO TODO
 //echo "sending email alerts if any!" | tee -a $destination/ERROR.log; 
 //wget --timeout=180 -q -O $destination/stock-alerts.log http://www.cognitionis.com/cult/www/backend/send-stock-alerts-fire.php?autosecret=1secret&gendate=$current_date > $destination/last-stock-alerts-errors.log; 
+fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_send-alert-fire.php\n");
+require_once 'stock_send-alert-fire.php';
+
 
 fwrite($stock_cron_log, date('Y-m-d H:i:s')." done with stock_cron.php\n");
 echo "<br />".date('Y-m-d H:i:s')." done with stock_cron.php, see stock_cron.log<br />";
