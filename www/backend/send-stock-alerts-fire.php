@@ -138,7 +138,7 @@ foreach ($alerts as $usr => $ualerts) {
             //echo $sQuery2;
             //$rResult2 = mysqli_query( $db_connection, $sQuery2 );
             //if(!$rResult2){ echo mysqli_error( $db_connection )." -- ".$sQuery2; }
-            $body=" <br />".$alert['symbol']." <b>".$fact."</b><br /><br />usr: ".$usr_decoded." ranges:<br />
+            $body=" <br />".$alert['symbol']." (".$stocks[$alert['symbol']]['title'].") <b>".$fact."</b><br /><br />usr: ".$usr_decoded." ranges:<br />
                   Value:  ".$stocks[$alert['symbol']]['value']." [".$alert['low']." -to- ".$alert['high']."], low sell (stoploss): ".$alert['low_sell']."<br />
                   Range52w:  ".$stocks[$alert['symbol']]['range_52week_low']." -- ".$stocks[$alert['symbol']]['range_52week_high']." current %: ".$stocks[$alert['symbol']]['range_52week_heat']." volat: ".$stocks[$alert['symbol']]['range_52week_volatility']."<br />
                   Change(%):  ".$stocks[$alert['symbol']]['session_change_percentage']." [".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />

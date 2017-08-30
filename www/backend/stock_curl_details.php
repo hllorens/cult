@@ -11,7 +11,7 @@ echo date('Y-m-d H:i:s')." starting stock_curl_details.php<br />";
 
 
 
-$num_stocks_to_curl=5;
+$num_stocks_to_curl=100;
 $stock_last_detail_updated=0;
 if(file_exists ( 'stock_last_detail_updated.txt' )){
     $stock_last_detail_updated=intval(fgets(fopen('stock_last_detail_updated.txt', 'r')));
@@ -31,6 +31,7 @@ $stock_details_arr=array();
 $the_url="https://www.google.com/finance?q=";
 //$vals=",";
 $the_url_query_arr = explode(",", $stock_list);
+$num_stocks_to_curl=min($num_stocks_to_curl,count($the_url_query_arr)); // make sure we do not duplicate...
 for ($i=0;$i<$num_stocks_to_curl;$i++){
     $current_num_to_curl=($stock_last_detail_updated+$i) % count($the_url_query_arr);
     $url_and_query=$the_url.$the_url_query_arr[$current_num_to_curl];
@@ -83,7 +84,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     echo "roe: (".$roeval.")<br />";
 
     preg_match("/^.*range_52week.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $range_52week);
-    $range_52week=trim($range_52week[1]);
+    $range_52week=str_replace(",","",trim($range_52week[1]));
     echo "52weeks: (".$range_52week.")<br />";
 
     $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);

@@ -1,8 +1,13 @@
 <?php
 
+// ----------------------------------------------------------
+// Provider for javascript access without cross origin access
+// ------------------------------------------------------------
+
 date_default_timezone_set('Europe/Madrid');
 
-$stock = json_decode(file_get_contents("../../../cult-data-stock-google/stocks.formated.json"));
+//$stock = json_decode(file_get_contents("../../../cult-data-stock-google/stocks.formated.json"));
+$stock = json_decode(file_get_contents("stocks.formatted.json"));
 
 $stock_arr = array();
 

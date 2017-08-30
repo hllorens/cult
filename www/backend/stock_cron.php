@@ -94,8 +94,8 @@ foreach ($stock_all_basic_arr as $item) {
         $symbol_object['range_52week_volatility']="0";
         if(strpos($symbol_object['range_52week'], '- ') !== false){
             $parts = explode('- ', $symbol_object['range_52week']);
-            $symbol_object['range_52week_low']=$parts[0];
-            $symbol_object['range_52week_high']=$parts[1];
+            $symbol_object['range_52week_low']=trim($parts[0]);
+            $symbol_object['range_52week_high']=trim($parts[1]);
             $symbol_object['range_52week_heat']="".toFixed((floatval($symbol_object['value'])-floatval($symbol_object['range_52week_low']))/(floatval($symbol_object['range_52week_high'])-floatval($symbol_object['range_52week_low'])));
             // you could use "low" or "high" but using "low" is what if val 3 to 6 then volat = 100% == 2x
             $symbol_object['range_52week_volatility']="".toFixed((floatval($symbol_object['range_52week_high'])-floatval($symbol_object['range_52week_low']))/(floatval($symbol_object['range_52week_low'])));
@@ -105,12 +105,14 @@ foreach ($stock_all_basic_arr as $item) {
         $symbol_object['divs_per_year']="0";
         $symbol_object['dividend_total_year']="0";
         $symbol_object['yield_per_ratio']="0";
+        $symbol_object['avgyield_per_ratio']="0";
         $symbol_object['beta']=$stock_details_arr[$item['e'].':'.$item['t']]['beta'];
         $symbol_object['eps']=$stock_details_arr[$item['e'].':'.$item['t']]['eps'];
         $symbol_object['per']=$stock_details_arr[$item['e'].':'.$item['t']]['per'];
         $symbol_object['roe']=$stock_details_arr[$item['e'].':'.$item['t']]['roe'];
         if(trim($symbol_object['per'])=='-' || trim($symbol_object['per'])==''){$symbol_object['per']=999;}
         if(trim($symbol_object['yield'])=='-' || trim($symbol_object['yield'])==''){$symbol_object['yield']=0;}
+        $symbol_object['avgyield']=$symbol_object['yield'];
         if(floatval($symbol_object['dividend'])!=0){
             $symbol_object['divs_per_year']="".round(((floatval($symbol_object['yield'])/100)*floatval($symbol_object['value']))/floatval($symbol_object['dividend']));
             $symbol_object['dividend_total_year']="".toFixed(floatval($symbol_object['dividend'])*floatval($symbol_object['divs_per_year']));
@@ -129,21 +131,21 @@ foreach ($stock_all_basic_arr as $item) {
         // we need the original $stock_details_arr[$item['e'].':'.$item['t']] not $symbol_object because in the later we add 999 or 0 even if it is -
         if(array_key_exists('eps',$stock_details_arr[$item['e'].':'.$item['t']]) && $stock_details_arr[$item['e'].':'.$item['t']]['eps']!="" && $stock_details_arr[$item['e'].':'.$item['t']]['eps']!="-"){
             //echo "eps val".$symbol_object['name']."<br />";
-            if(count($symbol_object['eps-hist'])==0){
+            if(count($symbol_object['eps_hist'])==0){
                 //echo "initial eps".$symbol_object['name']."<br />";
-                $symbol_object['eps-hist'][]=[$timestamp_date,$symbol_object['eps']];
+                $symbol_object['eps_hist'][]=[$timestamp_date,$symbol_object['eps']];
             }else{
                 //echo "non initial eps".$symbol_object['name']."<br />";  //print_r($symbol_object);
-                $last_eps=end($symbol_object['eps-hist'])[1];
-                $last_eps_date=end($symbol_object['eps-hist'])[0];
+                $last_eps=end($symbol_object['eps_hist'])[1];
+                $last_eps_date=end($symbol_object['eps_hist'])[0];
                 $last_eps_quarter=substr($last_eps_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $last_eps_date)->format('n') / 3) % 4) + 1 );
                 // NOTE: Preferred to keep only changes than quarters because if it stays exactly the same we don't know if it is new
                 if($symbol_object['eps']!=$last_eps){ // && abs(floatval($symbol_object['eps'])-floatval($last_eps))>(abs(floatval($last_eps))*0.005) // does not matter the diff as long as it is new (different)
                     if($timestamp_quarter!=$last_eps_quarter){
-                        $symbol_object['eps-hist'][]=[$timestamp_date,$symbol_object['eps']];
+                        $symbol_object['eps_hist'][]=[$timestamp_date,$symbol_object['eps']];
                     }else{
                         //echo $symbol_object['name'].':'.$symbol_object['market'].": actualizado eps hist mismo quarter $last_eps_quarter";
-                        $symbol_object['eps-hist'][count($symbol_object['eps-hist']) - 1]=[$timestamp_date,$symbol_object['eps']];
+                        $symbol_object['eps_hist'][count($symbol_object['eps_hist']) - 1]=[$timestamp_date,$symbol_object['eps']];
                     }
                 }
             }
@@ -179,21 +181,30 @@ foreach ($stock_all_basic_arr as $item) {
         
         
         if(array_key_exists('yield',$stock_details_arr[$item['e'].':'.$item['t']]) && $stock_details_arr[$item['e'].':'.$item['t']]['yield']!="" && $stock_details_arr[$item['e'].':'.$item['t']]['yield']!="-"){
-            if(count($symbol_object['yield-hist'])==0){
-                $symbol_object['yield-hist'][]=[$timestamp_date,$symbol_object['yield']];
+            if(count($symbol_object['yield_hist'])==0){
+                $symbol_object['yield_hist'][]=[$timestamp_date,$symbol_object['yield']];
             }else{
-                $last_yield=end($symbol_object['yield-hist'])[1];
-                $last_yield_date=end($symbol_object['yield-hist'])[0];
+                $last_yield=end($symbol_object['yield_hist'])[1];
+                $last_yield_date=end($symbol_object['yield_hist'])[0];
                 $last_yield_half=substr($last_yield_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $last_yield_date)->format('n') / 6) % 2) + 1 );
                 //echo "$last_yield_date half $last_yield_half current half $timestamp_half<br />";
                 if($timestamp_half!=$last_yield_half){
-                    $symbol_object['yield-hist'][]=[$timestamp_date,$symbol_object['yield']];
+                    $symbol_object['yield_hist'][]=[$timestamp_date,$symbol_object['yield']];
                 }
             }
         }
         if(count($symbol_object['yield_hist'])>1){
             $symbol_object['yield_hist_last_diff']=toFixed($yield_hist_last_diff*100,0);
-            if(count($symbol_object['yield_hist'])>2){
+            // avgyield is an average of max 6 last yields
+            $num_hist_yields=count($symbol_object['yield_hist']);
+            $num_yields_to_average=min($num_hist_yields,6);
+            $avgyield=0.0;
+            for ($x = 1; $x <= $num_yields_to_average; $x++) {
+                //echo "$x $avgyield $num_hist_yields $num_yields_to_average  - ";
+                $avgyield+=floatval($symbol_object['yield_hist'][($num_yields_to_average-$x)][1])/floatval($num_yields_to_average);
+            }
+            $symbol_object['avgyield']="".toFixed($avgyield);
+            if($num_hist_yields>2){
                 // 4 possibilities down-down down-up up-down up-up
                 $yield_hist_penultimate_diff=((floatval($symbol_object['yield_hist'][count($symbol_object['yield_hist'])-2][1])-floatval($symbol_object['yield_hist'][count($symbol_object['yield_hist'])-3][1]))/abs(floatval($symbol_object['yield_hist'][count($symbol_object['yield_hist'])-3][1])));
                 $symbol_object['yield_hist_trend']="-";
@@ -210,19 +221,20 @@ foreach ($stock_all_basic_arr as $item) {
         }
         
         if(array_key_exists('per',$item) && $item['per']!="" && $item['per']!="-"){
-            if(count($symbol_object['per-hist'])==0){
-                $symbol_object['per-hist'][]=[$timestamp_date,$symbol_object['per']];
+            if(count($symbol_object['per_hist'])==0){
+                $symbol_object['per_hist'][]=[$timestamp_date,$symbol_object['per']];
             }else{
-                $last_per=end($symbol_object['per-hist'])[1];
-                $last_per_date=end($symbol_object['per-hist'])[0];
+                $last_per=end($symbol_object['per_hist'])[1];
+                $last_per_date=end($symbol_object['per_hist'])[0];
                 $last_per_half=substr($last_per_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $last_per_date)->format('n') / 6) % 2) + 1 );
                 //echo "$last_per_date half $last_per_half current half $timestamp_half<br />";
                 if($timestamp_half!=$last_per_half){
-                    $symbol_object['per-hist'][]=[$timestamp_date,$symbol_object['per']];
+                    $symbol_object['per_hist'][]=[$timestamp_date,$symbol_object['per']];
                 }
             }
         }
 
+        $symbol_object['avgyield_per_ratio']="".toFixed((floatval($symbol_object['avgyield'])/floatval($symbol_object['per'])));
 
     }
     $stocks_formatted_arr[$item['t'].':'.$item['e']]=$symbol_object;
@@ -254,7 +266,7 @@ if(!file_exists( date("Y-m").'.stocks.formatted.json' )){
 //wget --timeout=180 -q -O $destination/stock-alerts.log http://www.cognitionis.com/cult/www/backend/send-stock-alerts-fire.php?autosecret=1secret&gendate=$current_date > $destination/last-stock-alerts-errors.log; 
 
 fwrite($stock_cron_log, date('Y-m-d H:i:s')." done with stock_cron.php\n");
-echo date('Y-m-d H:i:s')." done with stock_cron.php, see stock_cron.log<br />";
+echo "<br />".date('Y-m-d H:i:s')." done with stock_cron.php, see stock_cron.log<br />";
 fclose($stock_cron_log);
 
 ?>
