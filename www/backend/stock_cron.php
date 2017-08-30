@@ -269,7 +269,8 @@ if(!file_exists( date("Y-m").'.stocks.formatted.json' )){
 
 // send alert bulcks only 1 email..., if too long then create another cron for this
 fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_send-alert-fire.php\n");
-require_once 'stock_send-alert-fire.php';
+echo "<br />".date('Y-m-d H:i:s')." starting stock_send-alerts-fire.php<br />";
+require_once 'stock_send-alerts-fire.php';
 
 
 fwrite($stock_cron_log, date('Y-m-d H:i:s')." done with stock_cron.php\n");
