@@ -190,6 +190,8 @@ foreach ($stock_all_basic_arr as $item) {
                 //echo "$last_yield_date half $last_yield_half current half $timestamp_half<br />";
                 if($timestamp_half!=$last_yield_half){
                     $symbol_object['yield_hist'][]=[$timestamp_date,$symbol_object['yield']];
+                }else{ // to keep it fresh
+                    $symbol_object['yield_hist'][count($symbol_object['yield_hist']) - 1]=[$timestamp_date,$symbol_object['yield']];
                 }
             }
         }
