@@ -2,15 +2,15 @@
 <?php
 
 // extra security
-if(!isset($_GET['autosecret']) || $_GET['autosecret']!='1secret'){
-	exit("Permission denied");
-}
+//if(!isset($_GET['autosecret']) || $_GET['autosecret']!='1secret'){
+//	exit("Permission denied");
+//}
 
 if(!file_exists(substr(dirname(__FILE__), 0,strpos(dirname(__FILE__), '/')).'stocks.formatted.json')){
 	exit("Error: ERROR.log not found ".substr(dirname(__FILE__), 0,strpos(dirname(__FILE__), '/')).'stocks.formated.json'); //dirname(__FILE__).'/../data/ERROR.log');
 }
 $data_object=array();
-$string = file_get_contents('stocks.formated.json');
+$string = file_get_contents('stocks.formatted.json');
 $stocks = json_decode($string, true);
  
 require("phpmailer/class.phpmailer.php");
@@ -82,9 +82,9 @@ foreach ($alerts as $usr => $ualerts) {
     // IMPORTANT--------------------------------------------------------------------------------
     if($usr_decoded!="hectorlm1983@gmail.com") continue; // disabled for other users for now
     //------------------------------------------------------------------------------------------
-    echo '\n<br />'.$usr_decoded.'\n<br />';
+    echo '\n<br />user: '.$usr_decoded.'\n<br />';
     foreach ($ualerts as $symbol => $alert) {
-        echo "  ".$symbol.'\n<br />';
+        echo "  symbol: ".$symbol.'\n<br />';
         $fact="";
         if(array_key_exists($usr.'_'.$symbol,$alerts_log) && $alerts_log[$usr.'_'.$symbol]==$timestamp_date){
             echo '&nbsp;   already sent '.$usr.'_'.$symbol.'=='.$timestamp_date.'\n<br />';
@@ -135,7 +135,7 @@ foreach ($alerts as $usr => $ualerts) {
             curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
             $response = curl_exec( $curl );
             curl_close( $curl );
-            echo $response . "\n";
+            //echo $response . "\n";
             //update db last_alerted_date
             //$sQuery2 = "UPDATE stock_alerts SET last_alerted_date='$timestamp_date' WHERE id=".$alert['id'].";";
             //echo $sQuery2;
@@ -157,11 +157,11 @@ foreach ($alerts as $usr => $ualerts) {
             //    $body.="                  ----<br />Json string debug:<br />turned off for now...."; //.$string;
             //}
             $facts.=$stocks[$alert['symbol']]['name']." ".$fact."|";
-            echo '  '.$body.'<br />';
         }
 
     }
     if($facts!=""){
+        echo '  '.$body.'<br />';
         send_alert($facts,$body,$usr_decoded, $mail);
     }
 }
