@@ -107,7 +107,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     sleep(0.1);
 }
 
-echo "<br />arr ".print_r($stock_details_arr)."<br />";
+if($debug) echo "<br />arr ".print_r($stock_details_arr)."<br />";
 
 // update last updated number
 $stock_last_detail_updated=$stock_last_detail_updated+$num_stocks_to_curl;

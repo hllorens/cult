@@ -201,6 +201,7 @@ foreach ($stock_all_basic_arr as $item) {
             }
         }
         if(count($symbol_object['yield_hist'])>1){
+            $yield_hist_last_diff=((floatval(end($symbol_object['yield_hist'])[1])-floatval($symbol_object['yield_hist'][count($symbol_object['yield_hist'])-2][1]))/abs(floatval($symbol_object['yield_hist'][count($symbol_object['yield_hist'])-2][1])));
             $symbol_object['yield_hist_last_diff']=toFixed($yield_hist_last_diff*100,0);
             // avgyield is an average of max 6 last yields
             $num_hist_yields=count($symbol_object['yield_hist']);
