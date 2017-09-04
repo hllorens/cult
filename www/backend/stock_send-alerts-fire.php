@@ -6,6 +6,12 @@
 //	exit("Permission denied");
 //}
 
+
+$debug=false;
+if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug']=="1")){
+    $debug=true;
+}
+
 if(!file_exists(substr(dirname(__FILE__), 0,strpos(dirname(__FILE__), '/')).'stocks.formatted.json')){
 	exit("Error: ERROR.log not found ".substr(dirname(__FILE__), 0,strpos(dirname(__FILE__), '/')).'stocks.formated.json'); //dirname(__FILE__).'/../data/ERROR.log');
 }
@@ -35,7 +41,7 @@ $response = curl_exec( $curl );
 curl_close( $curl );
 $alerts_log=json_decode($response,true);
 
-echo json_encode($alerts_log)."<br />";
+if($debug) echo json_encode($alerts_log)."<br />";
 // to store alerts updated dates
 $updates="empty";
 $log="BEGIN ";
@@ -82,12 +88,12 @@ foreach ($alerts as $usr => $ualerts) {
     // IMPORTANT--------------------------------------------------------------------------------
     if($usr_decoded!="hectorlm1983@gmail.com") continue; // disabled for other users for now
     //------------------------------------------------------------------------------------------
-    echo '\n<br />user: '.$usr_decoded.'\n<br />';
+    echo '\n<br />processing alerts for user: '.$usr_decoded.'\n<br />';
     foreach ($ualerts as $symbol => $alert) {
-        echo "  symbol: ".$symbol.'\n<br />';
+        if($debug) echo "  symbol: ".$symbol.'\n<br />';
         $fact="";
         if(array_key_exists($usr.'_'.$symbol,$alerts_log) && $alerts_log[$usr.'_'.$symbol]==$timestamp_date){
-            echo '&nbsp;   already sent '.$usr.'_'.$symbol.'=='.$timestamp_date.'\n<br />';
+            if($debug) echo '&nbsp;   already sent '.$usr.'_'.$symbol.'=='.$timestamp_date.'\n<br />';
             continue; // check if alerted today already
         } 
         if(array_key_exists("low",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['value'])) <= floatval($alert['low'])){
@@ -161,7 +167,7 @@ foreach ($alerts as $usr => $ualerts) {
 
     }
     if($facts!=""){
-        echo '  '.$body.'<br />';
+        if($debug) echo '  '.$body.'<br />';
         send_alert($facts,$body,$usr_decoded, $mail);
     }
 }
