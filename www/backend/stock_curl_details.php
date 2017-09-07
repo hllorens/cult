@@ -57,35 +57,35 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     preg_match("/^.*<title>([^:]*):.*$/m", $response, $title);
     $title=preg_replace('/( S\.?A\.?| [Ii][Nn][Cc]\.?)\s*$/m', '', $title[1]); 
     //$title = preg_grep("/<title>/", $response_arr);
-    echo "<br /><br />title: ".$title."<br />";
+    if($debug) echo "<br />title: ".$title."<br />";
 
     preg_match("/^.*dividend_yield.*=\"val\"[^>]*>([^< ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $dividend_yield);
     $divval=explode('/',$dividend_yield[1])[0];
     $yieldval=explode('/',$dividend_yield[1])[1];
 
-    echo "divyield: ".$dividend_yield[1]."<br />";
-    echo "div and yield: (".$divval.")   y=(".$yieldval.") <br />";
+    if($debug) echo "divyield: ".$dividend_yield[1]."<br />";
+    if($debug) echo "div and yield: (".$divval.")   y=(".$yieldval.") <br />";
     
     preg_match("/^.*pe_ratio.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $perval);
     $perval=trim($perval[1]);
-    echo "per: (".$perval.")<br />";
+    if($debug) echo "per: (".$perval.")<br />";
 
     preg_match("/^.*\"beta\".*=\"val\"[^>]*>([^<]+)(\s*<[\/]?[^>]*>)*\s*/m", $response, $betaval);
     $betaval=trim($betaval[1]);
-    echo "beta: (".$betaval.")<br />";
+    if($debug) echo "beta: (".$betaval.")<br />";
 
     
     preg_match("/^.*\"eps\".*=\"val\"[^>]*>([^<]+)(\s*<[\/]?[^>]*>)*\s*/m", $response, $epsval);
     $epsval=trim($epsval[1]);
-    echo "eps: (".$epsval.")<br />";
+    if($debug) echo "eps: (".$epsval.")<br />";
 
     preg_match("/^.*Return on average equity.*=period[^>]*>\s*([^<% ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $roeval);
     $roeval=trim($roeval[1]);
-    echo "roe: (".$roeval.")<br />";
+    if($debug) echo "roe: (".$roeval.")<br />";
 
     preg_match("/^.*range_52week.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $range_52week);
     $range_52week=str_replace(",","",trim($range_52week[1]));
-    echo "52weeks: (".$range_52week.")<br />";
+    if($debug) echo "52weeks: (".$range_52week.")<br />";
 
     $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
     $name=$query_arr[1];

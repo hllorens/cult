@@ -127,7 +127,7 @@ foreach ($alerts as $usr => $ualerts) {
         if($fact!=""){
             if(array_key_exists("eps_hist",$stocks[$alert['symbol']])){
                 $last_n_eps=array_slice($stocks[$alert['symbol']]['eps_hist'],-3);
-                $extra="<br />EPS Hist:";
+                $extra="EPS Hist:";
                 for ($i = 0; $i < count($last_n_eps); $i++){
                     $extra.=" [".$last_n_eps[$i][0].",".$last_n_eps[$i][1]."]";
                 }
@@ -147,8 +147,16 @@ foreach ($alerts as $usr => $ualerts) {
             //echo $sQuery2;
             //$rResult2 = mysqli_query( $db_connection, $sQuery2 );
             //if(!$rResult2){ echo mysqli_error( $db_connection )." -- ".$sQuery2; }
-            $body.=" <br />".$alert['symbol']." (".$stocks[$alert['symbol']]['title'].") <b>".$fact."</b><br /><br />usr: ".$usr_decoded." ranges:<br />
-                  Value:  ".$stocks[$alert['symbol']]['value']." [".$alert['low']." -to- ".$alert['high']."], low sell (stoploss): ".$alert['low_sell']."<br />
+            
+            // calculate usdeurvalue if nyse or nasdaq
+            $usdeurvalue="";
+            if($stocks[$alert['symbol']]['market']=="NYSE" || $stocks[$alert['symbol']]['market']=="NASDAQ"){
+                $usdeurvalue="<b>Euros: ".number_format((floatval($stocks[$alert['symbol']]['value'])*floatval($stocks[$alert['symbol']]['value'])), 2, ".", "")."</b>";
+            }
+            $body.=" <br /><b>".$alert['symbol']." (".$stocks[$alert['symbol']]['title'].") ".$fact."</b><br />usr: ".$usr_decoded." ranges:<br />
+                  Value:  <b>".$stocks[$alert['symbol']]['value']."</b> [".$alert['low']." -to- ".$alert['high']."],<br/>
+                  $usdeurvalue
+                  &nbsp;&nbsp; low sell (stoploss): ".$alert['low_sell']."<br />
                   Range52w:  ".$stocks[$alert['symbol']]['range_52week_low']." -- ".$stocks[$alert['symbol']]['range_52week_high']." current %: ".$stocks[$alert['symbol']]['range_52week_heat']." volat: ".$stocks[$alert['symbol']]['range_52week_volatility']."<br />
                   Change(%):  ".$stocks[$alert['symbol']]['session_change_percentage']." [".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
                   EPS:    ".$stocks[$alert['symbol']]['eps']." [".$alert['low_eps']." -to- ".$alert['high_eps']."]<br />
@@ -181,12 +189,14 @@ function send_alert($subject, $body, $user, $mail){
 	$mail->AddBCC("info@cognitionis.com");
 	if(!$mail->Send()){   
 		$log.="<br />Error: " . $mail->ErrorInfo;
+        echo "<br />Error: " . $mail->ErrorInfo;
 	}else{
 		$log.="<br /><b>Email enviado a: $user</b>";
+        echo "Mail enviado. ";
 	}
 	$mail->ClearAllRecipients();
 	$mail->ClearAttachments();
-	echo $log;
+	if($debug) echo $log;
 	sleep(0.1);
 }
 
