@@ -43,9 +43,9 @@ fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_cron.php\n");
 fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_list.php\n");
 require_once 'stock_list.php';
 
-fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_curl_all_basic.php\n");
-
-require_once 'stock_curl_all_basic.php';
+//service discontinued
+//fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_curl_all_basic.php\n");
+//require_once 'stock_curl_all_basic.php';
 // update stocks formatfed accordingly (formatting properly)
 
 
@@ -60,39 +60,38 @@ require_once 'stock_curl_details.php';
 
 
 // -----------update stocks formatted ----------------------------------
-foreach ($stock_all_basic_arr as $item) {
+
+// only add in GOOG, date and usdeur
+$stocks_formatted_arr['GOOG:NASDAQ']['date']=$timestamp_simplif;
+$stocks_formatted_arr['GOOG:NASDAQ']['usdeur']=$usdeur;
+
+foreach ($stock_details_arr as $key => $item) {
 	$symbol_object=array();
-    // t=ticker, e=exchange
-    if($debug) echo "encoding ".$item['t'].":".$item['e']."<br />";
+    // t=ticker, e=exchange // deprecated since /info?q= was down in google Sept 2017
+    if($debug) echo "encoding ".$item['name'].":".$item['market']."<br />";
     
     // load info if exists
-    if(array_key_exists($item['t'].":".$item['e'],$stocks_formatted_arr)){
-        if($debug) echo "loading existing info for ".$item['t'].":".$item['e']."<br />";
-        $symbol_object=$stocks_formatted_arr[$item['t'].":".$item['e']];
-    }
-
-    // refresh basic info
-	$symbol_object['name']=$item['t'];
-	$symbol_object['market']=$item['e'];
-	$symbol_object['value']=str_replace(",","",$item['l']);
-	$symbol_object['session_change']=$item['c'];
-	$symbol_object['session_change_percentage']=$item['cp'];
-
-    // only add in GOOG, date and usdeur
-    if($symbol_object['name']=='GOOG'){
-        $symbol_object['date']=$timestamp_simplif;
-        $symbol_object['usdeur']=$usdeur;
+    if(array_key_exists($item['name'].":".$item['market'],$stocks_formatted_arr)){
+        if($debug) echo "loading existing info for ".$item['name'].":".$item['market']."<br />";
+        $symbol_object=$stocks_formatted_arr[$item['name'].":".$item['market']];
     }
 
     // update new gathered details
-    if(array_key_exists($item['e'].":".$item['t'],$stock_details_arr)){
-        echo "<br /> >Updating details for ".$item['e'].":".$item['t']."<br/>";
-        $symbol_object['title']=substr($stock_details_arr[$item['e'].':'.$item['t']]['title'],0,30);
+    if(array_key_exists($item['market'].":".$item['name'],$stock_details_arr)){
+        echo "<br /> >Updating details for ".$item['market'].":".$item['name']."<br/>";
+        // refresh basic info
+        $symbol_object['name']=$item['name'];
+        $symbol_object['market']=$item['market'];
+        $symbol_object['value']=$item['value'];                      //str_replace(",","",$item['l']);
+        $symbol_object['session_change']=$item['session_change'];             //$item['c'];
+        $symbol_object['session_change_percentage']=$item['session_change_percentage'];  //$item['cp'];
+
+        $symbol_object['title']=substr($stock_details_arr[$item['market'].':'.$item['name']]['title'],0,30);
         if(!$symbol_object['title']){$symbol_object['title']="ERROR: No title found";}
         if($debug) echo $symbol_object['title']."<br />";
-        $symbol_object['yield']=$stock_details_arr[$item['e'].':'.$item['t']]['yield'];
-        $symbol_object['dividend']=$stock_details_arr[$item['e'].':'.$item['t']]['dividend'];
-        $symbol_object['range_52week']=trim($stock_details_arr[$item['e'].':'.$item['t']]['range_52week']);
+        $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];
+        $symbol_object['dividend']=$stock_details_arr[$item['market'].':'.$item['name']]['dividend'];
+        $symbol_object['range_52week']=trim($stock_details_arr[$item['market'].':'.$item['name']]['range_52week']);
         $symbol_object['range_52week_high']="0";
         $symbol_object['range_52week_low']="0";
         $symbol_object['range_52week_heat']="0";
@@ -111,10 +110,10 @@ foreach ($stock_all_basic_arr as $item) {
         $symbol_object['dividend_total_year']="0";
         $symbol_object['yield_per_ratio']="0";
         $symbol_object['avgyield_per_ratio']="0";
-        $symbol_object['beta']=$stock_details_arr[$item['e'].':'.$item['t']]['beta'];
-        $symbol_object['eps']=$stock_details_arr[$item['e'].':'.$item['t']]['eps'];
-        $symbol_object['per']=$stock_details_arr[$item['e'].':'.$item['t']]['per'];
-        $symbol_object['roe']=$stock_details_arr[$item['e'].':'.$item['t']]['roe'];
+        $symbol_object['beta']=$stock_details_arr[$item['market'].':'.$item['name']]['beta'];
+        $symbol_object['eps']=$stock_details_arr[$item['market'].':'.$item['name']]['eps'];
+        $symbol_object['per']=$stock_details_arr[$item['market'].':'.$item['name']]['per'];
+        $symbol_object['roe']=$stock_details_arr[$item['market'].':'.$item['name']]['roe'];
         if(trim($symbol_object['per'])=='-' || trim($symbol_object['per'])==''){$symbol_object['per']=999;}
         if(trim($symbol_object['yield'])=='-' || trim($symbol_object['yield'])==''){$symbol_object['yield']=0;}
         $symbol_object['avgyield']=$symbol_object['yield'];
@@ -133,8 +132,8 @@ foreach ($stock_all_basic_arr as $item) {
         if(!array_key_exists('eps_hist_last_diff',$symbol_object)){$symbol_object['per_hist']=$symbol_object['eps_hist_last_diff']=0;}
         if(!array_key_exists('yield_hist_last_diff',$symbol_object)){$symbol_object['per_hist']=$symbol_object['yield_hist_last_diff']=0;}
 
-        // we need the original $stock_details_arr[$item['e'].':'.$item['t']] not $symbol_object because in the later we add 999 or 0 even if it is -
-        if(array_key_exists('eps',$stock_details_arr[$item['e'].':'.$item['t']]) && $stock_details_arr[$item['e'].':'.$item['t']]['eps']!="" && $stock_details_arr[$item['e'].':'.$item['t']]['eps']!="-"){
+        // we need the original $stock_details_arr[$item['market'].':'.$item['name']] not $symbol_object because in the later we add 999 or 0 even if it is -
+        if(array_key_exists('eps',$stock_details_arr[$item['market'].':'.$item['name']]) && $stock_details_arr[$item['market'].':'.$item['name']]['eps']!="" && $stock_details_arr[$item['market'].':'.$item['name']]['eps']!="-"){
             //echo "eps val".$symbol_object['name']."<br />";
             if(count($symbol_object['eps_hist'])==0){
                 //echo "initial eps".$symbol_object['name']."<br />";
@@ -185,7 +184,7 @@ foreach ($stock_all_basic_arr as $item) {
         
         
         
-        if(array_key_exists('yield',$stock_details_arr[$item['e'].':'.$item['t']]) && $stock_details_arr[$item['e'].':'.$item['t']]['yield']!="" && $stock_details_arr[$item['e'].':'.$item['t']]['yield']!="-"){
+        if(array_key_exists('yield',$stock_details_arr[$item['market'].':'.$item['name']]) && $stock_details_arr[$item['market'].':'.$item['name']]['yield']!="" && $stock_details_arr[$item['market'].':'.$item['name']]['yield']!="-"){
             if(count($symbol_object['yield_hist'])==0){
                 $symbol_object['yield_hist'][]=[$timestamp_date,$symbol_object['yield']];
             }else{
@@ -245,7 +244,7 @@ foreach ($stock_all_basic_arr as $item) {
         $symbol_object['avgyield_per_ratio']="".toFixed((floatval($symbol_object['avgyield'])/floatval($symbol_object['per'])));
 
     }
-    $stocks_formatted_arr[$item['t'].':'.$item['e']]=$symbol_object;
+    $stocks_formatted_arr[$item['name'].':'.$item['market']]=$symbol_object;
 }
 // --------------------------------------------- 
 

@@ -59,6 +59,18 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     //$title = preg_grep("/<title>/", $response_arr);
     if($debug) echo "<br />title: ".$title."<br />";
 
+    // value or price span class="pr"      <span class="pr"><span id="ref_304466804484872_l">932.24<
+    preg_match("/\"pr\">\s*<[^>]*>\s*([^<]*)</m", $response, $value);
+    $value=$value[1];
+    if($debug) echo "value: (".$value.")<br />";
+
+    // div ... price-change .. div <div class="id-price-change nwp"><span class="ch bld"><span class="chr" id="ref_304466804484872_c">-3.71</span><span class="chr" id="ref_304466804484872_cp">(-0.40%)</span></span>
+    preg_match("/id-price-change[^>]*>\s*[^>]*>\s*[^>]*>\s*([^<]*)</m", $response, $change);
+    $change=$change[1];
+    preg_match("/id-price-change[^>]*>\s*[^>]*>\s*[^>]*>\s*[^>]*>\s*[^>]*>\s*\(([^\)]*)\)/m", $response, $changep);
+    $changep=$changep[1];
+    if($debug) echo "change: $change (".$changep.")<br />";
+    
     preg_match("/^.*dividend_yield.*=\"val\"[^>]*>([^< ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $dividend_yield);
     $divval=explode('/',$dividend_yield[1])[0];
     $yieldval=explode('/',$dividend_yield[1])[1];
@@ -96,6 +108,9 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['name']=$name;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['market']=$market;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['title']=$title;
+    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['value']=$value;
+    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['session_change']=$change;
+    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['session_change_percentage']=$changep;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['yield']=$yieldval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['dividend']=$divval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['eps']=$epsval;
@@ -103,6 +118,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['per']=$perval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['roe']=$roeval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['range_52week']=$range_52week;
+    
     // to avoid google ban
     sleep(0.1);
 }

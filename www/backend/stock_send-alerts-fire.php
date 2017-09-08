@@ -151,7 +151,7 @@ foreach ($alerts as $usr => $ualerts) {
             // calculate usdeurvalue if nyse or nasdaq
             $usdeurvalue="";
             if($stocks[$alert['symbol']]['market']=="NYSE" || $stocks[$alert['symbol']]['market']=="NASDAQ"){
-                $usdeurvalue="<b>Euros: ".number_format((floatval($stocks[$alert['symbol']]['value'])*floatval($stocks[$alert['symbol']]['value'])), 2, ".", "")."</b>";
+                $usdeurvalue="<b>Euros: ".number_format((floatval($stocks[$alert['symbol']]['value'])*floatval($stocks['GOOG:NASDAQ']['usdeur'])), 2, ".", "")."</b>";
             }
             $body.=" <br /><b>".$alert['symbol']." (".$stocks[$alert['symbol']]['title'].") ".$fact."</b><br />usr: ".$usr_decoded." ranges:<br />
                   Value:  <b>".$stocks[$alert['symbol']]['value']."</b> [".$alert['low']." -to- ".$alert['high']."],<br/>

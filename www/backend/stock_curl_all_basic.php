@@ -2,6 +2,8 @@
 
 // USAGE: provides $stock_all_basic_arr (json) and $stock_all_basic_json_str (string) variables and saves stocks.json in a file for other scripts to use
 
+// BAD... google discontinued the service on Sept 06 2017 (in reality since 2012 but they did not turn it off until bugs were found), same might happen to getprices or historical so better just crawl slowly..
+
 require_once 'stock_list.php';
 
 echo date('Y-m-d H:i:s')." starting stock_curl_all_basic.php<br />";
