@@ -101,6 +101,17 @@ foreach ($alerts as $usr => $ualerts) {
         }else if(array_key_exists("high",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['value'])) >= floatval($alert['high'])){
             $fact.="+val ";//.$stocks[$alert['symbol']]['value'];
         }
+        $usdeur=0;
+        $eurval=0;
+        if($stocks[$alert['symbol']]['market']=="NYSE" || $stocks[$alert['symbol']]['market']=="NASDAQ"){
+            $usdeur=floatval($stocks['GOOG:NASDAQ']['usdeur']);
+            $eurval=floatval(str_replace(",","",$stocks[$alert['symbol']]['value']))*$usdeur;
+        }
+        if(array_key_exists("lowe",$alert) && $eurval <= floatval($alert['lowe'])){
+            $fact.="-valeur "; //.$stocks[$alert['symbol']]['value'];
+        }else if(array_key_exists("highe",$alert) && $eurval >= floatval($alert['highe'])){
+            $fact.="+valeur ";//.$stocks[$alert['symbol']]['value'];
+        }
         if(array_key_exists("low_change_percentage",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['session_change_percentage'])) <= floatval($alert['low_change_percentage'])){
             $fact.="-% ";//.$stocks[$alert['symbol']]['session_change_percentage'];
         }else if(array_key_exists("high_change_percentage",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['session_change_percentage'])) >= floatval($alert['high_change_percentage'])){
@@ -149,9 +160,9 @@ foreach ($alerts as $usr => $ualerts) {
             //if(!$rResult2){ echo mysqli_error( $db_connection )." -- ".$sQuery2; }
             
             // calculate usdeurvalue if nyse or nasdaq
-            $usdeurvalue="";
-            if($stocks[$alert['symbol']]['market']=="NYSE" || $stocks[$alert['symbol']]['market']=="NASDAQ"){
-                $usdeurvalue="<b>Euros: ".number_format((floatval($stocks[$alert['symbol']]['value'])*floatval($stocks['GOOG:NASDAQ']['usdeur'])), 2, ".", "")."</b>";
+            $usdeurvaluetext="";
+            if($eurval!=0){
+                $usdeurvalue="<b>Euros: ".number_format($eurval, 2, ".", "")."</b>";
             }
             $body.=" <br /><b>".$alert['symbol']." (".$stocks[$alert['symbol']]['title'].") ".$fact."</b><br />usr: ".$usr_decoded." ranges:<br />
                   Value:  <b>".$stocks[$alert['symbol']]['value']."</b> [".$alert['low']." -to- ".$alert['high']."],<br/>
