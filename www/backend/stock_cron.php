@@ -82,6 +82,7 @@ foreach ($stock_details_arr as $key => $item) {
         // refresh basic info
         $symbol_object['name']=$item['name'];
         $symbol_object['market']=$item['market'];
+        $symbol_object['date']=$timestamp_simplif;
         $symbol_object['value']=$item['value'];                      //str_replace(",","",$item['l']);
         $symbol_object['session_change']=$item['session_change'];             //$item['c'];
         $symbol_object['session_change_percentage']=$item['session_change_percentage'];  //$item['cp'];

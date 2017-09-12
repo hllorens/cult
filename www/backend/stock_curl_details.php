@@ -28,7 +28,8 @@ if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug
 
 $stock_details_arr=array();
 
-$the_url="https://www.google.com/finance?q=";
+//$the_url="https://www.google.com/finance?q="; deprecated
+$the_url="https://finance.google.com/finance?q=";
 //$vals=",";
 $the_url_query_arr = explode(",", $stock_list);
 $num_stocks_to_curl=min($num_stocks_to_curl,count($the_url_query_arr)); // make sure we do not duplicate...
@@ -72,32 +73,57 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     if($debug) echo "change: $change (".$changep.")<br />";
     
     preg_match("/^.*dividend_yield.*=\"val\"[^>]*>([^< ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $dividend_yield);
-    $divval=explode('/',$dividend_yield[1])[0];
-    $yieldval=explode('/',$dividend_yield[1])[1];
+    if(count($dividend_yield)>1 && strpos($dividend_yield[1], '/') !== FALSE){
+        $divval=explode('/',$dividend_yield[1])[0];
+        $yieldval=explode('/',$dividend_yield[1])[1];
+        if($debug) echo "divyield: ".$dividend_yield[1]."<br />";
+        if($debug) echo "div and yield: (".$divval.")   y=(".$yieldval.") <br />";
+    }else{
+        $dividend_yield="";
+        $divval="";
+        $yieldval="";
+    }
 
-    if($debug) echo "divyield: ".$dividend_yield[1]."<br />";
-    if($debug) echo "div and yield: (".$divval.")   y=(".$yieldval.") <br />";
-    
     preg_match("/^.*pe_ratio.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $perval);
-    $perval=trim($perval[1]);
-    if($debug) echo "per: (".$perval.")<br />";
-
+    if(count($perval)>1){
+        $perval=trim($perval[1]);
+        if($debug) echo "per: (".$perval.")<br />";
+    }else{
+        $perval="";
+    }
+    
     preg_match("/^.*\"beta\".*=\"val\"[^>]*>([^<]+)(\s*<[\/]?[^>]*>)*\s*/m", $response, $betaval);
-    $betaval=trim($betaval[1]);
-    if($debug) echo "beta: (".$betaval.")<br />";
+    if(count($betaval)>1){
+        $betaval=trim($betaval[1]);
+        if($debug) echo "beta: (".$betaval.")<br />";
+    }else{
+        $betaval="";
+    }
 
     
     preg_match("/^.*\"eps\".*=\"val\"[^>]*>([^<]+)(\s*<[\/]?[^>]*>)*\s*/m", $response, $epsval);
-    $epsval=trim($epsval[1]);
-    if($debug) echo "eps: (".$epsval.")<br />";
+    if(count($epsval)>1){
+        $epsval=trim($epsval[1]);
+        if($debug) echo "eps: (".$epsval.")<br />";
+    }else{
+        $epsval="";
+    }
 
     preg_match("/^.*Return on average equity.*=period[^>]*>\s*([^<% ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $roeval);
-    $roeval=trim($roeval[1]);
-    if($debug) echo "roe: (".$roeval.")<br />";
+    if(count($roeval)>1){
+        $roeval=trim($roeval[1]);
+        if($debug) echo "roe: (".$roeval.")<br />";
+    }else{
+        $roeval="";
+    }
 
     preg_match("/^.*range_52week.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $range_52week);
-    $range_52week=str_replace(",","",trim($range_52week[1]));
-    if($debug) echo "52weeks: (".$range_52week.")<br />";
+    if(count($range_52week)>1){
+        $range_52week=str_replace(",","",trim($range_52week[1]));
+        if($debug) echo "52weeks: (".$range_52week.")<br />";
+    }else{
+        $range_52week="";
+    }
 
     $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
     $name=$query_arr[1];
