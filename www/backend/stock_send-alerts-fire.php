@@ -137,14 +137,15 @@ foreach ($alerts as $usr => $ualerts) {
             $fact.="Sold (stop-loss) ";//.$stocks[$alert['symbol']]['value'];
         }
         if($fact!=""){
+            $extra="";
             if(array_key_exists("eps_hist",$stocks[$alert['symbol']])){
                 $last_n_eps=array_slice($stocks[$alert['symbol']]['eps_hist'],-3);
                 $extra="EPS Hist:";
                 for ($i = 0; $i < count($last_n_eps); $i++){
                     $extra.=" [".$last_n_eps[$i][0].",".$last_n_eps[$i][1]."]";
                 }
-                $extra.="<br />";
             }
+            $extra.="<br />";
             $alerts_log[$usr.'_'.$symbol]=$timestamp_date;
             $curl = curl_init();
             curl_setopt( $curl, CURLOPT_URL, $FIREBASE . 'alerts_log.json' ); ///'.$usr.'_'.$symbol.'
@@ -181,9 +182,9 @@ foreach ($alerts as $usr => $ualerts) {
                   Per:    ".$stocks[$alert['symbol']]['per']." [".$alert['low_per']." -to- ".$alert['high_per']."]<br />
                   Yield   ".$stocks[$alert['symbol']]['yield']." [".$alert['low_yield']." -to- ".$alert['high_yield']."]<br />
                   ".$extra."
+                  Last updated: ".$stocks[$alert['symbol']]['date']."<br />
                   <br /><br />
                   Go to <a href=\"http://www.cognitionis.com/stockionic/\">stockionic</a> to change it.<br /><br />
-                  Date: ".$timestamp."<br />
                   ";
             //if($usr_decoded=="hectorlm1983@gmail.com"){
             //    $body.="                  ----<br />Json string debug:<br />turned off for now...."; //.$string;
