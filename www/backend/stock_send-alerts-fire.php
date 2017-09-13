@@ -44,7 +44,7 @@ $alerts_log=json_decode($response,true);
 if($debug) echo json_encode($alerts_log)."<br />";
 // to store alerts updated dates
 $updates="empty";
-$log="BEGIN ";
+
 $timestamp_date=date("Y-m-d");
 $timestamp=date("Y-m-d H:i");
 
@@ -81,6 +81,9 @@ $mail->AddReplyTo("info@cognitionis.com"); // indicates ReplyTo headers
 $mail->IsHTML(true);
 
 
+$usdeur=0.0;
+$usdeur=floatval($stocks['GOOG:NASDAQ']['usdeur']);
+
 foreach ($alerts as $usr => $ualerts) {
     $facts="";
     $body="";
@@ -88,7 +91,7 @@ foreach ($alerts as $usr => $ualerts) {
     // IMPORTANT--------------------------------------------------------------------------------
     if($usr_decoded!="hectorlm1983@gmail.com") continue; // disabled for other users for now
     //------------------------------------------------------------------------------------------
-    echo '\n<br />processing alerts for user: '.$usr_decoded.'\n<br />';
+    echo '<br />processing alerts for user: '.$usr_decoded.'<br />';
     foreach ($ualerts as $symbol => $alert) {
         if($debug) echo "  symbol: ".$symbol.'\n<br />';
         $fact="";
@@ -101,10 +104,8 @@ foreach ($alerts as $usr => $ualerts) {
         }else if(array_key_exists("high",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['value'])) >= floatval($alert['high'])){
             $fact.="+val ";//.$stocks[$alert['symbol']]['value'];
         }
-        $usdeur=0;
-        $eurval=0;
-        if($stocks[$alert['symbol']]['market']=="NYSE" || $stocks[$alert['symbol']]['market']=="NASDAQ"){
-            $usdeur=floatval($stocks['GOOG:NASDAQ']['usdeur']);
+        $eurval=0.0;
+        if(($stocks[$alert['symbol']]['market']=="NYSE" || $stocks[$alert['symbol']]['market']=="NASDAQ") && $usdeur>0.0){
             $eurval=floatval(str_replace(",","",$stocks[$alert['symbol']]['value']))*$usdeur;
         }
         if(array_key_exists("lowe",$alert) && $eurval <= floatval($alert['lowe'])){
@@ -159,15 +160,21 @@ foreach ($alerts as $usr => $ualerts) {
             //$rResult2 = mysqli_query( $db_connection, $sQuery2 );
             //if(!$rResult2){ echo mysqli_error( $db_connection )." -- ".$sQuery2; }
             
-            // calculate usdeurvalue if nyse or nasdaq
+            // fill empty values with empty string
+            $alert_keys=['low','high','lowe','highe','low_sell','low_change_percentage','high_change_percentage','low_eps','high_eps','low_per','high_per','low_yield','high_yield'];
+            foreach ($alert_keys as $value){
+                if(!array_key_exists($value,$alert)){
+                    $alert[$value]='';
+                }
+            }
+            // calculate usdeurvaluetext if nyse or nasdaq
             $usdeurvaluetext="";
-            if($eurval!=0){
-                $usdeurvalue="<b>Euros: ".number_format($eurval, 2, ".", "")."</b>";
+            if($eurval>0.0){
+                $usdeurvaluetext="<b>Euros: ".number_format($eurval, 2, ".", "")."</b>(".$usdeur.") [".$alert['lowe']." -to- ".$alert['highe']."] <br />";
             }
             $body.=" <br /><b>".$alert['symbol']." (".$stocks[$alert['symbol']]['title'].") ".$fact."</b><br />usr: ".$usr_decoded." ranges:<br />
                   Value:  <b>".$stocks[$alert['symbol']]['value']."</b> [".$alert['low']." -to- ".$alert['high']."],<br/>
-                  $usdeurvalue
-                  &nbsp;&nbsp; low sell (stoploss): ".$alert['low_sell']."<br />
+                  ".$usdeurvaluetext."&nbsp;&nbsp; low sell (stoploss): ".$alert['low_sell']."<br />
                   Range52w:  ".$stocks[$alert['symbol']]['range_52week_low']." -- ".$stocks[$alert['symbol']]['range_52week_high']." current %: ".$stocks[$alert['symbol']]['range_52week_heat']." volat: ".$stocks[$alert['symbol']]['range_52week_volatility']."<br />
                   Change(%):  ".$stocks[$alert['symbol']]['session_change_percentage']." [".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
                   EPS:    ".$stocks[$alert['symbol']]['eps']." [".$alert['low_eps']." -to- ".$alert['high_eps']."]<br />
@@ -199,15 +206,12 @@ function send_alert($subject, $body, $user, $mail){
 	$mail->AddAddress($user);
 	$mail->AddBCC("info@cognitionis.com");
 	if(!$mail->Send()){   
-		$log.="<br />Error: " . $mail->ErrorInfo;
         echo "<br />Error: " . $mail->ErrorInfo;
 	}else{
-		$log.="<br /><b>Email enviado a: $user</b>";
         echo "Mail enviado. ";
 	}
 	$mail->ClearAllRecipients();
 	$mail->ClearAttachments();
-	if($debug) echo $log;
 	sleep(0.1);
 }
 

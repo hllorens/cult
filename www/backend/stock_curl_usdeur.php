@@ -3,7 +3,7 @@
 // USAGE: provides $usdeur variable for other scripts to use
 
 echo date('Y-m-d H:i:s')." starting stock_curl_usdeur.php<br />";
-$url_and_query='https://www.google.com/finance?q=usdeur';
+$url_and_query='https://finance.google.com/finance?q=usdeur';
 $curl = curl_init();
 curl_setopt( $curl, CURLOPT_URL, $url_and_query );
 curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
