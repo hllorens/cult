@@ -203,13 +203,13 @@ foreach ($stock_details_arr as $key => $item) {
         if(count($symbol_object['yield_hist'])>1){
             $yield_hist_last_diff=((floatval(end($symbol_object['yield_hist'])[1])-floatval($symbol_object['yield_hist'][count($symbol_object['yield_hist'])-2][1]))/abs(floatval($symbol_object['yield_hist'][count($symbol_object['yield_hist'])-2][1])));
             $symbol_object['yield_hist_last_diff']=toFixed($yield_hist_last_diff*100,0);
-            // avgyield is an average of max 6 last yields
+            // avgyield is an average of max 8 last yields, with max value of 6% (so odd macro dividends do not trick the avg so much)
             $num_hist_yields=count($symbol_object['yield_hist']);
-            $num_yields_to_average=min($num_hist_yields,6);
+            $num_yields_to_average=min($num_hist_yields,8);
             $avgyield=0.0;
             for ($x = 1; $x <= $num_yields_to_average; $x++) {
                 //echo "$x $avgyield $num_hist_yields $num_yields_to_average  - ";
-                $avgyield+=floatval($symbol_object['yield_hist'][($num_yields_to_average-$x)][1])/floatval($num_yields_to_average);
+                $avgyield+=max(floatval($symbol_object['yield_hist'][($num_yields_to_average-$x)][1]),6.0)/floatval($num_yields_to_average);
             }
             $symbol_object['avgyield']="".toFixed($avgyield);
             if($num_hist_yields>2){
@@ -241,8 +241,8 @@ foreach ($stock_details_arr as $key => $item) {
                 }
             }
         }
-
-        $symbol_object['avgyield_per_ratio']="".toFixed((floatval($symbol_object['avgyield'])/floatval($symbol_object['per'])));
+        // in addition to avg yield with max 6% elements, per min is also 6 to avoid odd low pers when stock is plunging
+        $symbol_object['avgyield_per_ratio']="".toFixed((floatval($symbol_object['avgyield'])/min(floatval($symbol_object['per']),6.0)));
 
     }
     $stocks_formatted_arr[$item['name'].':'.$item['market']]=$symbol_object;

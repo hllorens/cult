@@ -69,7 +69,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     preg_match("/id-price-change[^>]*>\s*[^>]*>\s*[^>]*>\s*([^<]*)</m", $response, $change);
     $change=$change[1];
     preg_match("/id-price-change[^>]*>\s*[^>]*>\s*[^>]*>\s*[^>]*>\s*[^>]*>\s*\(([^\)]*)\)/m", $response, $changep);
-    $changep=$changep[1];
+    $changep=str_replace("%","",trim($changep[1]));
     if($debug) echo "change: $change (".$changep.")<br />";
     
     preg_match("/^.*dividend_yield.*=\"val\"[^>]*>([^< ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $dividend_yield);
