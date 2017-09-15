@@ -62,7 +62,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
 
     // value or price span class="pr"      <span class="pr"><span id="ref_304466804484872_l">932.24<
     preg_match("/\"pr\">\s*<[^>]*>\s*([^<]*)</m", $response, $value);
-    $value=$value[1];
+    $value=str_replace("%","",trim($value[1]));
     if($debug) echo "value: (".$value.")<br />";
 
     // div ... price-change .. div <div class="id-price-change nwp"><span class="ch bld"><span class="chr" id="ref_304466804484872_c">-3.71</span><span class="chr" id="ref_304466804484872_cp">(-0.40%)</span></span>
