@@ -25,7 +25,7 @@ $stock_list="$stock_list,NYSE:XOM,NYSE:DIS";
 $stock_list="$stock_list,NYSE:SNE,OTCMKTS:NTDOY";
 $stock_list="$stock_list,NASDAQ:NFLX,NYSE:TWX,NASDAQ:CMCSA,NASDAQ:FOXA"; // HBO is part of time Warner
 $stock_list="$stock_list,NYSE:TM,FRA:VOW,NYSE:GM,EPA:UG,NYSE:F";
-$stock_list="$stock_list,NASDAQ:SPWR,NASDAQ:TSLA";  // ,NASDAQ:SCTY acquired by TESLA 2016/2017?
+$stock_list="$stock_list,NYSE:ED,NASDAQ:SPWR,NASDAQ:TSLA";  // ,NASDAQ:SCTY acquired by TESLA 2016/2017?
 
 // FUTURE:
 // Uber is not yet in stock, IPO estimated 2017

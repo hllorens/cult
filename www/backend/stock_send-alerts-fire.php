@@ -133,7 +133,10 @@ foreach ($alerts as $usr => $ualerts) {
         }else if(array_key_exists("high_eps",$alert) && $stocks[$alert['symbol']]['eps']!="" && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) >= floatval($alert['high_eps'])){
             $fact.="+eps ";//.$stocks[$alert['symbol']]['eps'];
         }
-        if(array_key_exists("low_sell",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['value'])) <= floatval($alert['low_sell'])){
+        if(array_key_exists("portf",$alert) && 
+            ( ($eurval==0.0 && floatval(str_replace(",","",$stocks[$alert['symbol']]['value'])) <= floatval($alert['portf'])) ||
+              ($eurval!=0.0 && floatval(str_replace(",","",$stocks[$alert['symbol']]['value'])) <= floatval($alert['portf'])/$usdeur)
+            ) ){
             $fact.="Sold (stop-loss) ";//.$stocks[$alert['symbol']]['value'];
         }
         if($fact!=""){
@@ -162,7 +165,7 @@ foreach ($alerts as $usr => $ualerts) {
             //if(!$rResult2){ echo mysqli_error( $db_connection )." -- ".$sQuery2; }
             
             // fill empty values with empty string
-            $alert_keys=['low','high','lowe','highe','low_sell','low_change_percentage','high_change_percentage','low_eps','high_eps','low_per','high_per','low_yield','high_yield'];
+            $alert_keys=['low','high','lowe','highe','portf','low_change_percentage','high_change_percentage','low_eps','high_eps','low_per','high_per','low_yield','high_yield'];
             foreach ($alert_keys as $value){
                 if(!array_key_exists($value,$alert)){
                     $alert[$value]='';
@@ -175,7 +178,7 @@ foreach ($alerts as $usr => $ualerts) {
             }
             $body.=" <br /><b>".$alert['symbol']." (".$stocks[$alert['symbol']]['title'].") ".$fact."</b><br />usr: ".$usr_decoded." ranges:<br />
                   Value:  <b>".$stocks[$alert['symbol']]['value']."</b> [".$alert['low']." -to- ".$alert['high']."],<br/>
-                  ".$usdeurvaluetext."&nbsp;&nbsp; low sell (stoploss): ".$alert['low_sell']."<br />
+                  ".$usdeurvaluetext."&nbsp;&nbsp; portf (eurval): ".$alert['portf']."<br />
                   Range52w:  ".$stocks[$alert['symbol']]['range_52week_low']." -- ".$stocks[$alert['symbol']]['range_52week_high']." current %: ".$stocks[$alert['symbol']]['range_52week_heat']." volat: ".$stocks[$alert['symbol']]['range_52week_volatility']."<br />
                   Change(%):  ".$stocks[$alert['symbol']]['session_change_percentage']." [".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
                   EPS:    ".$stocks[$alert['symbol']]['eps']." [".$alert['low_eps']." -to- ".$alert['high_eps']."]<br />
