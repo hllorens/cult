@@ -130,8 +130,8 @@ foreach ($stock_details_arr as $key => $item) {
         if(!array_key_exists('eps_hist',$symbol_object)){$symbol_object['eps_hist']=array();}
         if(!array_key_exists('yield_hist',$symbol_object)){$symbol_object['yield_hist']=array();}
         if(!array_key_exists('per_hist',$symbol_object)){$symbol_object['per_hist']=array();}
-        if(!array_key_exists('eps_hist_last_diff',$symbol_object)){$symbol_object['per_hist']=$symbol_object['eps_hist_last_diff']=0;}
-        if(!array_key_exists('yield_hist_last_diff',$symbol_object)){$symbol_object['per_hist']=$symbol_object['yield_hist_last_diff']=0;}
+        if(!array_key_exists('eps_hist_last_diff',$symbol_object)){$symbol_object['eps_hist_last_diff']=0;}
+        if(!array_key_exists('yield_hist_last_diff',$symbol_object)){$symbol_object['yield_hist_last_diff']=0;}
 
         // we need the original $stock_details_arr[$item['market'].':'.$item['name']] not $symbol_object because in the later we add 999 or 0 even if it is -
         if(array_key_exists('eps',$stock_details_arr[$item['market'].':'.$item['name']]) && $stock_details_arr[$item['market'].':'.$item['name']]['eps']!="" && $stock_details_arr[$item['market'].':'.$item['name']]['eps']!="-"){
@@ -241,9 +241,20 @@ foreach ($stock_details_arr as $key => $item) {
                 }
             }
         }
-        // in addition to avg yield with max 6% elements, per min is also 6 to avoid odd low pers when stock is plunging (so we use max)
-        $symbol_object['avgyield_per_ratio']="".toFixed((floatval($symbol_object['avgyield'])/max(floatval($symbol_object['per']),6.0)));
-
+        // in addition to avg yield with max 6% elements (and min 0.25%), per min is also 6 to avoid odd low pers when stock is plunging (so we use max)
+        $avg_per_ratio=(floatval(max($symbol_object['avgyield'],0.25))/max(floatval($symbol_object['per']),6.0));
+        $symbol_object['avgyield_per_ratio']="".toFixed($avg_per_ratio);
+        $heat_opportunity=(1-floatval($symbol_object['range_52week_heat']))/5; // divided by 5 so max is +0.20
+        $eps_opportunity=min(0.8,floatval($symbol_object['eps_hist_last_diff'])/100); // max 0.8 so uppwards it can only add 0.8 (eps almost doubled)
+        $eps_trend=0.0;
+        if(array_key_exists('eps_hist_trend',$symbol_object) && floatval($symbol_object['eps_hist_last_diff'])!=0){
+            if($symbol_object['eps_hist_trend']=='v') $eps_trend=0.1;
+            if($symbol_object['eps_hist_trend']=='/') $eps_trend=0.05;
+            if($symbol_object['eps_hist_trend']=='^') $eps_trend=-0.1;
+            if($symbol_object['eps_hist_trend']=='\\') $eps_trend=-0.2;
+        }
+        $symbol_object['h_souce']="".toFixed($avg_per_ratio+$heat_opportunity+$eps_opportunity+$eps_trend);
+        //echo "ypr=$avg_per_ratio heat=".$symbol_object['range_52week_heat']." eps_hist_last_diff=".$symbol_object['eps_hist_last_diff']." -> $heat_opportunity $eps_opportunity $eps_trend ".$symbol_object['h_souce'];
     }
     $stocks_formatted_arr[$item['name'].':'.$item['market']]=$symbol_object;
 }

@@ -133,11 +133,13 @@ foreach ($alerts as $usr => $ualerts) {
         }else if(array_key_exists("high_eps",$alert) && $stocks[$alert['symbol']]['eps']!="" && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) >= floatval($alert['high_eps'])){
             $fact.="+eps ";//.$stocks[$alert['symbol']]['eps'];
         }
-        if(array_key_exists("portf",$alert) && 
-            ( ($eurval==0.0 && floatval(str_replace(",","",$stocks[$alert['symbol']]['value'])) <= floatval($alert['portf'])) ||
-              ($eurval!=0.0 && floatval(str_replace(",","",$stocks[$alert['symbol']]['value'])) <= floatval($alert['portf'])/$usdeur)
-            ) ){
-            $fact.="Sold (stop-loss) ";//.$stocks[$alert['symbol']]['value'];
+        $stoploss=0.0;
+        if(array_key_exists("portf",$alert)){
+            $stoploss=floatval($alert['portf'])*0.8;
+            if($eurval!=0.0){$stoploss=(floatval($alert['portf'])/$usdeur)*0.8;}
+            if(floatval(str_replace(",","",$stocks[$alert['symbol']]['value'])) <= $stoploss ){
+                $fact.="sell (stop-loss) ";//.$stocks[$alert['symbol']]['value'];
+            }
         }
         if($fact!=""){
             $extra="";
@@ -178,7 +180,7 @@ foreach ($alerts as $usr => $ualerts) {
             }
             $body.=" <br /><b>".$alert['symbol']." (".$stocks[$alert['symbol']]['title'].") ".$fact."</b><br />usr: ".$usr_decoded." ranges:<br />
                   Value:  <b>".$stocks[$alert['symbol']]['value']."</b> [".$alert['low']." -to- ".$alert['high']."],<br/>
-                  ".$usdeurvaluetext."&nbsp;&nbsp; portf (eurval): ".$alert['portf']."<br />
+                  ".$usdeurvaluetext."&nbsp;&nbsp; portf (eurval): ".$alert['portf']." (-20% stoploss: ".$stoploss.")<br />
                   Range52w:  ".$stocks[$alert['symbol']]['range_52week_low']." -- ".$stocks[$alert['symbol']]['range_52week_high']." current %: ".$stocks[$alert['symbol']]['range_52week_heat']." volat: ".$stocks[$alert['symbol']]['range_52week_volatility']."<br />
                   Change(%):  ".$stocks[$alert['symbol']]['session_change_percentage']." [".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
                   EPS:    ".$stocks[$alert['symbol']]['eps']." [".$alert['low_eps']." -to- ".$alert['high_eps']."]<br />
