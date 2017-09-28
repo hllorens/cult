@@ -260,7 +260,7 @@ foreach ($stock_details_arr as $key => $item) {
             $eps_opportunity=min(0.8,(floatval($symbol_object['eps_hist_last_diff'])/100)+($eps_hist_penultimate_diff/2)); // max 0.8 so uppwards it can only add 0.8 (eps almost doubled)
         }
         $high_yld_low_volatility_bonus=0.0;
-        if(floatval($symbol_object['avgyield'])>3 && floatval($symbol_object['range_52week_volatility'])<0.5){
+        if(floatval($symbol_object['avgyield'])>3 && floatval($symbol_object['range_52week_volatility'])<0.4){
             $high_yld_low_volatility_bonus=0.1;
         }
         $symbol_object['h_souce']="".toFixed($avg_per_ratio+$heat_opportunity+$eps_opportunity+$eps_trend+$high_yld_low_volatility_bonus);
