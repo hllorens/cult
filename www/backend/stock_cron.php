@@ -103,6 +103,7 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['range_52week_high']=trim($parts[1]);
             $symbol_object['range_52week_heat']="".toFixed((floatval($symbol_object['value'])-floatval($symbol_object['range_52week_low']))/(floatval($symbol_object['range_52week_high'])-floatval($symbol_object['range_52week_low'])));
             // you could use "low" or "high" but using "low" is what if val 3 to 6 then volat = 100% == 2x
+            // NOTE: value is always positive so no problem with subtractions...
             $symbol_object['range_52week_volatility']="".toFixed((floatval($symbol_object['range_52week_high'])-floatval($symbol_object['range_52week_low']))/(floatval($symbol_object['range_52week_low'])));
             // to show the 2x format or 1.3x, we can do it in js to avoid making json bigger
             //$symbol_object['range_52week_volatility_times']="".toFixed(((floatval($symbol_object['range_52week_high'])-floatval($symbol_object['range_52week_low']))/(floatval($symbol_object['range_52week_low'])))+1,1);
@@ -132,6 +133,7 @@ foreach ($stock_details_arr as $key => $item) {
         if(!array_key_exists('per_hist',$symbol_object)){$symbol_object['per_hist']=array();}
         if(!array_key_exists('eps_hist_last_diff',$symbol_object)){$symbol_object['eps_hist_last_diff']=0;}
         if(!array_key_exists('yield_hist_last_diff',$symbol_object)){$symbol_object['yield_hist_last_diff']=0;}
+        $eps_hist_penultimate_diff=0;
 
         // we need the original $stock_details_arr[$item['market'].':'.$item['name']] not $symbol_object because in the later we add 999 or 0 even if it is -
         if(array_key_exists('eps',$stock_details_arr[$item['market'].':'.$item['name']]) && $stock_details_arr[$item['market'].':'.$item['name']]['eps']!="" && $stock_details_arr[$item['market'].':'.$item['name']]['eps']!="-"){
@@ -158,7 +160,8 @@ foreach ($stock_details_arr as $key => $item) {
         // trend eps
         if(count($symbol_object['eps_hist'])>1){
             //echo $symbol_object['name']."<br />\n"."<br />\n";
-            $eps_hist_last_diff=((floatval(end($symbol_object['eps_hist'])[1])-floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1]))/abs(floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1])));
+            // the diff has a minimum divisor of 0.5 so value is at most amplified 2x in case of small eps values
+            $eps_hist_last_diff=((floatval(end($symbol_object['eps_hist'])[1])-floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1]))/max(0.5,abs(floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1]))));
             if ($eps_hist_last_diff<-0.04){ // more than 5% annual which is about 20% quarterly
                 $symbol_object['eps_hist_last_down']=toFixed($eps_hist_last_diff*100,0); // FOR BACKWARDS COMPATIBILITY
             }
@@ -169,7 +172,8 @@ foreach ($stock_details_arr as $key => $item) {
             }
             if(count($symbol_object['eps_hist'])>2){
                 // 4 possibilities down-down down-up up-down up-up
-                $eps_hist_penultimate_diff=((floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1])-floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-3][1]))/abs(floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-3][1])));
+                // same minimum 0.5 divisor see above for the reason
+                $eps_hist_penultimate_diff=((floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1])-floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-3][1]))/max(0.5,abs(floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-3][1]))));
                 $symbol_object['eps_hist_trend']="-";
                 if      ($eps_hist_penultimate_diff>0 && $eps_hist_last_diff >0){
                     $symbol_object['eps_hist_trend']="/";
@@ -244,7 +248,8 @@ foreach ($stock_details_arr as $key => $item) {
         // in addition to avg yield with max 6% elements (and min 0.25%), per min is also 6 to avoid odd low pers when stock is plunging (so we use max)
         $avg_per_ratio=(floatval(max($symbol_object['avgyield'],0.25))/max(floatval($symbol_object['per']),6.0));
         $symbol_object['avgyield_per_ratio']="".toFixed($avg_per_ratio);
-        $heat_opportunity=(1-floatval($symbol_object['range_52week_heat']))/5; // divided by 5 so max is +0.20
+        // heat divided by 5 so max is +0.20 times the volatility (instead of adding 1 we add 0.8 since the min volatility is around 0.2 so that the min is 1)
+        $heat_opportunity=((1-floatval($symbol_object['range_52week_heat']))/5)*(floatval($symbol_object['range_52week_volatility'])+0.8);
         $eps_opportunity=min(0.8,floatval($symbol_object['eps_hist_last_diff'])/100); // max 0.8 so uppwards it can only add 0.8 (eps almost doubled)
         $eps_trend=0.0;
         if(array_key_exists('eps_hist_trend',$symbol_object) && floatval($symbol_object['eps_hist_last_diff'])!=0){
@@ -252,8 +257,13 @@ foreach ($stock_details_arr as $key => $item) {
             if($symbol_object['eps_hist_trend']=='/') $eps_trend=0.05;
             if($symbol_object['eps_hist_trend']=='^') $eps_trend=-0.1;
             if($symbol_object['eps_hist_trend']=='\\') $eps_trend=-0.2;
+            $eps_opportunity=min(0.8,(floatval($symbol_object['eps_hist_last_diff'])/100)+($eps_hist_penultimate_diff/2)); // max 0.8 so uppwards it can only add 0.8 (eps almost doubled)
         }
-        $symbol_object['h_souce']="".toFixed($avg_per_ratio+$heat_opportunity+$eps_opportunity+$eps_trend);
+        $high_yld_low_volatility_bonus=0.0;
+        if(floatval($symbol_object['avgyield'])>3 && floatval($symbol_object['range_52week_volatility'])<0.5){
+            $high_yld_low_volatility_bonus=0.1;
+        }
+        $symbol_object['h_souce']="".toFixed($avg_per_ratio+$heat_opportunity+$eps_opportunity+$eps_trend+$high_yld_low_volatility_bonus);
         //echo "ypr=$avg_per_ratio heat=".$symbol_object['range_52week_heat']." eps_hist_last_diff=".$symbol_object['eps_hist_last_diff']." -> $heat_opportunity $eps_opportunity $eps_trend ".$symbol_object['h_souce'];
     }
     $stocks_formatted_arr[$item['name'].':'.$item['market']]=$symbol_object;
