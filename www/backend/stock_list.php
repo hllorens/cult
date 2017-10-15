@@ -9,6 +9,8 @@ $stock_list="$stock_list,BME:ELE,BME:ENG,BME:FCC,BME:FER,BME:SGRE,BME:GAS,BME:GR
 $stock_list="$stock_list,BME:ITX,BME:MAP,BME:MEL,BME:MTS,BME:OHL,BME:REE,BME:REP,BME:SAB,BME:SAN,BME:SCYR";
 $stock_list="$stock_list,BME:TEF,BME:TL5,BME:TRE";
 // IBEX quebrados o quitados: ,BME:POP
+// otras interesantes españa
+$stock_list="$stock_list,BME:FAE";
 
 $stock_list="$stock_list,INDEXSTOXX:SX5E";
 $stock_list="$stock_list,INDEXNASDAQ:NDX";
@@ -16,6 +18,7 @@ $stock_list="$stock_list,INDEXSP:.INX";
 
 $stock_list="$stock_list,NASDAQ:GOOG,NASDAQ:GOOGL,NASDAQ:MSFT,NASDAQ:EBAY,NASDAQ:AMZN"; // ,NASDAQ:YHOO no longer a company but a fund (AABA)
 $stock_list="$stock_list,NASDAQ:FB,NYSE:TWTR,NYSE:SNAP";
+$stock_list="$stock_list,NYSE:YRD,NYSE:FIT,NYSE:BABA"; //new
 $stock_list="$stock_list,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:BKCC";
 $stock_list="$stock_list,NASDAQ:PCLN,NASDAQ:TRIP,NASDAQ:EXPE";
 $stock_list="$stock_list,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:SSI";

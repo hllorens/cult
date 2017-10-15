@@ -1,5 +1,6 @@
 <?php
 
+// alternative version to be run with less frequency for less important stocks or coins
 // the aim of this php is to get stocks.formatted.json,
 //     if a file like that exists it will be updated incrementally 
 //     otherwise it will be created from the scratch
@@ -34,38 +35,56 @@ if(file_exists ( 'stocks.formatted.json' )){
     echo "stocks.formatted.json does NOT exist -> using an empty array<br />";
 }
 
-echo date('Y-m-d H:i:s')." start stock_cron.php<br />";
+echo date('Y-m-d H:i:s')." start stock_cron_alt.php<br />";
 
 // fopen with w overwrites existing file
-$stock_cron_log = fopen("stock_cron.log", "w") or die("Unable to open/create stock_cron.log!");
-fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_cron.php\n");
+$stock_cron_alt_log = fopen("stock_cron_alt.log", "w") or die("Unable to open/create stock_cron_alt.log!");
+fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_cron_alt.php\n");
 
-fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_list.php\n");
+fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_list.php\n");
 require_once 'stock_list.php';
-
-//service discontinued
-//fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_curl_all_basic.php\n");
-//require_once 'stock_curl_all_basic.php';
-// update stocks formatfed accordingly (formatting properly)
-
-
-
-fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_curl_usdeur.php\n");
+fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_curl_usdeur.php\n");
 require_once 'stock_curl_usdeur.php';
 
+fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_curl_btcusd.php\n");
+require_once 'stock_curl_btcusd.php';
 
 
-fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_curl_details.php\n");
-require_once 'stock_curl_details.php';
+# Maybe consider funds or gold or gdppcap or unemployment
+#fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_curl_details_alt.php\n");
+#require_once 'stock_curl_details_alt.php';
 
 
 // -----------update stocks formatted ----------------------------------
 
 // only add in GOOG, date and usdeur
 $stocks_formatted_arr['GOOG:NASDAQ']['date']=$timestamp_simplif;
-$stocks_formatted_arr['GOOG:NASDAQ']['usdeur']=$usdeur;
 
-foreach ($stock_details_arr as $key => $item) {
+$stocks_formatted_arr['GOOG:NASDAQ']['usdeur']=$usdeur;
+$stocks_formatted_arr['GOOG:NASDAQ']['usdeur_change']=$usdeur;
+
+$stocks_formatted_arr['GOOG:NASDAQ']['btcusd']=$btcusd;
+$stocks_formatted_arr['GOOG:NASDAQ']['btcusd_change']=$btcusd;
+
+
+// add hist but do it with a function...
+require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
+hist('usdeur',6,$stocks_formatted_arr['GOOG:NASDAQ']);
+hist('btcusd',6,$stocks_formatted_arr['GOOG:NASDAQ']);
+
+
+// TODO
+//gold
+//oil
+//wheat
+// spain, eur, us, china, india, rusia, world for averages, sin detalles solo mostrar status gt x o lo x i trend bueno o malo
+//pop
+//gdppcap
+//unemployment
+//age+65
+// maybe funds/etf (morningstar) just details of some
+
+/*foreach ($stock_details_arr as $key => $item) {
 	$symbol_object=array();
     // t=ticker, e=exchange // deprecated since /info?q= was down in google Sept 2017
     if($debug) echo "encoding ".$item['name'].":".$item['market']."<br />";
@@ -128,16 +147,15 @@ foreach ($stock_details_arr as $key => $item) {
         }
 
         // historical data: eps, yield, per
-        if(!array_key_exists('value_hist',$symbol_object)){$symbol_object['value_hist']=array();}
         if(!array_key_exists('eps_hist',$symbol_object)){$symbol_object['eps_hist']=array();}
         if(!array_key_exists('yield_hist',$symbol_object)){$symbol_object['yield_hist']=array();}
         if(!array_key_exists('per_hist',$symbol_object)){$symbol_object['per_hist']=array();}
-        if(!array_key_exists('value_hist_last_diff',$symbol_object)){$symbol_object['value_hist_last_diff']=0;}
         if(!array_key_exists('eps_hist_last_diff',$symbol_object)){$symbol_object['eps_hist_last_diff']=0;}
         if(!array_key_exists('yield_hist_last_diff',$symbol_object)){$symbol_object['yield_hist_last_diff']=0;}
         $eps_hist_penultimate_diff=0;
 
-        if(array_key_exists('eps',$symbol_object) && $symbol_object['eps']!="" && $symbol_object['eps']!="-"){
+        // we need the original $stock_details_arr[$item['market'].':'.$item['name']] not $symbol_object because in the later we add 999 or 0 even if it is -
+        if(array_key_exists('eps',$stock_details_arr[$item['market'].':'.$item['name']]) && $stock_details_arr[$item['market'].':'.$item['name']]['eps']!="" && $stock_details_arr[$item['market'].':'.$item['name']]['eps']!="-"){
             //echo "eps val".$symbol_object['name']."<br />";
             if(count($symbol_object['eps_hist'])==0){
                 //echo "initial eps".$symbol_object['name']."<br />";
@@ -194,9 +212,8 @@ foreach ($stock_details_arr as $key => $item) {
         }
         
         
-        // TODO: this should be a function
         // even if it is 0, track it to do better averages
-        if(array_key_exists('yield',$symbol_object)){ // && $symbol_object['yield']!="" && $symbol_object['yield']!="-"
+        if(array_key_exists('yield',$stock_details_arr[$item['market'].':'.$item['name']])){ // && $stock_details_arr[$item['market'].':'.$item['name']]['yield']!="" && $stock_details_arr[$item['market'].':'.$item['name']]['yield']!="-"
             if(count($symbol_object['yield_hist'])==0){
                 $symbol_object['yield_hist'][]=[$timestamp_date,$symbol_object['yield']];
             }else{
@@ -252,50 +269,6 @@ foreach ($stock_details_arr as $key => $item) {
                 }
             }
         }
-        
-        if(array_key_exists('value',$symbol_object)){ // && $symbol_object['value']!="" && $symbol_object['value']!="-"
-            if(count($symbol_object['value_hist'])==0){
-                $symbol_object['value_hist'][]=[$timestamp_date,$symbol_object['value']];
-            }else{
-                $last_value=end($symbol_object['value_hist'])[1];
-                $last_value_date=end($symbol_object['value_hist'])[0];
-                $last_value_half=substr($last_value_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $last_value_date)->format('n') / 6) % 2) + 1 );
-                //echo "$last_value_date half $last_value_half current half $timestamp_half<br />";
-                if($timestamp_half!=$last_value_half){
-                    $symbol_object['value_hist'][]=[$timestamp_date,$symbol_object['value']];
-                }else{ // to keep it fresh
-                    $symbol_object['value_hist'][count($symbol_object['value_hist']) - 1]=[$timestamp_date,$symbol_object['value']];
-                }
-            }
-        }
-        if(count($symbol_object['value_hist'])>1){
-            $value_hist_last_diff=((floatval(end($symbol_object['value_hist'])[1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1]))/abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1])));
-            $symbol_object['value_hist_last_diff']=toFixed($value_hist_last_diff*100,0);
-            // avgvalue is an average of max 8 last values, with max value of 6% using min (so odd macro dividends do not trick the avg so much)
-            $num_hist_values=count($symbol_object['value_hist']);
-            $num_values_to_average=min($num_hist_values,8);
-            $avgvalue=0.0;
-            for ($x = 1; $x <= $num_values_to_average; $x++) {
-                //echo "$x $avgvalue $num_hist_values $num_values_to_average  - ";
-                $avgvalue+=min(floatval($symbol_object['value_hist'][($num_values_to_average-$x)][1]),6.0)/floatval($num_values_to_average);
-            }
-            $symbol_object['avgvalue']="".toFixed($avgvalue);
-            if($num_hist_values>2){
-                // 4 possibilities down-down down-up up-down up-up
-                $value_hist_penultimate_diff=((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1]))/abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1])));
-                $symbol_object['value_hist_trend']="-";
-                if      ($value_hist_penultimate_diff>0 && $value_hist_last_diff >0){
-                    $symbol_object['value_hist_trend']="/";
-                }else if($value_hist_penultimate_diff<0 && $value_hist_last_diff >0){
-                    $symbol_object['value_hist_trend']="v";
-                }else if($value_hist_penultimate_diff>0 && $value_hist_last_diff <0){
-                    $symbol_object['value_hist_trend']="^";
-                }else if($value_hist_penultimate_diff<0 && $value_hist_last_diff <0){
-                    $symbol_object['value_hist_trend']="\\";
-                }
-            }
-        }
-        
         // in addition to avg yield with max 6% elements (and min 0.25%), per min is also 6 to avoid odd low pers when stock is plunging (so we use max)
         $avg_per_ratio=(floatval(max($symbol_object['avgyield'],0.25))/max(floatval($symbol_object['per']),6.0));
         $symbol_object['avgyield_per_ratio']="".toFixed($avg_per_ratio);
@@ -320,34 +293,27 @@ foreach ($stock_details_arr as $key => $item) {
     $stocks_formatted_arr[$item['name'].':'.$item['market']]=$symbol_object;
 }
 // --------------------------------------------- 
-
+*/
 
 $stocks_formatted_arr_json_str=json_encode( $stocks_formatted_arr );
 
+
 // update stocks.formatted.json
 echo date('Y-m-d H:i:s')." updating stocks.formatted.json\n";
-fwrite($stock_cron_log, date('Y-m-d H:i:s')." updating stocks.formatted.json\n");
+fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." updating stocks.formatted.json\n");
 $stocks_formatted_json_file = fopen("stocks.formatted.json", "w") or die("Unable to open file stocks.formatted.json!");
 fwrite($stocks_formatted_json_file, $stocks_formatted_arr_json_str);
 fclose($stocks_formatted_json_file);
 
-// backup history (monthly)
-if(!file_exists( date("Y-m").'.stocks.formatted.json' )){
-    echo "creating backup: ".date("Y-m").".stocks.formatted.json<br />";
-    fwrite($stock_cron_log, date('Y-m-d H:i:s')." creating backup: ".date("Y-m").".stocks.formatted.json\n");
-    $stocks_formatted_json_fileb = fopen(date("Y-m").".stocks.formatted.json", "w") or die("Unable to open file stocks.formatted.json!");
-    fwrite($stocks_formatted_json_fileb, $stocks_formatted_arr_json_str);
-    fclose($stocks_formatted_json_fileb);
-}
 
-// send alert bulcks only 1 email..., if too long then create another cron for this
-fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_send-alert-fire.php\n");
+// send currency and other alerts TODO
+/*fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_send-alert-fire.php\n");
 echo "<br />".date('Y-m-d H:i:s')." starting stock_send-alerts-fire.php<br />";
-require_once 'stock_send-alerts-fire.php';
+require_once 'stock_send-alerts-fire.php';*/
 
 
-fwrite($stock_cron_log, date('Y-m-d H:i:s')." done with stock_cron.php\n");
-echo "<br />".date('Y-m-d H:i:s')." done with stock_cron.php, see stock_cron.log<br />";
-fclose($stock_cron_log);
+fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." done with stock_cron_alt.php\n");
+echo "<br />".date('Y-m-d H:i:s')." done with stock_cron_alt.php, see stock_cron_alt.log<br />";
+fclose($stock_cron_alt_log);
 
 ?>

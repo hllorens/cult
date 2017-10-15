@@ -180,7 +180,7 @@ foreach ($alerts as $usr => $ualerts) {
             }
             $body.=" <br /><b>".$alert['symbol']." (".$stocks[$alert['symbol']]['title'].") ".$fact."</b><br />usr: ".$usr_decoded." ranges:<br />
                   Value:  <b>".$stocks[$alert['symbol']]['value']."</b> [".$alert['low']." -to- ".$alert['high']."],<br/>
-                  ".$usdeurvaluetext."&nbsp;&nbsp; portf (eurval): ".$alert['portf']." (-20% stoploss: ".$stoploss.")<br />
+                  ".$usdeurvaluetext."&nbsp;&nbsp; portf (eurval): ".$alert['portf']." (-20% stoploss: ".number_format($stoploss, 2, ".", "").")<br />
                   Range52w:  ".$stocks[$alert['symbol']]['range_52week_low']." -- ".$stocks[$alert['symbol']]['range_52week_high']." current %: ".$stocks[$alert['symbol']]['range_52week_heat']." volat: ".$stocks[$alert['symbol']]['range_52week_volatility']."<br />
                   Change(%):  ".$stocks[$alert['symbol']]['session_change_percentage']." [".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
                   EPS:    ".$stocks[$alert['symbol']]['eps']." [".$alert['low_eps']." -to- ".$alert['high_eps']."]<br />
