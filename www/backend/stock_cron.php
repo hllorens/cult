@@ -128,14 +128,11 @@ foreach ($stock_details_arr as $key => $item) {
         }
 
         // historical data: eps, yield, per
-        if(!array_key_exists('value_hist',$symbol_object)){$symbol_object['value_hist']=array();}
+        
+        // not using function for eps because it has some specific tunnings (e.g., give preference to change over quarter, minimum 0.04 diff...)
         if(!array_key_exists('eps_hist',$symbol_object)){$symbol_object['eps_hist']=array();}
-        if(!array_key_exists('yield_hist',$symbol_object)){$symbol_object['yield_hist']=array();}
-        if(!array_key_exists('per_hist',$symbol_object)){$symbol_object['per_hist']=array();}
-        if(!array_key_exists('value_hist_last_diff',$symbol_object)){$symbol_object['value_hist_last_diff']=0;}
         if(!array_key_exists('eps_hist_last_diff',$symbol_object)){$symbol_object['eps_hist_last_diff']=0;}
-        if(!array_key_exists('yield_hist_last_diff',$symbol_object)){$symbol_object['yield_hist_last_diff']=0;}
-        $eps_hist_penultimate_diff=0;
+        $eps_hist_penultimate_diff=0; // externalized for opportunity calculation
 
         if(array_key_exists('eps',$symbol_object) && $symbol_object['eps']!="" && $symbol_object['eps']!="-"){
             //echo "eps val".$symbol_object['name']."<br />";
@@ -192,109 +189,11 @@ foreach ($stock_details_arr as $key => $item) {
                 }
             }
         }
-        
-        
-        // TODO: this should be a function
-        // even if it is 0, track it to do better averages
-        if(array_key_exists('yield',$symbol_object)){ // && $symbol_object['yield']!="" && $symbol_object['yield']!="-"
-            if(count($symbol_object['yield_hist'])==0){
-                $symbol_object['yield_hist'][]=[$timestamp_date,$symbol_object['yield']];
-            }else{
-                $last_yield=end($symbol_object['yield_hist'])[1];
-                $last_yield_date=end($symbol_object['yield_hist'])[0];
-                $last_yield_half=substr($last_yield_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $last_yield_date)->format('n') / 6) % 2) + 1 );
-                //echo "$last_yield_date half $last_yield_half current half $timestamp_half<br />";
-                if($timestamp_half!=$last_yield_half){
-                    $symbol_object['yield_hist'][]=[$timestamp_date,$symbol_object['yield']];
-                }else{ // to keep it fresh
-                    $symbol_object['yield_hist'][count($symbol_object['yield_hist']) - 1]=[$timestamp_date,$symbol_object['yield']];
-                }
-            }
-        }
-        if(count($symbol_object['yield_hist'])>1){
-            $yield_hist_last_diff=((floatval(end($symbol_object['yield_hist'])[1])-floatval($symbol_object['yield_hist'][count($symbol_object['yield_hist'])-2][1]))/abs(floatval($symbol_object['yield_hist'][count($symbol_object['yield_hist'])-2][1])));
-            $symbol_object['yield_hist_last_diff']=toFixed($yield_hist_last_diff*100,0);
-// avgyield is an average of max 8 last yields, with max value of 6% using min (so odd macro dividends do not trick the avg so much)
-            $num_hist_yields=count($symbol_object['yield_hist']);
-            $num_yields_to_average=min($num_hist_yields,8);
-            $avgyield=0.0;
-            for ($x = 1; $x <= $num_yields_to_average; $x++) {
-                //echo "$x $avgyield $num_hist_yields $num_yields_to_average  - ";
-                $avgyield+=min(floatval($symbol_object['yield_hist'][($num_yields_to_average-$x)][1]),6.0)/floatval($num_yields_to_average);
-            }
-            $symbol_object['avgyield']="".toFixed($avgyield);
-            if($num_hist_yields>2){
-                // 4 possibilities down-down down-up up-down up-up
-                $yield_hist_penultimate_diff=((floatval($symbol_object['yield_hist'][count($symbol_object['yield_hist'])-2][1])-floatval($symbol_object['yield_hist'][count($symbol_object['yield_hist'])-3][1]))/abs(floatval($symbol_object['yield_hist'][count($symbol_object['yield_hist'])-3][1])));
-                $symbol_object['yield_hist_trend']="-";
-                if      ($yield_hist_penultimate_diff>0 && $yield_hist_last_diff >0){
-                    $symbol_object['yield_hist_trend']="/";
-                }else if($yield_hist_penultimate_diff<0 && $yield_hist_last_diff >0){
-                    $symbol_object['yield_hist_trend']="v";
-                }else if($yield_hist_penultimate_diff>0 && $yield_hist_last_diff <0){
-                    $symbol_object['yield_hist_trend']="^";
-                }else if($yield_hist_penultimate_diff<0 && $yield_hist_last_diff <0){
-                    $symbol_object['yield_hist_trend']="\\";
-                }
-            }
-        }
-        
-        if(array_key_exists('per',$item)){ //  && $item['per']!="" && $item['per']!="-"
-            if(count($symbol_object['per_hist'])==0){
-                $symbol_object['per_hist'][]=[$timestamp_date,$symbol_object['per']];
-            }else{
-                $last_per=end($symbol_object['per_hist'])[1];
-                $last_per_date=end($symbol_object['per_hist'])[0];
-                $last_per_half=substr($last_per_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $last_per_date)->format('n') / 6) % 2) + 1 );
-                //echo "$last_per_date half $last_per_half current half $timestamp_half<br />";
-                if($timestamp_half!=$last_per_half){
-                    $symbol_object['per_hist'][]=[$timestamp_date,$symbol_object['per']];
-                }
-            }
-        }
-        
-        if(array_key_exists('value',$symbol_object)){ // && $symbol_object['value']!="" && $symbol_object['value']!="-"
-            if(count($symbol_object['value_hist'])==0){
-                $symbol_object['value_hist'][]=[$timestamp_date,$symbol_object['value']];
-            }else{
-                $last_value=end($symbol_object['value_hist'])[1];
-                $last_value_date=end($symbol_object['value_hist'])[0];
-                $last_value_half=substr($last_value_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $last_value_date)->format('n') / 6) % 2) + 1 );
-                //echo "$last_value_date half $last_value_half current half $timestamp_half<br />";
-                if($timestamp_half!=$last_value_half){
-                    $symbol_object['value_hist'][]=[$timestamp_date,$symbol_object['value']];
-                }else{ // to keep it fresh
-                    $symbol_object['value_hist'][count($symbol_object['value_hist']) - 1]=[$timestamp_date,$symbol_object['value']];
-                }
-            }
-        }
-        if(count($symbol_object['value_hist'])>1){
-            $value_hist_last_diff=((floatval(end($symbol_object['value_hist'])[1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1]))/abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1])));
-            $symbol_object['value_hist_last_diff']=toFixed($value_hist_last_diff*100,0);
-            // avgvalue is an average of max 8 last values, with max value of 6% using min (so odd macro dividends do not trick the avg so much)
-            $num_hist_values=count($symbol_object['value_hist']);
-            $num_values_to_average=min($num_hist_values,8);
-            $avgvalue=0.0;
-            for ($x = 1; $x <= $num_values_to_average; $x++) {
-                //echo "$x $avgvalue $num_hist_values $num_values_to_average  - ";
-                $avgvalue+=min(floatval($symbol_object['value_hist'][($num_values_to_average-$x)][1]),6.0)/floatval($num_values_to_average);
-            }
-            $symbol_object['avgvalue']="".toFixed($avgvalue);
-            if($num_hist_values>2){
-                // 4 possibilities down-down down-up up-down up-up
-                $value_hist_penultimate_diff=((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1]))/abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1])));
-                $symbol_object['value_hist_trend']="-";
-                if      ($value_hist_penultimate_diff>0 && $value_hist_last_diff >0){
-                    $symbol_object['value_hist_trend']="/";
-                }else if($value_hist_penultimate_diff<0 && $value_hist_last_diff >0){
-                    $symbol_object['value_hist_trend']="v";
-                }else if($value_hist_penultimate_diff>0 && $value_hist_last_diff <0){
-                    $symbol_object['value_hist_trend']="^";
-                }else if($value_hist_penultimate_diff<0 && $value_hist_last_diff <0){
-                    $symbol_object['value_hist_trend']="\\";
-                }
-            }
-        }
+
+        require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
+        hist('yield',6,$symbol_object,6); // 6=every half year, max in avg is 6% yield
+        hist('per',6,$symbol_object); // 6=every half year
+        hist('value',6,$symbol_object); // 6=every half year
         
         // in addition to avg yield with max 6% elements (and min 0.25%), per min is also 6 to avoid odd low pers when stock is plunging (so we use max)
         $avg_per_ratio=(floatval(max($symbol_object['avgyield'],0.25))/max(floatval($symbol_object['per']),6.0));
