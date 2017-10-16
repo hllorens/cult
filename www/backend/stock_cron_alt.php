@@ -61,10 +61,10 @@ require_once 'stock_curl_btcusd.php';
 $stocks_formatted_arr['GOOG:NASDAQ']['date']=$timestamp_simplif;
 
 $stocks_formatted_arr['GOOG:NASDAQ']['usdeur']=$usdeur;
-$stocks_formatted_arr['GOOG:NASDAQ']['usdeur_change']=$usdeur;
+$stocks_formatted_arr['GOOG:NASDAQ']['usdeur_change']=$usdeur_change;
 
 $stocks_formatted_arr['GOOG:NASDAQ']['btcusd']=$btcusd;
-$stocks_formatted_arr['GOOG:NASDAQ']['btcusd_change']=$btcusd;
+$stocks_formatted_arr['GOOG:NASDAQ']['btcusd_change']=$btcusd_change;
 
 
 // add hist but do it with a function...
@@ -307,9 +307,9 @@ fclose($stocks_formatted_json_file);
 
 
 // send currency and other alerts TODO
-/*fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_send-alert-fire.php\n");
-echo "<br />".date('Y-m-d H:i:s')." starting stock_send-alerts-fire.php<br />";
-require_once 'stock_send-alerts-fire.php';*/
+fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_send-insights.php\n");
+echo "<br />".date('Y-m-d H:i:s')." starting stock_send-insights.php<br />";
+require_once 'stock_send-insights.php';
 
 
 fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." done with stock_cron_alt.php\n");
