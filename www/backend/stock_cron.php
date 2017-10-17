@@ -191,7 +191,7 @@ foreach ($stock_details_arr as $key => $item) {
         }
 
         require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
-        hist('yield',6,$symbol_object,6); // 6=every half year, max in avg is 6% yield
+        hist('yield',6,$symbol_object,8,7); // 6=every half year, avgelems=8 (default), max in avg is 7% yield
         hist('per',6,$symbol_object); // 6=every half year
         hist('value',6,$symbol_object); // 6=every half year
         
