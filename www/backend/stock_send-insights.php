@@ -51,9 +51,6 @@ $mail->AddReplyTo("info@cognitionis.com"); // indicates ReplyTo headers
 $mail->IsHTML(true);
 
 
-$usdeur=0.0;
-$usdeur=floatval($stocks['GOOG:NASDAQ']['usdeur']);
-$usdeur_change=floatval($stocks['GOOG:NASDAQ']['usdeur_change']);
 
 $facts="";
 $body="";
@@ -62,15 +59,25 @@ $usr_decoded="hectorlm1983@gmail.com";
 
 $fact="";
 
-if(array_key_exists('usdeur_change',$stocks['GOOG:NASDAQ']) && abs($usdeur_change)>2.0){
+
+
+if(array_key_exists('usdeur_change',$stocks['GOOG:NASDAQ']) && abs(floatval($stocks['GOOG:NASDAQ']['usdeur_change']))>0.02){
     $facts.="usdeur ";
-    $body.=" <br /><b>usdeur</b>: $usdeur_change";
+    $body.=" <br /><b>usdeur</b>: ".number_format(floatval($stocks['GOOG:NASDAQ']['usdeur']), 2, ".", "");
+    $body.=" <br /><b>usdeur_c</b>: ".number_format(floatval($stocks['GOOG:NASDAQ']['usdeur_change'])*100, 2, ".", "")."%";
+    $body.=" <br /><b>lastQdiff</b>: ".number_format(floatval($stocks['GOOG:NASDAQ']['usdeur_hist_last_diff']), 2, ".", "")."%";
+    
+    
 }
 
-if(array_key_exists('btcusd_change',$stocks['GOOG:NASDAQ']) && abs($btcusd_change)>4.0){
+if(array_key_exists('btcusd_change',$stocks['GOOG:NASDAQ']) && abs(floatval($stocks['GOOG:NASDAQ']['btcusd_change']))>0.04){
     $facts.="btcusd ";
-    $body.=" <br /><b>btcusd</b>: $btcusd_change";
+    $body.=" <br /><b>btcusd</b>: ".number_format(floatval($stocks['GOOG:NASDAQ']['btcusd']), 2, ".", "");
+    $body.=" <br /><b>btcusd_c</b>: ".number_format(floatval($stocks['GOOG:NASDAQ']['btcusd_change'])*100, 2, ".", "")."%";
+    $body.=" <br /><b>lastQdiff</b>: ".number_format(floatval($stocks['GOOG:NASDAQ']['btcusd_hist_last_diff']), 2, ".", "")."%";
 }
+
+
 
 if($facts!=""){
     if($debug) echo '  '.$body.'<br />';
