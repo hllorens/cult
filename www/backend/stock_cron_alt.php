@@ -69,8 +69,8 @@ $stocks_formatted_arr['GOOG:NASDAQ']['btcusd_change']=$btcusd_change;
 
 // add hist but do it with a function...
 require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
-hist('usdeur',6,$stocks_formatted_arr['GOOG:NASDAQ']);
-hist('btcusd',6,$stocks_formatted_arr['GOOG:NASDAQ']);
+hist('usdeur',3,$stocks_formatted_arr['GOOG:NASDAQ']);
+hist('btcusd',3,$stocks_formatted_arr['GOOG:NASDAQ']);
 
 
 // TODO
