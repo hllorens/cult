@@ -61,7 +61,7 @@ $fact="";
 
 
 
-if(array_key_exists('usdeur_change',$stocks['GOOG:NASDAQ']) && abs(floatval($stocks['GOOG:NASDAQ']['usdeur_change']))>0.02){
+if(array_key_exists('usdeur_change',$stocks['GOOG:NASDAQ']) && (abs(floatval($stocks['GOOG:NASDAQ']['usdeur_change']))>0.02 || abs(floatval($stocks['GOOG:NASDAQ']['usdeur_hist_last_diff']))>4)){
     $facts.="usdeur ";
     $body.=" <br /><b>usdeur</b>: ".number_format(floatval($stocks['GOOG:NASDAQ']['usdeur']), 2, ".", "");
     $body.=" <br /><b>usdeur_c</b>: ".number_format(floatval($stocks['GOOG:NASDAQ']['usdeur_change'])*100, 2, ".", "")."%";
@@ -70,7 +70,7 @@ if(array_key_exists('usdeur_change',$stocks['GOOG:NASDAQ']) && abs(floatval($sto
     
 }
 
-if(array_key_exists('btcusd_change',$stocks['GOOG:NASDAQ']) && abs(floatval($stocks['GOOG:NASDAQ']['btcusd_change']))>0.04){
+if(array_key_exists('btcusd_change',$stocks['GOOG:NASDAQ']) && (abs(floatval($stocks['GOOG:NASDAQ']['btcusd_change']))>0.04 || abs(floatval($stocks['GOOG:NASDAQ']['btcusd_hist_last_diff']))>20)){
     $facts.="btcusd ";
     $body.=" <br /><b>btcusd</b>: ".number_format(floatval($stocks['GOOG:NASDAQ']['btcusd']), 2, ".", "");
     $body.=" <br /><b>btcusd_c</b>: ".number_format(floatval($stocks['GOOG:NASDAQ']['btcusd_change'])*100, 2, ".", "")."%";
