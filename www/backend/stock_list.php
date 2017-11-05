@@ -2,6 +2,9 @@
 
 echo date('Y-m-d H:i:s')." starting stock_list.php<br />";
 
+// current markets: grep "^.stock_list" cult/www/backend/stock_list.php | sed "s/\";.*\$//" | sed "s/^.*stock_list,//" | tr "," "\n" | cut -f 1 -d : | sort | uniq -c
+// [INDEX], BME, EPA, FRA, NASDAQ, NYSE, OTCMKTS, VTX
+
 $stock_list="INDEXBME:IB";
 
 $stock_list="$stock_list,BME:ACS,BME:ACX,BME:AENA,BME:AMS,BME:ANA,BME:BBVA,BME:BKIA,BME:BKT,BME:CABK,BME:DIA";
@@ -18,7 +21,7 @@ $stock_list="$stock_list,INDEXSP:.INX";
 
 $stock_list="$stock_list,NASDAQ:GOOG,NASDAQ:GOOGL,NASDAQ:MSFT,NASDAQ:EBAY,NASDAQ:AMZN"; // ,NASDAQ:YHOO no longer a company but a fund (AABA)
 $stock_list="$stock_list,NASDAQ:FB,NYSE:TWTR,NYSE:SNAP";
-$stock_list="$stock_list,NYSE:YRD,NYSE:FIT,NYSE:BABA"; //new
+$stock_list="$stock_list,NYSE:YRD,NYSE:FIT,NYSE:BABA,NYSE:BLK"; //new
 $stock_list="$stock_list,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:BKCC";
 $stock_list="$stock_list,NASDAQ:PCLN,NASDAQ:TRIP,NASDAQ:EXPE";
 $stock_list="$stock_list,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:SSI";
@@ -34,6 +37,9 @@ $stock_list="$stock_list,NYSE:ED,NASDAQ:SPWR,NASDAQ:TSLA";  // ,NASDAQ:SCTY acqu
 // Uber is not yet in stock, IPO estimated 2017
 // MagicLeap virutal reality (GOOG will buy it?)
 // MCD (McDonald's), ...
+// Nokia -20% Ericsson -5% in Oct-2017 because ISPs still don't want 5G
+// Nokia sold mobile biz to Microsoft and Here data to Mercedes, BMW, Audi
+// Nokia is in trouble now, only focusing on new network techs
 
 // Indexes
 $market_currencies['INDEXBME']="EUR";
@@ -44,11 +50,80 @@ $market_currencies['INDEXSP']="USD";
 // Markets
 $market_currencies['BME']="EUR";
 $market_currencies['EPA']="EUR";
+$market_currencies['FRA']="EUR";
 $market_currencies['VTX']="EUR";
 
 $market_currencies['NASDAQ']="USD";
 $market_currencies['NYSE']="USD";
 
+
+function get_msn_quote($quote){
+    $quote_arr=explode(":",$quote);
+    $prefix="fi-126.1";
+    // replacements
+    if($quote_arr[0]=="BME"){
+        $quote_arr[0]="MCE";
+        $prefix="fi-199.1";
+    }
+    if($quote_arr[0]=="EPA"){
+        $quote_arr[0]="PAR";
+        $prefix="fi-160.1";
+    }
+    if($quote_arr[0]=="FRA"){
+        $prefix="fi-200.1";
+    }
+    if($quote_arr[0]=="NASDAQ" || $quote_arr[0]=="NYSE"){
+        $quote_arr[0]=substr($quote_arr[0],0,3);
+        $prefix="fi-126.1";
+    }
+    if($quote_arr[0]=="OTCMKTS"){
+        $quote_arr[0]="PINX";
+        $prefix="fi-125.1";
+    }
+    if($quote_arr[0]=="VTX"){
+        $quote_arr[0]="SWX";
+        $prefix="fi-185.1";
+    }
+
+    // substrings not needed since we need prefix anyway
+    //$quote_arr[0]=substr($quote_arr[0],0,3);
+    
+    /* msn prefix numbers
+    fi-199.1.SGRE.MCE
+    fi-160.1.BN.PAR
+    fi-200.1.VOW.FRA
+    fi-126.1.NUAN.NAS
+    fi-126.1.GM.NYS
+    fi-125.1.NTDOY.PINX
+    fi-185.1.NESN.SWX
+    */
+    return $prefix.".".$quote_arr[1].".".$quote_arr[0];
+}
+
+function get_yahoo_quote($quote){
+    $quote_arr=explode(":",$quote);
+    // replacements
+    if($quote_arr[0]=="BME"){
+        $quote_arr[0]="MC";
+    }
+    if($quote_arr[0]=="EPA"){
+        $quote_arr[0]="PA";
+    }
+    if($quote_arr[0]=="FRA"){
+        $quote_arr[0]="F";
+    }
+    if($quote_arr[0]=="NASDAQ" || $quote_arr[0]=="NYSE" || $quote_arr[0]=="OTCMKTS"){
+        return $quote_arr[1];
+    }
+    if($quote_arr[0]=="VTX"){
+        $quote_arr[0]="VX";
+    }
+
+    // substrings not needed since we need prefix anyway
+    //$quote_arr[0]=substr($quote_arr[0],0,3);
+    
+    return $quote_arr[1].".".$quote_arr[0];
+}
 
 
 echo date('Y-m-d H:i:s')." ending stock_list.php<br />";

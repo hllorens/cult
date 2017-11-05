@@ -115,6 +115,8 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['beta']=$stock_details_arr[$item['market'].':'.$item['name']]['beta'];
         $symbol_object['eps']=$stock_details_arr[$item['market'].':'.$item['name']]['eps'];
         $symbol_object['per']=$stock_details_arr[$item['market'].':'.$item['name']]['per'];
+        $symbol_object['shares']=$stock_details_arr[$item['market'].':'.$item['name']]['shares'];
+        $symbol_object['mktcap']=toFixed(floatval($symbol_object['shares'])*floatval($symbol_object['value']));
         $symbol_object['roe']=$stock_details_arr[$item['market'].':'.$item['name']]['roe'];
         if(trim($symbol_object['per'])=='-' || trim($symbol_object['per'])==''){$symbol_object['per']=999;}
         if(trim($symbol_object['yield'])=='-' || trim($symbol_object['yield'])==''){$symbol_object['yield']=0;}
@@ -194,6 +196,7 @@ foreach ($stock_details_arr as $key => $item) {
         hist('yield',6,$symbol_object,8,7); // 6=every half year, avgelems=8 (default), max in avg is 7% yield
         hist('per',6,$symbol_object); // 6=every half year
         hist('value',6,$symbol_object); // 6=every half year
+        hist('shares',6,$symbol_object); // 6=every half year
         
         // in addition to avg yield with max 6% elements (and min 0.25%), per min is also 6 to avoid odd low pers when stock is plunging (so we use max)
         $avg_per_ratio=(floatval(max($symbol_object['avgyield'],0.25))/max(floatval($symbol_object['per']),6.0));

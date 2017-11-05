@@ -84,6 +84,34 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $yieldval="";
     }
 
+    // guessed from shares and value (in billions)
+    /*preg_match("/^.*market_cap.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s* /m", $response, $mktcap);
+    if(count($mktcap)>1){
+        $mktcap=trim($mktcap[1]);
+        if($debug) echo "mktcap: (".$mktcap.")<br />";
+    }else{
+        $mktcap="";
+    }*/
+    
+    // num shares in millions
+    preg_match("/^.*shares.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $shares);
+    if($debug){echo " shares: ".print_r($shares)."";}
+    if(count($shares)>1){
+        $shares=str_replace(",","",trim($shares[1]));
+        $shares_last=substr($shares, -1);
+        if($shares_last=="B"){
+            $shares=str_replace("B","",$shares);
+            $shares=number_format(floatval($shares)*1000.00, 2, ".", "");
+        }else if($shares_last=="M"){
+            $shares=str_replace("M","",$shares);
+        }else{
+            $shares=number_format(floatval($shares)/1000000.00, 2, ".", "");
+        }
+        if($debug) echo "shares: (".$shares.")<br />";
+    }else{
+        $shares=0;
+    }
+
     preg_match("/^.*pe_ratio.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $perval);
     if(count($perval)>1){
         $perval=trim($perval[1]);
@@ -141,6 +169,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['dividend']=$divval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['eps']=$epsval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['beta']=$betaval;
+    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['shares']=$shares;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['per']=$perval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['roe']=$roeval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['range_52week']=$range_52week;
