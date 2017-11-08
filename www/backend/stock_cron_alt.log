@@ -1,0 +1,7 @@
+2017-11-08 20:18:45 starting stock_cron_alt.php
+2017-11-08 20:18:45 starting stock_list.php
+2017-11-08 20:18:45 starting stock_curl_usdeur.php
+2017-11-08 20:18:45 starting stock_curl_btcusd.php
+2017-11-08 20:18:45 updating stocks.formatted.json
+2017-11-08 20:18:45 starting stock_send-insights.php
+2017-11-08 20:18:46 done with stock_cron_alt.php

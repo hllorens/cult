@@ -97,16 +97,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     preg_match("/^.*shares.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $shares);
     if($debug){echo " shares: ".print_r($shares)."";}
     if(count($shares)>1){
-        $shares=str_replace(",","",trim($shares[1]));
-        $shares_last=substr($shares, -1);
-        if($shares_last=="B"){
-            $shares=str_replace("B","",$shares);
-            $shares=number_format(floatval($shares)*1000.00, 2, ".", "");
-        }else if($shares_last=="M"){
-            $shares=str_replace("M","",$shares);
-        }else{
-            $shares=number_format(floatval($shares)/1000000.00, 2, ".", "");
-        }
+        $shares=format_millions($shares[1]);
         if($debug) echo "shares: (".$shares.")<br />";
     }else{
         $shares=0;

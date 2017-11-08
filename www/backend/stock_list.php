@@ -125,6 +125,19 @@ function get_yahoo_quote($quote){
     return $quote_arr[1].".".$quote_arr[0];
 }
 
+function format_millions($number){
+    $number=str_replace(",","",trim($number));
+    $number_last=substr($number, -1);
+    if($number_last=="B"){
+        $number=str_replace("B","",$number);
+        $number=number_format(floatval($number)*1000.00, 2, ".", "");
+    }else if($number_last=="M"){
+        $number=str_replace("M","",$number);
+    }else{
+        $number=number_format(floatval($number)/1000000.00, 2, ".", "");
+    }
+    return $number;
+}
 
 echo date('Y-m-d H:i:s')." ending stock_list.php<br />";
 
