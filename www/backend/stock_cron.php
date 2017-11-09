@@ -199,28 +199,32 @@ foreach ($stock_details_arr as $key => $item) {
         hist('shares',6,$symbol_object); // 6=every half year
         
         // in addition to avg yield with max 6% elements (and min 0.25%), per min is also 6 to avoid odd low pers when stock is plunging (so we use max)
-        $avg_per_ratio=(floatval(max($symbol_object['avgyield'],0.75))/max(floatval($symbol_object['per']),6.0));
+        $avgyield_per_ratio=max(floatval($symbol_object['avgyield']),0.75)/max(floatval($symbol_object['per']),6.0);
         
         // improved ypr with leverage (if lower or equal to 2.5 it makes no difference)
         if(array_key_exists('leverage',$symbol_object) && floatval($symbol_object['leverage'])!=0){
             $acceptable_leverage=2.5; // 2 would be liabilities==equity i.e., liabilities/assets=0.5 perfect balance
+            // TODO if exists industry and >> 2.5 then multiply by factor...
             if(in_array($symbol_object['name'], ['SAN','BBVA','ING','BKIA'])){
                 $acceptable_leverage=10;
             }
-            $avg_per_ratio=$avg_per_ratio/max(floatval($symbol_object['per'])/$acceptable_leverage,1.0);
+            $avgyield_per_ratio=$avgyield_per_ratio/max((floatval($symbol_object['leverage'])/$acceptable_leverage),1.0);
         }
         // EXTRA BONUS: if we also have the industry leverage average we can 
         if(array_key_exists('leverage',$symbol_object) && floatval($symbol_object['leverage_industry'])!=0){
-            if(floatval($symbol_object['leverage'])>(floatval($symbol_object['leverage_industry']+2)){
-                $avg_per_ratio-=0.1;
+            if(floatval($symbol_object['leverage'])>(floatval($symbol_object['leverage_industry']+2))){
+                $avgyield_per_ratio-=0.1;
             }
-            if(floatval($symbol_object['leverage'])<(floatval($symbol_object['leverage_industry']-1)){
-                $avg_per_ratio+=0.1;
+            if(floatval($symbol_object['leverage'])<(floatval($symbol_object['leverage_industry']-1))){
+                $avgyield_per_ratio+=0.1;
             }
         }
         // we could consider the history (direction of the leverage) but that is not always a good indicator and it is already accounted in the above division (e.g., if it is growing the ypr will be lower)
+        // TODO: next year we could consider revenue diff trying to get the sum of the last 4 Q (or price to sales... see if this is updated in some site to crawl)
         
-        $symbol_object['avgyield_per_ratio']="".toFixed($avg_per_ratio);
+        if($debug) echo "avgyield_per_ratio=$avgyield_per_ratio, avgyield=".max(floatval($symbol_object['avgyield']),0.75)." per=".max(floatval($symbol_object['per']),6.0)." leverage=".floatval($symbol_object['leverage'])." leverage_industry=".floatval($symbol_object['leverage_industry']);
+        
+        $symbol_object['avgyield_per_ratio']="".toFixed($avgyield_per_ratio);
         
         // heat divided by 5 so max is +0.20 times the volatility (instead of adding 1 we add 0.8 since the min volatility is around 0.2 so that the min is 1)
         $heat_opportunity=((1-floatval($symbol_object['range_52week_heat']))/5)*(floatval($symbol_object['range_52week_volatility'])+0.8);
@@ -237,8 +241,8 @@ foreach ($stock_details_arr as $key => $item) {
         if(floatval($symbol_object['avgyield'])>3 && floatval($symbol_object['range_52week_volatility'])<0.4){
             $high_yld_low_volatility_bonus=0.1;
         }
-        $symbol_object['h_souce']="".toFixed($avg_per_ratio+$heat_opportunity+$eps_opportunity+$eps_trend+$high_yld_low_volatility_bonus);
-        //echo "ypr=$avg_per_ratio heat=".$symbol_object['range_52week_heat']." eps_hist_last_diff=".$symbol_object['eps_hist_last_diff']." -> $heat_opportunity $eps_opportunity $eps_trend ".$symbol_object['h_souce'];
+        $symbol_object['h_souce']="".toFixed($avgyield_per_ratio+$heat_opportunity+$eps_opportunity+$eps_trend+$high_yld_low_volatility_bonus);
+        //echo "ypr=$avgyield_per_ratio heat=".$symbol_object['range_52week_heat']." eps_hist_last_diff=".$symbol_object['eps_hist_last_diff']." -> $heat_opportunity $eps_opportunity $eps_trend ".$symbol_object['h_souce'];
     }
     $stocks_formatted_arr[$item['name'].':'.$item['market']]=$symbol_object;
 }
