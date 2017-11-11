@@ -11,7 +11,7 @@ echo date('Y-m-d H:i:s')." starting stock_curl_details.php<br />";
 
 
 
-$num_stocks_to_curl=1;
+$num_stocks_to_curl=5;
 $stock_last_detail_updated=0;
 if(file_exists ( 'stock_last_detail_updated.txt' )){
     $stock_last_detail_updated=intval(fgets(fopen('stock_last_detail_updated.txt', 'r')));
