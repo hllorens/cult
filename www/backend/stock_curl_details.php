@@ -52,7 +52,10 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     //$response=preg_replace("/^[^t][^d].*$/m", "", $response);
     $response = preg_replace('/^[ \t]*[\r\n]+/m', '', $response); // remove blank lines
     $response = preg_replace('/\n(.*=\"val\".*)[\r\n]+/m', '${1}', $response); // remove blank lines
-    $response = preg_replace('/\ntd class="lft name">Return on average equity\s*\ntd class=period>/',"\ntd class=\"lft name\">Return on average equity td class=period>",$response);
+    $response = preg_replace('/\ntd class="lft name">\s*Return on average equity\s*\ntd class=period>/',"\ntd class=\"lft name\">Return on average equity td class=period>",$response);
+    $response = preg_replace('/\ntd class="lft name">\s*Operating margin\s*\ntd class=period>/',"\ntd class=\"lft name\">Operating margin td class=period>",$response);
+    $response = preg_replace('/\ntd class="lft name">\s*Employees\s*\ntd class=period>/',"\ntd class=\"lft name\">Employees td class=period>",$response);
+    //$response = preg_replace('/\ntd class="lft name">\s*(Return on average equity|Operating margin|Employees)\s*\ntd class=period>/',"\ntd class=\"lft name\">${1} td class=period>",$response);
     if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
     //$response_arr=explode("\n",$response);
     preg_match("/^.*<title>([^:]*):.*$/m", $response, $title);
@@ -93,15 +96,16 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $mktcap="";
     }*/
     
-    // num shares in millions
+    // num shares in billons
     preg_match("/^.*shares.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $shares);
     if($debug){echo " shares: ".print_r($shares)."";}
     if(count($shares)>1){
-        $shares=format_millions($shares[1]);
+        $shares=format_billions($shares[1]);
         if($debug) echo "shares: (".$shares.")<br />";
     }else{
         $shares=0;
     }
+    
 
     preg_match("/^.*pe_ratio.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $perval);
     if(count($perval)>1){
@@ -117,6 +121,13 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         if($debug) echo "beta: (".$betaval.")<br />";
     }else{
         $betaval="";
+    }
+    preg_match("/^.*\"inst_own\".*=\"val\"[^>]*>([^<]+)(\s*<[\/]?[^>]*>)*\s*/m", $response, $instowned);
+    if(count($instowned)>1){
+        $instowned=trim($instowned[1]);
+        if($debug) echo "inst_own: (".$instowned.")<br />";
+    }else{
+        $instowned="";
     }
 
     
@@ -134,6 +145,22 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         if($debug) echo "roe: (".$roeval.")<br />";
     }else{
         $roeval="";
+    }
+
+    preg_match("/^.*Operating margin.*=period[^>]*>\s*([^<% ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $om);
+    if(count($om)>1){
+        $om=trim($om[1]);
+        if($debug) echo "om: (".$om.")<br />";
+    }else{
+        $om="";
+    }
+
+    preg_match("/^.*Employees.*=period[^>]*>\s*([^<% ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $employees);
+    if(count($employees)>1){
+        $employees=str_replace(",","",trim($employees[1]));
+        if($debug) echo "employees: (".$employees.")<br />";
+    }else{
+        $employees="";
     }
 
     preg_match("/^.*range_52week.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $range_52week);
@@ -160,9 +187,12 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['dividend']=$divval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['eps']=$epsval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['beta']=$betaval;
+    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['inst_own']=$instowned;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['shares']=$shares;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['per']=$perval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['roe']=$roeval;
+    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['operating_margin']=$om;
+    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['employees']=$employees;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['range_52week']=$range_52week;
     
     // to avoid google ban

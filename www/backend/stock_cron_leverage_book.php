@@ -82,11 +82,11 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     //$response=preg_replace("/^[^t][^d].*$/m", "", $response);
     $response = preg_replace('/^[ \t]*[\r\n]+/m', '', $response); // remove blank lines
     $response = preg_replace('/\n(.*=\"val\".*)[\r\n]+/m', '${1}', $response); // remove blank lines
-    $response = preg_replace('/title=\'(Revenue|Price\/Book Value|Leverage Ratio)\'[^>]*>\s*/', "\n", $response);
+    $response = preg_replace('/title=\'(Revenue|Price\/Book Value|Leverage Ratio|Price\/Sales)\'[^>]*>\s*/', "\n", $response);
     if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
     echo "----------end----------";
     echo "<br />";
-    $vars2get=['Revenue','Price\/Book Value','Leverage Ratio'];
+    $vars2get=['Revenue','Price\/Book Value','Leverage Ratio','Price\/Sales'];
     $results=array();
     foreach($vars2get as $var2get){
         preg_match("/^".$var2get."(.*)$/m", $response, $xxxx);
@@ -101,6 +101,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $market=$query_arr[0];
     $stocks_formatted_arr[$name.":".$market]['revenue']=format_millions($results['Revenue'][0]);
     $stocks_formatted_arr[$name.":".$market]['price_to_book']=$results['Price\/Book Value'][0];
+    $stocks_formatted_arr[$name.":".$market]['price_to_sales']=$results['Price\/Sales'][0];
     $stocks_formatted_arr[$name.":".$market]['leverage']=$results['Leverage Ratio'][0];
     $stocks_formatted_arr[$name.":".$market]['leverage_industry']=0;
     if(count($results['Leverage Ratio'])>1){
@@ -108,15 +109,15 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     }
     
     
-
+    // add hist but do it with a function...
+    require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
+    hist('revenue',3,$stocks_formatted_arr[$name.":".$market]);
+    hist('leverage',3,$stocks_formatted_arr[$name.":".$market]);
+    hist('price_to_sales',3,$stocks_formatted_arr[$name.":".$market]);
 }
 // -----------update stocks formatted ----------------------------------
 
 
-// add hist but do it with a function...
-require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
-hist('revenue',3,$stocks_formatted_arr[$name.":".$market]);
-hist('leverage',3,$stocks_formatted_arr[$name.":".$market]);
 
 
 // update last updated number
