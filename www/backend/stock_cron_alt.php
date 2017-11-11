@@ -50,6 +50,9 @@ fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_curl_btcusd.php
 require_once 'stock_curl_btcusd.php';
 
 
+#ethereum
+#https://api.coinmarketcap.com/v1/ticker/ethereum/
+
 # Maybe consider funds or gold or gdppcap or unemployment
 #fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_curl_details_alt.php\n");
 #require_once 'stock_curl_details_alt.php';

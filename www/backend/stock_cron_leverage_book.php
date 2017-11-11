@@ -57,6 +57,9 @@ if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug
 }
 
 $the_url="https://www.msn.com/en-us/money/stockdetails/analysis/"; //fi-199.1.SGRE.MCE (the number depends on the country)
+
+// IMPORTANT: Price\/Sales does NOT appear in the first page but surprisingly it can be crawled!!
+
 //$vals=",";
 $the_url_query_arr = explode(",", $stock_list);
 $num_stocks_to_curl=min($num_stocks_to_curl,count($the_url_query_arr)); // make sure we do not duplicate...

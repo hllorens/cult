@@ -51,8 +51,8 @@ require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
 
 
 
-fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_curl_usdeur.php\n");
-require_once 'stock_curl_usdeur.php';
+//fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_curl_usdeur.php\n");
+//require_once 'stock_curl_usdeur.php';
 
 
 
@@ -64,7 +64,7 @@ require_once 'stock_curl_details.php';
 
 // only add in GOOG, date and usdeur
 $stocks_formatted_arr['GOOG:NASDAQ']['date']=$timestamp_simplif;
-$stocks_formatted_arr['GOOG:NASDAQ']['usdeur']=$usdeur;
+//$stocks_formatted_arr['GOOG:NASDAQ']['usdeur']=$usdeur;
 
 foreach ($stock_details_arr as $key => $item) {
 	$symbol_object=array();
@@ -92,8 +92,6 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['title']=substr($stock_details_arr[$item['market'].':'.$item['name']]['title'],0,30);
         if(!$symbol_object['title']){$symbol_object['title']="ERROR: No title found";}
         if($debug) echo $symbol_object['title']."<br />";
-        $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];
-        $symbol_object['dividend']=$stock_details_arr[$item['market'].':'.$item['name']]['dividend'];
         $symbol_object['range_52week']=trim($stock_details_arr[$item['market'].':'.$item['name']]['range_52week']);
         $symbol_object['range_52week_high']="0";
         $symbol_object['range_52week_low']="0";
@@ -122,6 +120,8 @@ foreach ($stock_details_arr as $key => $item) {
 
         // ONLY IF IT IS NOT AN INDEX
         if(substr($the_url_query_arr[$current_num_to_curl],0,5)!="INDEX"){
+            $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];
+            $symbol_object['dividend']=$stock_details_arr[$item['market'].':'.$item['name']]['dividend'];
             $symbol_object['divs_per_year']="0";
             $symbol_object['dividend_total_year']="0";
             $symbol_object['eps']=$stock_details_arr[$item['market'].':'.$item['name']]['eps'];
@@ -212,9 +212,19 @@ foreach ($stock_details_arr as $key => $item) {
             hist('employees',6,$symbol_object); // 6=every half year
             
             // in addition to avg yield with max 6% elements (and min 0.25%), per min is also 6 to avoid odd low pers when stock is plunging (so we use max)
-            $avgyield_per_ratio=max(floatval($symbol_object['avgyield']),0.75)/max(floatval($symbol_object['per']),6.0);
+            // we use max PER of 100 to avoid using 999 on losses and penalize too much even if other measures in the improved measure are strong
+            $avgyield_per_ratio=max(floatval($symbol_object['avgyield']),0.75)/min(max(floatval($symbol_object['per']),6.0),100);
             // store original and still provide that sort to see the difference
             $symbol_object['avgyield_per_ratio_original']="".toFixed($avgyield_per_ratio);
+            
+            // improved with operating_margin and price to sales
+            $om_to_ps=0; // if no info, no gain
+            if(array_key_exists('operating_margin',$symbol_object) && floatval($symbol_object['operating_margin'])!=0
+               && array_key_exists('price_to_sales',$symbol_object) && floatval($symbol_object['price_to_sales'])!=0){
+                $om_to_ps=min(max(floatval($symbol_object['operating_margin'])/9,0.2),6.0)/min(max(floatval($symbol_object['price_to_sales'])*4,6.0),100);
+            }
+            
+            // TODO: in the future we will also account revenue growth...
             
             // improved ypr with leverage (if lower or equal to 2.5 it makes no difference)
             $acceptable_leverage=2.5; // 2 would be liabilities==equity i.e., liabilities/assets=0.5 perfect balance
