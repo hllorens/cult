@@ -11,7 +11,7 @@ echo date('Y-m-d H:i:s')." starting stock_curl_details.php<br />";
 
 
 
-$num_stocks_to_curl=5;
+$num_stocks_to_curl=1;
 $stock_last_detail_updated=0;
 if(file_exists ( 'stock_last_detail_updated.txt' )){
     $stock_last_detail_updated=intval(fgets(fopen('stock_last_detail_updated.txt', 'r')));
@@ -75,7 +75,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $changep=str_replace("%","",trim($changep[1]));
     if($debug) echo "change: $change (".$changep.")<br />";
     
-    preg_match("/^.*dividend_yield.*=\"val\"[^>]*>([^< ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $dividend_yield);
+    preg_match("/^.*\"dividend_yield.*=\"val\"[^>]*>([^< ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $dividend_yield);
     if(count($dividend_yield)>1 && strpos($dividend_yield[1], '/') !== FALSE){
         $divval=explode('/',$dividend_yield[1])[0];
         $yieldval=explode('/',$dividend_yield[1])[1];
@@ -88,7 +88,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     }
 
     // guessed from shares and value (in billions)
-    /*preg_match("/^.*market_cap.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s* /m", $response, $mktcap);
+    /*preg_match("/^.*\"market_cap.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s* /m", $response, $mktcap);
     if(count($mktcap)>1){
         $mktcap=trim($mktcap[1]);
         if($debug) echo "mktcap: (".$mktcap.")<br />";
@@ -97,8 +97,8 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     }*/
     
     // num shares in billons
-    preg_match("/^.*shares.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $shares);
-    if($debug){echo " shares: ".print_r($shares)."";}
+    preg_match("/^.*\"shares\".*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $shares);
+    if($debug){echo " shares: ".print_r($shares)."<br />";}
     if(count($shares)>1){
         $shares=format_billions($shares[1]);
         if($debug) echo "shares: (".$shares.")<br />";
@@ -107,7 +107,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     }
     
 
-    preg_match("/^.*pe_ratio.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $perval);
+    preg_match("/^.*\"pe_ratio.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $perval);
     if(count($perval)>1){
         $perval=trim($perval[1]);
         if($debug) echo "per: (".$perval.")<br />";
