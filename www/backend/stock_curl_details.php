@@ -75,7 +75,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $changep=str_replace("%","",trim($changep[1]));
     if($debug) echo "change: $change (".$changep.")<br />";
     
-    preg_match("/^.*\"dividend_yield.*=\"val\"[^>]*>([^< ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $dividend_yield);
+    preg_match("/^.*dividend_yield.*=\"val\"[^>]*>([^< ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $dividend_yield);
     if(count($dividend_yield)>1 && strpos($dividend_yield[1], '/') !== FALSE){
         $divval=explode('/',$dividend_yield[1])[0];
         $yieldval=explode('/',$dividend_yield[1])[1];
@@ -107,7 +107,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     }
     
 
-    preg_match("/^.*\"pe_ratio.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $perval);
+    preg_match("/^.*pe_ratio.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $perval);
     if(count($perval)>1){
         $perval=trim($perval[1]);
         if($debug) echo "per: (".$perval.")<br />";
