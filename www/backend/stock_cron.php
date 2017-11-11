@@ -223,8 +223,9 @@ foreach ($stock_details_arr as $key => $item) {
                && array_key_exists('price_to_sales',$symbol_object) && floatval($symbol_object['price_to_sales'])!=0){
                 $om_to_ps=min(max(floatval($symbol_object['operating_margin'])/9,0.2),6.0)/min(max(floatval($symbol_object['price_to_sales'])*4,6.0),100);
             }
-            
+            $avgyield_per_ratio+=$om_to_ps;
             // TODO: in the future we will also account revenue growth...
+            // can be positive or negative
             
             // improved ypr with leverage (if lower or equal to 2.5 it makes no difference)
             $acceptable_leverage=2.5; // 2 would be liabilities==equity i.e., liabilities/assets=0.5 perfect balance
