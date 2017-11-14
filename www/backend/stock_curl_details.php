@@ -11,7 +11,7 @@ echo date('Y-m-d H:i:s')." starting stock_curl_details.php<br />";
 
 
 
-$num_stocks_to_curl=5;
+$num_stocks_to_curl=1;
 $stock_last_detail_updated=0;
 if(file_exists ( 'stock_last_detail_updated.txt' )){
     $stock_last_detail_updated=intval(fgets(fopen('stock_last_detail_updated.txt', 'r')));
@@ -53,7 +53,8 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $response = preg_replace('/^[ \t]*[\r\n]+/m', '', $response); // remove blank lines
     $response = preg_replace('/\n(.*=\"val\".*)[\r\n]+/m', '${1}', $response); // remove blank lines
     $response = preg_replace('/\ntd class="lft name">\s*Return on average equity\s*\ntd class=period>/',"\ntd class=\"lft name\">Return on average equity td class=period>",$response);
-    $response = preg_replace('/\ntd class="lft name">\s*Operating margin\s*\ntd class=period>/',"\ntd class=\"lft name\">Operating margin td class=period>",$response);
+    $response = preg_replace('/\ntd class=colHeader>\s*(Q[0-4][^\)]*\))[^\n]*\ntd class=colHeader>\s*(....)/',"\n".'key-periods|${1}|${2}|'."\n",$response);
+    $response = preg_replace('/\ntd class="lft name">\s*Operating margin\s*\ntd class=period>([^\n]*)\ntd class=period>([^\n]*)/',"\n".'td class="lft name">-Operating-margin-|${1}|${2}|'."\n",$response);
     $response = preg_replace('/\ntd class="lft name">\s*Employees\s*\ntd class=period>/',"\ntd class=\"lft name\">Employees td class=period>",$response);
     //$response = preg_replace('/\ntd class="lft name">\s*(Return on average equity|Operating margin|Employees)\s*\ntd class=period>/',"\ntd class=\"lft name\">${1} td class=period>",$response);
     if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
@@ -147,10 +148,29 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $roeval="";
     }
 
-    preg_match("/^.*Operating margin.*=period[^>]*>\s*([^<% ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $om);
+    
+    preg_match("/^.*key-periods\|([^|]*)\|([^|]*)\|/m", $response, $key_periods);
+    if(count($key_periods)>1){
+        $key_period=str_replace('&#39;',"",trim($key_periods[1]));
+        preg_match("/\((...) (..)\)/m", $key_period, $curr_period);
+        $key_period="20".$curr_period[2]."-".strtolower($curr_period[1]);
+        $key_period=str_replace("mar","03-31 ",$key_period);
+        $key_period=str_replace("jun","06-30",$key_period);
+        $key_period=str_replace("sep","09-30",$key_period);
+        $key_period=str_replace("dec","12-31",$key_period);
+        $key_period_prev=trim($key_periods[2])."-12-31a"; 
+        if($debug) echo "key_periods (".$key_period.")(".$key_period_prev.")<br />";
+    }else{
+        echo "ERROR NO PERIODS (ok for indexes)";
+    }
+
+    preg_match("/^.*-Operating-margin-\|\s*([^|]*)\|\s*([^|]*)\|\s*/m", $response, $om);
     if(count($om)>1){
-        $om=trim($om[1]);
-        if($debug) echo "om: (".$om.")<br />";
+        $om_prev=trim(str_replace("%","",$om[2])); // this firs otherwise we overwrite
+        $om=trim(str_replace("%","",$om[1]));
+        if($om=="-" || $om=="") $om=0;
+        if($om_prev=="-" || $om_prev=="") $om_prev=0;
+        if($debug) echo "om: (".$om.")(".$om_prev.")<br />";
     }else{
         $om="";
     }
@@ -192,6 +212,9 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['per']=$perval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['roe']=$roeval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['operating_margin']=$om;
+    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['operating_margin_prev']=$om_prev;
+    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['key_period']=$key_period;
+    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['key_period_prev']=$key_period_prev;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['employees']=$employees;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['range_52week']=$range_52week;
     

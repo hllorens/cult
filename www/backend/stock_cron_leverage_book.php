@@ -66,52 +66,63 @@ $num_stocks_to_curl=min($num_stocks_to_curl,count($the_url_query_arr)); // make 
 for ($i=0;$i<$num_stocks_to_curl;$i++){
     $current_num_to_curl=($stock_last_leverage_book_updated+$i) % count($the_url_query_arr);
     
-    if(substr($the_url_query_arr[$current_num_to_curl],0,5)=="INDEX") continue; // skip indexes
-    
-    $url_and_query=$the_url.get_msn_quote($the_url_query_arr[$current_num_to_curl]); //get_msn_quote($the_url_query_arr[$current_num_to_curl]);
-    echo "stock $url_and_query<br />";
-    $curl = curl_init();
-    curl_setopt( $curl, CURLOPT_URL, $url_and_query );
-    curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
-    $response = curl_exec( $curl ); //utf8_decode( not necessary
-    curl_close( $curl );
-    $response=preg_replace("/(\n|&nbsp;)/", " ", $response);
-    //if($debug) echo "base .<pre>".htmlspecialchars($response)."</pre>";
-    $response=preg_replace("/<title>/", "\ntd <title>", $response);
-    $response=preg_replace("/<\/title>/", "\n", $response);
-    $response=preg_replace("/<td/", "\ntd", $response);
-    //if($debug)  echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
-    $response=preg_replace("/<\/(td|table|ul)>/", "\n", $response);
-    //$response=preg_replace("/^[^t][^d].*$/m", "", $response);
-    $response = preg_replace('/^[ \t]*[\r\n]+/m', '', $response); // remove blank lines
-    $response = preg_replace('/\n(.*=\"val\".*)[\r\n]+/m', '${1}', $response); // remove blank lines
-    $response = preg_replace('/title=\'(Revenue|Price\/Book Value|Leverage Ratio|Price\/Sales)\'[^>]*>\s*/', "\n", $response);
-    if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
-    echo "----------end----------";
-    echo "<br />";
-    $vars2get=['Revenue','Price\/Book Value','Leverage Ratio','Price\/Sales'];
-    $results=array();
-    foreach($vars2get as $var2get){
-        preg_match("/^".$var2get."(.*)$/m", $response, $xxxx);
-        preg_match_all("/title='([^']*)'/", $xxxx[1], $xxxx_arr);
-        $results[$var2get]=str_replace(",","",$xxxx_arr[1]);
+    if(substr($the_url_query_arr[$current_num_to_curl],0,5)=="INDEX"){
+        $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
+        echo "stock ".$the_url_query_arr[$current_num_to_curl].": INDEX set to 0 just for sorting...<br />";
+        $name=$query_arr[1];
+        $market=$query_arr[0];
+        $stocks_formatted_arr[$name.":".$market]['revenue']=0;
+        $stocks_formatted_arr[$name.":".$market]['price_to_book']=0;
+        $stocks_formatted_arr[$name.":".$market]['price_to_sales']=99;
+        $stocks_formatted_arr[$name.":".$market]['leverage']=0; // mrq in this case equivalent to ttm (current moment), in balance sheet
+        $stocks_formatted_arr[$name.":".$market]['leverage_industry']=0;
+        $stocks_formatted_arr[$name.":".$market]['leverage_industry']=0;
+    }else{
+        $url_and_query=$the_url.get_msn_quote($the_url_query_arr[$current_num_to_curl]); //get_msn_quote($the_url_query_arr[$current_num_to_curl]);
+        echo "stock $url_and_query<br />";
+        $curl = curl_init();
+        curl_setopt( $curl, CURLOPT_URL, $url_and_query );
+        curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+        $response = curl_exec( $curl ); //utf8_decode( not necessary
+        curl_close( $curl );
+        $response=preg_replace("/(\n|&nbsp;)/", " ", $response);
+        //if($debug) echo "base .<pre>".htmlspecialchars($response)."</pre>";
+        $response=preg_replace("/<title>/", "\ntd <title>", $response);
+        $response=preg_replace("/<\/title>/", "\n", $response);
+        $response=preg_replace("/<td/", "\ntd", $response);
+        //if($debug)  echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
+        $response=preg_replace("/<\/(td|table|ul)>/", "\n", $response);
+        //$response=preg_replace("/^[^t][^d].*$/m", "", $response);
+        $response = preg_replace('/^[ \t]*[\r\n]+/m', '', $response); // remove blank lines
+        $response = preg_replace('/\n(.*=\"val\".*)[\r\n]+/m', '${1}', $response); // remove blank lines
+        $response = preg_replace('/title=\'(Revenue|Price\/Book Value|Leverage Ratio|Price\/Sales)\'[^>]*>\s*/', "\n", $response);
+        if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
+        echo "----------end----------";
+        echo "<br />";
+        $vars2get=['Revenue','Price\/Book Value','Leverage Ratio','Price\/Sales'];
+        $results=array();
+        foreach($vars2get as $var2get){
+            preg_match("/^".$var2get."(.*)$/m", $response, $xxxx);
+            preg_match_all("/title='([^']*)'/", $xxxx[1], $xxxx_arr);
+            $results[$var2get]=str_replace(",","",$xxxx_arr[1]);
+        }
+        
+        var_dump($results);
+        $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
+        $name=$query_arr[1];
+        $market=$query_arr[0];
+        $stocks_formatted_arr[$name.":".$market]['revenue']=format_billions($results['Revenue'][0]); // current ttm which is equal to mrq in balance sheet
+        $stocks_formatted_arr[$name.":".$market]['price_to_book']=$results['Price\/Book Value'][0];
+        if($results['Price\/Sales'][0]=="-" || $results['Price\/Sales'][0]=="") $results['Price\/Sales'][0]=99;
+        $stocks_formatted_arr[$name.":".$market]['price_to_sales']=$results['Price\/Sales'][0];
+        $stocks_formatted_arr[$name.":".$market]['leverage']=$results['Leverage Ratio'][0];
+        $stocks_formatted_arr[$name.":".$market]['leverage_industry']=0;
+        if(count($results['Leverage Ratio'])>1){
+            $stocks_formatted_arr[$name.":".$market]['leverage_industry']=$results['Leverage Ratio'][1];
+        }
     }
     
-    var_dump($results);
 
-    $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
-    $name=$query_arr[1];
-    $market=$query_arr[0];
-    $stocks_formatted_arr[$name.":".$market]['revenue']=format_billions($results['Revenue'][0]);
-    $stocks_formatted_arr[$name.":".$market]['price_to_book']=$results['Price\/Book Value'][0];
-    $stocks_formatted_arr[$name.":".$market]['price_to_sales']=$results['Price\/Sales'][0];
-    $stocks_formatted_arr[$name.":".$market]['leverage']=$results['Leverage Ratio'][0];
-    $stocks_formatted_arr[$name.":".$market]['leverage_industry']=0;
-    if(count($results['Leverage Ratio'])>1){
-        $stocks_formatted_arr[$name.":".$market]['leverage_industry']=$results['Leverage Ratio'][1];
-    }
-    
-    
     // add hist but do it with a function...
     require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
     hist('revenue',3,$stocks_formatted_arr[$name.":".$market]);

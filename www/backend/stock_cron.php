@@ -119,7 +119,12 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['eps_hist_last_diff']=0;
 
         // ONLY IF IT IS NOT AN INDEX
-        if(substr($the_url_query_arr[$current_num_to_curl],0,5)!="INDEX"){
+        if(substr($the_url_query_arr[$current_num_to_curl],0,5)=="INDEX"){
+            $symbol_object['operating_margin']=0;
+            $symbol_object['operating_margin_prev']=0;
+            $symbol_object['price_to_sales']=99;
+            $symbol_object['leverage']=0;
+        }else{
             $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];
             $symbol_object['dividend']=$stock_details_arr[$item['market'].':'.$item['name']]['dividend'];
             $symbol_object['divs_per_year']="0";
@@ -130,6 +135,9 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['mktcap']=toFixed(floatval($symbol_object['shares'])*floatval($symbol_object['value']));
             $symbol_object['roe']=$stock_details_arr[$item['market'].':'.$item['name']]['roe'];
             $symbol_object['operating_margin']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin'];
+            $symbol_object['operating_margin_prev']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin_prev']; // ttm is not possible... since the avg om might not be equal to the yearly revenue - yearly op expenses...
+            $symbol_object['key_period']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period'];
+            $symbol_object['key_period_prev']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period_prev'];
             $symbol_object['employees']=$stock_details_arr[$item['market'].':'.$item['name']]['employees'];
             if(trim($symbol_object['per'])=='-' || trim($symbol_object['per'])==''){$symbol_object['per']=999;}
             if(trim($symbol_object['yield'])=='-' || trim($symbol_object['yield'])==''){$symbol_object['yield']=0;}
@@ -207,7 +215,7 @@ foreach ($stock_details_arr as $key => $item) {
 
             hist('yield',6,$symbol_object,8,7); // 6=every half year, avgelems=8 (default), max in avg is 7% yield
             hist('per',6,$symbol_object); // 6=every half year
-            hist('operating_margin',6,$symbol_object); // 6=every half year
+            hist('operating_margin',6,$symbol_object); // 3=every quarter, but not useful for ttm calculation since om average might not be equal to anual revenue - operating expenses
             hist('shares',6,$symbol_object); // 6=every half year
             hist('employees',6,$symbol_object); // 6=every half year
             
@@ -221,7 +229,7 @@ foreach ($stock_details_arr as $key => $item) {
             $om_to_ps=0; // if no info, no gain
             if(array_key_exists('operating_margin',$symbol_object) && floatval($symbol_object['operating_margin'])!=0
                && array_key_exists('price_to_sales',$symbol_object) && floatval($symbol_object['price_to_sales'])!=0){
-                $om_to_ps=min(max(floatval($symbol_object['operating_margin'])/9,0.2),6.0)/min(max(floatval($symbol_object['price_to_sales'])*4,6.0),100);
+                $om_to_ps=max(min(floatval($symbol_object['operating_margin']),55)/8,0.2)/min(max(floatval($symbol_object['price_to_sales'])*4,6.0),100);
             }
             $avgyield_per_ratio+=$om_to_ps;
             // TODO: in the future we will also account revenue growth...
@@ -236,15 +244,17 @@ foreach ($stock_details_arr as $key => $item) {
                 if(in_array($symbol_object['name'], ['SAN','BBVA','ING','BKIA','BKT','SAB','CABK'])){
                     $acceptable_leverage=11; // finance industry lives on this so we cannot penalize as much
                 }
-                $avgyield_per_ratio=$avgyield_per_ratio/min(max((floatval($symbol_object['leverage'])/$acceptable_leverage),1.0),2.0);
+                if(array_key_exists('leverage_industry',$symbol_object) && floatval($symbol_object['leverage_industry'])!=0){
+                    $acceptable_leverage=max(floatval($symbol_object['leverage_industry']),2.5);
+                }
+                $avgyield_per_ratio=$avgyield_per_ratio/min(max(floatval($symbol_object['leverage'])/$acceptable_leverage,1.0),2.0);
             }
             // EXTRA BONUS: if we also have the industry leverage average we can 
-            if(array_key_exists('leverage',$symbol_object) && floatval($symbol_object['leverage_industry'])!=0){
-                $avgyield_per_ratio=$avgyield_per_ratio/min(max((floatval($symbol_object['leverage'])/floatval($symbol_object['leverage_industry'])),1.0),2.0);
-                if(floatval($symbol_object['leverage'])>(floatval($symbol_object['leverage_industry'])*1.5)){
+            if(array_key_exists('leverage_industry',$symbol_object) && floatval($symbol_object['leverage_industry'])!=0){
+                // only punish for now if(floatval($symbol_object['leverage'])<(floatval($symbol_object['leverage_industry']-1))){$avgyield_per_ratio+=0.1;}
+                if(floatval($symbol_object['leverage'])>(floatval($symbol_object['leverage_industry'])*1.8)){
                     $avgyield_per_ratio-=0.1;
                 }
-                // only punish for now if(floatval($symbol_object['leverage'])<(floatval($symbol_object['leverage_industry']-1))){$avgyield_per_ratio+=0.1;}
             }
             // we could consider the history (direction of the leverage) but that is not always a good indicator and it is already accounted in the above division (e.g., if it is growing the ypr will be lower)
             // TODO: next year we could consider revenue diff trying to get the sum of the last 4 Q (or price to sales... see if this is updated in some site to crawl)
