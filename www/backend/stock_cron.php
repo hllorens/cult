@@ -122,8 +122,9 @@ foreach ($stock_details_arr as $key => $item) {
         if(substr($the_url_query_arr[$current_num_to_curl],0,5)=="INDEX"){
             $symbol_object['operating_margin']=0;
             $symbol_object['operating_margin_prev']=0;
+            $symbol_object['operating_margin_avg']=0;
             $symbol_object['price_to_sales']=99;
-            $symbol_object['leverage']=0;
+            $symbol_object['leverage']=99;
         }else{
             $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];
             $symbol_object['dividend']=$stock_details_arr[$item['market'].':'.$item['name']]['dividend'];
@@ -136,6 +137,7 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['roe']=$stock_details_arr[$item['market'].':'.$item['name']]['roe'];
             $symbol_object['operating_margin']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin'];
             $symbol_object['operating_margin_prev']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin_prev']; // ttm is not possible... since the avg om might not be equal to the yearly revenue - yearly op expenses...
+            $symbol_object['operating_margin_avg']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin_avg'];
             $symbol_object['key_period']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period'];
             $symbol_object['key_period_prev']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period_prev'];
             $symbol_object['employees']=$stock_details_arr[$item['market'].':'.$item['name']]['employees'];
@@ -215,13 +217,14 @@ foreach ($stock_details_arr as $key => $item) {
 
             hist('yield',6,$symbol_object,8,7); // 6=every half year, avgelems=8 (default), max in avg is 7% yield
             hist('per',6,$symbol_object); // 6=every half year
-            hist('operating_margin',6,$symbol_object); // 3=every quarter, but not useful for ttm calculation since om average might not be equal to anual revenue - operating expenses
+            hist('operating_margin',3,$symbol_object); // 3=every quarter, but not useful for ttm calculation since om average might not be equal to anual revenue - operating expenses
+            hist('operating_margin_prev',12,$symbol_object); // yearly
             hist('shares',6,$symbol_object); // 6=every half year
             hist('employees',6,$symbol_object); // 6=every half year
             
             // in addition to avg yield with max 6% elements (and min 0.25%), per min is also 6 to avoid odd low pers when stock is plunging (so we use max)
             // we use max PER of 100 to avoid using 999 on losses and penalize too much even if other measures in the improved measure are strong
-            $avgyield_per_ratio=max(floatval($symbol_object['avgyield']),0.75)/min(max(floatval($symbol_object['per']),6.0),100);
+            $avgyield_per_ratio=max(floatval($symbol_object['avgyield']),1.5)/min(max(floatval($symbol_object['per']),6.0),100);
             // store original and still provide that sort to see the difference
             $symbol_object['avgyield_per_ratio_original']="".toFixed($avgyield_per_ratio);
             
@@ -230,13 +233,24 @@ foreach ($stock_details_arr as $key => $item) {
             if(array_key_exists('operating_margin',$symbol_object) && floatval($symbol_object['operating_margin'])!=0
                && array_key_exists('price_to_sales',$symbol_object) && floatval($symbol_object['price_to_sales'])!=0){
                 $om_to_ps=max(min(floatval($symbol_object['operating_margin']),55)/8,0.2)/min(max(floatval($symbol_object['price_to_sales'])*4,6.0),100);
+                // if exists use the avg for the calculation
+                if(array_key_exists('operating_margin_avg',$symbol_object) && floatval($symbol_object['operating_margin_avg'])!=0){
+                    $om_to_ps=max(min(floatval($symbol_object['operating_margin_avg']),55)/8,0.2)/min(max(floatval($symbol_object['price_to_sales'])*4,6.0),100);
+                }
             }
             $avgyield_per_ratio+=$om_to_ps;
-            // TODO: in the future we will also account revenue growth...
-            // can be positive or negative
             
+            // revenue growth (max 25% which is higher than google and apple recently that are about 15%-20%)
+            if(array_key_exists('avg_revenue_growth_5y',$symbol_object) && floatval($symbol_object['avg_revenue_growth_5y'])!=0){
+                            $avgyield_per_ratio+=max(min(floatval($symbol_object['avg_revenue_growth_5y']),25),-25)/100;
+            }
+            if(array_key_exists('revenue_growth_qq_last_year',$symbol_object) && floatval($symbol_object['revenue_growth_qq_last_year'])!=0){
+                            $avgyield_per_ratio+=max(min(floatval($symbol_object['revenue_growth_qq_last_year']),25),-25)/100;
+            }
+
             // improved ypr with leverage (if lower or equal to 2.5 it makes no difference)
             $acceptable_leverage=2.5; // 2 would be liabilities==equity i.e., liabilities/assets=0.5 perfect balance
+            $leverage_industry_ratio=99;
             if(array_key_exists('leverage',$symbol_object) && floatval($symbol_object['leverage'])!=0){
                 // Most industries have 3 auto, teleco, energy
                 // tech has 2
@@ -247,15 +261,17 @@ foreach ($stock_details_arr as $key => $item) {
                 if(array_key_exists('leverage_industry',$symbol_object) && floatval($symbol_object['leverage_industry'])!=0){
                     $acceptable_leverage=max(floatval($symbol_object['leverage_industry']),2.5);
                 }
-                $avgyield_per_ratio=$avgyield_per_ratio/min(max(floatval($symbol_object['leverage'])/$acceptable_leverage,1.0),2.0);
+                $leverage_industry_ratio=floatval($symbol_object['leverage'])/$acceptable_leverage;
+                $avgyield_per_ratio=$avgyield_per_ratio/min(max($leverage_industry_ratio,1.0),2.0);
             }
+            $symbol_object['leverage_industry_ratio']="".toFixed($leverage_industry_ratio);
             // EXTRA BONUS: if we also have the industry leverage average we can 
-            if(array_key_exists('leverage_industry',$symbol_object) && floatval($symbol_object['leverage_industry'])!=0){
+            /*if(array_key_exists('leverage_industry',$symbol_object) && floatval($symbol_object['leverage_industry'])!=0){
                 // only punish for now if(floatval($symbol_object['leverage'])<(floatval($symbol_object['leverage_industry']-1))){$avgyield_per_ratio+=0.1;}
                 if(floatval($symbol_object['leverage'])>(floatval($symbol_object['leverage_industry'])*1.8)){
                     $avgyield_per_ratio-=0.1;
                 }
-            }
+            }*/
             // we could consider the history (direction of the leverage) but that is not always a good indicator and it is already accounted in the above division (e.g., if it is growing the ypr will be lower)
             // TODO: next year we could consider revenue diff trying to get the sum of the last 4 Q (or price to sales... see if this is updated in some site to crawl)
             // TODO: Take into account manual analysis as well..., suscribe to news, show manual estimates maybe alert on them if they are lower...

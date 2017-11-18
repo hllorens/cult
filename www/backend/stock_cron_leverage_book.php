@@ -68,18 +68,19 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     
     if(substr($the_url_query_arr[$current_num_to_curl],0,5)=="INDEX"){
         $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
-        echo "stock ".$the_url_query_arr[$current_num_to_curl].": INDEX set to 0 just for sorting...<br />";
+        echo "<br />stock ".$the_url_query_arr[$current_num_to_curl].": INDEX set to 0 just for sorting...<br />";
         $name=$query_arr[1];
         $market=$query_arr[0];
         $stocks_formatted_arr[$name.":".$market]['revenue']=0;
         $stocks_formatted_arr[$name.":".$market]['price_to_book']=0;
         $stocks_formatted_arr[$name.":".$market]['price_to_sales']=99;
-        $stocks_formatted_arr[$name.":".$market]['leverage']=0; // mrq in this case equivalent to ttm (current moment), in balance sheet
-        $stocks_formatted_arr[$name.":".$market]['leverage_industry']=0;
-        $stocks_formatted_arr[$name.":".$market]['leverage_industry']=0;
+        $stocks_formatted_arr[$name.":".$market]['leverage']=99; // mrq in this case equivalent to ttm (current moment), in balance sheet
+        $stocks_formatted_arr[$name.":".$market]['leverage_industry']=2.5;
+        $stocks_formatted_arr[$name.":".$market]['avg_revenue_growth_5y']=0;
+        $stocks_formatted_arr[$name.":".$market]['revenue_growth_qq_last_year']=0;
     }else{
         $url_and_query=$the_url.get_msn_quote($the_url_query_arr[$current_num_to_curl]); //get_msn_quote($the_url_query_arr[$current_num_to_curl]);
-        echo "stock $url_and_query<br />";
+        echo "<br />stock $url_and_query<br />";
         $curl = curl_init();
         curl_setopt( $curl, CURLOPT_URL, $url_and_query );
         curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
@@ -96,10 +97,12 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $response = preg_replace('/^[ \t]*[\r\n]+/m', '', $response); // remove blank lines
         $response = preg_replace('/\n(.*=\"val\".*)[\r\n]+/m', '${1}', $response); // remove blank lines
         $response = preg_replace('/title=\'(Revenue|Price\/Book Value|Leverage Ratio|Price\/Sales)\'[^>]*>\s*/', "\n", $response);
+        $response = preg_replace('/title=\'Sales \(Revenue\)\'[^5]*5-Year Annual Average[^>]*>\s*/', "\navg_revenue_growth_5y", $response);
+        $response = preg_replace('/title=\'Sales \(Revenue\)\'[^Q]*Q\/Q \(Last Year\)[^>]*>\s*/', "\nrevenue_growth_qq_last_year", $response);
         if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
         echo "----------end----------";
         echo "<br />";
-        $vars2get=['Revenue','Price\/Book Value','Leverage Ratio','Price\/Sales'];
+        $vars2get=['Revenue','Price\/Book Value','Leverage Ratio','Price\/Sales','avg_revenue_growth_5y','revenue_growth_qq_last_year'];
         $results=array();
         foreach($vars2get as $var2get){
             preg_match("/^".$var2get."(.*)$/m", $response, $xxxx);
@@ -107,7 +110,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
             $results[$var2get]=str_replace(",","",$xxxx_arr[1]);
         }
         
-        var_dump($results);
+        if($debug)  var_dump($results);
         $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
         $name=$query_arr[1];
         $market=$query_arr[0];
@@ -115,6 +118,11 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $stocks_formatted_arr[$name.":".$market]['price_to_book']=$results['Price\/Book Value'][0];
         if($results['Price\/Sales'][0]=="-" || $results['Price\/Sales'][0]=="") $results['Price\/Sales'][0]=99;
         $stocks_formatted_arr[$name.":".$market]['price_to_sales']=$results['Price\/Sales'][0];
+        if($results['avg_revenue_growth_5y'][0]=="-" || $results['avg_revenue_growth_5y'][0]=="") $results['avg_revenue_growth_5y'][0]=0;
+        $stocks_formatted_arr[$name.":".$market]['avg_revenue_growth_5y']=$results['avg_revenue_growth_5y'][0];
+        if($results['revenue_growth_qq_last_year'][0]=="-" || $results['revenue_growth_qq_last_year'][0]=="") $results['revenue_growth_qq_last_year'][0]=0;
+        $stocks_formatted_arr[$name.":".$market]['revenue_growth_qq_last_year']=$results['revenue_growth_qq_last_year'][0];
+        if($results['Leverage Ratio'][0]=="-" || $results['Leverage Ratio'][0]=="") $results['Leverage Ratio'][0]=99;
         $stocks_formatted_arr[$name.":".$market]['leverage']=$results['Leverage Ratio'][0];
         $stocks_formatted_arr[$name.":".$market]['leverage_industry']=0;
         if(count($results['Leverage Ratio'])>1){
@@ -125,9 +133,10 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
 
     // add hist but do it with a function...
     require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
-    hist('revenue',3,$stocks_formatted_arr[$name.":".$market]);
+    hist('revenue',6,$stocks_formatted_arr[$name.":".$market]); // in msn this is last year, the ttm maybe use yahoo or do it manually for companies you care about
     hist('leverage',3,$stocks_formatted_arr[$name.":".$market]);
     hist('price_to_sales',3,$stocks_formatted_arr[$name.":".$market]);
+    hist('avg_revenue_growth_5y',12,$stocks_formatted_arr[$name.":".$market]);
 }
 // -----------update stocks formatted ----------------------------------
 
