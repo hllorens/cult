@@ -125,6 +125,7 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['operating_margin_avg']=0;
             $symbol_object['price_to_sales']=99;
             $symbol_object['leverage']=99;
+            $symbol_object['inst_own']=0;
         }else{
             $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];
             $symbol_object['dividend']=$stock_details_arr[$item['market'].':'.$item['name']]['dividend'];
@@ -141,6 +142,7 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['key_period']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period'];
             $symbol_object['key_period_prev']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period_prev'];
             $symbol_object['employees']=$stock_details_arr[$item['market'].':'.$item['name']]['employees'];
+            $symbol_object['inst_own']=$stock_details_arr[$item['market'].':'.$item['name']]['inst_own'];
             if(trim($symbol_object['per'])=='-' || trim($symbol_object['per'])==''){$symbol_object['per']=999;}
             if(trim($symbol_object['yield'])=='-' || trim($symbol_object['yield'])==''){$symbol_object['yield']=0;}
             $symbol_object['avgyield']=$symbol_object['yield'];

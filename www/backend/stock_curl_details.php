@@ -149,10 +149,10 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         }
         preg_match("/^.*\"inst_own\".*=\"val\"[^>]*>([^<]+)(\s*<[\/]?[^>]*>)*\s*/m", $response, $instowned);
         if(count($instowned)>1){
-            $instowned=trim($instowned[1]);
+            $instowned=floatval(str_replace("%","",trim($instowned[1])));
             if($debug) echo "inst_own: (".$instowned.")<br />";
         }else{
-            $instowned="";
+            $instowned=0;
         }
 
         
