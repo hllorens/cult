@@ -12,8 +12,9 @@ $stock_list="$stock_list,BME:ELE,BME:ENG,BME:FCC,BME:FER,BME:SGRE,BME:GAS,BME:GR
 $stock_list="$stock_list,BME:ITX,BME:MAP,BME:MEL,BME:MTS,BME:OHL,BME:REE,BME:REP,BME:SAB,BME:SAN,BME:SCYR";
 $stock_list="$stock_list,BME:TEF,BME:TL5,BME:TRE";
 // IBEX quebrados o quitados: ,BME:POP
-// otras interesantes españa
-$stock_list="$stock_list,BME:FAE";
+// otras interesantes españa o farmaceuticas (society is aging... pharmacy will play a role)
+// solar power and machines -- semiconductor producers (review)
+$stock_list="$stock_list,BME:FAE,OTCMKTS:RHHBY";
 
 $stock_list="$stock_list,INDEXSTOXX:SX5E";
 $stock_list="$stock_list,INDEXNASDAQ:NDX";

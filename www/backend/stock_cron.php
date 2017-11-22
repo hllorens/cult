@@ -223,6 +223,7 @@ foreach ($stock_details_arr as $key => $item) {
             hist('operating_margin_prev',12,$symbol_object); // yearly
             hist('shares',6,$symbol_object); // 6=every half year
             hist('employees',6,$symbol_object); // 6=every half year
+            hist('inst_own',3,$symbol_object); // 
             
             // in addition to avg yield with max 6% elements (and min 0.25%), per min is also 6 to avoid odd low pers when stock is plunging (so we use max)
             // we use max PER of 100 to avoid using 999 on losses and penalize too much even if other measures in the improved measure are strong
@@ -257,8 +258,8 @@ foreach ($stock_details_arr as $key => $item) {
                 // Most industries have 3 auto, teleco, energy
                 // tech has 2
                 // 2.5 is a good compromise
-                if(in_array($symbol_object['name'], ['SAN','BBVA','ING','BKIA','BKT','SAB','CABK'])){
-                    $acceptable_leverage=11; // finance industry lives on this so we cannot penalize as much
+                if(in_array($symbol_object['name'], ['SAN','BBVA','ING','BKIA','BKT','SAB','CABK','MAP','ZURVY'])){
+                    $acceptable_leverage=11; // finance/insurance industry lives on this so we cannot penalize as much
                 }
                 if(array_key_exists('leverage_industry',$symbol_object) && floatval($symbol_object['leverage_industry'])!=0){
                     $acceptable_leverage=max(floatval($symbol_object['leverage_industry']),2.5);
