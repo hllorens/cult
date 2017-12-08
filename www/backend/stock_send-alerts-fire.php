@@ -189,7 +189,7 @@ foreach ($alerts as $usr => $ualerts) {
             $body.=" <br /><b>".$alert['symbol']." (".$stocks[$alert['symbol']]['title'].") ".$fact."</b><br />
                   Value:&nbsp; ".$stocks[$alert['symbol']]['value']." [".$alert['low']." -to- ".$alert['high']."],".$usdeurvaluetext."<br/>
                   Change: ".$stocks[$alert['symbol']]['session_change_percentage']."% [".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
-                  &nbps;&nbsp; ".$portftext."
+                  &nbsp;&nbsp; ".$portftext."
                   Range52w:  ".$stocks[$alert['symbol']]['range_52week_low']." -- ".$stocks[$alert['symbol']]['range_52week_high']." current %: ".$stocks[$alert['symbol']]['range_52week_heat']." volat: ".$stocks[$alert['symbol']]['range_52week_volatility']."<br />
                   Yield: ".$stocks[$alert['symbol']]['yield']."% [".$alert['low_yield']." -to- ".$alert['high_yield']."]<br />
                   RevenueQQdiff: ".$stocks[$alert['symbol']]['revenue_growth_qq_last_year']."%<br />
@@ -198,7 +198,6 @@ foreach ($alerts as $usr => $ualerts) {
                   Per:    ".$stocks[$alert['symbol']]['per']." [".$alert['low_per']." -to- ".$alert['high_per']."]<br />
                   Last updated: ".$stocks[$alert['symbol']]['date']."<br />
                   <br /><br />
-                  Go to <a href=\"http://www.cognitionis.com/stockionic/\">stockionic</a> to change it.<br /><br />
                   ";
             //if($usr_decoded=="hectorlm1983@gmail.com"){
             //    $body.="                  ----<br />Json string debug:<br />turned off for now...."; //.$string;
@@ -209,7 +208,7 @@ foreach ($alerts as $usr => $ualerts) {
     }
     if($facts!=""){
         if($debug) echo '  '.$body.'<br />';
-        send_alert($facts,$body,$usr_decoded, $mail);
+        send_alert($facts,'date:'.$timestamp.'<br />'.$body,$usr_decoded, $mail);
     }
 }
 
@@ -217,7 +216,7 @@ foreach ($alerts as $usr => $ualerts) {
 function send_alert($subject, $body, $user, $mail){
 	$subject="cult: ".$subject;
 	$mail->Subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
-	$mail->Body = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"></head><body><br />'.$timestamp.'<br />'.$body.'<br /><br /></body></html>';
+	$mail->Body = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"></head><body><br />'.$body.'<br /><br />Go to <a href=\"http://www.cognitionis.com/stockionic/\">stockionic</a> to change it.<br /><br /></body></html>';
 	$mail->AddAddress($user);
 	$mail->AddBCC("info@cognitionis.com");
 	if(!$mail->Send()){   
