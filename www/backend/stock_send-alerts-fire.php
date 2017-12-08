@@ -47,7 +47,10 @@ $updates="empty";
 
 $timestamp_date=date("Y-m-d");
 $timestamp=date("Y-m-d H:i");
+$timestampH=date("H");
 
+if($timestampH>17) $timestamp_date.="pm";
+else $timestamp_date.="am";
 
 
 //access like http://www.cognitionis.com/cult/www/backend/send-stock-alerts-fire.php?autosecret=1secret
@@ -167,7 +170,7 @@ foreach ($alerts as $usr => $ualerts) {
             //if(!$rResult2){ echo mysqli_error( $db_connection )." -- ".$sQuery2; }
             
             // fill empty values with empty string
-            $alert_keys=['low','high','lowe','highe','portf','low_change_percentage','high_change_percentage','low_eps','high_eps','low_per','high_per','low_yield','high_yield'];
+            $alert_keys=['low','high','lowe','highe','portf','low_change_percentage','high_change_percentage','revenue_growth_qq_last_year','low_eps','high_eps','low_per','high_per','low_yield','high_yield'];
             foreach ($alert_keys as $value){
                 if(!array_key_exists($value,$alert)){
                     $alert[$value]='';
@@ -176,17 +179,23 @@ foreach ($alerts as $usr => $ualerts) {
             // calculate usdeurvaluetext if nyse or nasdaq
             $usdeurvaluetext="";
             if($eurval>0.0){
-                $usdeurvaluetext="<b>Euros: ".number_format($eurval, 2, ".", "")."</b>(".$usdeur.") [".$alert['lowe']." -to- ".$alert['highe']."] <br />";
+                $usdeurvaluetext="eur: ".number_format($eurval, 2, ".", "")."(".$usdeur.") [".$alert['lowe']." -to- ".$alert['highe']."]";
             }
-            $body.=" <br /><b>".$alert['symbol']." (".$stocks[$alert['symbol']]['title'].") ".$fact."</b><br />usr: ".$usr_decoded." ranges:<br />
-                  Value:  <b>".$stocks[$alert['symbol']]['value']."</b> [".$alert['low']." -to- ".$alert['high']."],<br/>
-                  ".$usdeurvaluetext."&nbsp;&nbsp; portf (eurval): ".$alert['portf']." (-20% stoploss: ".number_format($stoploss, 2, ".", "").")<br />
+            $portftext="";
+            if($alert['portf']!=''){
+                $portftext="portf (eurval): ".$alert['portf']." (-20% stoploss: ".number_format($stoploss, 2, ".", "").")<br />";
+            }
+            //usr: ".$usr_decoded." 
+            $body.=" <br /><b>".$alert['symbol']." (".$stocks[$alert['symbol']]['title'].") ".$fact."</b><br />
+                  Value:&nbsp; ".$stocks[$alert['symbol']]['value']." [".$alert['low']." -to- ".$alert['high']."],".$usdeurvaluetext."<br/>
+                  Change: ".$stocks[$alert['symbol']]['session_change_percentage']."% [".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
+                  &nbps;&nbsp; ".$portftext."
                   Range52w:  ".$stocks[$alert['symbol']]['range_52week_low']." -- ".$stocks[$alert['symbol']]['range_52week_high']." current %: ".$stocks[$alert['symbol']]['range_52week_heat']." volat: ".$stocks[$alert['symbol']]['range_52week_volatility']."<br />
-                  Change(%):  ".$stocks[$alert['symbol']]['session_change_percentage']." [".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
+                  Yield: ".$stocks[$alert['symbol']]['yield']."% [".$alert['low_yield']." -to- ".$alert['high_yield']."]<br />
+                  RevenueQQdiff: ".$stocks[$alert['symbol']]['revenue_growth_qq_last_year']."%<br />
                   EPS:    ".$stocks[$alert['symbol']]['eps']." [".$alert['low_eps']." -to- ".$alert['high_eps']."]<br />
-                  Per:    ".$stocks[$alert['symbol']]['per']." [".$alert['low_per']." -to- ".$alert['high_per']."]<br />
-                  Yield   ".$stocks[$alert['symbol']]['yield']." [".$alert['low_yield']." -to- ".$alert['high_yield']."]<br />
                   ".$extra."
+                  Per:    ".$stocks[$alert['symbol']]['per']." [".$alert['low_per']." -to- ".$alert['high_per']."]<br />
                   Last updated: ".$stocks[$alert['symbol']]['date']."<br />
                   <br /><br />
                   Go to <a href=\"http://www.cognitionis.com/stockionic/\">stockionic</a> to change it.<br /><br />
@@ -208,7 +217,7 @@ foreach ($alerts as $usr => $ualerts) {
 function send_alert($subject, $body, $user, $mail){
 	$subject="cult: ".$subject;
 	$mail->Subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
-	$mail->Body = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"></head><body><br />'.$body.'<br /><br /></body></html>';
+	$mail->Body = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"></head><body><br />'.$timestamp.'<br />'.$body.'<br /><br /></body></html>';
 	$mail->AddAddress($user);
 	$mail->AddBCC("info@cognitionis.com");
 	if(!$mail->Send()){   

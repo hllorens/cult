@@ -259,7 +259,7 @@ foreach ($stock_details_arr as $key => $item) {
                 // tech has 2
                 // 2.5 is a good compromise
                 if(in_array($symbol_object['name'], ['SAN','BBVA','ING','BKIA','BKT','SAB','CABK','MAP','ZURVY'])){
-                    $acceptable_leverage=11; // finance/insurance industry lives on this so we cannot penalize as much
+                    $acceptable_leverage=10; // finance/insurance industry lives on this so we cannot penalize as much
                 }
                 if(array_key_exists('leverage_industry',$symbol_object) && floatval($symbol_object['leverage_industry'])!=0){
                     $acceptable_leverage=max(floatval($symbol_object['leverage_industry']),2.5);
