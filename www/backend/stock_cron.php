@@ -285,20 +285,22 @@ foreach ($stock_details_arr as $key => $item) {
             
             // heat divided by 5 so max is +0.20 times the volatility (instead of adding 1 we add 0.8 since the min volatility is around 0.2 so that the min is 1)
             $heat_opportunity=((1-floatval($symbol_object['range_52week_heat']))/5)*(floatval($symbol_object['range_52week_volatility'])+0.8);
-            $eps_opportunity=min(0.8,floatval($symbol_object['eps_hist_last_diff'])/100); // max 0.8 so uppwards it can only add 0.8 (eps almost doubled)
+            $eps_opportunity=min(0.3,floatval($symbol_object['eps_hist_last_diff'])/100); // max 0.3 so uppwards it can only add 0.3 (0.8 eps almost doubled)
             $eps_trend=0.0;
             if(array_key_exists('eps_hist_trend',$symbol_object) && floatval($symbol_object['eps_hist_last_diff'])!=0){
                 if($symbol_object['eps_hist_trend']=='v') $eps_trend=0.1;
                 if($symbol_object['eps_hist_trend']=='/') $eps_trend=0.05;
                 if($symbol_object['eps_hist_trend']=='^') $eps_trend=-0.1;
                 if($symbol_object['eps_hist_trend']=='\\') $eps_trend=-0.2;
-                $eps_opportunity=min(0.8,(floatval($symbol_object['eps_hist_last_diff'])/100)+($eps_hist_penultimate_diff/2)); // max 0.8 so uppwards it can only add 0.8 (eps almost doubled)
+                $eps_opportunity=min(0.3,(floatval($symbol_object['eps_hist_last_diff'])/100)+($eps_hist_penultimate_diff/2)); // max 0.3 so uppwards it can only add 0.3 (0.8 eps almost doubled)
             }
             $high_yld_low_volatility_bonus=0.0;
             if(floatval($symbol_object['avgyield'])>3 && floatval($symbol_object['range_52week_volatility'])<0.4){
                 $high_yld_low_volatility_bonus=0.1;
             }
-            $symbol_object['h_souce']="".toFixed($avgyield_per_ratio+$heat_opportunity+$eps_opportunity+$eps_trend+$high_yld_low_volatility_bonus);
+            $revenue_growth_bonus=0.0;
+            if(floatval($symbol_object['revenue_growth_qq_last_year']) > floatval($symbol_object['avg_revenue_growth_5y'])) $revenue_growth_bonus=max(0,min(0.2,floatval($symbol_object['revenue_growth_qq_last_year'])));
+            $symbol_object['h_souce']="".toFixed($avgyield_per_ratio+$heat_opportunity+$eps_opportunity+$eps_trend+$high_yld_low_volatility_bonus+$revenue_growth_bonus);
             //echo "ypr=$avgyield_per_ratio heat=".$symbol_object['range_52week_heat']." eps_hist_last_diff=".$symbol_object['eps_hist_last_diff']." -> $heat_opportunity $eps_opportunity $eps_trend ".$symbol_object['h_souce'];
         }
     }
