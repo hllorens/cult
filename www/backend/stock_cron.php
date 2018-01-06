@@ -85,7 +85,7 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['market']=$item['market'];
         $symbol_object['date']=$timestamp_simplif;
         $symbol_object['value']=str_replace(",","",$item['value']);                      //$item['l']);
-        hist('value',6,$symbol_object); // 6=every half year
+        hist('value',12,$symbol_object); // 6=every year
         $symbol_object['session_change']=$item['session_change'];                        //$item['c'];
         $symbol_object['session_change_percentage']=$item['session_change_percentage'];  //$item['cp'];
 

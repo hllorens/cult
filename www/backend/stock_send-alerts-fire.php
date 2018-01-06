@@ -183,7 +183,9 @@ foreach ($alerts as $usr => $ualerts) {
             }
             $portftext="";
             if($alert['portf']!=''){
-                $portftext="portf (eurval): ".$alert['portf']." (-20% stoploss: ".number_format($stoploss, 2, ".", "").")<br />";
+                $dollar="";
+                if($eurval!=0.0){$dollar="$";}
+                $portftext="portf (eur): ".$alert['portf']." (-20% stop: ".$dollar.number_format($stoploss, 1, ".", "").")<br />";
             }
             //usr: ".$usr_decoded." 
             $body.=" <br /><b>".$alert['symbol']." (".$stocks[$alert['symbol']]['title'].") ".$fact."</b><br />

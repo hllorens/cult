@@ -22,7 +22,7 @@ function hist($param_id,$freq, &$symbol_object, $max_elems_to_avg=8, $max_avg="n
         }
     }
     if(count($symbol_object[$param_id.'_hist'])>1){
-        $value_hist_last_diff=((floatval(end($symbol_object[$param_id.'_hist'])[1])-floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-2][1]))/abs(floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-2][1])));
+        $value_hist_last_diff=((floatval(end($symbol_object[$param_id.'_hist'])[1])-floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-2][1]))/max(0.01,abs(floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-2][1]))));
         $symbol_object[$param_id.'_hist_last_diff']=toFixed($value_hist_last_diff*100,0);
         // avgelems is an average of max $max_elems_to_avg last values, with max value of 6% using min (so odd macro dividends do not trick the avg so much)
         $num_hist_values=count($symbol_object[$param_id.'_hist']);
@@ -38,7 +38,7 @@ function hist($param_id,$freq, &$symbol_object, $max_elems_to_avg=8, $max_avg="n
         $symbol_object['avg'.$param_id]="".toFixed($avgelems);
         if($num_hist_values>2){
             // 5 possibilities no-strong-trend down-down down-up up-down up-up
-            $value_hist_penultimate_diff=((floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-2][1])-floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-3][1]))/abs(floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-3][1])));
+            $value_hist_penultimate_diff=((floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-2][1])-floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-3][1]))/max(0.01,abs(floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-3][1]))));
             $symbol_object[$param_id.'_hist_trend']="-";
             if      ($value_hist_penultimate_diff>0 && $value_hist_last_diff >0){
                 $symbol_object[$param_id.'_hist_trend']="/";
