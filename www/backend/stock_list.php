@@ -23,7 +23,8 @@ $stock_list="$stock_list,INDEXSP:.INX";
 $stock_list="$stock_list,NASDAQ:GOOG,NASDAQ:MSFT,NASDAQ:EBAY,NASDAQ:AMZN,NASDAQ:NVDA"; // ,NASDAQ:YHOO no longer a company but a fund (AABA), ,NASDAQ:GOOGL same as goog no need to have 2
 $stock_list="$stock_list,NASDAQ:FB,NYSE:TWTR,NYSE:SNAP";
 $stock_list="$stock_list,NYSE:YRD,NYSE:FIT,NYSE:BABA,NYSE:BLK,NYSE:EL"; //new
-$stock_list="$stock_list,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:AMD,NASDAQ:TEAM,NASDAQ:BKCC,NASDAQ:IRBT,NASDAQ:NTES,NYSE:ICE,NASDAQ:CME,NASDAQ:MCHP,NASDAQ:MU,NYSE:TSM,NASDAQ:AVGO,NASDAQ:BIDU";
+$stock_list="$stock_list,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:AMD,NASDAQ:TEAM,NASDAQ:BKCC,NASDAQ:IRBT";
+$stock_list="$stock_list,NASDAQ:NTES,NYSE:ICE,NASDAQ:CME,NASDAQ:MCHP,NASDAQ:MU,NYSE:TSM,NASDAQ:AVGO,NASDAQ:BIDU,NASDAQ:WDC";
 $stock_list="$stock_list,NASDAQ:PCLN,NASDAQ:TRIP,NASDAQ:EXPE";
 $stock_list="$stock_list,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:SSI,NYSE:O";
 $stock_list="$stock_list,NYSE:KO,NYSE:DPS,VTX:NESN,NYSE:PEP,EPA:BN";
@@ -43,6 +44,7 @@ $stock_list="$stock_list,NYSE:ED,NASDAQ:SPWR,NASDAQ:TSLA";  // ,NASDAQ:SCTY acqu
 // Nokia -20% Ericsson -5% in Oct-2017 because ISPs still don't want 5G
 // Nokia sold mobile biz to Microsoft and Here data to Mercedes, BMW, Audi
 // Nokia is in trouble now, only focusing on new network techs
+
 
 // Indexes
 $market_currencies['INDEXBME']="EUR";
