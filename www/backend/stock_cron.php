@@ -288,9 +288,9 @@ foreach ($stock_details_arr as $key => $item) {
             
             $symbol_object['avgyield_per_ratio']="".toFixed($avgyield_per_ratio);
             
-            // heat divided by 20 times volatility so max is around 0.1 (+0.05 times the volatility [among 0.8-3] (instead of adding 1 we add 0.8 since the min volatility is around 0.2 so that the min is 1)
-            $heat_opportunity=((1-floatval($symbol_object['range_52week_heat']))/20)*(floatval($symbol_object['range_52week_volatility'])+0.8);
-            $eps_opportunity=max(-0.05,min(0.05,floatval($symbol_object['eps_hist_last_diff'])/100)); // max 0.05 so upwards it can only add 0.1, downwards only -0.1
+            // heat divided by 15 times volatility so max is around 0.1 (+0.06 times the volatility [among 0.8-3] (instead of adding 1 we add 0.8 since the min volatility is around 0.2 so that the min is 1)
+            $heat_opportunity=((1-floatval($symbol_object['range_52week_heat']))/15)*(floatval($symbol_object['range_52week_volatility'])+0.8);
+            $eps_opportunity=max(-0.025,min(0.025,floatval($symbol_object['eps_hist_last_diff'])/100)); // max 0.05 so upwards it can only add 0.1, downwards only -0.1
             $eps_trend=0.0;
             if(array_key_exists('eps_hist_trend',$symbol_object) && floatval($symbol_object['eps_hist_last_diff'])!=0){
                 if($symbol_object['eps_hist_trend']=='v') $eps_trend=0.05;
