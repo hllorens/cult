@@ -28,14 +28,14 @@ $stock_list="$stock_list,NASDAQ:NTES,NYSE:ICE,NASDAQ:CME,NASDAQ:MCHP,NASDAQ:MU,N
 $stock_list="$stock_list,NASDAQ:PCLN,NASDAQ:TRIP,NASDAQ:EXPE";
 $stock_list="$stock_list,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:SSI,NYSE:O";
 $stock_list="$stock_list,NYSE:KO,NYSE:DPS,VTX:NESN,NYSE:PEP,EPA:BN";
-$stock_list="$stock_list,NYSE:VZ,NYSE:T,NASDAQ:VOD";
+$stock_list="$stock_list,NYSE:VZ,NYSE:T,NASDAQ:VOD,NASDAQ:QCOM";
 $stock_list="$stock_list,NYSE:XOM,NYSE:DIS";
 $stock_list="$stock_list,NYSE:BP,NYSE:HSBC,OTCMKTS:ZURVY";
 $stock_list="$stock_list,NYSE:SNE,OTCMKTS:NTDOY";
 $stock_list="$stock_list,NASDAQ:NFLX,NYSE:TWX,NASDAQ:CMCSA,NASDAQ:FOXA"; // HBO is part of time Warner
 $stock_list="$stock_list,NYSE:TM,ETR:VOW,NYSE:GM,EPA:UG,NYSE:F";
 // solar power and machines -- semiconductor producers (review)
-$stock_list="$stock_list,NYSE:ED,NASDAQ:SPWR,NASDAQ:TSLA";  // ,NASDAQ:SCTY acquired by TESLA 2016/2017?
+$stock_list="$stock_list,NYSE:ED,NYSE:EIX,NASDAQ:SPWR,NASDAQ:TSLA,NYSE:NEE,NYSE:DUK,NYSE:SO,NYSE:D,NYSE:EXC";  // ,NASDAQ:SCTY acquired by TESLA 2016/2017?
 
 // FUTURE:
 // Uber is not yet in stock, IPO estimated 2017

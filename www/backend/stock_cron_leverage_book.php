@@ -137,6 +137,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     hist('leverage',3,$stocks_formatted_arr[$name.":".$market]);
     hist('price_to_sales',3,$stocks_formatted_arr[$name.":".$market]);
     hist('avg_revenue_growth_5y',12,$stocks_formatted_arr[$name.":".$market]);
+    hist('revenue_growth_qq_last_year',3,$stocks_formatted_arr[$name.":".$market]);
 }
 // -----------update stocks formatted ----------------------------------
 
