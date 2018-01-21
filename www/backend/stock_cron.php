@@ -85,7 +85,11 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['market']=$item['market'];
         $symbol_object['date']=$timestamp_simplif;
         $symbol_object['value']=str_replace(",","",$item['value']);                      //$item['l']);
-        hist('value',12,$symbol_object); // 6=every year
+        hist('value',12,$symbol_object); // every year
+        // replace last diff by penultimate diff if exists and it is still early in the year
+        if(count($symbol_object['value_hist'])>2 && intval(date("n"))<4){ // only set it if it is early in the year so it makes more sense to diff with the previous year
+            $symbol_object['value_hist_last_diff']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-1][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1]))))*100,0);
+        }        
         $symbol_object['session_change']=$item['session_change'];                        //$item['c'];
         $symbol_object['session_change_percentage']=$item['session_change_percentage'];  //$item['cp'];
 
