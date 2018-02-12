@@ -141,8 +141,15 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['mktcap']=toFixed(floatval($symbol_object['shares'])*floatval($symbol_object['value']));
             $symbol_object['roe']=$stock_details_arr[$item['market'].':'.$item['name']]['roe'];
             $symbol_object['operating_margin']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin'];
+            // google sometimes discards operating maring when result publication is close, solution: if 0 and prev !=0 use prev
+            if(floatval($symbol_object['operating_margin'])==0 && count($symbol_object['operating_margin_hist'])>1){
+                $symbol_object['operating_margin']=$symbol_object['operating_margin_hist'][count($symbol_object['operating_margin_hist'])-2][1];
+            }
             $symbol_object['operating_margin_prev']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin_prev']; // ttm is not possible... since the avg om might not be equal to the yearly revenue - yearly op expenses...
-            $symbol_object['operating_margin_avg']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin_avg'];
+            if(floatval($symbol_object['operating_margin_prev'])==0 && count($symbol_object['operating_margin_prev_hist'])>1){
+                $symbol_object['operating_margin_prev']=$symbol_object['operating_margin_prev_hist'][count($symbol_object['operating_margin_prev_hist'])-2][1];
+            } 
+            $symbol_object['operating_margin_avg']="".number_format((floatval($symbol_object['operating_margin'])+floatval($symbol_object['operating_margin_prev']))/2, 2, ".", "");
             $symbol_object['key_period']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period'];
             $symbol_object['key_period_prev']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period_prev'];
             $symbol_object['employees']=$stock_details_arr[$item['market'].':'.$item['name']]['employees'];
