@@ -304,12 +304,12 @@ foreach ($stock_details_arr as $key => $item) {
             $eps_opportunity=max(-0.025,min(0.025,floatval($symbol_object['eps_hist_last_diff'])/100)); // max 0.0025
             $eps_trend=0.0;
             if(array_key_exists('eps_hist_trend',$symbol_object) && floatval($symbol_object['eps_hist_last_diff'])!=0){
-                if($symbol_object['eps_hist_trend']=='v') $eps_trend=0.05;
-                if($symbol_object['eps_hist_trend']=='/') $eps_trend=0.05;
-                if($symbol_object['eps_hist_trend']=='/-') $eps_trend=0.02;
-                if($symbol_object['eps_hist_trend']=='\-') $eps_trend=0.02;
-                if($symbol_object['eps_hist_trend']=='^') $eps_trend=-0.05;
-                if($symbol_object['eps_hist_trend']=='\\') $eps_trend=-0.05;
+                if($symbol_object['eps_hist_trend']=='v') $eps_trend=0.03;
+                if($symbol_object['eps_hist_trend']=='/') $eps_trend=0.03;
+                if($symbol_object['eps_hist_trend']=='/-') $eps_trend=0.01;
+                if($symbol_object['eps_hist_trend']=='\-') $eps_trend=0.01;
+                if($symbol_object['eps_hist_trend']=='^') $eps_trend=-0.03;
+                if($symbol_object['eps_hist_trend']=='\\') $eps_trend=-0.03;
                 //simplified we ignore $eps_opportunity=min(0.3,(floatval($symbol_object['eps_hist_last_diff'])/100)+($eps_hist_penultimate_diff/2)); // max 0.3 so uppwards it can only add 0.3 (0.8 eps almost doubled)
             }
             $high_yld_low_volatility_bonus=0.0;
