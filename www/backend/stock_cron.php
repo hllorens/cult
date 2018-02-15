@@ -182,15 +182,15 @@ foreach ($stock_details_arr as $key => $item) {
                     $last_eps=end($symbol_object['eps_hist'])[1];
                     $last_eps_date=end($symbol_object['eps_hist'])[0];
                     $last_eps_quarter=substr($last_eps_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $last_eps_date)->format('n') / 3) % 4) + 1 );
-                    // NOTE: Preferred to keep only changes than quarters because if it stays exactly the same we don't know if it is new
-                    if($symbol_object['eps']!=$last_eps){ // && abs(floatval($symbol_object['eps'])-floatval($last_eps))>(abs(floatval($last_eps))*0.005) // does not matter the diff as long as it is new (different)
+                    // NOTE: We do save it if the quarter is new even if it is the same...
+                    //if($symbol_object['eps']!=$last_eps){
                         if($timestamp_quarter!=$last_eps_quarter){
                             $symbol_object['eps_hist'][]=[$timestamp_date,$symbol_object['eps']];
                         }else{
                             //echo $symbol_object['name'].':'.$symbol_object['market'].": actualizado eps hist mismo quarter $last_eps_quarter";
                             $symbol_object['eps_hist'][count($symbol_object['eps_hist']) - 1]=[$timestamp_date,$symbol_object['eps']];
                         }
-                    }
+                    //}
                 }
             }
             // trend eps
@@ -206,7 +206,7 @@ foreach ($stock_details_arr as $key => $item) {
                 if ($eps_hist_last_diff<-0.04){ // more than 5% annual which is about 20% quarterly
                     $symbol_object['eps_hist_last_down']=toFixed($eps_hist_last_diff*100,0); // FOR BACKWARDS COMPATIBILITY
                 }
-                if ($eps_hist_last_diff<-0.04 || $eps_hist_last_diff>0.04){ // more than 5% annual which is about 20% quarterly  
+                if ($eps_hist_last_diff<-0.001 || $eps_hist_last_diff>0.001){ // more than 5% annual which is about 20% quarterly  
                     $symbol_object['eps_hist_last_diff']=toFixed($eps_hist_last_diff*100,0);
                 }else{
                     $symbol_object['eps_hist_last_diff']=0;
@@ -218,10 +218,14 @@ foreach ($stock_details_arr as $key => $item) {
                     $symbol_object['eps_hist_trend']="-";
                     if      ($eps_hist_penultimate_diff>0 && $eps_hist_last_diff >0){
                         $symbol_object['eps_hist_trend']="/";
+                    }else if($eps_hist_penultimate_diff>0 && $eps_hist_last_diff ==0){
+                        $symbol_object['eps_hist_trend']="/-";
                     }else if($eps_hist_penultimate_diff<0 && $eps_hist_last_diff >0){
                         $symbol_object['eps_hist_trend']="v";
                     }else if($eps_hist_penultimate_diff>0 && $eps_hist_last_diff <0){
                         $symbol_object['eps_hist_trend']="^";
+                    }else if($eps_hist_penultimate_diff<0 && $eps_hist_last_diff ==0){
+                        $symbol_object['eps_hist_trend']="\_";
                     }else if($eps_hist_penultimate_diff<0 && $eps_hist_last_diff <0){
                         $symbol_object['eps_hist_trend']="\\";
                     }
@@ -297,11 +301,13 @@ foreach ($stock_details_arr as $key => $item) {
             
             // heat divided by 15 times volatility so max is around 0.1 (+0.06 times the volatility [among 0.8-3] (instead of adding 1 we add 0.8 since the min volatility is around 0.2 so that the min is 1)
             $heat_opportunity=((1-floatval($symbol_object['range_52week_heat']))/15)*(floatval($symbol_object['range_52week_volatility'])+0.8);
-            $eps_opportunity=max(-0.025,min(0.025,floatval($symbol_object['eps_hist_last_diff'])/100)); // max 0.05 so upwards it can only add 0.1, downwards only -0.1
+            $eps_opportunity=max(-0.025,min(0.025,floatval($symbol_object['eps_hist_last_diff'])/100)); // max 0.0025
             $eps_trend=0.0;
             if(array_key_exists('eps_hist_trend',$symbol_object) && floatval($symbol_object['eps_hist_last_diff'])!=0){
                 if($symbol_object['eps_hist_trend']=='v') $eps_trend=0.05;
                 if($symbol_object['eps_hist_trend']=='/') $eps_trend=0.05;
+                if($symbol_object['eps_hist_trend']=='/-') $eps_trend=0.02;
+                if($symbol_object['eps_hist_trend']=='\-') $eps_trend=0.02;
                 if($symbol_object['eps_hist_trend']=='^') $eps_trend=-0.05;
                 if($symbol_object['eps_hist_trend']=='\\') $eps_trend=-0.05;
                 //simplified we ignore $eps_opportunity=min(0.3,(floatval($symbol_object['eps_hist_last_diff'])/100)+($eps_hist_penultimate_diff/2)); // max 0.3 so uppwards it can only add 0.3 (0.8 eps almost doubled)
