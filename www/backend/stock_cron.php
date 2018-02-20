@@ -235,7 +235,7 @@ foreach ($stock_details_arr as $key => $item) {
             }
 
             hist('yield',6,$symbol_object,8,7); // 6=every half year, avgelems=8 (default), max in avg is 7% yield
-            hist('per',6,$symbol_object); // 6=every half year
+            hist('per',6,$symbol_object); // 6=every half year avgelems=8 (default)
             hist('operating_margin',3,$symbol_object); // 3=every quarter, but not useful for ttm calculation since om average might not be equal to anual revenue - operating expenses
             hist('operating_margin_prev',12,$symbol_object); // yearly
             hist('shares',6,$symbol_object); // 6=every half year
@@ -245,7 +245,7 @@ foreach ($stock_details_arr as $key => $item) {
             // in addition to avg yield with max 6% elements (and min 0.25%), per min is also 6 to avoid odd low pers when stock is plunging (so we use max)
             // yield we use the minimum between the current and the average so if it is suddenly big we pick avg, if it is suddenly low, we pick current
             // we use max PER of 100 to avoid using 999 on losses and penalize too much even if other measures in the improved measure are strong
-            $avgyield_per_ratio=max(min(floatval($symbol_object['avgyield']),floatval($symbol_object['yield'])),1.5)/min(max(floatval($symbol_object['per']),6.0),100);
+            $avgyield_per_ratio=max(min(floatval($symbol_object['avgyield']),floatval($symbol_object['yield'])),1.5)/min(max((floatval($symbol_object['per'])+floatval($symbol_object['avgper']))/2,6.0),100);
             // store original and still provide that sort to see the difference
             $symbol_object['avgyield_per_ratio_original']="".toFixed($avgyield_per_ratio);
             
@@ -253,10 +253,10 @@ foreach ($stock_details_arr as $key => $item) {
             $om_to_ps=0; // if no info, no gain
             if(array_key_exists('operating_margin',$symbol_object) && floatval($symbol_object['operating_margin'])!=0
                && array_key_exists('price_to_sales',$symbol_object) && floatval($symbol_object['price_to_sales'])!=0){
-                $om_to_ps=max(min(floatval($symbol_object['operating_margin']),55)/8,0.2)/min(max(floatval($symbol_object['price_to_sales'])*4,6.0),100);
+                $om_to_ps=max(min(((floatval($symbol_object['operating_margin'])+floatval($symbol_object['avgoperating_maring']))/2),55)/8,0.2)/min(max(((floatval($symbol_object['price_to_sales'])+floatval($symbol_object['avgprice_to_sales']))/2)*4,6.0),100);
                 // if exists use the avg for the calculation
                 if(array_key_exists('operating_margin_avg',$symbol_object) && floatval($symbol_object['operating_margin_avg'])!=0){
-                    $om_to_ps=max(min(floatval($symbol_object['operating_margin_avg']),55)/8,0.2)/min(max(floatval($symbol_object['price_to_sales'])*4,6.0),100);
+                    $om_to_ps=max(min(((floatval($symbol_object['operating_margin_avg'])+floatval($symbol_object['avgoperating_maring']))/2),55)/8,0.2)/min(max(((floatval($symbol_object['price_to_sales'])+floatval($symbol_object['avgprice_to_sales']))/2)*4,6.0),100);
                 }
             }
             $avgyield_per_ratio+=$om_to_ps;
@@ -266,7 +266,7 @@ foreach ($stock_details_arr as $key => $item) {
                             $avgyield_per_ratio+=max(min(floatval($symbol_object['avg_revenue_growth_5y']),20),-25)/100;
             }
             if(array_key_exists('revenue_growth_qq_last_year',$symbol_object) && floatval($symbol_object['revenue_growth_qq_last_year'])!=0){
-                            $avgyield_per_ratio+=max(min(floatval($symbol_object['revenue_growth_qq_last_year']),25),-25)/100;
+                            $avgyield_per_ratio+=max(min(((floatval($symbol_object['revenue_growth_qq_last_year'])+floatval($symbol_object['avgrevenue_growth_qq_last_year']))/2),25),-25)/100;
             }
 
             // improved ypr with leverage (if lower or equal to 2.5 it makes no difference)
@@ -314,6 +314,15 @@ foreach ($stock_details_arr as $key => $item) {
                 if($symbol_object['eps_hist_trend']=='\\') $eps_trend=-0.03;
                 //simplified we ignore $eps_opportunity=min(0.3,(floatval($symbol_object['eps_hist_last_diff'])/100)+($eps_hist_penultimate_diff/2)); // max 0.3 so uppwards it can only add 0.3 (0.8 eps almost doubled)
             }
+            $negative_growth_penalty=0.0;
+            if(floatval($symbol_object['avg_revenue_growth_5y'])<0){
+                // max -0.15 to be a bad groinging company
+                $negative_growth_penalty=-0.1+max(floatval($symbol_object['avg_revenue_growth_5y']),-20)/400;
+                if(floatval($symbol_object['revenue_growth_qq_last_year'])< 0){
+                    //subtratct the average with max of -0.2
+                    $negative_growth_penalty+=max(floatval($symbol_object['revenue_growth_qq_last_year'])+floatval($symbol_object['avg_revenue_growth_5y']),-40)/200;
+                }
+            }
             $high_yld_low_volatility_bonus=0.0;
             if(floatval($symbol_object['avgyield'])>3 && floatval($symbol_object['range_52week_volatility'])<0.4){
                 $high_yld_low_volatility_bonus=0.05;
@@ -325,9 +334,10 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['eps_trend']="".toFixed($eps_trend);
             $symbol_object['high_yld_low_volatility_bonus']="".toFixed($high_yld_low_volatility_bonus);
             $symbol_object['revenue_growth_bonus']="".toFixed($revenue_growth_bonus);
+            $symbol_object['negative_growth_penalty']="".toFixed($negative_growth_penalty);  
             
-            $symbol_object['h_souce']="".toFixed($avgyield_per_ratio+$heat_opportunity+$eps_opportunity+$eps_trend+$high_yld_low_volatility_bonus+$revenue_growth_bonus);
-            if(floatval($symbol_object['h_souce'])<0.1){echo "ypr=$avgyield_per_ratio heat=".$symbol_object['range_52week_heat']." eps_hist_last_diff=".$symbol_object['eps_hist_last_diff']." -> $heat_opportunity $eps_opportunity $eps_trend h_souce=".$symbol_object['h_souce'];}
+            $symbol_object['h_souce']="".toFixed($avgyield_per_ratio+$heat_opportunity+$eps_opportunity+$eps_trend+$high_yld_low_volatility_bonus+$revenue_growth_bonus+$negative_growth_penalty);
+            if(floatval($symbol_object['h_souce'])<0.1){echo "ypr=$avgyield_per_ratio heat=".$symbol_object['range_52week_heat']." eps_hist_last_diff=".$symbol_object['eps_hist_last_diff']." -> $heat_opportunity $eps_opportunity $eps_trend $negative_growth_penalty h_souce=".$symbol_object['h_souce'];}
         }
     }
     $stocks_formatted_arr[$item['name'].':'.$item['market']]=$symbol_object;

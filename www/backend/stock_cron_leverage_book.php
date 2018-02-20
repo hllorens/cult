@@ -135,7 +135,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
     hist('revenue',6,$stocks_formatted_arr[$name.":".$market]); // in msn this is last year, the ttm maybe use yahoo or do it manually for companies you care about
     hist('leverage',3,$stocks_formatted_arr[$name.":".$market]);
-    hist('price_to_sales',3,$stocks_formatted_arr[$name.":".$market]);
+    hist('price_to_sales',3,$stocks_formatted_arr[$name.":".$market]); //avg of 8 (default) 
     hist('avg_revenue_growth_5y',12,$stocks_formatted_arr[$name.":".$market]);
     hist('revenue_growth_qq_last_year',3,$stocks_formatted_arr[$name.":".$market]);
 }
