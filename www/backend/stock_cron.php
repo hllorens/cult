@@ -249,17 +249,17 @@ foreach ($stock_details_arr as $key => $item) {
             // store original and still provide that sort to see the difference
             $symbol_object['avgyield_per_ratio_original']="".toFixed($avgyield_per_ratio);
             
-            // improved with operating_margin and price to sales
+            // improved with operating_margin and price to sales 
             $om_to_ps=0; // if no info, no gain
             if(array_key_exists('operating_margin',$symbol_object) && floatval($symbol_object['operating_margin'])!=0
                && array_key_exists('price_to_sales',$symbol_object) && floatval($symbol_object['price_to_sales'])!=0){
-                $om_to_ps=max(min(((floatval($symbol_object['operating_margin'])+floatval($symbol_object['avgoperating_maring']))/2),55)/8,0.2)/min(max(((floatval($symbol_object['price_to_sales'])+floatval($symbol_object['avgprice_to_sales']))/2)*4,6.0),100);
+                $om_to_ps=max(min(((floatval($symbol_object['operating_margin'])+floatval($symbol_object['avgoperating_margin']))/2),55)/8,0.2)/min(max(((floatval($symbol_object['price_to_sales'])+floatval($symbol_object['avgprice_to_sales']))/2)*4,6.0),100);
                 // if exists use the avg for the calculation
                 if(array_key_exists('operating_margin_avg',$symbol_object) && floatval($symbol_object['operating_margin_avg'])!=0){
-                    $om_to_ps=max(min(((floatval($symbol_object['operating_margin_avg'])+floatval($symbol_object['avgoperating_maring']))/2),55)/8,0.2)/min(max(((floatval($symbol_object['price_to_sales'])+floatval($symbol_object['avgprice_to_sales']))/2)*4,6.0),100);
-                }
+                    $om_to_ps=max(min(((floatval($symbol_object['operating_margin_avg'])+floatval($symbol_object['avgoperating_margin']))/2),55)/8,0.2)/min(max(((floatval($symbol_object['price_to_sales'])+floatval($symbol_object['avgprice_to_sales']))/2)*4,6.0),100);
+                } 
             }
-            $avgyield_per_ratio+=$om_to_ps;
+            $avgyield_per_ratio+=$om_to_ps; 
             
             // revenue growth (max 25% which is higher than google and apple recently that are about 15%-20%)
             if(array_key_exists('avg_revenue_growth_5y',$symbol_object) && floatval($symbol_object['avg_revenue_growth_5y'])!=0){
