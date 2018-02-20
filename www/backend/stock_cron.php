@@ -123,7 +123,8 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['eps_hist_last_diff']=0;
 
         // ONLY IF IT IS NOT AN INDEX
-        if(substr($the_url_query_arr[$current_num_to_curl],0,5)=="INDEX"){
+        if(substr($item['market'],0,5)=="INDEX"){
+            echo "idx"; 
             $symbol_object['operating_margin']=0;
             $symbol_object['operating_margin_prev']=0;
             $symbol_object['operating_margin_avg']=0;
@@ -131,6 +132,7 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['leverage']=99;
             $symbol_object['inst_own']=0;
         }else{
+            echo "!idx"; 
             $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];
             $symbol_object['dividend']=$stock_details_arr[$item['market'].':'.$item['name']]['dividend'];
             $symbol_object['divs_per_year']="0";
@@ -306,7 +308,7 @@ foreach ($stock_details_arr as $key => $item) {
             if(array_key_exists('eps_hist_trend',$symbol_object) && floatval($symbol_object['eps_hist_last_diff'])!=0){
                 if($symbol_object['eps_hist_trend']=='v') $eps_trend=0.03;
                 if($symbol_object['eps_hist_trend']=='/') $eps_trend=0.03;
-                if($symbol_object['eps_hist_trend']=='/-') $eps_trend=0.01;
+                if($symbol_object['eps_hist_trend']=='/-') $eps_trend=0.01; 
                 if($symbol_object['eps_hist_trend']=='\-') $eps_trend=0.01;
                 if($symbol_object['eps_hist_trend']=='^') $eps_trend=-0.03;
                 if($symbol_object['eps_hist_trend']=='\\') $eps_trend=-0.03;
@@ -325,7 +327,7 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['revenue_growth_bonus']="".toFixed($revenue_growth_bonus);
             
             $symbol_object['h_souce']="".toFixed($avgyield_per_ratio+$heat_opportunity+$eps_opportunity+$eps_trend+$high_yld_low_volatility_bonus+$revenue_growth_bonus);
-            //echo "ypr=$avgyield_per_ratio heat=".$symbol_object['range_52week_heat']." eps_hist_last_diff=".$symbol_object['eps_hist_last_diff']." -> $heat_opportunity $eps_opportunity $eps_trend ".$symbol_object['h_souce'];
+            if(floatval($symbol_object['h_souce'])<0.1){echo "ypr=$avgyield_per_ratio heat=".$symbol_object['range_52week_heat']." eps_hist_last_diff=".$symbol_object['eps_hist_last_diff']." -> $heat_opportunity $eps_opportunity $eps_trend h_souce=".$symbol_object['h_souce'];}
         }
     }
     $stocks_formatted_arr[$item['name'].':'.$item['market']]=$symbol_object;
