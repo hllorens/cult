@@ -24,6 +24,7 @@ if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug
 function toFixed($number, $decimals=2) {
   if(!is_numeric($number)){
         echo "not numeric: $number";
+        $number=0; 
   } 
   return number_format($number, $decimals, ".", "");
 }
