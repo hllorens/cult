@@ -22,6 +22,9 @@ if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug
 
 // helper functions
 function toFixed($number, $decimals=2) {
+  if(!is_numeric($number)){
+        echo "not numeric: $number";
+  } 
   return number_format($number, $decimals, ".", "");
 }
 
@@ -276,7 +279,7 @@ foreach ($stock_details_arr as $key => $item) {
                 // Most industries have 3 auto, teleco, energy
                 // tech has 2
                 // 2.5 is a good compromise
-                if(in_array($symbol_object['name'], ['SAN','BBVA','ING','BKIA','BKT','SAB','CABK','MAP','ZURVY'])){
+                if(in_array($symbol_object['name'], ['SAN','BBVA','ING','BKIA','BKT','SAB','CABK','MAP','ZURVY','HSBC'])){ 
                     $acceptable_leverage=10; // finance/insurance industry lives on this so we cannot penalize as much
                 }
                 if(array_key_exists('leverage_industry',$symbol_object) && floatval($symbol_object['leverage_industry'])!=0){
