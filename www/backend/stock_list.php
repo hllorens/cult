@@ -14,7 +14,7 @@ $stock_list="$stock_list,BME:TEF,BME:TL5,BME:TRE,BME:VID,BME:R4";
 // ojo masmovil... consider adding it grows interestingly
 // IBEX quebrados o quitados: ,BME:POP
 // otras interesantes españa o farmaceuticas (society is aging... pharmacy will play a role)
-$stock_list="$stock_list,BME:FAE,OTCMKTS:RHHBY,NASDAQ:SUPN,NASDAQ:REGN,NASDAQ:ALXN";
+$stock_list="$stock_list,BME:FAE,OTCMKTS:RHHBY,NASDAQ:SUPN,NASDAQ:REGN,NASDAQ:ALXN,NASDAQ:VRTX";
 
 $stock_list="$stock_list,INDEXSTOXX:SX5E";
 $stock_list="$stock_list,INDEXNASDAQ:NDX";
@@ -22,7 +22,7 @@ $stock_list="$stock_list,INDEXSP:.INX";
 
 $stock_list="$stock_list,NASDAQ:GOOG,NASDAQ:MSFT,NASDAQ:EBAY,NASDAQ:AMZN,NASDAQ:NVDA"; // ,NASDAQ:YHOO no longer a company but a fund (AABA), ,NASDAQ:GOOGL same as goog no need to have 2
 $stock_list="$stock_list,NASDAQ:FB,NYSE:TWTR,NYSE:SNAP";
-$stock_list="$stock_list,NYSE:YRD,NYSE:FIT,NYSE:BABA,NYSE:BLK,NYSE:EL"; //new
+$stock_list="$stock_list,NYSE:YRD,NYSE:FIT,NYSE:BABA,NYSE:BLK,NYSE:EL,NYSE:BA"; //new
 $stock_list="$stock_list,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:AMD,NASDAQ:TEAM,NASDAQ:BKCC,NASDAQ:IRBT";
 $stock_list="$stock_list,NASDAQ:NTES,NYSE:ICE,NASDAQ:CME,NASDAQ:MCHP,NASDAQ:MU,NYSE:TSM,NASDAQ:AVGO,NASDAQ:BIDU,NASDAQ:WDC";
 $stock_list="$stock_list,NASDAQ:PCLN,NASDAQ:TRIP,NASDAQ:EXPE";
