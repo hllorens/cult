@@ -93,7 +93,26 @@ foreach ($stock_details_arr as $key => $item) {
         // replace last diff by penultimate diff if exists and it is still early in the year
         if(count($symbol_object['value_hist'])>2 && intval(date("n"))<4){ // only set it if it is early in the year so it makes more sense to diff with the previous year
             $symbol_object['value_hist_last_diff']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-1][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1]))))*100,0);
-        }        
+        }
+        // anualized 3y
+        $symbol_object['val_change_3y']=0;
+        if(count($symbol_object['value_hist'])>3){
+            $symbol_object['val_change_3y']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-1][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-4][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-4][1]))))*(100/3),0);
+        }
+        // anualized 5y
+        $symbol_object['val_change_5y']=$symbol_object['val_change_3y']; // by default use 3y val change
+        if(count($symbol_object['value_hist'])>5){
+            $symbol_object['val_change_5y']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-1][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-6][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-6][1]))))*(100/5),0);
+        }
+        $symbol_object['val_yy_drops']=0;
+        // % of y-y declines >5% (e.g., if 3 out of 6 years it declined then 0.5)
+        for( $i= 0 ; $i < (count($symbol_object['value_hist'])-1) ; $i++ ){
+            if(((floatval($symbol_object['value_hist'][($i+1)][1])-floatval($symbol_object['value_hist'][$i][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][$i][1]))))*100 < -5){
+                $symbol_object['val_yy_drops']+=1/(count($symbol_object['value_hist'])-1);
+            }
+        }
+        $symbol_object['val_yy_drops']=toFixed($symbol_object['val_yy_drops']);
+        
         $symbol_object['session_change']=$item['session_change'];                        //$item['c'];
         $symbol_object['session_change_percentage']=$item['session_change_percentage'];  //$item['cp'];
 
@@ -267,11 +286,14 @@ foreach ($stock_details_arr as $key => $item) {
             
             // revenue growth (max 25% which is higher than google and apple recently that are about 15%-20%)
             if(array_key_exists('avg_revenue_growth_5y',$symbol_object) && floatval($symbol_object['avg_revenue_growth_5y'])!=0){
-                            $avgyield_per_ratio+=max(min(floatval($symbol_object['avg_revenue_growth_5y']),20),-25)/100;
+                            $avgyield_per_ratio+=max(min(floatval($symbol_object['avg_revenue_growth_5y']),20),-20)/100;
             }
             if(array_key_exists('revenue_growth_qq_last_year',$symbol_object) && floatval($symbol_object['revenue_growth_qq_last_year'])!=0){
-                            $avgyield_per_ratio+=max(min(((floatval($symbol_object['revenue_growth_qq_last_year'])+floatval($symbol_object['avgrevenue_growth_qq_last_year']))/2),25),-25)/100;
+                            $avgyield_per_ratio+=max(min(((floatval($symbol_object['revenue_growth_qq_last_year'])+floatval($symbol_object['avgrevenue_growth_qq_last_year']))/2),10),-10)/100;
             }
+            
+            // take value growth into account
+            $avgyield_per_ratio+=(max(min(floatval($symbol_object['val_change_5y']),10),-20)+max(min(floatval($symbol_object['val_change_3y']),15),-20))/200;
 
             // improved ypr with leverage (if lower or equal to 2.5 it makes no difference)
             $acceptable_leverage=2.5; // 2 would be liabilities==equity i.e., liabilities/assets=0.5 perfect balance
@@ -280,7 +302,7 @@ foreach ($stock_details_arr as $key => $item) {
                 // Most industries have 3 auto, teleco, energy
                 // tech has 2
                 // 2.5 is a good compromise
-                if(in_array($symbol_object['name'], ['SAN','BBVA','ING','BKIA','BKT','SAB','CABK','MAP','ZURVY','HSBC'])){ 
+                if(in_array($symbol_object['name'], ['SAN','BBVA','ING','BKIA','BKT','SAB','CABK','MAP','ZURVY','HSBC','R4'])){ 
                     $acceptable_leverage=10; // finance/insurance industry lives on this so we cannot penalize as much
                 }
                 if(array_key_exists('leverage_industry',$symbol_object) && floatval($symbol_object['leverage_industry'])!=0){
@@ -290,6 +312,7 @@ foreach ($stock_details_arr as $key => $item) {
                 $avgyield_per_ratio=$avgyield_per_ratio/min(max($leverage_industry_ratio,1.0),2.0);
             }
             $symbol_object['leverage_industry_ratio']="".toFixed($leverage_industry_ratio);
+
             // EXTRA BONUS: if we also have the industry leverage average we can 
             /*if(array_key_exists('leverage_industry',$symbol_object) && floatval($symbol_object['leverage_industry'])!=0){
                 // only punish for now if(floatval($symbol_object['leverage'])<(floatval($symbol_object['leverage_industry']-1))){$avgyield_per_ratio+=0.1;}
@@ -321,10 +344,10 @@ foreach ($stock_details_arr as $key => $item) {
             $negative_growth_penalty=0.0;
             if(floatval($symbol_object['avg_revenue_growth_5y'])<0){
                 // max -0.15 to be a bad groinging company
-                $negative_growth_penalty=-0.1+max(floatval($symbol_object['avg_revenue_growth_5y']),-20)/400;
+                $negative_growth_penalty=-0.05+max(floatval($symbol_object['avg_revenue_growth_5y']),-20)/400;
                 if(floatval($symbol_object['revenue_growth_qq_last_year'])< 0){
-                    //subtratct the average with max of -0.2
-                    $negative_growth_penalty+=max(floatval($symbol_object['revenue_growth_qq_last_year'])+floatval($symbol_object['avg_revenue_growth_5y']),-40)/200;
+                    //subtratct the average with max of -0.1
+                    $negative_growth_penalty+=max(floatval($symbol_object['revenue_growth_qq_last_year'])+floatval($symbol_object['avg_revenue_growth_5y']),-20)/200;
                 }
             }
             $high_yld_low_volatility_bonus=0.0;
@@ -333,6 +356,9 @@ foreach ($stock_details_arr as $key => $item) {
             }
             $revenue_growth_bonus=0.0;
             if(floatval($symbol_object['revenue_growth_qq_last_year']) > floatval($symbol_object['avg_revenue_growth_5y'])) $revenue_growth_bonus=max(0,min(0.05,floatval($symbol_object['revenue_growth_qq_last_year'])));
+
+            //directly subtract $val_decline_penalty=-1*$symbol_object['val_yy_drops']; // min 0 (evergreen) max 1 (everdecline 5%)
+
             $symbol_object['heat_opportunity']="".toFixed($heat_opportunity);
             $symbol_object['eps_opportunity']="".toFixed($eps_opportunity);
             $symbol_object['eps_trend']="".toFixed($eps_trend);
@@ -340,7 +366,7 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['revenue_growth_bonus']="".toFixed($revenue_growth_bonus);
             $symbol_object['negative_growth_penalty']="".toFixed($negative_growth_penalty);  
             
-            $symbol_object['h_souce']="".toFixed($avgyield_per_ratio+$heat_opportunity+$eps_opportunity+$eps_trend+$high_yld_low_volatility_bonus+$revenue_growth_bonus+$negative_growth_penalty);
+            $symbol_object['h_souce']="".toFixed($avgyield_per_ratio+$heat_opportunity+$eps_opportunity+$eps_trend+$high_yld_low_volatility_bonus+$revenue_growth_bonus+$negative_growth_penalty-(floatval($symbol_object['val_yy_drops'])/2));
             if(floatval($symbol_object['h_souce'])<0.1){echo "ypr=$avgyield_per_ratio heat=".$symbol_object['range_52week_heat']." eps_hist_last_diff=".$symbol_object['eps_hist_last_diff']." -> $heat_opportunity $eps_opportunity $eps_trend $negative_growth_penalty h_souce=".$symbol_object['h_souce'];}
         }
     }
