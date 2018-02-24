@@ -166,7 +166,10 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['mktcap']=toFixed(floatval($symbol_object['shares'])*floatval($symbol_object['value']));
             $symbol_object['roe']=$stock_details_arr[$item['market'].':'.$item['name']]['roe'];
             $symbol_object['operating_margin']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin'];
+            
+            // BACKUP Strategy of important measures ----------------------------------
             // google sometimes discards operating maring when result publication is close, solution: if 0 and prev !=0 use prev
+            // The script also fails sometimes for growth revenue qq etc so here is a backup strategy if 0
             if(floatval($symbol_object['operating_margin'])==0 && count($symbol_object['operating_margin_hist'])>1){
                 $symbol_object['operating_margin']=$symbol_object['operating_margin_hist'][count($symbol_object['operating_margin_hist'])-2][1];
             }
@@ -175,6 +178,13 @@ foreach ($stock_details_arr as $key => $item) {
                 $symbol_object['operating_margin_prev']=$symbol_object['operating_margin_prev_hist'][count($symbol_object['operating_margin_prev_hist'])-2][1];
             } 
             $symbol_object['operating_margin_avg']="".number_format((floatval($symbol_object['operating_margin'])+floatval($symbol_object['operating_margin_prev']))/2, 2, ".", "");
+            if(floatval($symbol_object['revenue_growth_qq_last_year'])==0 && count($symbol_object['revenue_growth_qq_last_year_hist'])>1){
+                $symbol_object['revenue_growth_qq_last_year']=$symbol_object['revenue_growth_qq_last_year_hist'][count($symbol_object['revenue_growth_qq_last_year_hist'])-2][1];
+            }
+            if(floatval($symbol_object['avg_revenue_growth_5y'])==0 && count($symbol_object['avg_revenue_growth_5y_hist'])>1){
+                $symbol_object['avg_revenue_growth_5y']=$symbol_object['avg_revenue_growth_5y_hist'][count($symbol_object['avg_revenue_growth_5y_hist'])-2][1];
+            }
+            //-------------------------------------------------
             $symbol_object['key_period']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period'];
             $symbol_object['key_period_prev']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period_prev'];
             $symbol_object['employees']=$stock_details_arr[$item['market'].':'.$item['name']]['employees'];
