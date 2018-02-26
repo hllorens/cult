@@ -104,12 +104,13 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         if(count($dividend_yield)>1 && strpos($dividend_yield[1], '/') !== FALSE){
             $divval=explode('/',$dividend_yield[1])[0];
             $yieldval=explode('/',$dividend_yield[1])[1];
+            if($yieldval=='-' || $yieldval==''){$yieldval=0;}
             if($debug) echo "divyield: ".$dividend_yield[1]."<br />";
             if($debug) echo "div and yield: (".$divval.")   y=(".$yieldval.") <br />";
         }else{
-            $dividend_yield="";
-            $divval="";
-            $yieldval="";
+            $dividend_yield="0";
+            $divval="0";
+            $yieldval="0";
         }
 
         // guessed from shares and value (in billions)
@@ -125,7 +126,9 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         preg_match("/^.*\"shares\".*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $shares);
         if($debug){echo " shares: ".print_r($shares)."<br />";}
         if(count($shares)>1){
-            $shares=format_billions($shares[1]);
+            $shares=trim($shares[1]);
+            if($shares=="-" || $shares=="") $shares=0;
+            $shares=format_billions($shares);
             if($debug) echo "shares: (".$shares.")<br />";
         }else{
             $shares=0;
@@ -135,6 +138,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         preg_match("/^.*pe_ratio.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $perval);
         if(count($perval)>1){
             $perval=trim($perval[1]);
+            if($perval=='-' || $perval==''){$perval=999;}
             if($debug) echo "per: (".$perval.")<br />";
         }else{
             $perval="";
@@ -159,6 +163,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         preg_match("/^.*\"eps\".*=\"val\"[^>]*>([^<]+)(\s*<[\/]?[^>]*>)*\s*/m", $response, $epsval);
         if(count($epsval)>1){
             $epsval=trim($epsval[1]);
+            if($epsval=='-' || $epsval==''){$epsval=0.001;} // to avoid 0 division
             if($debug) echo "eps: (".$epsval.")<br />";
         }else{
             $epsval="";
@@ -201,6 +206,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     
         preg_match("/^.*Employees.*=period[^>]*>\s*([^<% ]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $employees);
         if(count($employees)>1){
+            if(trim($employees[1])=="-" || trim($employees[1])=="") $employees[1]=0;
             $employees="".number_format((floatval(str_replace(",","",trim($employees[1])))/1000.0), 1, ".", "");
             if($debug) echo "employees: (".$employees.")<br />";
         }else{

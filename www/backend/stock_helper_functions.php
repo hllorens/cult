@@ -8,7 +8,7 @@ function hist($param_id,$freq, &$symbol_object, $max_elems_to_avg=8, $max_avg="n
     if(!array_key_exists($param_id.'_hist',$symbol_object)){$symbol_object[$param_id.'_hist']=array();}
     if(!array_key_exists($param_id.'_hist_last_diff',$symbol_object)){$symbol_object[$param_id.'_hist_last_diff']=0;}
     
-    if(count($symbol_object[$param_id.'_hist'])==0){
+    if(!array_key_exists($param_id.'_hist',$symbol_object) || count($symbol_object[$param_id.'_hist'])==0){
         $symbol_object[$param_id.'_hist'][]=[$timestamp_date,$symbol_object[$param_id]];
     }else{
         $last_elem=end($symbol_object[$param_id.'_hist'])[1];
@@ -22,10 +22,10 @@ function hist($param_id,$freq, &$symbol_object, $max_elems_to_avg=8, $max_avg="n
         }
     }
     // avg will be the last by default
-    $symbol_object['avg'.$param_id]="".toFixed($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-1][1]); 
+    $symbol_object['avg'.$param_id]="".toFixed($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-1][1],2,'helper avg'.$param_id);
     if(count($symbol_object[$param_id.'_hist'])>1){
         $value_hist_last_diff=((floatval(end($symbol_object[$param_id.'_hist'])[1])-floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-2][1]))/max(0.01,abs(floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-2][1]))));
-        $symbol_object[$param_id.'_hist_last_diff']=toFixed($value_hist_last_diff*100,0); 
+        $symbol_object[$param_id.'_hist_last_diff']=toFixed($value_hist_last_diff*100,0,'helper '.$param_id.'_hist_last_diff'); 
         // avgelems is an average of max $max_elems_to_avg last values, with max value of 6% using min (so odd macro dividends do not trick the avg so much)
         $num_hist_values=count($symbol_object[$param_id.'_hist']);
         $num_values_to_average=min($num_hist_values,$max_elems_to_avg);
@@ -37,7 +37,7 @@ function hist($param_id,$freq, &$symbol_object, $max_elems_to_avg=8, $max_avg="n
             if($min_avg!="no"){ $val2avg=max($val2avg,floatval($min_avg));}
             $avgelems+=$val2avg/floatval($num_values_to_average);
         }
-        $symbol_object['avg'.$param_id]="".toFixed($avgelems);
+        $symbol_object['avg'.$param_id]="".toFixed($avgelems,2,'helper avg'.$param_id.' with hist>1');
         if($num_hist_values>2){
             // 5 possibilities no-strong-trend down-down down-up up-down up-up
             $value_hist_penultimate_diff=((floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-2][1])-floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-3][1]))/max(0.01,abs(floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-3][1]))));
