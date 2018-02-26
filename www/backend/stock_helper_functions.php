@@ -24,7 +24,15 @@ function hist($param_id,$freq, &$symbol_object, $max_elems_to_avg=8, $max_avg="n
     // avg will be the last by default
     $symbol_object['avg'.$param_id]="".toFixed($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-1][1],2,'helper avg'.$param_id);
     if(count($symbol_object[$param_id.'_hist'])>1){
-        $value_hist_last_diff=((floatval(end($symbol_object[$param_id.'_hist'])[1])-floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-2][1]))/max(0.01,abs(floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-2][1]))));
+        // The symbol (+ or -) is not an issue if we use abs in divisor and only the numerator counts
+        // A small or 0 divisor is an issue if we do not do translation or min movement
+        // e.g., hist 1 then 2 is a clear +100% (2x), hist -1 then 1 would be 200%
+        // but -5 then 5 would be 10/5 200% and -1 then 5 would be 6/1 600%
+        // the case would be even more problematic if we go below 1 -0.5 then 5 would be 5.5/0.5=+1100%
+        // the diff has a minimum divisor of 0.5 so value is at most amplified 2x in case of small values (e.g., EPS)
+        // other alternatives already tested and complicated and not better (e.g., trying some translation or symbol change)
+        // diff -6 to -3 is +50% while 3 to 6 is +200% but I think that is acceptable
+        $value_hist_last_diff=((floatval(end($symbol_object[$param_id.'_hist'])[1])-floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-2][1]))/max(0.5,abs(floatval($symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist'])-2][1]))));
         $symbol_object[$param_id.'_hist_last_diff']=toFixed($value_hist_last_diff*100,0,'helper '.$param_id.'_hist_last_diff'); 
         // avgelems is an average of max $max_elems_to_avg last values, with max value of 6% using min (so odd macro dividends do not trick the avg so much)
         $num_hist_values=count($symbol_object[$param_id.'_hist']);

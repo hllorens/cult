@@ -204,7 +204,6 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['key_period_prev']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period_prev'];
             $symbol_object['employees']=$stock_details_arr[$item['market'].':'.$item['name']]['employees'];
             $symbol_object['inst_own']=$stock_details_arr[$item['market'].':'.$item['name']]['inst_own'];
-            $symbol_object['epsp']=toFixed(floatval($symbol_object['eps']/max(0.001,floatval($symbol_object['value']))),3,"epsp");
             $symbol_object['avgyield']=$symbol_object['yield'];
             if(floatval($symbol_object['dividend'])!=0){
                 $symbol_object['divs_per_year']="".round(((floatval($symbol_object['yield'])/100)*floatval($symbol_object['value']))/floatval($symbol_object['dividend']));
@@ -241,57 +240,47 @@ foreach ($stock_details_arr as $key => $item) {
                     //}
                 }
             }
-            // trend eps
-            if(count($symbol_object['eps_hist'])>1){
-                //echo $symbol_object['name']."<br />\n"."<br />\n";
-                // The symbol (+ or -) is not an issue since only the numerator counts, the abs divisor is an issue if we do not do translation or paliation
-                // e.g., hist 1 then 2 is a clear +100% (2x), hist -1 then 1 would be 200% but -5 then 5 would be 10/5 200% and -1 then 5 would be 6/1 600%
-                // the case would be even more problematic if we go below 1 -0.5 then 5 would be 5.5/0.5=+1100%
-                // the diff has a minimum divisor of 0.5 so value is at most amplified 2x in case of small eps values
-                // other alternatives already testsed and complicated and not better (e.g., trying some translation or symbol change)
-                // diff -6 to -3 is +50% while 3 to 6 is +200% but I think that is acceptable
-                $eps_hist_last_diff=((floatval(end($symbol_object['eps_hist'])[1])-floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1]))/max(0.5,abs(floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1]))));
-                if ($eps_hist_last_diff<-0.04){ // more than 5% annual which is about 20% quarterly
-                    $symbol_object['eps_hist_last_down']=toFixed($eps_hist_last_diff*100,0,"esp_hist_last_down"); // FOR BACKWARDS COMPATIBILITY
-                }
-                if ($eps_hist_last_diff<-0.001 || $eps_hist_last_diff>0.001){ // more than 5% annual which is about 20% quarterly  
-                    $symbol_object['eps_hist_last_diff']=toFixed($eps_hist_last_diff*100,0,"eps_hist_last_diff");
-                }else{
-                    $symbol_object['eps_hist_last_diff']=0;
-                }
-                if(count($symbol_object['eps_hist'])>2){
-                    // 4 possibilities down-down down-up up-down up-up
-                    // same minimum 0.5 divisor see above for the reason
-                    $eps_hist_penultimate_diff=((floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1])-floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-3][1]))/max(0.5,abs(floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-3][1]))));
-                    $symbol_object['eps_hist_trend']="--";
-                    if      ($eps_hist_penultimate_diff>0.1 && $eps_hist_last_diff>0.1){
-                        $symbol_object['eps_hist_trend']="/";
-                    }else if($eps_hist_penultimate_diff>0.1 && $eps_hist_last_diff <0.1 && $eps_hist_last_diff >-0.1){
-                        $symbol_object['eps_hist_trend']="/-";
-                    }else if($eps_hist_penultimate_diff <0.1 && $eps_hist_penultimate_diff >-0.1 && $eps_hist_last_diff>0.1){
-                        $symbol_object['eps_hist_trend']="_/";
-                    }else if($eps_hist_penultimate_diff<-0.1 && $eps_hist_last_diff > $eps_hist_penultimate_diff ){
-                        $symbol_object['eps_hist_trend']="v";
-                    }else if($eps_hist_penultimate_diff>0.1 && $eps_hist_last_diff < (-1*$eps_hist_penultimate_diff)){
-                        $symbol_object['eps_hist_trend']="^";
-                    }else if($eps_hist_penultimate_diff<0.1 && $eps_hist_last_diff <0.1 && $eps_hist_last_diff >-0.1){
-                        $symbol_object['eps_hist_trend']="\_";
-                    }else if($eps_hist_penultimate_diff <0.1 && $eps_hist_penultimate_diff >-0.1 && $eps_hist_last_diff<0.1){
-                        $symbol_object['eps_hist_trend']="-\\";
-                    }else if($eps_hist_penultimate_diff<0.1 && $eps_hist_last_diff <0.1){
-                        $symbol_object['eps_hist_trend']="\\";
-                    }
-                }
-            }
+
 
             hist('yield',6,$symbol_object,8,7); // 6=every half year, avgelems=8 (default), max in avg is 7% yield
-            hist('per',6,$symbol_object); // 6=every half year avgelems=8 (default)
-            hist('operating_margin',3,$symbol_object); // 3=every quarter, but not useful for ttm calculation since om average might not be equal to anual revenue - operating expenses
+            hist('operating_margin',6,$symbol_object); // 3=every quarter, but not useful for ttm calculation since om average might not be equal to anual revenue - operating expenses
             hist('operating_margin_prev',12,$symbol_object); // yearly
             hist('shares',6,$symbol_object); // 6=every half year
             hist('employees',6,$symbol_object); // 6=every half year
-            hist('inst_own',3,$symbol_object); // 
-
+            hist('inst_own',6,$symbol_object); // 
+            hist('per',6,$symbol_object); // 6=every half year avgelems=8 (default)
+            hist('eps',3,$symbol_object); // avg elems 8
+            // trend eps
+            if(count($symbol_object['eps_hist'])>2){
+                $eps_hist_last_diff=$symbol_object['eps_hist_last_diff'];
+                $eps_hist_penultimate_diff=((floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1])-floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-3][1]))/max(0.5,abs(floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-3][1]))));
+                $symbol_object['eps_hist_trend']="--";
+                if      ($eps_hist_penultimate_diff>0.1 && $eps_hist_last_diff>0.1){
+                    $symbol_object['eps_hist_trend']="/";
+                }else if($eps_hist_penultimate_diff>0.1 && $eps_hist_last_diff <0.1 && $eps_hist_last_diff >-0.1){
+                    $symbol_object['eps_hist_trend']="/-";
+                }else if($eps_hist_penultimate_diff <0.1 && $eps_hist_penultimate_diff >-0.1 && $eps_hist_last_diff>0.1){
+                    $symbol_object['eps_hist_trend']="_/";
+                }else if($eps_hist_penultimate_diff<-0.1 && $eps_hist_last_diff > $eps_hist_penultimate_diff ){
+                    $symbol_object['eps_hist_trend']="v";
+                }else if($eps_hist_penultimate_diff>0.1 && $eps_hist_last_diff < (-1*$eps_hist_penultimate_diff)){
+                    $symbol_object['eps_hist_trend']="^";
+                }else if($eps_hist_penultimate_diff<0.1 && $eps_hist_last_diff <0.1 && $eps_hist_last_diff >-0.1){
+                    $symbol_object['eps_hist_trend']="\_";
+                }else if($eps_hist_penultimate_diff <0.1 && $eps_hist_penultimate_diff >-0.1 && $eps_hist_last_diff<0.1){
+                    $symbol_object['eps_hist_trend']="-\\";
+                }else if($eps_hist_penultimate_diff<0.1 && $eps_hist_last_diff <0.1){
+                    $symbol_object['eps_hist_trend']="\\";
+                }
+            }
+            // EPSP (inverse of PER, 1/PER), it is also eps/price
+            // since price and num shares change, if we want to use averages, it is safer to calculate as PER inverse
+            // however, PER does not account for negative EPS, so we are forced to calculate as eps/price
+            $symbol_object['epsp']=toFixed(floatval($symbol_object['eps']/max(0.01,floatval($symbol_object['value']))),3,"epsp");
+            if(count($symbol_object['eps_hist'])>1){
+                $symbol_object['epsp']=toFixed(floatval($symbol_object['avgeps']/max(0.01,floatval($symbol_object['value']))),3,"epsp");
+            }
+            
             // THE SCORE (all sub-scores go 0-1 and are merged at the end)
             $score_yield=0;
             $computable_yield=min(floatval($symbol_object['avgyield']),floatval($symbol_object['yield']))/100;
@@ -389,9 +378,15 @@ foreach ($stock_details_arr as $key => $item) {
                 if($symbol_object['eps_hist_trend']=='^') $negative_eps_growth_penalty=-0.15;
             }
 
+            /*$symbol_object['score_yield']="".toFixed($score_yield);
+            $symbol_object['score_val_growth']="".toFixed($score_val_growth);
+            $symbol_object['score_rev_growth']="".toFixed($score_rev_growth);
+            $symbol_object['score_epsp']="".toFixed($score_epsp);
+            $symbol_object['score_leverage']="".toFixed($score_leverage);
+
             $symbol_object['negative_val_growth_penalty']="".toFixed($negative_val_growth_penalty,2,"val penalty");
             $symbol_object['negative_rev_growth_penalty']="".toFixed($negative_rev_growth_penalty,2,"rev penalty");
-            $symbol_object['negative_eps_growth_penalty']="".toFixed($negative_eps_growth_penalty,2,"eps penalty");
+            $symbol_object['negative_eps_growth_penalty']="".toFixed($negative_eps_growth_penalty,2,"eps penalty");*/
             
             
             if($computable_yield>0.029){
