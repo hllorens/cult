@@ -162,8 +162,8 @@ foreach ($stock_details_arr as $key => $item) {
         if(substr($item['market'],0,5)=="INDEX"){
             echo "idx"; 
             $symbol_object['operating_margin']=0;
-            $symbol_object['operating_margin_prev']=0;
-            $symbol_object['operating_margin_avg']=0;
+            $symbol_object['operating_margin_prev']=0;     // TODO: remove in 2019
+            $symbol_object['operating_margin_avg']=0;      // TODO: remove in 2019
             $symbol_object['price_to_sales']=99;
             $symbol_object['leverage']=99;
             $symbol_object['inst_own']=0;
@@ -188,11 +188,13 @@ foreach ($stock_details_arr as $key => $item) {
             if(floatval($symbol_object['operating_margin'])==0 && count($symbol_object['operating_margin_hist'])>1){
                 $symbol_object['operating_margin']=$symbol_object['operating_margin_hist'][count($symbol_object['operating_margin_hist'])-2][1];
             }
+            // TODO: TEMPORARY UNTIL 2019-----------------
             $symbol_object['operating_margin_prev']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin_prev']; // ttm is not possible... since the avg om might not be equal to the yearly revenue - yearly op expenses...
             if(floatval($symbol_object['operating_margin_prev'])==0 && count($symbol_object['operating_margin_prev_hist'])>1){
                 $symbol_object['operating_margin_prev']=$symbol_object['operating_margin_prev_hist'][count($symbol_object['operating_margin_prev_hist'])-2][1];
             } 
             $symbol_object['operating_margin_avg']="".number_format((floatval($symbol_object['operating_margin'])+floatval($symbol_object['operating_margin_prev']))/2, 2, ".", "");
+            // -------------------------------------------
             if(floatval($symbol_object['revenue_growth_qq_last_year'])==0 && count($symbol_object['revenue_growth_qq_last_year_hist'])>1){
                 $symbol_object['revenue_growth_qq_last_year']=$symbol_object['revenue_growth_qq_last_year_hist'][count($symbol_object['revenue_growth_qq_last_year_hist'])-2][1];
             }
@@ -244,7 +246,7 @@ foreach ($stock_details_arr as $key => $item) {
 
             hist('yield',6,$symbol_object,8,7); // 6=every half year, avgelems=8 (default), max in avg is 7% yield
             hist('operating_margin',6,$symbol_object); // 3=every quarter, but not useful for ttm calculation since om average might not be equal to anual revenue - operating expenses
-            hist('operating_margin_prev',12,$symbol_object); // yearly
+            hist('operating_margin_prev',12,$symbol_object); // yearly  TODO TEMP remove after 2019
             hist('shares',6,$symbol_object); // 6=every half year
             hist('employees',6,$symbol_object); // 6=every half year
             hist('inst_own',6,$symbol_object); // 
@@ -280,10 +282,11 @@ foreach ($stock_details_arr as $key => $item) {
             if(count($symbol_object['eps_hist'])>1){
                 $symbol_object['epsp']=toFixed(floatval($symbol_object['avgeps']/max(0.01,floatval($symbol_object['value']))),3,"epsp");
             }
+            hist('epsp',12,$symbol_object); // yearly
             
             // THE SCORE (all sub-scores go 0-1 and are merged at the end)
             $score_yield=0;
-            $computable_yield=min(floatval($symbol_object['avgyield']),floatval($symbol_object['yield']))/100;
+            $computable_yield=min(floatval($symbol_object['avgyield']),floatval($symbol_object['yield']))/100;  // max avg is 7 already by definition (see hist above)
             if($computable_yield>0.029 && $computable_yield<=floatval($symbol_object['epsp'])){ // if it's a big (>3%) healthy viable yield (<=epsp)
                 $score_yield=min(0.30+(($computable_yield-0.029)*25),1); // max 1 (if y>6)
             }
@@ -291,29 +294,33 @@ foreach ($stock_details_arr as $key => $item) {
             $score_val_growth=0;
             $computable_val_growth=((max(min(floatval($symbol_object['val_change_5y']),20),-20)+max(min(floatval($symbol_object['val_change_5yp']),20),-20)+max(min(floatval($symbol_object['val_change_3y']),20),-20)+max(min(floatval($symbol_object['val_change_3yp']),20),-20))/4)/100;
             $computable_val_growth+=$computable_yield;
+            $symbol_object['avgvalg']=toFixed($computable_val_growth,1,"avgvalg");
             if($computable_val_growth>0){
                 $score_val_growth=min($computable_val_growth*5,1);
             }
-
+            hist('avgvalg',12,$symbol_object); // yearly
+            
             $score_rev_growth=0;
             $om_to_ps=0; // if no info, no gain
             if(array_key_exists('operating_margin',$symbol_object) && floatval($symbol_object['operating_margin'])!=0
                && array_key_exists('price_to_sales',$symbol_object) && floatval($symbol_object['price_to_sales'])!=0){
-                $om_to_ps=max(min(((floatval($symbol_object['operating_margin'])+floatval($symbol_object['avgoperating_margin']))/2),55)/8,0.2)/min(max(((floatval($symbol_object['price_to_sales'])+floatval($symbol_object['avgprice_to_sales']))/2)*4,6.0),100);
-                // if exists use the avg for the calculation
+                $om_to_ps=min(max(floatval($symbol_object['avgoperating_margin']),0)/min(floatval($symbol_object['avgprice_to_sales'])*10,0.01),1);
+                //TEMPORARY UNTIL 2019 --------------------------------------------------------------
+                // if exists use the avg for the calculation temporary until 2019 where we already get a history in op
                 if(array_key_exists('operating_margin_avg',$symbol_object) && floatval($symbol_object['operating_margin_avg'])!=0){
-                    $om_to_ps=max(min(((floatval($symbol_object['operating_margin_avg'])+floatval($symbol_object['avgoperating_margin']))/2),55)/8,0.2)/min(max(((floatval($symbol_object['price_to_sales'])+floatval($symbol_object['avgprice_to_sales']))/2)*4,6.0),100);
+                    $om_to_ps=min(max((floatval($symbol_object['avgoperating_margin'])+floatval($symbol_object['operating_margin_avg']))/2,0)/min(floatval($symbol_object['avgprice_to_sales'])*10,0.01),1); 
                 } 
+                // ----------------------------------------------------------------------------------
             }
             if(array_key_exists('avg_revenue_growth_5y',$symbol_object) && floatval($symbol_object['avg_revenue_growth_5y'])>0){
-                $score_rev_growth=(min(floatval($symbol_object['avg_revenue_growth_5y']),20)/100)*5;
-                $score_rev_growth+=$om_to_ps*0.3; // max around 0.1 (can be penalizing -0.1)
-                // good quarter only +0.1 (cannot penalize)
-                if(array_key_exists('revenue_growth_qq_last_year',$symbol_object) && floatval($symbol_object['revenue_growth_qq_last_year'])>0){
-                    $score_rev_growth+=max(min(((floatval($symbol_object['revenue_growth_qq_last_year'])+floatval($symbol_object['avgrevenue_growth_qq_last_year']))/2),10),-10)/100;
-                }
-                $score_rev_growth=max(min($score_rev_growth,1),0);  // min 0 max 1
+                $score_rev_growth=min(floatval($symbol_object['avg_revenue_growth_5y']),20)*5/100;
             }
+            $score_rev_growth+=$om_to_ps*0.1; // max 0.1 (can be penalizing -0.1)
+            // good quarter only +0.1 (cannot penalize), and only if good means om_to_ps>0.2
+            if(array_key_exists('revenue_growth_qq_last_year',$symbol_object) && floatval($symbol_object['revenue_growth_qq_last_year'])>0 && $om_to_ps>0.2){
+                $score_rev_growth+=min(floatval($symbol_object['avgrevenue_growth_qq_last_year']),10)/100;
+            }
+            $score_rev_growth=max(min($score_rev_growth,1),0);  // min 0 max 1
 
             $score_epsp=0;
             $epsp=floatval($symbol_object['epsp']);
@@ -378,6 +385,8 @@ foreach ($stock_details_arr as $key => $item) {
                 if($symbol_object['eps_hist_trend']=='^') $negative_eps_growth_penalty=-0.15;
             }
 
+            $symbol_object['om_to_ps']="".toFixed($om_to_ps);
+            $symbol_object['computable_val_growth']="".toFixed($computable_val_growth);
             /*$symbol_object['score_yield']="".toFixed($score_yield);
             $symbol_object['score_val_growth']="".toFixed($score_val_growth);
             $symbol_object['score_rev_growth']="".toFixed($score_rev_growth);
