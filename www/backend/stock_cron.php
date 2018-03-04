@@ -326,12 +326,12 @@ foreach ($stock_details_arr as $key => $item) {
             $epsp=floatval($symbol_object['epsp']);
             if($epsp>=0){
                 // the distribution of positive cases goes from 0 to 10%
-                $score_epsp=$epsp*10;
+                $score_epsp=($epsp+0.005)*10;
                 if($computable_yield>$epsp) $score_epsp-=$epsp-$computable_yield; // penalized if yield > $epsp
                 if(array_key_exists('eps_hist_trend',$symbol_object)){
-                    if($symbol_object['eps_hist_trend']=='/-') $score_epsp+=0.15; 
-                    if($symbol_object['eps_hist_trend']=='_/') $score_epsp+=0.25; 
-                    if($symbol_object['eps_hist_trend']=='/') $score_epsp+=0.5;
+                    if($symbol_object['eps_hist_trend']=='/-') $score_epsp+=0.10; 
+                    if($symbol_object['eps_hist_trend']=='_/') $score_epsp+=0.20; 
+                    if($symbol_object['eps_hist_trend']=='/') $score_epsp+=0.30;
                 }
                 $score_epsp=max(min($score_epsp,1),0);  // min 0 max 1
             }
@@ -359,11 +359,12 @@ foreach ($stock_details_arr as $key => $item) {
             
             $negative_val_growth_penalty=0.0;
             if($computable_val_growth<0){
-                if(floatval($symbol_object['val_yy_drops'])>0.3) $negative_val_growth_penalty=-0.15;
-                if(floatval($symbol_object['val_yy_drops'])>0.67) $negative_val_growth_penalty=-0.25;
-                $negative_val_growth_penalty=max(min($computable_val_growth*5,0),-1);
+                $negative_val_growth_penalty=$computable_val_growth*5;
             }
-
+            if(floatval($symbol_object['val_yy_drops'])>0.3) $negative_val_growth_penalty-=0.15;
+            if(floatval($symbol_object['val_yy_drops'])>0.67) $negative_val_growth_penalty-=0.25;
+            $negative_val_growth_penalty=max(min($negative_val_growth_penalty,0),-1);
+                
             $negative_rev_growth_penalty=0.0;
             if(floatval($symbol_object['avg_revenue_growth_5y'])<0 && $epsp<0.03){
                 // max -0.15 to be a bad groinging company
@@ -376,32 +377,27 @@ foreach ($stock_details_arr as $key => $item) {
             if(floatval($symbol_object['revenue_growth_qq_last_year'])< -0.15 && $epsp<0.03){
                 $negative_rev_growth_penalty+=min(max(floatval($symbol_object['revenue_growth_qq_last_year'])+floatval($symbol_object['avg_revenue_growth_5y']),-50),0)/200;
             }
-            $negative_rev_growth_penalty=max(min($score_epsp,0),-1);  // min 0 max 1
+            $negative_rev_growth_penalty=max(min($negative_rev_growth_penalty,0),-1);  // min 0 max 1
 
             $negative_eps_growth_penalty=0.0;
             if($epsp<0.03 && array_key_exists('eps_hist_trend',$symbol_object)){
                 if($symbol_object['eps_hist_trend']=='\\') $negative_eps_growth_penalty=-1;
                 if($symbol_object['eps_hist_trend']=='-\\') $negative_eps_growth_penalty=-0.5;
-                if($symbol_object['eps_hist_trend']=='^') $negative_eps_growth_penalty=-0.15;
+                if($symbol_object['eps_hist_trend']=='\_') $negative_eps_growth_penalty=-0.5;
+                if($symbol_object['eps_hist_trend']=='^') $negative_eps_growth_penalty=-0.25;
+            }
+            if($epsp<-0.015){
+                $negative_eps_growth_penalty=-1;
             }
 
             $symbol_object['om_to_ps']="".toFixed($om_to_ps);
             $symbol_object['computable_val_growth']="".toFixed($computable_val_growth);
-            /*$symbol_object['score_yield']="".toFixed($score_yield);
-            $symbol_object['score_val_growth']="".toFixed($score_val_growth);
-            $symbol_object['score_rev_growth']="".toFixed($score_rev_growth);
-            $symbol_object['score_epsp']="".toFixed($score_epsp);
-            $symbol_object['score_leverage']="".toFixed($score_leverage);
-
-            $symbol_object['negative_val_growth_penalty']="".toFixed($negative_val_growth_penalty,2,"val penalty");
-            $symbol_object['negative_rev_growth_penalty']="".toFixed($negative_rev_growth_penalty,2,"rev penalty");
-            $symbol_object['negative_eps_growth_penalty']="".toFixed($negative_eps_growth_penalty,2,"eps penalty");*/
             
             
-            if($computable_yield>0.029){
+            if($computable_yield>0.029 && ($computable_val_growth-$computable_yield)<0.15){
                 $symbol_object['h_souce']="".toFixed(
-                                                     ($score_yield*2)+
-                                                     ($score_val_growth*2)+
+                                                     ($score_yield*1)+
+                                                     ($score_val_growth*3)+
                                                      ($score_rev_growth*1)+
                                                      ($score_epsp*4)+
                                                      ($score_leverage*1)+
