@@ -39,13 +39,13 @@ $stock_list="$stock_list,NYSE:TM,ETR:VOW,NYSE:GM,EPA:UG,NYSE:F";
 $stock_list="$stock_list,NYSE:ED,NYSE:EIX,NASDAQ:SPWR,NASDAQ:TSLA,NYSE:NEE,NYSE:DUK,NYSE:SO,NYSE:D,NYSE:EXC";  // ,NASDAQ:SCTY acquired by TESLA 2016/2017?
 
 // FUTURE:
-// Uber is not yet in stock, IPO estimated 2017
+// Uber, airbnb, dropbox, spotify is not yet in stock, IPO estimated 2019
 // MagicLeap virutal reality (GOOG will buy it?)
 // MCD (McDonald's), ...
-// Nokia -20% Ericsson -5% in Oct-2017 because ISPs still don't want 5G
+// Nokia -20% Ericsson -5% in Oct-2017 because ISPs still don't want 5G, and QCOM and HUAWEI also competing
 // Nokia sold mobile biz to Microsoft and Here data to Mercedes, BMW, Audi
-// Nokia is in trouble now, only focusing on new network techs
-
+// Nokia is in trouble now, only focusing on new network techs (graphene)
+// Investing in graphene: IBM, Samsung, Nokia, Intel, Sony, graphene-only companies are too small/non-transparent/dangerous...
 
 // Indexes
 $market_currencies['INDEXBME']="EUR";

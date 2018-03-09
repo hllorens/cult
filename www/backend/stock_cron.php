@@ -92,27 +92,32 @@ foreach ($stock_details_arr as $key => $item) {
         hist('value',12,$symbol_object); // every year
         // replace last diff by penultimate diff if exists and it is still early in the year
         if(count($symbol_object['value_hist'])>2 && intval(date("n"))<4){ // only set it if it is early in the year so it makes more sense to diff with the previous year
-            $symbol_object['value_hist_last_diff']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-1][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1]))))*100,0,"value_hist_last_diff");
+            $symbol_object['value_hist_last_diff']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-1][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1]))))*100,1,"value_hist_last_diff");
         }
         // anualized 3y
         $symbol_object['val_change_3y']=0;
         if(count($symbol_object['value_hist'])>3){
-            $symbol_object['val_change_3y']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-1][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-4][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-4][1]))))*(100/3),0,"val_change_3y");
+            $symbol_object['val_change_3y']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-1][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-4][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-4][1]))))*(100/3),1,"val_change_3y");
         }
         // anualized 3y prev (without the current)
         $symbol_object['val_change_3yp']=$symbol_object['val_change_3y']; // by default use 3y val change
         if(count($symbol_object['value_hist'])>4){
-            $symbol_object['val_change_3yp']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-5][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-5][1]))))*(100/3),0,"val_change_3yp");
+            $symbol_object['val_change_3yp']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-5][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-5][1]))))*(100/3),1,"val_change_3yp");
+        }
+        // anualized 3y prev prev
+        $symbol_object['val_change_3ypp']=$symbol_object['val_change_3y']; // by default use 3y val change
+        if(count($symbol_object['value_hist'])>5){
+            $symbol_object['val_change_3ypp']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-6][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-6][1]))))*(100/3),1,"val_change_3ypp");
         }
         // anualized 5y
         $symbol_object['val_change_5y']=$symbol_object['val_change_3y']; // by default use 3y val change
         if(count($symbol_object['value_hist'])>5){
-            $symbol_object['val_change_5y']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-1][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-6][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-6][1]))))*(100/5),0,"val_change_5y");
+            $symbol_object['val_change_5y']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-1][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-6][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-6][1]))))*(100/5),1,"val_change_5y");
         }
         // anualized 5y prev (without the current)
         $symbol_object['val_change_5yp']=$symbol_object['val_change_5y']; // by default use 3y val change
         if(count($symbol_object['value_hist'])>6){
-            $symbol_object['val_change_5yp']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-7][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-7][1]))))*(100/5),0,"val_change_5yp");
+            $symbol_object['val_change_5yp']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-7][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-7][1]))))*(100/5),1,"val_change_5yp");
         }
 
         $symbol_object['val_yy_drops']=0;
@@ -165,6 +170,7 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['operating_margin_prev']=0;     // TODO: remove in 2019
             $symbol_object['operating_margin_avg']=0;      // TODO: remove in 2019
             $symbol_object['price_to_sales']=99;
+            $symbol_object['om_to_ps']=0;
             $symbol_object['leverage']=99;
             $symbol_object['inst_own']=0;
         }else{
@@ -245,7 +251,7 @@ foreach ($stock_details_arr as $key => $item) {
 
 
             hist('yield',6,$symbol_object,8,7); // 6=every half year, avgelems=8 (default), max in avg is 7% yield
-            hist('operating_margin',6,$symbol_object); // 3=every quarter, but not useful for ttm calculation since om average might not be equal to anual revenue - operating expenses
+            hist('operating_margin',3,$symbol_object); // 3=every quarter, but not useful for ttm calculation since om average might not be equal to anual revenue - operating expenses
             hist('operating_margin_prev',12,$symbol_object); // yearly  TODO TEMP remove after 2019
             hist('shares',6,$symbol_object); // 6=every half year
             hist('employees',6,$symbol_object); // 6=every half year
@@ -256,22 +262,23 @@ foreach ($stock_details_arr as $key => $item) {
             if(count($symbol_object['eps_hist'])>2){
                 $eps_hist_last_diff=$symbol_object['eps_hist_last_diff'];
                 $eps_hist_penultimate_diff=((floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1])-floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-3][1]))/max(0.5,abs(floatval($symbol_object['eps_hist'][count($symbol_object['eps_hist'])-3][1]))));
+                $eps_threshold=0.15;
                 $symbol_object['eps_hist_trend']="--";
-                if      ($eps_hist_penultimate_diff>0.1 && $eps_hist_last_diff>0.1){
+                if      ($eps_hist_penultimate_diff>$eps_threshold && $eps_hist_last_diff>$eps_threshold){
                     $symbol_object['eps_hist_trend']="/";
-                }else if($eps_hist_penultimate_diff>0.1 && $eps_hist_last_diff <0.1 && $eps_hist_last_diff >-0.1){
+                }else if($eps_hist_penultimate_diff>$eps_threshold && $eps_hist_last_diff <$eps_threshold && $eps_hist_last_diff >-$eps_threshold){
                     $symbol_object['eps_hist_trend']="/-";
-                }else if($eps_hist_penultimate_diff <0.1 && $eps_hist_penultimate_diff >-0.1 && $eps_hist_last_diff>0.1){
+                }else if($eps_hist_penultimate_diff <$eps_threshold && $eps_hist_penultimate_diff >-$eps_threshold && $eps_hist_last_diff>$eps_threshold){
                     $symbol_object['eps_hist_trend']="_/";
-                }else if($eps_hist_penultimate_diff<-0.1 && $eps_hist_last_diff > $eps_hist_penultimate_diff ){
+                }else if($eps_hist_penultimate_diff<-$eps_threshold && $eps_hist_last_diff > $eps_hist_penultimate_diff ){
                     $symbol_object['eps_hist_trend']="v";
-                }else if($eps_hist_penultimate_diff>0.1 && $eps_hist_last_diff < (-1*$eps_hist_penultimate_diff)){
+                }else if($eps_hist_penultimate_diff>$eps_threshold && $eps_hist_last_diff < (-1*$eps_hist_penultimate_diff)){
                     $symbol_object['eps_hist_trend']="^";
-                }else if($eps_hist_penultimate_diff<0.1 && $eps_hist_last_diff <0.1 && $eps_hist_last_diff >-0.1){
+                }else if($eps_hist_penultimate_diff<-$eps_threshold && $eps_hist_last_diff <$eps_threshold && $eps_hist_last_diff >-$eps_threshold){
                     $symbol_object['eps_hist_trend']="\_";
-                }else if($eps_hist_penultimate_diff <0.1 && $eps_hist_penultimate_diff >-0.1 && $eps_hist_last_diff<0.1){
+                }else if($eps_hist_penultimate_diff <$eps_threshold && $eps_hist_penultimate_diff >-$eps_threshold && $eps_hist_last_diff<-$eps_threshold){
                     $symbol_object['eps_hist_trend']="-\\";
-                }else if($eps_hist_penultimate_diff<0.1 && $eps_hist_last_diff <0.1){
+                }else if($eps_hist_penultimate_diff<-$eps_threshold && $eps_hist_last_diff <-$eps_threshold){
                     $symbol_object['eps_hist_trend']="\\";
                 }
             }
@@ -292,7 +299,12 @@ foreach ($stock_details_arr as $key => $item) {
             }
             
             $score_val_growth=0;
-            $computable_val_growth=((max(min(floatval($symbol_object['val_change_5y']),20),-20)+max(min(floatval($symbol_object['val_change_5yp']),20),-20)+max(min(floatval($symbol_object['val_change_3y']),20),-20)+max(min(floatval($symbol_object['val_change_3yp']),20),-20))/4)/100;
+            $computable_val_growth=((max(min(floatval($symbol_object['val_change_5y']),20),-20)+
+                                     max(min(floatval($symbol_object['val_change_5yp']),20),-20)+
+                                     max(min(floatval($symbol_object['val_change_3y']),20),-20)+
+                                     max(min(floatval($symbol_object['val_change_3yp']),20),-20)+
+                                     max(min(floatval($symbol_object['val_change_3ypp']),20),-20))
+                                     /5)/100;
             $computable_val_growth+=$computable_yield;
             $symbol_object['avgvalg']=toFixed($computable_val_growth,1,"avgvalg");
             if($computable_val_growth>0){
@@ -304,11 +316,11 @@ foreach ($stock_details_arr as $key => $item) {
             $om_to_ps=0; // if no info, no gain
             if(array_key_exists('operating_margin',$symbol_object) && floatval($symbol_object['operating_margin'])!=0
                && array_key_exists('price_to_sales',$symbol_object) && floatval($symbol_object['price_to_sales'])!=0){
-                $om_to_ps=min(max(floatval($symbol_object['avgoperating_margin']),0)/min(floatval($symbol_object['avgprice_to_sales'])*10,0.01),1);
+                $om_to_ps=min(max(floatval($symbol_object['avgoperating_margin'])*3,0)/max(floatval($symbol_object['avgprice_to_sales'])*10,0.1),1);
                 //TEMPORARY UNTIL 2019 --------------------------------------------------------------
                 // if exists use the avg for the calculation temporary until 2019 where we already get a history in op
                 if(array_key_exists('operating_margin_avg',$symbol_object) && floatval($symbol_object['operating_margin_avg'])!=0){
-                    $om_to_ps=min(max((floatval($symbol_object['avgoperating_margin'])+floatval($symbol_object['operating_margin_avg']))/2,0)/min(floatval($symbol_object['avgprice_to_sales'])*10,0.01),1); 
+                    $om_to_ps=min(max(((floatval($symbol_object['avgoperating_margin'])+floatval($symbol_object['operating_margin_avg']))/2)*3,0)/max(floatval($symbol_object['avgprice_to_sales'])*10,0.1),1); 
                 } 
                 // ----------------------------------------------------------------------------------
             }
@@ -326,8 +338,9 @@ foreach ($stock_details_arr as $key => $item) {
             $epsp=floatval($symbol_object['epsp']);
             if($epsp>=0){
                 // the distribution of positive cases goes from 0 to 10%
-                $score_epsp=($epsp+0.005)*10;
-                if($computable_yield>$epsp) $score_epsp-=$epsp-$computable_yield; // penalized if yield > $epsp
+                // we decided that 6.67% (per=15) is good enough to get 100% score
+                $score_epsp=($epsp)*15;
+                if($computable_yield>($epsp+0.006)) $score_epsp-=($epsp-$computable_yield)*15; // penalized if yield > $epsp
                 if(array_key_exists('eps_hist_trend',$symbol_object)){
                     if($symbol_object['eps_hist_trend']=='/-') $score_epsp+=0.10; 
                     if($symbol_object['eps_hist_trend']=='_/') $score_epsp+=0.20; 
@@ -396,10 +409,10 @@ foreach ($stock_details_arr as $key => $item) {
             
             if($computable_yield>0.029 && ($computable_val_growth-$computable_yield)<0.15){
                 $symbol_object['h_souce']="".toFixed(
-                                                     ($score_yield*1)+
-                                                     ($score_val_growth*3)+
-                                                     ($score_rev_growth*1)+
-                                                     ($score_epsp*4)+
+                                                     ($score_yield*0)+
+                                                     ($score_val_growth*5)+
+                                                     ($score_rev_growth*2)+
+                                                     ($score_epsp*2)+
                                                      ($score_leverage*1)+
                                                      ($negative_val_growth_penalty*3)+
                                                      ($negative_rev_growth_penalty*2)+
@@ -409,8 +422,8 @@ foreach ($stock_details_arr as $key => $item) {
                 $symbol_object['h_souce']="".toFixed(
                                                      ($score_yield*0)+
                                                      ($score_val_growth*5)+
-                                                     ($score_rev_growth*3)+
-                                                     ($score_epsp*1)+
+                                                     ($score_rev_growth*2)+
+                                                     ($score_epsp*2)+
                                                      ($score_leverage*1)+
                                                      ($negative_val_growth_penalty*3)+
                                                      ($negative_rev_growth_penalty*2)+
