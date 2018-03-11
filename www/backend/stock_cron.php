@@ -455,6 +455,8 @@ foreach ($stock_details_arr as $key => $item) {
             }
             
             if(floatval($symbol_object['h_souce'])<1){echo " h_souce=".$symbol_object['h_souce'];}
+            hist_min('h_souce',12,$symbol_object); // yearly  TODO TEMP remove after 2019
+
             
             // old stuff
             $avgyield_per_ratio=max(min(floatval($symbol_object['avgyield']),floatval($symbol_object['yield'])),1.5)/min(max((floatval($symbol_object['per'])+floatval($symbol_object['avgper']))/2,6.0),100);           

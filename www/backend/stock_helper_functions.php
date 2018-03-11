@@ -63,4 +63,24 @@ function hist($param_id,$freq, &$symbol_object, $max_elems_to_avg=8, $max_avg="n
     }
 }
 
+function hist_min($param_id,$freq, &$symbol_object){
+    $timestamp_date=date("Y-m-d"); // refresh date
+    $timestamp_freq=substr($timestamp_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $timestamp_date)->format('n') / $freq) % (12/$freq)) + 1 );
+    if(!array_key_exists($param_id,$symbol_object)){die('In hist_min() the param_id ('.$param_id.') does not exist');}
+    if(!array_key_exists($param_id.'_hist',$symbol_object)){$symbol_object[$param_id.'_hist']=array();}    
+    if(!array_key_exists($param_id.'_hist',$symbol_object) || count($symbol_object[$param_id.'_hist'])==0){
+        $symbol_object[$param_id.'_hist'][]=[$timestamp_date,$symbol_object[$param_id]];
+    }else{
+        $last_elem=end($symbol_object[$param_id.'_hist'])[1];
+        $last_elem_date=end($symbol_object[$param_id.'_hist'])[0];
+        $last_elem_freq=substr($last_elem_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $last_elem_date)->format('n') / $freq) % (12/$freq)) + 1 );
+        //echo "$last_elem_date half $last_elem_freq current half $timestamp_freq<br />";
+        if($timestamp_freq!=$last_elem_freq){
+            $symbol_object[$param_id.'_hist'][]=[$timestamp_date,$symbol_object[$param_id]];
+        }else{ // to keep it fresh
+            $symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist']) - 1]=[$timestamp_date,$symbol_object[$param_id]];
+        }
+    }
+}
+
 ?>
