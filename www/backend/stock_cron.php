@@ -333,7 +333,7 @@ foreach ($stock_details_arr as $key => $item) {
             if(array_key_exists('avg_revenue_growth_5y',$symbol_object) && floatval($symbol_object['avg_revenue_growth_5y'])>0){
                 $score_rev_growth=min(floatval($symbol_object['avg_revenue_growth_5y']),20)*5/100;
             }
-            $score_rev_growth+=$om_to_ps*0.1; // max 0.1 (can be penalizing -0.1)
+            $score_rev_growth+=$om_to_ps*0.3; // max 0.1 (can be penalizing -0.1)
             // good quarter only +0.1 (cannot penalize), and only if good means om_to_ps>0.2
             if(array_key_exists('revenue_growth_qq_last_year',$symbol_object) && floatval($symbol_object['revenue_growth_qq_last_year'])>0 && $om_to_ps>0.2){
                 $score_rev_growth+=min(floatval($symbol_object['avgrevenue_growth_qq_last_year']),10)/100;
