@@ -162,6 +162,14 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['eps']=0;
         $symbol_object['epsp']=0;
         $symbol_object['eps_hist_last_diff']=0;
+        $computable_val_growth=((max(min(floatval($symbol_object['val_change_5y']),20),-20)+
+                                 max(min(floatval($symbol_object['val_change_5yp']),20),-20)+
+                                 max(min(floatval($symbol_object['val_change_3y']),20),-20)+
+                                 max(min(floatval($symbol_object['val_change_3yp']),20),-20)+
+                                 max(min(floatval($symbol_object['val_change_3ypp']),20),-20))
+                                 /5)/100;
+        $symbol_object['computable_val_growth']="".toFixed($computable_val_growth);;
+
 
         // ONLY IF IT IS NOT AN INDEX
         if(substr($item['market'],0,5)=="INDEX"){
@@ -173,6 +181,7 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['om_to_ps']=0;
             $symbol_object['leverage']=99;
             $symbol_object['inst_own']=0;
+            $symbol_object['guessed_value']=0;
         }else{
             echo "!idx"; 
             $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];
@@ -201,6 +210,9 @@ foreach ($stock_details_arr as $key => $item) {
             } 
             $symbol_object['operating_margin_avg']="".number_format((floatval($symbol_object['operating_margin'])+floatval($symbol_object['operating_margin_prev']))/2, 2, ".", "");
             // -------------------------------------------
+            if(floatval($symbol_object['revenue'])==0 && count($symbol_object['revenue_hist'])>1){
+                $symbol_object['revenue']=$symbol_object['revenue_hist'][count($symbol_object['revenue_hist'])-2][1];
+            }
             if(floatval($symbol_object['revenue_growth_qq_last_year'])==0 && count($symbol_object['revenue_growth_qq_last_year_hist'])>1){
                 $symbol_object['revenue_growth_qq_last_year']=$symbol_object['revenue_growth_qq_last_year_hist'][count($symbol_object['revenue_growth_qq_last_year_hist'])-2][1];
             }
@@ -299,12 +311,6 @@ foreach ($stock_details_arr as $key => $item) {
             }
             
             $score_val_growth=0;
-            $computable_val_growth=((max(min(floatval($symbol_object['val_change_5y']),20),-20)+
-                                     max(min(floatval($symbol_object['val_change_5yp']),20),-20)+
-                                     max(min(floatval($symbol_object['val_change_3y']),20),-20)+
-                                     max(min(floatval($symbol_object['val_change_3yp']),20),-20)+
-                                     max(min(floatval($symbol_object['val_change_3ypp']),20),-20))
-                                     /5)/100;
             $computable_val_growth+=$computable_yield;
             $symbol_object['avgvalg']=toFixed($computable_val_growth,1,"avgvalg");
             if($computable_val_growth>0){
@@ -406,7 +412,24 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['om_to_ps']="".toFixed($om_to_ps);
             $symbol_object['computable_val_growth']="".toFixed($computable_val_growth);
             
+
+            $calc_value_sell_share_raw=((floatval($symbol_object['revenue'])/max(0.0001,floatval($symbol_object['shares']))));
+            $calc_value_sell_share=($calc_value_sell_share_raw*min(floatval($symbol_object['avgoperating_margin'])/33,1));
+            $calc_value_asset_share=(floatval($symbol_object['value'])/max(0.0001,floatval($symbol_object['price_to_book'])));
+            $calc_value_mult_factor=                          ((
+                                    max(min(
+                                    min(floatval($symbol_object['avg_revenue_growth_5y']),40)   // max 40
+                                    +(min(floatval($epsp),0.06)*400)           // max 24
+                                    ,60),1)   // max 60, min 1                
+                                  )/7); // ideally 7.5 but accounting for optimism
             
+            $symbol_object['guessed_value']="".toFixed(((floatval($calc_value_sell_share)
+                                  *
+                                  floatval($calc_value_mult_factor))
+                                  +floatval($calc_value_asset_share)
+                                  ),1,"calc_value guessed_value");
+
+
             if($computable_yield>0.029 && ($computable_val_growth-$computable_yield)<0.15){
                 $symbol_object['h_souce']="".toFixed(
                                                      ($score_yield*0)+

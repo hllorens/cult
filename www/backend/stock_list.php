@@ -10,7 +10,7 @@ $stock_list="INDEXBME:IB";
 $stock_list="$stock_list,BME:ACS,BME:ACX,BME:AENA,BME:AMS,BME:ANA,BME:BBVA,BME:BKIA,BME:BKT,BME:CABK,BME:DIA";
 $stock_list="$stock_list,BME:ELE,BME:ENG,BME:FCC,BME:FER,BME:SGRE,BME:GAS,BME:GRF,BME:IBE,BME:IDR"; // BME:GAM -> BME:SGRE, BME:IAG (NO MUCH INFO)
 $stock_list="$stock_list,BME:ITX,BME:MAP,BME:MEL,BME:MTS,BME:OHL,BME:REE,BME:REP,BME:SAB,BME:SAN,BME:SCYR";
-$stock_list="$stock_list,BME:TEF,BME:TL5,BME:TRE,BME:VID,BME:R4"; 
+$stock_list="$stock_list,BME:TEF,BME:TL5,BME:TRE,BME:VID,BME:R4,BME:CLNX"; 
 // ojo masmovil... consider adding it grows interestingly
 // IBEX quebrados o quitados: ,BME:POP
 // otras interesantes españa o farmaceuticas (society is aging... pharmacy will play a role)
@@ -28,7 +28,7 @@ $stock_list="$stock_list,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INT
 $stock_list="$stock_list,NASDAQ:NTES,NYSE:ICE,NASDAQ:CME,NASDAQ:MCHP,NASDAQ:MU,NYSE:TSM,NASDAQ:AVGO,NASDAQ:BIDU,NASDAQ:WDC";
 $stock_list="$stock_list,NASDAQ:BKNG,NASDAQ:TRIP,NASDAQ:EXPE";
 $stock_list="$stock_list,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:SSI,NYSE:O";
-$stock_list="$stock_list,NYSE:KO,NYSE:DPS,VTX:NESN,NYSE:PEP,EPA:BN";
+$stock_list="$stock_list,NYSE:KO,NYSE:DPS,VTX:NESN,NASDAQ:PEP,EPA:BN";
 $stock_list="$stock_list,NYSE:VZ,NYSE:T,NASDAQ:VOD,NASDAQ:QCOM";
 $stock_list="$stock_list,NYSE:XOM,NYSE:DIS";
 $stock_list="$stock_list,NYSE:BP,NYSE:HSBC,OTCMKTS:ZURVY";

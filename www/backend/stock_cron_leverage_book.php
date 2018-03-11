@@ -118,7 +118,17 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
         $name=$query_arr[1];
         $market=$query_arr[0];
+        if($results['Revenue'][0]=="-" || $results['Revenue'][0]==""){
+            $results['Revenue'][0]=0;
+        }
+        // avoid adding 0 if a non-0 exists
+        echo "revenue=".$results['Revenue'][0];
+        if(floatval($results['Revenue'][0])==0 && array_key_exists('revenue_hist',$stocks_formatted_arr[$name.":".$market]) && count($stocks_formatted_arr[$name.":".$market]['revenue_hist'])>1){
+               echo "revenue=0 (fixing)";
+               $results['Revenue'][0]=$stocks_formatted_arr[$name.":".$market]['revenue_hist'][count($stocks_formatted_arr[$name.":".$market]['revenue_hist'])-1][1];
+        }
         $stocks_formatted_arr[$name.":".$market]['revenue']=format_billions($results['Revenue'][0]); // current ttm which is equal to mrq in balance sheet
+        echo "revenue=".$stocks_formatted_arr[$name.":".$market]['revenue']."<br />";
         $stocks_formatted_arr[$name.":".$market]['price_to_book']=$results['Price\/Book Value'][0];
         if($results['Price\/Sales'][0]=="-" || $results['Price\/Sales'][0]=="") $results['Price\/Sales'][0]=99;
         $stocks_formatted_arr[$name.":".$market]['price_to_sales']=$results['Price\/Sales'][0];
