@@ -100,22 +100,22 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['val_change_3y']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-1][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-4][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-4][1]))))*(100/3),1,"val_change_3y");
         }
         // anualized 3y prev (without the current)
-        $symbol_object['val_change_3yp']=$symbol_object['val_change_3y']; // by default use 3y val change
+        $symbol_object['val_change_3yp']=min(floatval($symbol_object['val_change_3y']),2); // by default 2% inflation
         if(count($symbol_object['value_hist'])>4){
             $symbol_object['val_change_3yp']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-5][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-5][1]))))*(100/3),1,"val_change_3yp");
         }
         // anualized 3y prev prev
-        $symbol_object['val_change_3ypp']=$symbol_object['val_change_3y']; // by default use 3y val change
+        $symbol_object['val_change_3ypp']=min(floatval($symbol_object['val_change_3y']),2); // by default use 3y val change
         if(count($symbol_object['value_hist'])>5){
             $symbol_object['val_change_3ypp']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-3][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-6][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-6][1]))))*(100/3),1,"val_change_3ypp");
         }
         // anualized 5y
-        $symbol_object['val_change_5y']=$symbol_object['val_change_3y']; // by default use 3y val change
+        $symbol_object['val_change_5y']=min(floatval($symbol_object['val_change_3y']),2); // by default use 3y val change
         if(count($symbol_object['value_hist'])>5){
             $symbol_object['val_change_5y']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-1][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-6][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-6][1]))))*(100/5),1,"val_change_5y");
         }
         // anualized 5y prev (without the current)
-        $symbol_object['val_change_5yp']=$symbol_object['val_change_5y']; // by default use 3y val change
+        $symbol_object['val_change_5yp']=min(floatval($symbol_object['val_change_5y']),2); // by default use 3y val change
         if(count($symbol_object['value_hist'])>6){
             $symbol_object['val_change_5yp']=toFixed(((floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1])-floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-7][1]))/max(0.5,abs(floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-7][1]))))*(100/5),1,"val_change_5yp");
         }
