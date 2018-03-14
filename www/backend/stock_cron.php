@@ -140,8 +140,8 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['range_52week_low']="0";
         $symbol_object['range_52week_heat']="0";
         $symbol_object['range_52week_volatility']="0";
-        if(strpos($symbol_object['range_52week'], '- ') !== false){
-            $parts = explode('- ', $symbol_object['range_52week']);
+        if(strpos($symbol_object['range_52week'], '-') !== false){
+            $parts = explode('-', $symbol_object['range_52week']);
             $symbol_object['range_52week_low']=trim($parts[0]);
             $symbol_object['range_52week_high']=trim($parts[1]);
             $symbol_object['range_52week_heat']="".toFixed((floatval($symbol_object['value'])-floatval($symbol_object['range_52week_low']))/(floatval($symbol_object['range_52week_high'])-floatval($symbol_object['range_52week_low'])),2,"heat");
@@ -151,7 +151,7 @@ foreach ($stock_details_arr as $key => $item) {
             // to show the 2x format or 1.3x, we can do it in js to avoid making json bigger
             //$symbol_object['range_52week_volatility_times']="".toFixed(((floatval($symbol_object['range_52week_high'])-floatval($symbol_object['range_52week_low']))/(floatval($symbol_object['range_52week_low'])))+1,1);
         }
-        $symbol_object['beta']=$stock_details_arr[$item['market'].':'.$item['name']]['beta'];
+        //$symbol_object['beta']=$stock_details_arr[$item['market'].':'.$item['name']]['beta'];
         // initialize to avoid stockionic sorting breaks
         $symbol_object['yield_per_ratio']="0";
         $symbol_object['avgyield_per_ratio']="0";
@@ -175,7 +175,6 @@ foreach ($stock_details_arr as $key => $item) {
         if(substr($item['market'],0,5)=="INDEX"){
             echo "idx"; 
             $symbol_object['operating_margin']=0;
-            $symbol_object['operating_margin_prev']=0;     // TODO: remove in 2019
             $symbol_object['operating_margin_avg']=0;      // TODO: remove in 2019
             $symbol_object['price_to_sales']=99;
             $symbol_object['om_to_ps']=0;
@@ -192,8 +191,8 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['per']=$stock_details_arr[$item['market'].':'.$item['name']]['per'];
             $symbol_object['shares']=$stock_details_arr[$item['market'].':'.$item['name']]['shares'];
             $symbol_object['mktcap']=toFixed(floatval($symbol_object['shares'])*floatval($symbol_object['value']),2,"cap and shares");
-            $symbol_object['roe']=$stock_details_arr[$item['market'].':'.$item['name']]['roe'];
-            $symbol_object['operating_margin']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin'];
+            //$symbol_object['roe']=$stock_details_arr[$item['market'].':'.$item['name']]['roe'];
+            //$symbol_object['operating_margin']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin'];
             // BACKUP Strategy of important measures ----------------------------------
             // google sometimes discards operating maring when result publication is close, solution: if 0 and prev !=0 use prev
             // The script also fails sometimes for growth revenue qq etc so here is a backup strategy if 0
@@ -203,13 +202,6 @@ foreach ($stock_details_arr as $key => $item) {
             if(floatval($symbol_object['operating_margin'])==0 && count($symbol_object['operating_margin_hist'])>1){
                 $symbol_object['operating_margin']=$symbol_object['operating_margin_hist'][count($symbol_object['operating_margin_hist'])-2][1];
             }
-            // TODO: TEMPORARY UNTIL 2019-----------------
-            $symbol_object['operating_margin_prev']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin_prev']; // ttm is not possible... since the avg om might not be equal to the yearly revenue - yearly op expenses...
-            if(floatval($symbol_object['operating_margin_prev'])==0 && count($symbol_object['operating_margin_prev_hist'])>1){
-                $symbol_object['operating_margin_prev']=$symbol_object['operating_margin_prev_hist'][count($symbol_object['operating_margin_prev_hist'])-2][1];
-            } 
-            $symbol_object['operating_margin_avg']="".number_format((floatval($symbol_object['operating_margin'])+floatval($symbol_object['operating_margin_prev']))/2, 2, ".", "");
-            // -------------------------------------------
             if(floatval($symbol_object['revenue'])==0 && count($symbol_object['revenue_hist'])>1){
                 $symbol_object['revenue']=$symbol_object['revenue_hist'][count($symbol_object['revenue_hist'])-2][1];
             }
@@ -220,10 +212,10 @@ foreach ($stock_details_arr as $key => $item) {
                 $symbol_object['avg_revenue_growth_5y']=$symbol_object['avg_revenue_growth_5y_hist'][count($symbol_object['avg_revenue_growth_5y_hist'])-2][1];
             }
             //-------------------------------------------------
-            $symbol_object['key_period']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period'];
-            $symbol_object['key_period_prev']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period_prev'];
-            $symbol_object['employees']=$stock_details_arr[$item['market'].':'.$item['name']]['employees'];
-            $symbol_object['inst_own']=$stock_details_arr[$item['market'].':'.$item['name']]['inst_own'];
+            //$symbol_object['key_period']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period'];
+            //$symbol_object['key_period_prev']=$stock_details_arr[$item['market'].':'.$item['name']]['key_period_prev'];
+            //$symbol_object['employees']=$stock_details_arr[$item['market'].':'.$item['name']]['employees'];
+            ///$symbol_object['inst_own']=$stock_details_arr[$item['market'].':'.$item['name']]['inst_own'];
             $symbol_object['avgyield']=$symbol_object['yield'];
             if(floatval($symbol_object['dividend'])!=0){
                 $symbol_object['divs_per_year']="".round(((floatval($symbol_object['yield'])/100)*floatval($symbol_object['value']))/floatval($symbol_object['dividend']));
@@ -263,11 +255,11 @@ foreach ($stock_details_arr as $key => $item) {
 
 
             hist('yield',6,$symbol_object,8,7); // 6=every half year, avgelems=8 (default), max in avg is 7% yield
-            hist('operating_margin',3,$symbol_object); // 3=every quarter, but not useful for ttm calculation since om average might not be equal to anual revenue - operating expenses
-            hist('operating_margin_prev',12,$symbol_object); // yearly  TODO TEMP remove after 2019
+            //hist('operating_margin',3,$symbol_object); // 3=every quarter, but not useful for ttm calculation since om average might not be equal to anual revenue - operating expenses
+            //hist('operating_margin_prev',12,$symbol_object); // yearly  TODO TEMP remove after 2019
             hist('shares',6,$symbol_object); // 6=every half year
-            hist('employees',6,$symbol_object); // 6=every half year
-            hist('inst_own',6,$symbol_object); // 
+            //hist('employees',6,$symbol_object); // 6=every half year
+            //hist('inst_own',6,$symbol_object); // 
             hist('per',6,$symbol_object); // 6=every half year avgelems=8 (default)
             hist('eps',3,$symbol_object); // avg elems 8
             // trend eps
