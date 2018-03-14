@@ -47,6 +47,8 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $response=preg_replace("/<title>/", "\ntd <title>", $response);
     $response=preg_replace("/<\/title>/", "\n", $response);
     $response=preg_replace("/<td/", "\ntd", $response);
+    //$response=preg_replace("/<span/", "\n<span", $response);
+    //$response=preg_replace("/<div/", "\n<div", $response);
     //if($debug)  echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
     $response=preg_replace("/<\/(td|table)>/", "\n", $response);
     //$response=preg_replace("/^[^t][^d].*$/m", "", $response);
@@ -60,21 +62,33 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
     //$response_arr=explode("\n",$response);
     preg_match("/^.*<title>([^:]*):.*$/m", $response, $title);
+    if(count($title)<1){
+        echo "new interface?";
+        preg_match("/^.* class=\"_FGr [^>]*>\s*([^<]*)<.*$/m", $response, $title);
+    }
     $title=preg_replace('/( S\.?A\.?| [Ii][Nn][Cc]\.?)\s*$/m', '', $title[1]); 
     //$title = preg_grep("/<title>/", $response_arr);
     if($debug) echo "<br />title: ".$title."<br />";
 
     // value or price span class="pr"      <span class="pr"><span id="ref_304466804484872_l">932.24<
     preg_match("/\"pr\">\s*<[^>]*>\s*([^<]*)</m", $response, $value);
+    if(count($value)<1){
+        echo "new interface?";
+        preg_match("/<span class=\"_s0r _zrp [^>]*>\s*([^<]*)</m", $response, $value);
+    }
     $value=str_replace("%","",trim($value[1]));
     if($debug) echo "value: (".$value.")<br />";
 
     // div ... price-change .. div <div class="id-price-change nwp"><span class="ch bld"><span class="chr" id="ref_304466804484872_c">-3.71</span><span class="chr" id="ref_304466804484872_cp">(-0.40%)</span></span>
-    preg_match("/id-price-change[^>]*>\s*[^>]*>\s*[^>]*>\s*([^<]*)</m", $response, $change);
-    $change=$change[1];
+    //preg_match("/id-price-change[^>]*>\s*[^>]*>\s*[^>]*>\s*([^<]*)</m", $response, $change);
+    //$change=$change[1];
     preg_match("/id-price-change[^>]*>\s*[^>]*>\s*[^>]*>\s*[^>]*>\s*[^>]*>\s*\(([^\)]*)\)/m", $response, $changep);
+    if(count($changep)<1){
+        echo "new interface?";
+        preg_match("/<span class=\"_yHo _s0r [^>]*>\s*\(([^\)]*)\)/m", $response, $changep);
+    }
     $changep=str_replace("%","",trim($changep[1]));
-    if($debug) echo "change: $change (".$changep.")<br />";
+    if($debug) echo "change: (".$changep.")<br />";
 
     preg_match("/^.*range_52week.*=\"val\"[^>]*>([^<]*)(\s*<[\/]?[^>]*>)*\s*/m", $response, $range_52week);
     if(count($range_52week)>1){
@@ -225,7 +239,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['market']=$market;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['title']=$title;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['value']=$value;
-    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['session_change']=$change;
+    //$stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['session_change']=$change;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['session_change_percentage']=$changep;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['yield']=$yieldval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['dividend']=$divval;

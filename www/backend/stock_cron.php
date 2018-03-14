@@ -129,7 +129,7 @@ foreach ($stock_details_arr as $key => $item) {
         }
         $symbol_object['val_yy_drops']=toFixed($symbol_object['val_yy_drops'],2,"val_yy_drops");
         
-        $symbol_object['session_change']=$item['session_change'];                        //$item['c'];
+        //$symbol_object['session_change']=$item['session_change'];                        //$item['c'];
         $symbol_object['session_change_percentage']=$item['session_change_percentage'];  //$item['cp'];
 
         $symbol_object['title']=substr($stock_details_arr[$item['market'].':'.$item['name']]['title'],0,30);
