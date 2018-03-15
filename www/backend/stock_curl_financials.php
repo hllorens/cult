@@ -75,7 +75,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     //$response=preg_replace("/^[^t][^d].*$/m", "", $response);
     $response = preg_replace('/^[ \t]*[\r\n]+/m', '', $response); // remove blank lines
     $response = preg_replace('/\n(.*=\"val\".*)[\r\n]+/m', '${1}', $response); // remove blank lines
-    $response = preg_replace('/title=\'(Period End Date|Total Revenue|Operating Income|Net Income|Total Current Assets|Total Assets|Total Current Liabilities|Total Liabilities|Total Equity|Cash Flow from Operating Activities|Cash Flow from Investing Activities|Cash Flow from Financing Activities|Free Cash Flow)\'[^>]*>\s*/', "\n", $response);
+    $response = preg_replace('/title=\'(Period End Date|Total Revenue|Operating Income|Net Income|Total Current Assets|Total Assets|Total Current Liabilities|Total Liabilities|Total Equity|Diluted EPS|Cash Flow from Operating Activities|Cash Flow from Investing Activities|Cash Flow from Financing Activities|Free Cash Flow)\'[^>]*>\s*/', "\n", $response);
     //$response = preg_replace('/\ntd class="lft name">Return on average equity\s*\ntd class=period>/',"\ntd class=\"lft name\">Return on average equity td class=period>",$response);
 //    if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
     echo "----------end----------";
@@ -85,9 +85,10 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     echo "<br />";
     
     
-    $vars2get=['Total Revenue','Operating Income','Net Income'];
+    $vars2get=['Total Revenue','Operating Income','Net Income', 'Diluted EPS'];
     $results=array();
     foreach($vars2get as $var2get){
+        if($debug) echo "getting results for: $var2get<br />";
         preg_match("/^".$var2get."(.*)$/m", $response, $xxxx);
         preg_match_all("/title='([^']*)'/", $xxxx[1], $xxxx_arr);
         $results[$var2get]=str_replace(",","",$xxxx_arr[1]);
@@ -114,11 +115,13 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $period_arr[1][$period]=$period_arr_arr[2]."-".str_pad($period_arr_arr[0],2,"0",STR_PAD_LEFT)."-".str_pad($period_arr_arr[1],2,"0",STR_PAD_LEFT);
         if(!array_key_exists($period_arr[1][$period],$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]])){$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]=array();}
         foreach($vars2get as $var2get){
+            if($debug) echo "updating vars: $var2get<br />";
             if(!array_key_exists($var2get,$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]])){
                 $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
             }else{
                 if($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]][$var2get]!=$results[$var2get][$period]){
-                    echo "ERROR changing the past!!!";
+                    echo "ERROR changing the past!!! (keeping new value)";
+                    $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
                     $past_change_log_f = fopen("past-change-log.txt", "a") or die("Unable to open past-change-log.txt!");
                     fwrite($past_change_log_f, "\n".date("Y-m-d")." In ".$the_url_query_arr[$current_num_to_curl]." period:".$period_arr[1][$period]." var:".$var2get."  old:".$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]][$var2get]." != new:".$results[$var2get][$period]);
                     fclose($past_change_log_f);
@@ -178,6 +181,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $period_arr[1][$period]=$period_arr_arr[2]."-".str_pad($period_arr_arr[0],2,"0",STR_PAD_LEFT)."-".str_pad($period_arr_arr[1],2,"0",STR_PAD_LEFT);
         if(!array_key_exists($period_arr[1][$period],$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]])){$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]=array();}
         foreach($vars2get as $var2get){
+            if($debug) echo "updating vars: $var2get<br />";
             if(!array_key_exists($var2get,$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]])){
                 if($results[$var2get][$period]==0) $results[$var2get][$period]=0; // to avoid 0 division
                 $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]][$var2get]=$results[$var2get][$period];

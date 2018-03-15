@@ -187,7 +187,8 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_object['dividend']=$stock_details_arr[$item['market'].':'.$item['name']]['dividend'];
             $symbol_object['divs_per_year']="0";
             $symbol_object['dividend_total_year']="0";
-            $symbol_object['eps']=$stock_details_arr[$item['market'].':'.$item['name']]['eps'];
+            // sometimes eps won't exist in the "details" we need to move to the financials one...
+            if(array_key_exists('eps',$stock_details_arr[$item['market'].':'.$item['name']])){$symbol_object['eps']=$stock_details_arr[$item['market'].':'.$item['name']]['eps'];}
             $symbol_object['per']=$stock_details_arr[$item['market'].':'.$item['name']]['per'];
             $symbol_object['shares']=$stock_details_arr[$item['market'].':'.$item['name']]['shares'];
             $symbol_object['mktcap']=toFixed(floatval($symbol_object['shares'])*floatval($symbol_object['value']),2,"cap and shares");
@@ -196,7 +197,7 @@ foreach ($stock_details_arr as $key => $item) {
             // BACKUP Strategy of important measures ----------------------------------
             // google sometimes discards operating maring when result publication is close, solution: if 0 and prev !=0 use prev
             // The script also fails sometimes for growth revenue qq etc so here is a backup strategy if 0
-            if(floatval($symbol_object['eps'])==0.001 && count($symbol_object['eps_hist'])>1){
+            if(floatval($symbol_object['eps'])==0 && count($symbol_object['eps_hist'])>1){
                 $symbol_object['eps']=$symbol_object['eps_hist'][count($symbol_object['eps_hist'])-2][1];
             }
             if(floatval($symbol_object['operating_margin'])==0 && count($symbol_object['operating_margin_hist'])>1){

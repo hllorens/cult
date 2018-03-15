@@ -25,7 +25,7 @@ $stock_list="$stock_list,NASDAQ:FB,NYSE:TWTR,NYSE:SNAP";
 $stock_list="$stock_list,NYSE:MA,NYSE:V,NASDAQ:PYPL";
 $stock_list="$stock_list,NYSE:YRD,NYSE:FIT,NYSE:BABA,NYSE:BLK,NYSE:EL,NYSE:BA,NASDAQ:ATVI,NASDAQ:ADBE,NYSE:RHT,NYSE:CAT"; //new
 $stock_list="$stock_list,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:AMD,NASDAQ:TEAM,NASDAQ:BKCC,NASDAQ:IRBT";
-$stock_list="$stock_list,NASDAQ:NTES,NYSE:ICE,NASDAQ:CME,NASDAQ:MCHP,NASDAQ:MU,NYSE:TSM,NASDAQ:AVGO,NASDAQ:BIDU,NASDAQ:WDC";
+$stock_list="$stock_list,NASDAQ:NTES,NYSE:ICE,NASDAQ:CME,NASDAQ:MCHP,NASDAQ:MU,NYSE:TSM,NASDAQ:AVGO,NASDAQ:BIDU,NASDAQ:WDC,NASDAQ:CAR";
 $stock_list="$stock_list,NASDAQ:BKNG,NASDAQ:TRIP,NASDAQ:EXPE";
 $stock_list="$stock_list,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:SSI,NYSE:O";
 $stock_list="$stock_list,NYSE:KO,NYSE:DPS,VTX:NESN,NASDAQ:PEP,EPA:BN";
@@ -65,8 +65,23 @@ $market_currencies['NYSE']="USD";
 
 function get_msn_quote($quote){
     $quote_arr=explode(":",$quote);
-    $prefix="fi-126.1";
+    $prefix="fi-126.1";  // USA: NASDAQ, NYSE
+    
     // replacements
+    if($quote_arr[0]=="INDEXBME"){
+        return "fi-198.10.!IBEX";
+    }
+    if($quote_arr[0]=="INDEXSTOXX"){
+        $prefix="fi-221.10";
+        return $prefix.".".$quote_arr[1];
+    }
+    if($quote_arr[0]=="INDEXNASDAQ"){
+        return "fi-29.10.NDX";
+    }
+    if($quote_arr[0]=="INDEXSP"){
+        return "fi-33.10.!SPX";
+    }
+    
     if($quote_arr[0]=="BME"){
         $quote_arr[0]="MCE";
         $prefix="fi-199.1";
@@ -80,7 +95,6 @@ function get_msn_quote($quote){
     }
     if($quote_arr[0]=="NASDAQ" || $quote_arr[0]=="NYSE"){
         $quote_arr[0]=substr($quote_arr[0],0,3);
-        $prefix="fi-126.1";
     }
     if($quote_arr[0]=="OTCMKTS"){
         $quote_arr[0]="PINX";

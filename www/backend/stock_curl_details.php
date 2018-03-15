@@ -124,12 +124,11 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         preg_match("/>\s*P\/E Ratio .EPS[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $perepsval);
         if(count($perepsval)>1 && strpos($perepsval[1], '(') !== FALSE){
             $perval=trim(explode('(',$perepsval[1])[0]);
-            $epsval=trim(str_replace(")","",explode('(',$perepsval[1])[1]));
-            if($epsval=='-' || $epsval==''){$perval=999;$epsval=0.0001;}
+            $epsval=trim(str_replace(")","",explode('(',$perepsval[1])[1])); // in msg it is the yearly diluted EPS, we better get it from financials slow
+            if($epsval=='-' || $epsval==''){$perval=999;$epsval=0;}
             if($debug) echo "per: $perval eps:$epsval<br />";
         }else{
             $perval=999;
-            $epsval=0.0001;
         }
 
     }
@@ -149,7 +148,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['session_change_percentage']=$changep;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['yield']=$yieldval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['dividend']=$divval;
-    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['eps']=$epsval;
+    if($epsval!=0){$stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['eps']=$epsval;} // in msn if negative, it does not show
     //$stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['beta']=$betaval;
     //$stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['inst_own']=$instowned;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['shares']=$shares;
