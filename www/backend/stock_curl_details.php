@@ -8,7 +8,7 @@
 require_once 'stock_list.php';
 
 echo date('Y-m-d H:i:s')." starting stock_curl_details.php<br />";
-
+require_once("email_config.php");
 
 
 $num_stocks_to_curl=5;
@@ -62,13 +62,23 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     //if(count($title)<1){
         preg_match("/^.* class=\"header-companyname[^>]*>\s*<[^>]*>\s*([^<]*)<.*$/m", $response, $title);
     //}
-    $title=preg_replace('/( S\.?A\.?| [Ii][Nn][Cc]\.?)\s*$/m', '', $title[1]); 
+    if(count($title)<1){
+        echo "<br />Empty value skipping, title sent...<br />";
+        send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty title, skipping...<br /><br />',"hectorlm1983@gmail.com");
+        continue;
+    }
+    $title=preg_replace('/( S\.?A\.?| [Ii][Nn][Cc]\.?)\s*$/m', '', $title[1]);
     //$title = preg_grep("/<title>/", $response_arr);
     if($debug) echo "<br />title: ".$title."<br />";
 
     // value or price span class="pr"      <span class="pr"><span id="ref_304466804484872_l">932.24<
     preg_match("/data-role=\"currentvalue\"[^>]*>\s*([^<]*)</m", $response, $value);
-    $value=str_replace("%","",trim($value[1]));
+    if(count($value)<1){
+        echo "<br />Empty value skipping, email sent...<br />";
+        send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty value, skipping...<br /><br />',"hectorlm1983@gmail.com");
+        continue;
+    }
+    $value=trim($value[1]);
     if($debug) echo "value: (".$value.")<br />";
 
     preg_match("/data-role=\"percentchange\"[^>]*>\s*([^<]*)</m", $response, $changep);
@@ -89,6 +99,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $divval=0;
     $yieldval=0;
     $shares=0;
+    $mktcap=0;
     $perval=999;
     $epsval=0;
 
@@ -105,21 +116,29 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
             $divval="0";
             $yieldval="0";
         }
-
-        // mktcap guessed from shares and value (in billions)
         
-        // num shares in billions   
-        preg_match("/>\s*Shares Outstanding[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $shares);
-        if($debug){echo " shares: ".print_r($shares)."<br />";}
-        if(count($shares)>1){
-            $shares=trim($shares[1]);
-            if($shares=="-" || $shares=="") $shares=0;
-            $shares=format_billions($shares);
-            if($debug) echo "shares: (".$shares.")<br />";
+        // shares in millions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
+        preg_match("/>\s*Market Cap[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $mktcap);
+        if(count($mktcap)>1){
+            $mktcap=trim($mktcap[1]);
+            if($mktcap=="-" || $mktcap==""){
+                echo "<br />Empty mktcap skipping, email sent...<br />";
+                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty mktcap, skipping...<br /><br />',"hectorlm1983@gmail.com");
+                continue;
+            }
+            $mktcap=format_billions($mktcap);
+            $shares=toFixed(floatval($mktcap)/floatval($value),3,"cap and shares");
+            if(floatval($shares)<0.001){
+                echo "<br />Too few shares..., email sent...<br />";
+                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Too few sahres $mktcap/$value=$shares, skipping...<br /><br />',"hectorlm1983@gmail.com");
+                continue;
+            }
         }else{
-            $shares=0;
+            echo "<br />Empty mktcap skipping, email sent...<br />";
+            send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty mktcap, skipping...<br /><br />',"hectorlm1983@gmail.com");
+            continue;
         }
-
+        $symbol_object['mktcap']=toFixed(floatval($symbol_object['shares'])*floatval($symbol_object['value']),2,"cap and shares");
         
         preg_match("/>\s*P\/E Ratio .EPS[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $perepsval);
         if(count($perepsval)>1 && strpos($perepsval[1], '(') !== FALSE){
@@ -151,6 +170,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     if($epsval!=0){$stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['eps']=$epsval;} // in msn if negative, it does not show
     //$stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['beta']=$betaval;
     //$stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['inst_own']=$instowned;
+    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['mktcap']=$mktcap;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['shares']=$shares;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['per']=$perval;
     //$stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['roe']=$roeval;
@@ -162,8 +182,8 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     //$stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['employees']=$employees;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['range_52week']=$range_52week;
     
-    // to avoid google ban
-    sleep(0.1);
+    // to avoid server ban
+    sleep(0.15);
 }
 
 if($debug) echo "<br />arr ".print_r($stock_details_arr)."<br />";

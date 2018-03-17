@@ -21,15 +21,6 @@ if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug
     $debug=true;
 }
 
-// helper functions
-function toFixed($number, $decimals=2) {
-  if(!is_numeric($number)){
-        echo "lev book, not numeric: $number";
-        $number=0; 
-  } 
-  return number_format($number, $decimals, ".", "");
-}
-
 $stocks_formatted_arr=array(); // to store stocks.formatted, typo "formatted"
 if(file_exists ( 'stocks.formatted.json' )){
     echo "stocks.formatted.json exists -> reading...<br />";

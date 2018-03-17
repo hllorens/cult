@@ -20,14 +20,7 @@ if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug
     $debug=true;
 }
 
-// helper functions
-function toFixed($number, $decimals=2, $tracking="stock_cron unset") {
-  if(!is_numeric($number)){
-        echo "not numeric: $number ($tracking)";
-        $number=0; 
-  } 
-  return number_format($number, $decimals, ".", "");
-}
+
 
 
 $stocks_formatted_arr=array(); // to store stocks.formatted, typo "formatted"
@@ -191,7 +184,7 @@ foreach ($stock_details_arr as $key => $item) {
             if(array_key_exists('eps',$stock_details_arr[$item['market'].':'.$item['name']])){$symbol_object['eps']=$stock_details_arr[$item['market'].':'.$item['name']]['eps'];}
             $symbol_object['per']=$stock_details_arr[$item['market'].':'.$item['name']]['per'];
             $symbol_object['shares']=$stock_details_arr[$item['market'].':'.$item['name']]['shares'];
-            $symbol_object['mktcap']=toFixed(floatval($symbol_object['shares'])*floatval($symbol_object['value']),2,"cap and shares");
+            $symbol_object['mktcap']==$stock_details_arr[$item['market'].':'.$item['name']]['mktcap'];
             //$symbol_object['roe']=$stock_details_arr[$item['market'].':'.$item['name']]['roe'];
             //$symbol_object['operating_margin']=$stock_details_arr[$item['market'].':'.$item['name']]['operating_margin'];
             // BACKUP Strategy of important measures ----------------------------------

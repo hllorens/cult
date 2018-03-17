@@ -1,11 +1,24 @@
 <?php
 
+// THIS IS TOO MUCH, IT IS PROBABLY BETTER TO NOT MANAGE STORE THIS INFO BUT JUST RELY ON EPS
+// THEN EVERY QUARTER, YEAR OR BEFORE BUYING LEARN TO USE THIS DATA
+// INCOME: GROSS PROFIT MARGIN (GROSS PROFIT/REVENUES) NET PROFIT MARGIN (NET INCOME/REVENUES)
+// CURRENT RATIO >1.5 ...
+// know the cap, stocksnum, spain pib, spain budget
+
+// USAGE: provides $stock_financials_arr variable for other scripts to use
+//        DEPENDS ON:
+//            - $num_stocks_to_curl (tune it to avoid server timeout or google ban), e.g., set it to 5 stocks at a time
+//            - stock_last_financial_updated.txt to indicate the last stock for which financials were retrieved
+
 require_once 'stock_list.php';
-require_once 'stock_helper_functions.php';
 
 echo date('Y-m-d H:i:s')." starting stock_curl_financials.php<br />";
 
-
+// helper functions
+function toFixed($number, $decimals=2) {
+  return number_format($number, $decimals, ".", "");
+}
 
 
 $num_stocks_to_curl=2;
@@ -117,9 +130,83 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         }
         $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['operating_margin']=toFixed(floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Operating Income'])/floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Total Revenue']));
         $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['net_margin']=toFixed(floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Net Income'])/floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Total Revenue']));
-        $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['revenue_diff']=toFixed((floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['Total Revenue'])-floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['Total Revenue']))/floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['Total Revenue']));
-        $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['operating_margin_diff']=toFixed((floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['operating_margin'])-floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['operating_margin']))/floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['operating_margin']));
     }
+    //var_dump($stock_financials_arr);
+
+    // BETTER TO IGNORE JSON AND JUST PARSE TRs... 
+    $url_and_query="https://finance.yahoo.com/quote/".get_yahoo_quote($the_url_query_arr[$current_num_to_curl])."/balance-sheet?p=".get_yahoo_quote($the_url_query_arr[$current_num_to_curl]); //get_msn_quote($the_url_query_arr[$current_num_to_curl]);
+    echo "stock $url_and_query<br />";
+    $curl = curl_init();
+    curl_setopt( $curl, CURLOPT_URL, $url_and_query );
+    curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+    $response2 = curl_exec( $curl ); //utf8_decode( not necessary
+    curl_close( $curl );
+    $response2=preg_replace("/(\n|&nbsp;)/", " ", $response2);
+    //if($debug) echo "base .<pre>".htmlspecialchars($response2)."</pre>";
+    $response2=preg_replace("/<title>/", "\ntd <title>", $response2);
+    $response2=preg_replace("/<\/title>/", "\n", $response2);
+    $response2=preg_replace("/<tr/", "\ntr", $response2);
+    //if($debug)  echo "aaa.<pre>".htmlspecialchars($response2)."</pre>";
+    $response2=preg_replace("/<\/(tr|table|ul)>/", "\n", $response2);
+    //$response2=preg_replace("/^[^t][^d].*$/m", "", $response2);
+    $response2 = preg_replace('/^[ \t]*[\r\n]+/m', '', $response2); // remove blank lines
+    //$response2 = preg_replace('/\n(.*=\"val\".*)[\r\n]+/m', '${1}', $response2); // remove blank lines
+    
+
+    //if($debug) echo "aaa.<pre>".htmlspecialchars($response2)."</pre>";
+
+    echo "----------end----------";
+    preg_match("/^.*Period Ending(.*)$/m", $response2, $xxxx);
+    preg_match_all("/<span[^>]*>([^\/]*\/[^\/]*\/[^<]*)<\/span>/", $xxxx[1], $period_arr);
+    echo "<br />";
+        
+    $vars2get=['Total Current Assets','Total Assets','Total Current Liabilities','Total Liabilities'];
+    // EQUITY=TOTAL ASSETS - TOTAL LIABILITES
+    $results=array();
+    foreach($vars2get as $var2get){
+        preg_match("/".$var2get."\s*<(.*)$/m", $response2, $xxxx);
+        preg_match_all("/<span[^>]*>([^<]*)<\/span>/", $xxxx[1], $xxxx_arr);
+        $results[$var2get]=str_replace(",","",$xxxx_arr[1]);
+    }
+    
+    for ($period=0;$period<count($period_arr[1]);$period++){
+        // Here we could detect if past is being changed...
+        $period_arr_arr=explode("/",$period_arr[1][$period]);
+        if(count($period_arr_arr)!=3 || strlen($period_arr_arr[2])!=4){
+            echo "ERROR (YAHOO BALANCE): incorrect format ".$period_arr[1][$period];
+            $past_change_log_f = fopen("past-change-log.txt", "a") or die("Unable to open past-change-log.txt!");
+            fwrite($past_change_log_f, "\n".date("Y-m-d")." In ".$the_url_query_arr[$current_num_to_curl]." period:".$period_arr[1][$period]." incorrect format.");
+            fclose($past_change_log_f);
+        }
+        $period_arr[1][$period]=$period_arr_arr[2]."-".str_pad($period_arr_arr[0],2,"0",STR_PAD_LEFT)."-".str_pad($period_arr_arr[1],2,"0",STR_PAD_LEFT);
+        if(!array_key_exists($period_arr[1][$period],$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]])){$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]=array();}
+        foreach($vars2get as $var2get){
+            if($debug) echo "updating vars: $var2get<br />";
+            if(!array_key_exists($var2get,$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]])){
+                if($results[$var2get][$period]==0) $results[$var2get][$period]=0; // to avoid 0 division
+                $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
+            }else{
+                if($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]][$var2get]!=$results[$var2get][$period]){
+                    echo "ERROR changing the past!!!";
+                    $past_change_log_f = fopen("past-change-log.txt", "a") or die("Unable to open past-change-log.txt!");
+                    fwrite($past_change_log_f, "\n".date("Y-m-d")." In ".$the_url_query_arr[$current_num_to_curl]." period:".$period_arr[1][$period]." var:".$var2get."  old:".$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]][$var2get]." != new:".$results[$var2get][$period]);
+                    fclose($past_change_log_f);
+                }
+            }
+        }
+        // the typical one is debt/assets (excluding other liabilities since they tend to be low but GM for example has A LOT of them so better compute total liabilities)
+        if(floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Total Current Assets'])==0) $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['current_liabilities_to_current_assets']=0;
+        else $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['current_liabilities_to_current_assets']=toFixed(floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Total Current Liabilities'])/floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Total Current Assets']));
+        
+        if(floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Total Assets'])==0) $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['liabilities_to_assets']=0;
+        else $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['liabilities_to_assets']=toFixed(floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Total Liabilities'])/floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Total Assets']));
+    }
+    
+    // just account for last yoy diff in Revenue, net margin, liabilities_to_assets
+    $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['revenue_diff']=toFixed((floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['Total Revenue'])-floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['Total Revenue']))/floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['Total Revenue']));
+    $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['operating_margin_diff']=toFixed((floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['operating_margin'])-floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['operating_margin']))/floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['operating_margin']));
+    $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['liabilities_to_assets_diff']=toFixed((floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['liabilities_to_assets'])-floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['liabilities_to_assets']))/floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['liabilities_to_assets']));
+    
     //var_dump($stock_financials_arr);
 
 

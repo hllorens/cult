@@ -1,5 +1,14 @@
 <?php
 
+
+function toFixed($number, $decimals=2, $tracking="tracking unset") {
+  if(!is_numeric($number)){
+        echo "not numeric: $number ($tracking)";
+        $number=0; 
+  } 
+  return number_format($number, $decimals, ".", "");
+}
+
 // freq can be 3 for quarters or 6 for halves, more sophisticated do it manually
 function hist($param_id,$freq, &$symbol_object, $max_elems_to_avg=8, $max_avg="no", $min_avg="no"){
     $timestamp_date=date("Y-m-d"); // refresh date
