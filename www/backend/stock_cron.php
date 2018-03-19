@@ -72,6 +72,9 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['range_52week_high']=trim($item['range_52week_high']);
         $symbol_object['range_52week_low']=trim($item['range_52week_low']);
         $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];   // already 0 if index in details
+        if($symbol_object['shares']!=$stock_details_arr[$item['market'].':'.$item['name']]['shares']){
+            send_mail($item['name'].' sharenum change','<br />original:'.$symbol_object['shares'].' != new:'.$stock_details_arr[$item['market'].':'.$item['name']]['shares'].'<br /><br />',"hectorlm1983@gmail.com");
+        }
         $symbol_object['shares']=$stock_details_arr[$item['market'].':'.$item['name']]['shares']; // already 0 if index in details
         $symbol_object['mktcap']==$stock_details_arr[$item['market'].':'.$item['name']]['mktcap'];// already 0 if index in details
         // only store yield, mktcap history if no index
@@ -148,6 +151,10 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_formatted['guessed_value']=0;
         }else{
             echo "!idx";
+            $ref_value=floatval($symbol_object['value']);
+            if(count($symbol_object['value_hist'])>1){
+                $ref_value=floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1]); // last year's value (less volatility in scorings)
+            }
             $revenue=floatval(end($symbol_object['revenue_hist'])[1]);
             $operating_income=floatval(end($symbol_object['operating_income_hist'])[1]);
             if($revenue==0){ echo "revenue 0"; exit(1);}
@@ -161,7 +168,9 @@ foreach ($stock_details_arr as $key => $item) {
                                                         )/2
                                                         ,2,'operating margin 2x avg');
             }
-            $symbol_formatted['price_to_sales']=toFixed(floatval($symbol_object['value'])/($revenue/floatval($symbol_object['shares'])),2,'operating margin');
+            // note we use the current value with last year's revenue, we could also use last year's price to make this more stable
+            // but it is more accurate to use the current price since if it goes up a lot then it is more expensive... what if the quarterly sales go up too?
+            $symbol_formatted['price_to_sales']=toFixed($ref_value/($revenue/floatval($symbol_object['shares'])),2,'operating margin');
             $om_to_ps=min(max(floatval($symbol_formatted['operating_margin'])*300,0)/max(floatval($symbol_formatted['price_to_sales'])*10,0.1),1);
             $symbol_formatted['eps']=toFixed(floatval(end($symbol_object['net_income_hist'])[1])/floatval($symbol_object['shares']),2,"stock_cron eps");
             // average it if possible
@@ -175,14 +184,14 @@ foreach ($stock_details_arr as $key => $item) {
             // EPSP (inverse of PER, 1/PER), it is also eps/price
             // since price and num shares change, if we want to use averages, it is safer to calculate as PER inverse
             // however, PER does not account for negative EPS, so we are forced to calculate as eps/price
-            $symbol_formatted['epsp']=toFixed(floatval($symbol_formatted['eps'])/max(0.01,floatval($symbol_object['value'])),3,"epsp");
+            $symbol_formatted['epsp']=toFixed(floatval($symbol_formatted['eps'])/max(0.01,$ref_value),3,"epsp");
             if(count($symbol_object['net_income_hist'])>1){
                 $symbol_formatted['epsp']=toFixed(
                                                 (
                                                     floatval($symbol_formatted['eps'])+
                                                     (floatval($symbol_object['net_income_hist'][count($symbol_object['net_income_hist'])-2][1])/floatval($symbol_object['shares']))
                                                 )/2
-                                                /max(0.01,floatval($symbol_object['value'])),3,"epsp");
+                                                /max(0.01,$ref_value),3,"epsp");
             }
 
             // growths, trends and accelerations

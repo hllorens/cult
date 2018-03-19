@@ -119,7 +119,6 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
             $yieldval="0";
         }
         
-        // shares in millions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
         preg_match("/>\s*Market Cap[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $mktcap);
         if(count($mktcap)>1){
             $mktcap=trim($mktcap[1]);
@@ -129,20 +128,38 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
                 continue;
             }
             $mktcap=format_billions($mktcap);
-            $shares=toFixed(floatval($mktcap)/floatval($value),3,"cap and shares");
-            if(floatval($shares)<0.001){
-                echo "<br />Too few shares..., email sent...<br />";
-                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Too few sahres $mktcap/$value=$shares, skipping...<br /><br />',"hectorlm1983@gmail.com");
-                continue;
-            }
         }else{
             echo "<br />Empty mktcap skipping, email sent...<br />";
             send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty mktcap, skipping...<br /><br />',"hectorlm1983@gmail.com");
             continue;
         }
+        preg_match("/>\s*Shares Outstanding[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $shares);
+        if(count($shares)>1){
+            $shares=trim($shares[1]);
+            if($shares=="-" || $shares==""){
+                // shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
+                $shares=toFixed(floatval($mktcap)/floatval($value),3,"cap and shares");
+                if(floatval($shares)<0.050){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
+                    echo "<br />Too few shares..., email sent...<br />";
+                    send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Too few shares $mktcap/$value=$shares, skipping...<br /><br />',"hectorlm1983@gmail.com");
+                    continue;
+                }
+            }else{
+                $shares=format_billions($shares);
+            }
+        }else{
+            // shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
+            $shares=toFixed(floatval($mktcap)/floatval($value),3,"cap and shares");
+            if(floatval($shares)<0.050){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
+                echo "<br />Too few shares..., email sent...<br />";
+                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Too few shares $mktcap/$value=$shares, skipping...<br /><br />',"hectorlm1983@gmail.com");
+                continue;
+            }
+        }
     }
 
 
+    
     $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
     $name=$query_arr[1];
     $market=$query_arr[0];

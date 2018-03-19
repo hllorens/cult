@@ -5,10 +5,8 @@
 //     if a file like that exists it will be updated incrementally 
 //     otherwise it will be created from the scratch
 
-//if(!isset($_GET['autosecret']) || $_GET['autosecret']!='1secret'){
-//	exit("Permission denied");
-//}
-
+require_once("email_config.php");
+require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
 
 date_default_timezone_set('Europe/Madrid');
 $timestamp_date=date("Y-m-d");
@@ -63,7 +61,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     
     if(substr($the_url_query_arr[$current_num_to_curl],0,5)=="INDEX"){
         $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
-        echo "<br />stock ".$the_url_query_arr[$current_num_to_curl].": INDEX set to 0 just for sorting...<br />";
+        echo "<br />stock ".$the_url_query_arr[$current_num_to_curl].": INDEX ignoring... all 0<br />";
         $name=$query_arr[1];
         $market=$query_arr[0];
         //$stocks_formatted_arr[$name.":".$market]['revenue']=0;
@@ -101,7 +99,17 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $results=array();
         foreach($vars2get as $var2get){
             preg_match("/^".$var2get."(.*)$/m", $response, $xxxx);
+            if(count($xxxx)<2){
+                echo "<br />Empty $var2get skipping, email sent...<br />";
+                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty $var2get (stock_cron_leverage_book.php step 1), skipping...<br /><br />',"hectorlm1983@gmail.com");
+                continue;
+            }
             preg_match_all("/title='([^']*)'/", $xxxx[1], $xxxx_arr);
+            if(count($xxxx_arr)<2){
+                echo "<br />Empty $var2get skipping, email sent...<br />";
+                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty $var2get (stock_cron_leverage_book.php step title), skipping...<br /><br />',"hectorlm1983@gmail.com");
+                continue;
+            }
             $results[$var2get]=str_replace(",","",$xxxx_arr[1]);
         }
         
@@ -109,17 +117,20 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
         $name=$query_arr[1];
         $market=$query_arr[0];
-        if($results['Revenue'][0]=="-" || $results['Revenue'][0]==""){
+        /*if($results['Revenue'][0]=="-" || $results['Revenue'][0]==""){
             $results['Revenue'][0]=0;
-        }
+        }*/
         // avoid adding 0 if a non-0 exists
-        echo "revenue=".$results['Revenue'][0];
-        if(floatval($results['Revenue'][0])==0 && array_key_exists('revenue_hist',$stocks_formatted_arr[$name.":".$market]) && count($stocks_formatted_arr[$name.":".$market]['revenue_hist'])>1){
+        //echo "revenue=".$results['Revenue'][0];
+        /*if(floatval($results['Revenue'][0])==0 && array_key_exists('revenue_hist',$stocks_formatted_arr[$name.":".$market]) && count($stocks_formatted_arr[$name.":".$market]['revenue_hist'])>1){
                echo "revenue=0 (fixing)";
                $results['Revenue'][0]=$stocks_formatted_arr[$name.":".$market]['revenue_hist'][count($stocks_formatted_arr[$name.":".$market]['revenue_hist'])-1][1];
-        }
+        }*/
         //$stocks_formatted_arr[$name.":".$market]['revenue']=format_billions($results['Revenue'][0]); // current ttm which is equal to mrq in balance sheet
         //echo "revenue=".$stocks_formatted_arr[$name.":".$market]['revenue']."<br />";
+        
+        TODO PUT ERROR CHECKS AND EMAILS...
+        
         $stocks_formatted_arr[$name.":".$market]['price_to_book']=$results['Price\/Book Value'][0];
         if($results['Price\/Sales'][0]=="-" || $results['Price\/Sales'][0]=="") $results['Price\/Sales'][0]=99;
         $stocks_formatted_arr[$name.":".$market]['price_to_sales']=$results['Price\/Sales'][0];
@@ -136,10 +147,9 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     }
     
 
-    // add hist but do it with a function...
-    require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
     //hist_min('revenue',6,$stocks_formatted_arr[$name.":".$market]); // in msn this is last year, the ttm maybe use yahoo or do it manually for companies you care about
     hist_year_last_day('leverage',$stocks_formatted_arr[$name.":".$market]);
+    hist_year_last_day('price_to_book',$stocks_formatted_arr[$name.":".$market]);
     //hist_min('price_to_sales',3,$stocks_formatted_arr[$name.":".$market]); //avg of 8 (default) 
     //hist_year_last_day('avg_revenue_growth_5y',$stocks_formatted_arr[$name.":".$market]);
     //hist_min('revenue_growth_qq_last_year',3,$stocks_formatted_arr[$name.":".$market]);

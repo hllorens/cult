@@ -62,7 +62,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     //$response=preg_replace("/^[^t][^d].*$/m", "", $response);
     $response = preg_replace('/^[ \t]*[\r\n]+/m', '', $response); // remove blank lines
     $response = preg_replace('/\n(.*=\"val\".*)[\r\n]+/m', '${1}', $response); // remove blank lines
-    $response = preg_replace('/title=\'(Period End Date|Total Revenue|Operating Income|Net Income|Total Current Assets|Total Assets|Total Current Liabilities|Total Liabilities|Total Equity|Diluted EPS|Cash Flow from Operating Activities|Cash Flow from Investing Activities|Cash Flow from Financing Activities|Free Cash Flow)\'[^>]*>\s*/', "\n", $response);
+    $response = preg_replace('/title=\'(Period End Date|Total Revenue|Operating Income|Net Income|Total Current Assets|Total Assets|Total Current Liabilities|Total Liabilities|Total Equity|Diluted EPS|Basic EPS|Cash Flow from Operating Activities|Cash Flow from Investing Activities|Cash Flow from Financing Activities|Free Cash Flow)\'[^>]*>\s*/', "\n", $response);
     //$response = preg_replace('/\ntd class="lft name">Return on average equity\s*\ntd class=period>/',"\ntd class=\"lft name\">Return on average equity td class=period>",$response);
 //    if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
     echo "----------end----------";
@@ -72,7 +72,16 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     echo "<br />";
     
     
-    $vars2get=['Total Revenue','Operating Income','Net Income'];
+    
+    
+    
+    
+    TODO, do all errors handling with emails!!!
+    TODO, calculate shares (shares calculated), but it is not accurate even with basic eps...
+    
+    
+    
+    $vars2get=['Total Revenue','Operating Income','Net Income','Basic EPS'];
     $results=array();
     foreach($vars2get as $var2get){
         if($debug) echo "getting results for: $var2get<br />";
@@ -84,7 +93,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
     $name=$query_arr[1];
     $market=$query_arr[0];
-    // assignement to the array
+    // assignment to the array
     if(!array_key_exists($the_url_query_arr[$current_num_to_curl],$stock_financials_arr)){
         $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]=array();
         $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]['name']=$name;
