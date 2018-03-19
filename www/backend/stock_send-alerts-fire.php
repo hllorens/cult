@@ -19,7 +19,7 @@ $data_object=array();
 $string = file_get_contents('stocks.formatted.json');
 $stocks = json_decode($string, true);
  
-require("phpmailer/class.phpmailer.php");
+require_once("email_config.php");
 #error_reporting(E_STRICT);
 date_default_timezone_set('Europe/Madrid');
 
@@ -59,29 +59,6 @@ else $timestamp_date.="am";
 // NOW We need a loop that goes over each user and sends email to him if alerts halt...
 // Ideally keep an accessible node to write last time alerts were send...
 
-
-$mail = new PHPMailer();
-
-$mail_credentials = json_decode(file_get_contents("../../../secrets/exposed_gmail_cursos_psico.json"));
-$mail->IsSMTP(); // enable SMTP
-$mail->SMTPDebug = 1;  // debugging: 1 = errors and messages, 2 = messages only
-$mail->SMTPAuth   = true;                  // enable SMTP authentication
-$mail->SMTPSecure = "ssl";                 // sets the prefix to the servier
-$mail->Host       = $mail_credentials->smtp_host;      //  SMTP server "mail.cognitionis.com" now "sub3.mail.dreamhost.com"
-$mail->Port       = 465;                   // set the SMTP port for the GMAIL server
-$mail->Username   = $mail_credentials->user;  //  username
-$mail->Password   = $mail_credentials->pass;  //  password
-// para arreglar en hotmail usar php mail sin phpmailer
-
-
-
-$mail->charSet = "UTF-8";
-$mail->SetFrom('info@cognitionis.com');
-$mail->From="info@cognitionis.com";
-$mail->FromName="cognitionis.com";
-$mail->Sender="info@cognitionis.com"; // indicates ReturnPath header
-$mail->AddReplyTo("info@cognitionis.com"); // indicates ReplyTo headers
-$mail->IsHTML(true);
 
 
 $usdeur=0.0;
@@ -126,14 +103,9 @@ foreach ($alerts as $usr => $ualerts) {
         }else if(array_key_exists("high_yield",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['yield'])) >= floatval($alert['high_yield'])){
             $fact.="+y ";//.$stocks[$alert['symbol']]['yield'];
         }
-        if(array_key_exists("low_per",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['per'])) <= floatval($alert['low_per'])){
-            $fact.="-per ";//.$stocks[$alert['symbol']]['per'];
-        }else if(array_key_exists("high_per",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['per'])) >= floatval($alert['high_per'])){
-            $fact.="+per ";//.$stocks[$alert['symbol']]['per'];
-        }
-        if(array_key_exists("low_eps",$alert) && $stocks[$alert['symbol']]['eps']!="" && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) <= floatval($alert['low_eps'])){
+        if(array_key_exists("low_eps",$alert) && array_key_exists("eps",$stocks[$alert['symbol']]) && $stocks[$alert['symbol']]['eps']!="" && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) <= floatval($alert['low_eps'])){
             $fact.="-eps ";//.$stocks[$alert['symbol']]['eps'];
-        }else if(array_key_exists("high_eps",$alert) && $stocks[$alert['symbol']]['eps']!="" && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) >= floatval($alert['high_eps'])){
+        }else if(array_key_exists("high_eps",$alert) && array_key_exists("eps",$stocks[$alert['symbol']]) && $stocks[$alert['symbol']]['eps']!="" && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) >= floatval($alert['high_eps'])){
             $fact.="+eps ";//.$stocks[$alert['symbol']]['eps'];
         }
         $stoploss=0.0;
@@ -192,15 +164,15 @@ foreach ($alerts as $usr => $ualerts) {
                   Value:&nbsp; ".$stocks[$alert['symbol']]['value']." [".$alert['low']." -to- ".$alert['high']."],".$usdeurvaluetext."<br/>
                   Change: ".$stocks[$alert['symbol']]['session_change_percentage']."% [".$alert['low_change_percentage']." -to- ".$alert['high_change_percentage']."]<br />
                   &nbsp;&nbsp; ".$portftext."
-                  Range52w:  ".$stocks[$alert['symbol']]['range_52week_low']." -- ".$stocks[$alert['symbol']]['range_52week_high']." current %: ".$stocks[$alert['symbol']]['range_52week_heat']." volat: ".$stocks[$alert['symbol']]['range_52week_volatility']."<br />
+                  Range52w:  ".$stocks[$alert['symbol']]['range_52week_low']." -- ".$stocks[$alert['symbol']]['range_52week_high']."<br />
                   Yield: ".$stocks[$alert['symbol']]['yield']."% [".$alert['low_yield']." -to- ".$alert['high_yield']."]<br />
                   RevenueQQdiff: ".$stocks[$alert['symbol']]['revenue_growth_qq_last_year']."%<br />
-                  EPS:    ".$stocks[$alert['symbol']]['eps']." [".$alert['low_eps']." -to- ".$alert['high_eps']."]<br />
                   ".$extra."
-                  Per:    ".$stocks[$alert['symbol']]['per']." [".$alert['low_per']." -to- ".$alert['high_per']."]<br />
                   Last updated: ".$stocks[$alert['symbol']]['date']."<br />
                   <br /><br />
                   ";
+                  
+            //                  EPS:    ".$stocks[$alert['symbol']]['eps']." [".$alert['low_eps']." -to- ".$alert['high_eps']."]<br />
             //if($usr_decoded=="hectorlm1983@gmail.com"){
             //    $body.="                  ----<br />Json string debug:<br />turned off for now...."; //.$string;
             //}
@@ -210,26 +182,11 @@ foreach ($alerts as $usr => $ualerts) {
     }
     if($facts!=""){
         if($debug) echo '  '.$body.'<br />';
-        send_alert($facts,'date:'.$timestamp.'<br />'.$body,$usr_decoded, $mail);
+        send_mail($facts,'date:'.$timestamp.'<br />'.$body,$usr_decoded);
     }
 }
 
 
-function send_alert($subject, $body, $user, $mail){
-	$subject="cult: ".$subject;
-	$mail->Subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
-	$mail->Body = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"></head><body><br />'.$body.'<br /><br />Go to <a href=\"http://www.cognitionis.com/stockionic/\">stockionic</a> to change it.<br /><br /></body></html>';
-	$mail->AddAddress($user);
-	$mail->AddBCC("info@cognitionis.com");
-	if(!$mail->Send()){   
-        echo "<br />Error: " . $mail->ErrorInfo;
-	}else{
-        echo "Mail enviado. ";
-	}
-	$mail->ClearAllRecipients();
-	$mail->ClearAttachments();
-	sleep(0.1);
-}
 
 
 

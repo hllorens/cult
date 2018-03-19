@@ -2,7 +2,7 @@
 <?php
 
 
-require("phpmailer/class.phpmailer.php");
+require_once("phpmailer/class.phpmailer.php");
 date_default_timezone_set('Europe/Madrid');
 
 $mail = new PHPMailer();

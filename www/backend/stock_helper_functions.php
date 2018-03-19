@@ -80,7 +80,6 @@ function hist_min($param_id,$freq, &$symbol_object){
     if(!array_key_exists($param_id.'_hist',$symbol_object) || count($symbol_object[$param_id.'_hist'])==0){
         $symbol_object[$param_id.'_hist'][]=[$timestamp_date,$symbol_object[$param_id]];
     }else{
-        $last_elem=end($symbol_object[$param_id.'_hist'])[1];
         $last_elem_date=end($symbol_object[$param_id.'_hist'])[0];
         $last_elem_freq=substr($last_elem_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $last_elem_date)->format('n') / $freq) % (12/$freq)) + 1 );
         //echo "$last_elem_date half $last_elem_freq current half $timestamp_freq<br />";
@@ -91,5 +90,119 @@ function hist_min($param_id,$freq, &$symbol_object){
         }
     }
 }
+
+function hist_year_last_day($param_id, &$symbol_object){
+    $timestamp_date=date("Y-m-d"); // refresh date
+    $timestamp_freq=substr($timestamp_date,0,4);
+    if(!array_key_exists($param_id,$symbol_object)){die('In hist_year_last_day() the param_id ('.$param_id.') does not exist');}
+    if(!array_key_exists($param_id.'_hist',$symbol_object)){$symbol_object[$param_id.'_hist']=array();}
+    if(!array_key_exists($param_id.'_hist',$symbol_object) || count($symbol_object[$param_id.'_hist'])==0){
+        $symbol_object[$param_id.'_hist'][]=[$timestamp_date,$symbol_object[$param_id]];
+    }else{
+        $last_elem_date=end($symbol_object[$param_id.'_hist'])[0];
+        $last_elem_val=end($symbol_object[$param_id.'_hist'])[1];
+        $last_elem_freq=substr($last_elem_date,0,4);
+        if($timestamp_freq!=$last_elem_freq){
+            // store the new and set the last to last year date
+            $symbol_object[$param_id.'_hist'][]=[$timestamp_date,$symbol_object[$param_id]];
+            $symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist']) - 1]=[$last_elem_freq."-12-31",$last_elem_val];
+        }else{ // to keep it fresh
+            $symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist']) - 1]=[$timestamp_date,$symbol_object[$param_id]];
+        }
+    }
+}
+
+// compute the growth of every period
+// compute the growth of every period growth
+// compute averages
+// to weight in favor of the present, average the average with (avg+(penultimate+2xcurrent)/3)/4
+// by default min 3 periods (4 data points), otherwise [0,0]
+function growth_and_acceleration($param_id, $symbol_object,$min_periods=3){
+    //black magic
+}
+
+function compound_average_growth($from, $to, $periods=1){
+    $cag=0;
+    if($from==$to) return 0; // no diff no calc
+    if($from==0){$from=0.001;} // protection against 0 division
+    $cag=floatval($to)/floatval($from);
+    if($periods>1) $cag=$cag^(1/$periods);
+    $cag=$cag-1;
+    return $cag;
+}
+
+
+// if there are not enough periods the oldest will be used
+// e.g., existing   5 6
+// required 5 periods
+// then             5 5 5 5 6
+
+function hist_compound_average_growth($param_id, $symbol_object,$num_periods=5){
+    $cag=0;
+    if(!array_key_exists($param_id,$symbol_object)){die('In growth_and_acceleration() the param_id ('.$param_id.') does not exist');}
+    $curr_val=floatval(end($symbol_object[$param_id])[1]);
+    $orig_val=floatval($symbol_object[$param_id][0][1]);
+    if(count($symbol_object[$param_id])>$num_periods){
+        $orig_val=floatval($symbol_object[$param_id][count($symbol_object[$param_id])-($num_periods+1)][1]);
+    }
+    // annualized with compound
+    $cag=compound_average_growth($orig_val,$curr_val,$num_periods);
+    return $cag;
+}
+
+function hist_growth_array($param_id, $symbol_object,$num_periods=-1){
+    $growth_array=array();
+    if(!array_key_exists($param_id,$symbol_object)){die('In growth_and_acceleration() the param_id ('.$param_id.') does not exist');}
+    $hist=$symbol_object[$param_id];
+    $hist_count=count($hist)-1;
+    if($num_periods==-1) $num_periods=$hist_count; // with 6 elems we can compute 5 periods
+    if($hist_count<1){$growth_array[0]=0;return $growth_array;}
+    for ($i = $hist_count-$num_periods; $i < $hist_count; $i++) {
+        $from_val=floatval($symbol_object[$param_id][0][1]);
+        $to_val=floatval($symbol_object[$param_id][0][1]);
+        if($i>=0){
+            $from_val=floatval($symbol_object[$param_id][$i][1]);
+            $to_val=floatval($symbol_object[$param_id][$i+1][1]);
+        }
+        $growth_array[]=compound_average_growth($from_val,$to_val);
+    }
+    return $growth_array;
+}
+
+
+function acceleration_array($growth_array){
+    $acceleration_array=array();
+    if(count($growth_array)<=1){$acceleration_array[0]=0;return $acceleration_array;}
+    for($i=0;$i<(count($growth_array)-1);$i++){
+        $acceleration_array[]=compound_average_growth($growth_array[$i],$growth_array[($i+1)]);
+    }
+    return $acceleration_array;
+}
+
+function trend($arr,$threshold=0.10){
+    $trend="--";
+    if(count($arr)>=2){
+        $arr2=array_slice($a, -2, 2);
+        if      ($arr2[0]>$threshold && $arr2[1]>$threshold){
+            $trend="/";
+        }else if($arr2[0]>$threshold && $arr2[1] <$threshold && $arr2[1] >-$threshold){
+            $trend="/-";
+        }else if($arr2[0] <$threshold && $arr2[0] >-$threshold && $arr2[1]>$threshold){
+            $trend="_/";
+        }else if($arr2[0]<-$threshold && $arr2[1] > $arr2[0] ){
+            $trend="v";
+        }else if($arr2[0]>$threshold && $arr2[1] < (-1*$arr2[0])){
+            $trend="^";
+        }else if($arr2[0]<-$threshold && $arr2[1] <$threshold && $arr2[1] >-$threshold){
+            $trend="\_";
+        }else if($arr2[0] <$threshold && $arr2[0] >-$threshold && $arr2[1]<-$threshold){
+            $trend="-\\";
+        }else if($arr2[0]<-$threshold && $arr2[1] <-$threshold){
+            $trend="\\";
+        }
+    }
+    return $trend;
+}
+
 
 ?>

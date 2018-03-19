@@ -72,7 +72,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     echo "<br />";
     
     
-    $vars2get=['Total Revenue','Operating Income','Net Income', 'Diluted EPS'];
+    $vars2get=['Total Revenue','Operating Income','Net Income'];
     $results=array();
     foreach($vars2get as $var2get){
         if($debug) echo "getting results for: $var2get<br />";

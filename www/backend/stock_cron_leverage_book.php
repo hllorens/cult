@@ -66,7 +66,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         echo "<br />stock ".$the_url_query_arr[$current_num_to_curl].": INDEX set to 0 just for sorting...<br />";
         $name=$query_arr[1];
         $market=$query_arr[0];
-        $stocks_formatted_arr[$name.":".$market]['revenue']=0;
+        //$stocks_formatted_arr[$name.":".$market]['revenue']=0;
         $stocks_formatted_arr[$name.":".$market]['price_to_book']=0;
         $stocks_formatted_arr[$name.":".$market]['price_to_sales']=99;
         $stocks_formatted_arr[$name.":".$market]['leverage']=99; // mrq in this case equivalent to ttm (current moment), in balance sheet
@@ -97,7 +97,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
         echo "----------end----------";
         echo "<br />";
-        $vars2get=['Revenue','Price\/Book Value','Leverage Ratio','Price\/Sales','avg_revenue_growth_5y','revenue_growth_qq_last_year'];
+        $vars2get=['Price\/Book Value','Leverage Ratio','Price\/Sales','avg_revenue_growth_5y','revenue_growth_qq_last_year']; //'Revenue' from financials
         $results=array();
         foreach($vars2get as $var2get){
             preg_match("/^".$var2get."(.*)$/m", $response, $xxxx);
@@ -118,8 +118,8 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
                echo "revenue=0 (fixing)";
                $results['Revenue'][0]=$stocks_formatted_arr[$name.":".$market]['revenue_hist'][count($stocks_formatted_arr[$name.":".$market]['revenue_hist'])-1][1];
         }
-        $stocks_formatted_arr[$name.":".$market]['revenue']=format_billions($results['Revenue'][0]); // current ttm which is equal to mrq in balance sheet
-        echo "revenue=".$stocks_formatted_arr[$name.":".$market]['revenue']."<br />";
+        //$stocks_formatted_arr[$name.":".$market]['revenue']=format_billions($results['Revenue'][0]); // current ttm which is equal to mrq in balance sheet
+        //echo "revenue=".$stocks_formatted_arr[$name.":".$market]['revenue']."<br />";
         $stocks_formatted_arr[$name.":".$market]['price_to_book']=$results['Price\/Book Value'][0];
         if($results['Price\/Sales'][0]=="-" || $results['Price\/Sales'][0]=="") $results['Price\/Sales'][0]=99;
         $stocks_formatted_arr[$name.":".$market]['price_to_sales']=$results['Price\/Sales'][0];
@@ -138,11 +138,11 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
 
     // add hist but do it with a function...
     require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
-    hist('revenue',6,$stocks_formatted_arr[$name.":".$market]); // in msn this is last year, the ttm maybe use yahoo or do it manually for companies you care about
-    hist('leverage',3,$stocks_formatted_arr[$name.":".$market]);
-    hist('price_to_sales',3,$stocks_formatted_arr[$name.":".$market]); //avg of 8 (default) 
-    hist('avg_revenue_growth_5y',12,$stocks_formatted_arr[$name.":".$market]);
-    hist('revenue_growth_qq_last_year',3,$stocks_formatted_arr[$name.":".$market]);
+    //hist_min('revenue',6,$stocks_formatted_arr[$name.":".$market]); // in msn this is last year, the ttm maybe use yahoo or do it manually for companies you care about
+    hist_year_last_day('leverage',$stocks_formatted_arr[$name.":".$market]);
+    //hist_min('price_to_sales',3,$stocks_formatted_arr[$name.":".$market]); //avg of 8 (default) 
+    //hist_year_last_day('avg_revenue_growth_5y',$stocks_formatted_arr[$name.":".$market]);
+    //hist_min('revenue_growth_qq_last_year',3,$stocks_formatted_arr[$name.":".$market]);
 }
 // -----------update stocks formatted ----------------------------------
 
