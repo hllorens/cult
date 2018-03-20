@@ -103,10 +103,10 @@ foreach ($alerts as $usr => $ualerts) {
         }else if(array_key_exists("high_yield",$alert) && floatval(str_replace(",","",$stocks[$alert['symbol']]['yield'])) >= floatval($alert['high_yield'])){
             $fact.="+y ";//.$stocks[$alert['symbol']]['yield'];
         }
-        if(array_key_exists("low_eps",$alert) && array_key_exists("eps",$stocks[$alert['symbol']]) && $stocks[$alert['symbol']]['eps']!="" && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) <= floatval($alert['low_eps'])){
-            $fact.="-eps ";//.$stocks[$alert['symbol']]['eps'];
-        }else if(array_key_exists("high_eps",$alert) && array_key_exists("eps",$stocks[$alert['symbol']]) && $stocks[$alert['symbol']]['eps']!="" && floatval(str_replace(",","",$stocks[$alert['symbol']]['eps'])) >= floatval($alert['high_eps'])){
-            $fact.="+eps ";//.$stocks[$alert['symbol']]['eps'];
+        if(array_key_exists("low_epsp",$alert) && array_key_exists("epsp",$stocks[$alert['symbol']]) && $stocks[$alert['symbol']]['epsp']!="" && floatval(str_replace(",","",$stocks[$alert['symbol']]['epsp'])) <= floatval($alert['low_epsp'])){
+            $fact.="-epsp ";//.$stocks[$alert['symbol']]['eps'];
+        }else if(array_key_exists("high_epsp",$alert) && array_key_exists("epsp",$stocks[$alert['symbol']]) && $stocks[$alert['symbol']]['epsp']!="" && floatval(str_replace(",","",$stocks[$alert['symbol']]['epsp'])) >= floatval($alert['high_epsp'])){
+            $fact.="+epsp ";//.$stocks[$alert['symbol']]['eps'];
         }
         $stoploss=0.0;
         if(array_key_exists("portf",$alert)){
@@ -167,6 +167,7 @@ foreach ($alerts as $usr => $ualerts) {
                   Range52w:  ".$stocks[$alert['symbol']]['range_52week_low']." -- ".$stocks[$alert['symbol']]['range_52week_high']."<br />
                   Yield: ".$stocks[$alert['symbol']]['yield']."% [".$alert['low_yield']." -to- ".$alert['high_yield']."]<br />
                   RevenueQQdiff: ".$stocks[$alert['symbol']]['revenue_growth_qq_last_year']."%<br />
+                  epsp: ".$stocks[$alert['symbol']]['epsp']."%<br />
                   ".$extra."
                   Last updated: ".$stocks[$alert['symbol']]['date']."<br />
                   <br /><br />

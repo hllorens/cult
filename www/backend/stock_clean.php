@@ -24,13 +24,14 @@ $stocks_financials_arr=array();
 if(file_exists ( 'stocks.financials.json' )){
     echo "stocks.financials.json exists -> reading...<br />";
     $stocks_financials_arr = json_decode(file_get_contents('stocks.financials.json'), true);
+    if($stocks_financials_arr==null){echo "ERROR: financials. Exit";exit(1);}
 }else{
     echo "stocks.financials.json does NOT exist -> using an empty array<br />";
 }
 
 
 
-echo date('Y-m-d H:i:s')." start stock_cron.php<br />";
+echo date('Y-m-d H:i:s')." start stock_clean.php<br />";
 
 require_once 'stock_list.php';
 require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
@@ -39,25 +40,32 @@ $stocks_clean_arr=array();
 foreach ($stocks_formatted_arr as $key => $item) {
 	$symbol_object=array();
     echo "cleaning ".$item['name'].":".$item['market']."<br />";
-    $props=['name','market','date','title','mktcap','session_change_percentage',
+    $props=['name','market','date','title','mktcap','shares','session_change_percentage',
             // shares are guessed (only stored in the consumed json, not in the operations one)
-            'value','value_hist',
+            'value','value_hist','value_hist_last_diff',
             'eps_hist', // temporary to remove
-            'range_52week_high','range_52week_low',
+            'epsp','om_to_ps','computable_val_growth',
+            'range_52week_high','range_52week_low','range_52week_heat','range_52week_volatility',
             'yield', 'yield_hist',
             'price_to_book',
             'avg_revenue_growth_5y', 'revenue_growth_qq_last_year',
-            'leverage','leverage_industry'];
+            'leverage','leverage_industry','leverage_industry_ratio',
+            'h_souce'
+            ];
     // refresh basic info
     foreach($props as $prop){
-        if($prop=='yield_hist' && substr($item['market'],0,5)=="INDEX") continue;
+        if($prop=='yield_hist' && substr($item['market'],0,5)=="INDEX"){continue;}
+        if(!array_key_exists($prop,$item)){
+            echo "skipping non-existing $prop<br />";
+            continue;
+        }
         $symbol_object[$prop]=$item[$prop];
     }
     if(($item['market'].":".$item['name'])=='NASDAQ:GOOG'){
         $symbol_object['usdeur']=$item['usdeur'];
         $symbol_object['usdeur_change']=$item['usdeur_change'];
     }
-    if(array_key_exists($item['market'].":".$item['name'],$stocks_financials_arr)){
+    if(array_key_exists(($item['market'].":".$item['name']),$stocks_financials_arr)){
         echo "has financials <br />";
         $symbol_object['revenue_hist']=array();
         $symbol_object['operating_income_hist']=array();

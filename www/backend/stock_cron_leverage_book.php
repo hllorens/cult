@@ -59,6 +59,12 @@ $num_stocks_to_curl=min($num_stocks_to_curl,count($the_url_query_arr)); // make 
 for ($i=0;$i<$num_stocks_to_curl;$i++){
     $current_num_to_curl=($stock_last_leverage_book_updated+$i) % count($the_url_query_arr);
     
+    if(!array_key_exists($name.":".$market,$stocks_formatted_arr)){
+        echo "Stock $name still does not have basic info: skipping... run stock_cron.php first";
+        send_mail('Error '.$name,"<br />Stock $name still does not have basic info: skipping... run stock_cron.php first<br /><br />","hectorlm1983@gmail.com");
+        continue;
+    }
+    
     if(substr($the_url_query_arr[$current_num_to_curl],0,5)=="INDEX"){
         $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
         echo "<br />stock ".$the_url_query_arr[$current_num_to_curl].": INDEX ignoring... all 0<br />";
@@ -117,32 +123,16 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
         $name=$query_arr[1];
         $market=$query_arr[0];
-        /*if($results['Revenue'][0]=="-" || $results['Revenue'][0]==""){
-            $results['Revenue'][0]=0;
-        }*/
-        // avoid adding 0 if a non-0 exists
-        //echo "revenue=".$results['Revenue'][0];
-        /*if(floatval($results['Revenue'][0])==0 && array_key_exists('revenue_hist',$stocks_formatted_arr[$name.":".$market]) && count($stocks_formatted_arr[$name.":".$market]['revenue_hist'])>1){
-               echo "revenue=0 (fixing)";
-               $results['Revenue'][0]=$stocks_formatted_arr[$name.":".$market]['revenue_hist'][count($stocks_formatted_arr[$name.":".$market]['revenue_hist'])-1][1];
-        }*/
-        //$stocks_formatted_arr[$name.":".$market]['revenue']=format_billions($results['Revenue'][0]); // current ttm which is equal to mrq in balance sheet
-        //echo "revenue=".$stocks_formatted_arr[$name.":".$market]['revenue']."<br />";
         
-        TODO PUT ERROR CHECKS AND EMAILS...
-        
-        $stocks_formatted_arr[$name.":".$market]['price_to_book']=$results['Price\/Book Value'][0];
-        if($results['Price\/Sales'][0]=="-" || $results['Price\/Sales'][0]=="") $results['Price\/Sales'][0]=99;
-        $stocks_formatted_arr[$name.":".$market]['price_to_sales']=$results['Price\/Sales'][0];
-        if($results['avg_revenue_growth_5y'][0]=="-" || $results['avg_revenue_growth_5y'][0]=="") $results['avg_revenue_growth_5y'][0]=0;
-        $stocks_formatted_arr[$name.":".$market]['avg_revenue_growth_5y']=$results['avg_revenue_growth_5y'][0];
-        if($results['revenue_growth_qq_last_year'][0]=="-" || $results['revenue_growth_qq_last_year'][0]=="") $results['revenue_growth_qq_last_year'][0]=0;
-        $stocks_formatted_arr[$name.":".$market]['revenue_growth_qq_last_year']=$results['revenue_growth_qq_last_year'][0];
-        if($results['Leverage Ratio'][0]=="-" || $results['Leverage Ratio'][0]=="") $results['Leverage Ratio'][0]=99;
-        $stocks_formatted_arr[$name.":".$market]['leverage']=$results['Leverage Ratio'][0];
-        $stocks_formatted_arr[$name.":".$market]['leverage_industry']=0;
+
+        handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_book',$results,'Price\/Book Value',0,$name,99);
+        handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_sales',$results,'Price\/Sales',0,$name,99);
+        handle_new_value($stocks_formatted_arr[$name.":".$market],'avg_revenue_growth_5y',$results,'avg_revenue_growth_5y',0,$name,0);
+        handle_new_value($stocks_formatted_arr[$name.":".$market],'revenue_growth_qq_last_year',$results,'revenue_growth_qq_last_year',0,$name,0);
+        handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage',$results,'Leverage Ratio',0,$name,99);
+        $stocks_formatted_arr[$name.":".$market]['leverage_industry']=0.01; // non-0 to avoid 0 division
         if(count($results['Leverage Ratio'])>1){
-            $stocks_formatted_arr[$name.":".$market]['leverage_industry']=$results['Leverage Ratio'][1];
+            handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage_industry',$results,'Leverage Ratio',1,$name,99);
         }
     }
     
@@ -156,7 +146,16 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
 }
 // -----------update stocks formatted ----------------------------------
 
-
+function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$default_val=0){
+    if($results[$param_id][$index]=="-" || $results[$param_id][$index]==""){
+        $results[$param_id][$index]=$default_val;
+        send_mail('Error '.$name,"<br />Empty - in $param_id (stock_cron_leverage_book.php), setting $default_val<br /><br />","hectorlm1983@gmail.com");
+    }
+    if($orig[$orig_param]!=$results[$param_id][$index]){
+        send_mail('New $orig_param '.$name,"<br />New $param_id (stock_cron_leverage_book.php)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index].'<br /><br />',"hectorlm1983@gmail.com");
+    }
+    $orig[$orig_param]=$results[$param_id][$index];
+}
 
 
 // update last updated number

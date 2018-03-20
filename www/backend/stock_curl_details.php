@@ -136,10 +136,12 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         preg_match("/>\s*Shares Outstanding[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $shares);
         if(count($shares)>1){
             $shares=trim($shares[1]);
+            $shares_source="direct";
             if($shares=="-" || $shares==""){
                 // shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
-                $shares=toFixed(floatval($mktcap)/floatval($value),3,"cap and shares");
-                if(floatval($shares)<0.050){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
+                $shares_source="calc_from_mktcap";
+                $shares=toFixed(floatval($mktcap)/floatval($value),2,"cap and shares");
+                if(floatval($shares)<0.05){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
                     echo "<br />Too few shares..., email sent...<br />";
                     send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Too few shares $mktcap/$value=$shares, skipping...<br /><br />',"hectorlm1983@gmail.com");
                     continue;
@@ -149,6 +151,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
             }
         }else{
             // shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
+            $shares_source="calc_from_mktcap";
             $shares=toFixed(floatval($mktcap)/floatval($value),3,"cap and shares");
             if(floatval($shares)<0.050){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
                 echo "<br />Too few shares..., email sent...<br />";
@@ -174,6 +177,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['dividend']=$divval;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['mktcap']=$mktcap;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['shares']=$shares;
+    $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['shares_source']=$shares_source;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['range_52week_high']=$range_52week_high;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['range_52week_low']=$range_52week_low;
     

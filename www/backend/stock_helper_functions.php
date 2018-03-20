@@ -182,7 +182,7 @@ function acceleration_array($growth_array){
 function trend($arr,$threshold=0.10){
     $trend="--";
     if(count($arr)>=2){
-        $arr2=array_slice($a, -2, 2);
+        $arr2=array_slice($arr, -2, 2);
         if      ($arr2[0]>$threshold && $arr2[1]>$threshold){
             $trend="/";
         }else if($arr2[0]>$threshold && $arr2[1] <$threshold && $arr2[1] >-$threshold){
