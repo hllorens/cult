@@ -30,7 +30,7 @@ function send_mail($subject, $body, $user){
 
 	$subject="cult: ".$subject;
 	$mail->Subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
-	$mail->Body = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"></head><body><br />'.$body.'<br /><br />Go to <a href=\"http://www.cognitionis.com/stockionic/\">stockionic</a> to change it.<br /><br /></body></html>';
+	$mail->Body = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"></head><body><br />'.$body.'<br /><br /><a href=\"http://www.cognitionis.com/stockionic/\">http://www.cognitionis.com/stockionic</a>.<br /><br /></body></html>';
 	$mail->AddAddress($user);
 	$mail->AddBCC("info@cognitionis.com");
 	if(!$mail->Send()){   

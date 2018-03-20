@@ -155,7 +155,7 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_formatted['avgyield']=0;
             $symbol_formatted['eps']=0;
             $symbol_formatted['epsp']=0;
-            $symbol_formatted['eps_hist_last_diff']=0;
+            //$symbol_formatted['eps_hist_last_diff']=0; TODO unused in favor of epsp last diff
             $symbol_formatted['om_to_ps']=0;
             $symbol_formatted['leverage']=99;
         }else{
@@ -165,19 +165,28 @@ foreach ($stock_details_arr as $key => $item) {
                 $ref_value=floatval($symbol_object['value_hist'][count($symbol_object['value_hist'])-2][1]); // last year's value (less volatility in scorings)
             }
             
+            // set defaults if no leverage-book and send email
+            if(!array_key_exists('leverage',$symbol_formatted) || !array_key_exists('price_to_book',$symbol_formatted) || !array_key_exists('avg_revenue_growth_5y',$symbol_formatted)){
+                send_mail('NOTE:'$item['name'].' !revenue-book','<br />This stock is running stock_cron.ph without revenue-book, fix manually (run leverage-book for it).<br /><br />',"hectorlm1983@gmail.com");
+                $symbol_formatted['avg_revenue_growth_5y']=0;
+                $symbol_formatted['revenue_growth_qq_last_year']=0;
+                $symbol_formatted['leverage']=99;
+                $symbol_formatted['price_to_book']=99;
+                
+            }
+            
             // reset things that are going to be calculated
             $symbol_formatted['last_financials_year']=0000;
             $symbol_formatted['operating_margin']=0;
-            $symbol_formatted['eps']=0;
-            $symbol_formatted['epsp']=0;
-            $symbol_formatted['eps_hist_last_diff']=0;
-            $symbol_formatted['eps_hist_trend']="--";
-            $symbol_formatted['h_souce']=0;
-            $symbol_formatted['price_to_sales']=99;
-            $symbol_formatted['price_to_book']=99;
-            $symbol_formatted['guessed_value']=0;
             $symbol_formatted['om_to_ps']=0;
-            $symbol_formatted['leverage']=99;
+            $symbol_formatted['epsp']=0;
+            $symbol_formatted['eps_hist_trend']="--";
+            $symbol_formatted['price_to_sales']=99;
+            $symbol_formatted['h_souce']=0;
+            $symbol_formatted['guessed_value']=0;
+            $symbol_formatted['eps']=0;
+            // leverage, price to book  are not calculated
+            //$symbol_formatted['eps_hist_last_diff']=0;
             //---------------------------------------------
             
             if(array_key_exists('revenue_hist',$symbol_object){
@@ -186,6 +195,7 @@ foreach ($stock_details_arr as $key => $item) {
                 $operating_income=floatval(end($symbol_object['operating_income_hist'])[1]);
                 if($revenue==0){ 
                     echo "revenue 0"; 
+                    send_mail('ERROR:'$item['name'].' revenue 0','<br />This stock has financials but revenue is 0, fix manually.<br /><br />',"hectorlm1983@gmail.com");
                     exit(1);
                 }
                 $symbol_formatted['operating_margin']=toFixed($operating_income/$revenue,2,'operating margin');
@@ -230,7 +240,7 @@ foreach ($stock_details_arr as $key => $item) {
                 //$symbol_formatted['net_income_growth']
                 $symbol_formatted['eps_hist_trend']=trend($symbol_formatted['net_income_growth_arr']);
             }else{
-                send_mail('NOTE:'$item['name'].' !financials','<br />This stock is running stock_cron.ph without financials, fix manually.<br /><br />',"hectorlm1983@gmail.com");
+                send_mail('NOTE:'$item['name'].' !financials','<br />This stock is running stock_cron.ph without financials, fix manually (run financials).<br /><br />',"hectorlm1983@gmail.com");
             }
 
 

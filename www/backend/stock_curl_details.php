@@ -52,7 +52,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
     preg_match("/^.* class=\"header-companyname[^>]*>\s*<[^>]*>\s*([^<]*)<.*$/m", $response, $title);
     if(count($title)<2){
-        echo "<br />Empty value skipping, title sent...<br />";
+        echo "<br />Empty value title, email sent...<br />";
         send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty title, skipping...<br /><br />',"hectorlm1983@gmail.com");
         continue;
     }
