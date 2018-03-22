@@ -7,25 +7,37 @@ echo date('Y-m-d H:i:s')." starting stock_list.php<br />";
 
 $stock_list="INDEXBME:IB";
 
-$stock_list="$stock_list,BME:ACS,BME:ACX,BME:AENA,BME:AMS,BME:ANA,BME:BBVA,BME:BKIA,BME:BKT,BME:CABK,BME:DIA";
+$stock_list="$stock_list,BME:ACS,BME:ACX,BME:AENA,BME:AMS,BME:ANA,BME:BBVA,BME:BKIA,BME:BKT,BME:CABK,BME:DIA";  
+// index 11
 $stock_list="$stock_list,BME:ELE,BME:ENG,BME:FCC,BME:FER,BME:SGRE,BME:GAS,BME:GRF,BME:IBE,BME:IDR"; // BME:GAM -> BME:SGRE, BME:IAG (NO MUCH INFO)
+// index 20
 $stock_list="$stock_list,BME:ITX,BME:MAP,BME:MEL,BME:MTS,BME:OHL,BME:REE,BME:REP,BME:SAB,BME:SAN,BME:SCYR";
-$stock_list="$stock_list,BME:TEF,BME:TL5,BME:TRE,BME:VID,BME:R4,BME:CLNX"; 
+// index 30
+$stock_list="$stock_list,BME:TEF,BME:TL5,BME:TRE,BME:VID,BME:R4,BME:CLNX";
 // ojo masmovil... consider adding it grows interestingly
 // IBEX quebrados o quitados: ,BME:POP
 // otras interesantes españa o farmaceuticas (society is aging... pharmacy will play a role)
+
+// index 36
 $stock_list="$stock_list,BME:FAE,OTCMKTS:RHHBY,NASDAQ:SUPN,NASDAQ:REGN,NASDAQ:ALXN,NASDAQ:VRTX,NYSE:ABBV";
 
+//index 43
 $stock_list="$stock_list,INDEXSTOXX:SX5E";
 $stock_list="$stock_list,INDEXNASDAQ:NDX";
 $stock_list="$stock_list,INDEXSP:.INX";
 
+//index 46
 $stock_list="$stock_list,NASDAQ:GOOG,NASDAQ:MSFT,NASDAQ:EBAY,NASDAQ:AMZN,NASDAQ:NVDA"; // ,NASDAQ:YHOO no longer a company but a fund (AABA), ,NASDAQ:GOOGL same as goog no need to have 2
 $stock_list="$stock_list,NASDAQ:FB,NYSE:TWTR,NYSE:SNAP";
+// index 54
 $stock_list="$stock_list,NYSE:MA,NYSE:V,NASDAQ:PYPL";
+// index 57
 $stock_list="$stock_list,NYSE:YRD,NYSE:FIT,NYSE:BABA,NYSE:BLK,NYSE:EL,NYSE:BA,NASDAQ:ATVI,NASDAQ:ADBE,NYSE:RHT,NYSE:CAT"; //new
+// index 67
 $stock_list="$stock_list,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:AMD,NASDAQ:TEAM,NASDAQ:BKCC,NASDAQ:IRBT";
+// index 76
 $stock_list="$stock_list,NASDAQ:NTES,NYSE:ICE,NASDAQ:CME,NASDAQ:MCHP,NASDAQ:MU,NYSE:TSM,NASDAQ:AVGO,NASDAQ:BIDU,NASDAQ:WDC,NASDAQ:CAR,EPA:KER";
+// index 87
 $stock_list="$stock_list,NASDAQ:BKNG,NASDAQ:TRIP,NASDAQ:EXPE";
 $stock_list="$stock_list,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:SSI,NYSE:O";
 $stock_list="$stock_list,NYSE:KO,NYSE:DPS,VTX:NESN,NASDAQ:PEP,EPA:BN";

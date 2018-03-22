@@ -75,6 +75,9 @@ foreach ($stocks_formatted_arr as $key => $item) {
                 $symbol_object['revenue_hist'][]=[$key2,toFixed(floatval(($item2['Total Revenue'])/1000),2,'revenue')]; // PS can be calculated
                 $symbol_object['operating_income_hist'][]=[$key2,toFixed(floatval(($item2['Operating Income'])/1000),2,'operating income')]; // OM can be calculated
                 $symbol_object['net_income_hist'][]=[$key2,toFixed(floatval(($item2['Net Income'])/1000),2,'net income')]; // EPS can be calculated
+            }else{
+                echo "FATAL ERROR, financials but not revenue for ".$item['name'];
+                exit(1);
             }
         }
     }

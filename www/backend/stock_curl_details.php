@@ -56,7 +56,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty title, skipping...<br /><br />',"hectorlm1983@gmail.com");
         continue;
     }
-    $title=preg_replace('/( S\.?A\.?| [Ii][Nn][Cc]\.?)\s*$/m', '', $title[1]);
+    $title=substr(preg_replace('/( S\.?A\.?| [Ii][Nn][Cc]\.?)\s*$/m', '', $title[1]),0,20); // remove ending and reduce to 20 chars
     if($debug) echo "<br />title: ".$title."<br />";
 
     preg_match("/data-role=\"currentvalue\"[^>]*>\s*([^<]*)</m", $response, $value);
@@ -103,6 +103,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $yieldval=0;
     $shares=0;
     $mktcap=0;
+    $shares_source="direct";
 
     if(substr($the_url_query_arr[$current_num_to_curl],0,5)!="INDEX"){
         preg_match("/>\s*Dividend\s*Rate[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $dividend_yield);
@@ -139,7 +140,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
             $shares_source="direct";
             if($shares=="-" || $shares==""){
                 // shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
-                $shares_source="calc_from_mktcap";
+                $shares_source="from_mktcap_found_empty";
                 $shares=toFixed(floatval($mktcap)/floatval($value),2,"cap and shares");
                 if(floatval($shares)<0.05){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
                     echo "<br />Too few shares..., email sent...<br />";
@@ -151,11 +152,11 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
             }
         }else{
             // shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
-            $shares_source="calc_from_mktcap";
+            $shares_source="from_mktcap_not_found";
             $shares=toFixed(floatval($mktcap)/floatval($value),3,"cap and shares");
             if(floatval($shares)<0.050){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
                 echo "<br />Too few shares..., email sent...<br />";
-                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Too few shares $mktcap/$value=$shares, skipping...<br /><br />',"hectorlm1983@gmail.com");
+                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Too few shares $mktcap/$value=$shares, skipping (consider removing this stock, too small)...<br /><br />',"hectorlm1983@gmail.com");
                 continue;
             }
         }

@@ -1,11 +1,21 @@
 <?php
 
 require_once 'stock_list.php';
+require_once("email_config.php");
 require_once 'stock_helper_functions.php';
 
 echo date('Y-m-d H:i:s')." starting stock_curl_financials.php<br />";
 
-
+function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$default_val=0,$diff_margin=0){
+    if($results[$param_id][$index]=="-" || $results[$param_id][$index]==""){
+        $results[$param_id][$index]=$default_val;
+        send_mail('Error '.$name,"<br />Empty - in $param_id (stock_cron_leverage_book.php), setting $default_val<br /><br />","hectorlm1983@gmail.com");
+    }
+    if(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))>$diff_margin){
+        send_mail("New $orig_param ".$name,"<br />diff_margin=$diff_margin<br />New $param_id (stock_cron_leverage_book.php)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index].'<br /><br />',"hectorlm1983@gmail.com");
+    }
+    $orig[$orig_param]=$results[$param_id][$index];
+}
 
 
 $num_stocks_to_curl=2;
@@ -77,7 +87,6 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     
     
     TODO, do all errors handling with emails!!!
-    TODO, calculate shares (shares calculated), but it is not accurate even with basic eps...
     
     
     

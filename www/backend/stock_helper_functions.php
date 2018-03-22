@@ -121,12 +121,17 @@ function growth_and_acceleration($param_id, $symbol_object,$min_periods=3){
     //black magic
 }
 
-function compound_average_growth($from, $to, $periods=1){
-    $cag=0;
-    if($from==$to) return 0; // no diff no calc
-    if($from==0){$from=0.001;} // protection against 0 division
-    $cag=floatval($to)/floatval($from);
-    if($periods>1) $cag=$cag^(1/$periods);
+function compound_average_growth($from, $to, $periods=1.0){
+    $cag=0.0;
+    $from=floatval($from);
+    $to=floatval($to);
+    $periods=floatval($periods);
+    if($from==$to){ echo "<br />cag: from=to"; return 0;} // no diff no calc
+    if($from==0){echo "<br />cag: from=0"; $from=0.001;} // protection against 0 division
+    $cag=$to/$from;
+    //echo "<br />from=$from,to=$to,cag=$cag";
+    if($periods>1){$cag=pow($cag,(1.0/$periods));}
+    //echo "<br />cag=$cag";
     $cag=$cag-1;
     return $cag;
 }
@@ -164,7 +169,7 @@ function hist_growth_array($param_id, $symbol_object,$num_periods=-1){
             $from_val=floatval($symbol_object[$param_id][$i][1]);
             $to_val=floatval($symbol_object[$param_id][$i+1][1]);
         }
-        $growth_array[]=compound_average_growth($from_val,$to_val);
+        $growth_array[]=compound_average_growth(floatval(toFixed($from_val,3)),floatval(toFixed($to_val,3)));
     }
     return $growth_array;
 }

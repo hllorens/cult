@@ -194,17 +194,6 @@
             "revenue_diff": "-0.00",
             "operating_margin_diff": "0.23",
             "liabilities_to_assets_diff": "0.02"
-        },
-        "2017-12-30": {
-            "Total Current Assets": "31027000",
-            "Total Assets": "79804000",
-            "Total Current Liabilities": "20502000",
-            "Total Liabilities": "68915000",
-            "current_liabilities_to_current_assets": "0.66",
-            "liabilities_to_assets": "0.86",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "0.01"
         }
     },
     "EPA:BN": {
@@ -264,17 +253,6 @@
             "revenue_diff": "-0.02",
             "operating_margin_diff": "0.30",
             "liabilities_to_assets_diff": "0.15"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "19113000",
-            "Total Assets": "43949000",
-            "Total Current Liabilities": "9050000",
-            "Total Liabilities": "30755000",
-            "current_liabilities_to_current_assets": "0.47",
-            "liabilities_to_assets": "0.70",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "0.00"
         }
     },
     "NYSE:VZ": {
@@ -1258,17 +1236,6 @@
             "revenue_diff": "-0.01",
             "operating_margin_diff": "0.25",
             "liabilities_to_assets_diff": "-0.09"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "21188000",
-            "Total Assets": "45153000",
-            "Total Current Liabilities": "20397000",
-            "Total Liabilities": "30535000",
-            "current_liabilities_to_current_assets": "0.96",
-            "liabilities_to_assets": "0.68",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "0.00"
         }
     },
     "NYSE:F": {
@@ -1604,17 +1571,6 @@
             "revenue_diff": "-0.04",
             "operating_margin_diff": "0.33",
             "liabilities_to_assets_diff": "0.00"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "20633826",
-            "Total Assets": "31880684",
-            "Total Current Liabilities": "18813263",
-            "Total Liabilities": "26716655",
-            "current_liabilities_to_current_assets": "0.91",
-            "liabilities_to_assets": "0.84",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "-0.01"
         }
     },
     "BME:ACX": {
@@ -1826,6 +1782,10 @@
             "liabilities_to_assets_diff": "-0.04"
         },
         "2017-12-31": {
+            "Total Revenue": "4852.7",
+            "Operating Income": "1323.2",
+            "Net Income": "1002.9",
+            "operating_margin": "0.27",
             "Total Current Assets": "1231000",
             "Total Assets": "7883000",
             "Total Current Liabilities": "2283500",
@@ -1835,10 +1795,6 @@
             "revenue_diff": "0.08",
             "operating_margin_diff": "0.00",
             "liabilities_to_assets_diff": "0.03",
-            "Total Revenue": "4852.7",
-            "Operating Income": "1323.2",
-            "Net Income": "1002.9",
-            "operating_margin": "0.27",
             "net_margin": "0.21"
         }
     },
@@ -1974,17 +1930,6 @@
             "revenue_diff": "inf",
             "operating_margin_diff": "inf",
             "liabilities_to_assets_diff": "inf"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "107375000",
-            "Total Assets": "690059000",
-            "Total Current Liabilities": "514131000",
-            "Total Liabilities": "636736000",
-            "current_liabilities_to_current_assets": "4.79",
-            "liabilities_to_assets": "0.92",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "0.00"
         }
     },
     "BME:BKIA": {
@@ -2046,6 +1991,10 @@
             "liabilities_to_assets_diff": "inf"
         },
         "2017-12-31": {
+            "Total Revenue": "3017.0",
+            "Operating Income": "744.1",
+            "Net Income": "504.5",
+            "operating_margin": "0.25",
             "Total Current Assets": "21318000",
             "Total Assets": "213932000",
             "Total Current Liabilities": "169413000",
@@ -2055,10 +2004,6 @@
             "revenue_diff": "-0.02",
             "operating_margin_diff": "-0.40",
             "liabilities_to_assets_diff": "0.01",
-            "Total Revenue": "3017.0",
-            "Operating Income": "744.1",
-            "Net Income": "504.5",
-            "operating_margin": "0.25",
             "net_margin": "0.17"
         }
     },
@@ -2121,6 +2066,10 @@
             "liabilities_to_assets_diff": "inf"
         },
         "2017-12-31": {
+            "Total Revenue": "2318.1",
+            "Operating Income": "705.1",
+            "Net Income": "495.2",
+            "operating_margin": "0.30",
             "Total Current Assets": "9429851",
             "Total Assets": "71332651",
             "Total Current Liabilities": "55893455",
@@ -2130,10 +2079,6 @@
             "revenue_diff": "0.15",
             "operating_margin_diff": "0.00",
             "liabilities_to_assets_diff": "0.00",
-            "Total Revenue": "2318.1",
-            "Operating Income": "705.1",
-            "Net Income": "495.2",
-            "operating_margin": "0.30",
             "net_margin": "0.21"
         }
     },
@@ -2196,6 +2141,10 @@
             "liabilities_to_assets_diff": "0.00"
         },
         "2017-12-31": {
+            "Total Revenue": "8226.7",
+            "Operating Income": "1934.5",
+            "Net Income": "1684.2",
+            "operating_margin": "0.24",
             "Total Current Assets": "43611000",
             "Total Assets": "383186000",
             "Total Current Liabilities": "255409000",
@@ -2205,10 +2154,6 @@
             "revenue_diff": "0.03",
             "operating_margin_diff": "-0.27",
             "liabilities_to_assets_diff": "0.01",
-            "Total Revenue": "8226.7",
-            "Operating Income": "1934.5",
-            "Net Income": "1684.2",
-            "operating_margin": "0.24",
             "net_margin": "0.20"
         }
     },
@@ -2271,6 +2216,10 @@
             "liabilities_to_assets_diff": "-0.01"
         },
         "2017-12-31": {
+            "Total Revenue": "8620.6",
+            "Operating Income": "247.1",
+            "Net Income": "109.6",
+            "operating_margin": "0.03",
             "Total Current Assets": "1263319",
             "Total Assets": "3626174",
             "Total Current Liabilities": "2290993",
@@ -2280,10 +2229,6 @@
             "revenue_diff": "-0.03",
             "operating_margin_diff": "0.00",
             "liabilities_to_assets_diff": "0.01",
-            "Total Revenue": "8620.6",
-            "Operating Income": "247.1",
-            "Net Income": "109.6",
-            "operating_margin": "0.03",
             "net_margin": "0.01"
         }
     },
@@ -2344,17 +2289,6 @@
             "revenue_diff": "-0.05",
             "operating_margin_diff": "0.38",
             "liabilities_to_assets_diff": "0.03"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "5530000",
-            "Total Assets": "31037000",
-            "Total Current Liabilities": "7535000",
-            "Total Liabilities": "21804000",
-            "current_liabilities_to_current_assets": "1.36",
-            "liabilities_to_assets": "0.70",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "-0.01"
         }
     },
     "BME:ENG": {
@@ -2416,6 +2350,10 @@
             "liabilities_to_assets_diff": "0.06"
         },
         "2017-12-31": {
+            "Total Revenue": "1360.2",
+            "Operating Income": "732.1",
+            "Net Income": "490.8",
+            "operating_margin": "0.54",
             "Total Current Assets": "1143767",
             "Total Assets": "9572636",
             "Total Current Liabilities": "456643",
@@ -2425,10 +2363,6 @@
             "revenue_diff": "0.14",
             "operating_margin_diff": "0.06",
             "liabilities_to_assets_diff": "-0.05",
-            "Total Revenue": "1360.2",
-            "Operating Income": "732.1",
-            "Net Income": "490.8",
-            "operating_margin": "0.54",
             "net_margin": "0.36"
         }
     },
@@ -2642,17 +2576,6 @@
             "revenue_diff": "0.32",
             "operating_margin_diff": "0.11",
             "liabilities_to_assets_diff": "0.04"
-        },
-        "2017-09-30": {
-            "Total Current Assets": "6963234",
-            "Total Assets": "16467130",
-            "Total Current Liabilities": "6891208",
-            "Total Liabilities": "10017264",
-            "current_liabilities_to_current_assets": "0.99",
-            "liabilities_to_assets": "0.61",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "-0.13"
         }
     },
     "BME:GAS": {
@@ -2787,17 +2710,6 @@
             "revenue_diff": "0.03",
             "operating_margin_diff": "-0.08",
             "liabilities_to_assets_diff": "-0.05"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "2945316",
-            "Total Assets": "10920264",
-            "Total Current Liabilities": "977987",
-            "Total Liabilities": "7286299",
-            "current_liabilities_to_current_assets": "0.33",
-            "liabilities_to_assets": "0.67",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "0.06"
         }
     },
     "BME:IAG": {
@@ -2991,17 +2903,6 @@
             "revenue_diff": "-0.05",
             "operating_margin_diff": "-1.26",
             "liabilities_to_assets_diff": "-0.01"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "2208200",
-            "Total Assets": "3866600",
-            "Total Current Liabilities": "1973800",
-            "Total Liabilities": "3217700",
-            "current_liabilities_to_current_assets": "0.89",
-            "liabilities_to_assets": "0.83",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "-0.07"
         }
     },
     "BME:ITX": {
@@ -3195,17 +3096,6 @@
             "revenue_diff": "0.04",
             "operating_margin_diff": "0.11",
             "liabilities_to_assets_diff": "-0.09"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "746857",
-            "Total Assets": "3220807",
-            "Total Current Liabilities": "806640",
-            "Total Liabilities": "1698050",
-            "current_liabilities_to_current_assets": "1.08",
-            "liabilities_to_assets": "0.53",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "0.00"
         }
     },
     "BME:MTS": {
@@ -3340,17 +3230,6 @@
             "revenue_diff": "-0.12",
             "operating_margin_diff": "-0.94",
             "liabilities_to_assets_diff": "0.00"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "10543200",
-            "Total Assets": "12208500",
-            "Total Current Liabilities": "6901100",
-            "Total Liabilities": "8025200",
-            "current_liabilities_to_current_assets": "0.65",
-            "liabilities_to_assets": "0.66",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "-0.04"
         }
     },
     "BME:REE": {
@@ -3635,17 +3514,6 @@
             "revenue_diff": "-0.02",
             "operating_margin_diff": "0.15",
             "liabilities_to_assets_diff": "-0.01"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "270554000",
-            "Total Assets": "1444305000",
-            "Total Current Liabilities": "1061226000",
-            "Total Liabilities": "1337472000",
-            "current_liabilities_to_current_assets": "3.92",
-            "liabilities_to_assets": "0.93",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "0.01"
         }
     },
     "BME:SCYR": {
@@ -3705,17 +3573,6 @@
             "revenue_diff": "-0.03",
             "operating_margin_diff": "0.40",
             "liabilities_to_assets_diff": "-0.01"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "3665182",
-            "Total Assets": "10688947",
-            "Total Current Liabilities": "3336921",
-            "Total Liabilities": "8608549",
-            "current_liabilities_to_current_assets": "0.91",
-            "liabilities_to_assets": "0.81",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "0.00"
         }
     },
     "BME:TEF": {
@@ -4000,17 +3857,6 @@
             "revenue_diff": "0.12",
             "operating_margin_diff": "0.05",
             "liabilities_to_assets_diff": "0.17"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "153656",
-            "Total Assets": "331223",
-            "Total Current Liabilities": "37945",
-            "Total Liabilities": "46335",
-            "current_liabilities_to_current_assets": "0.25",
-            "liabilities_to_assets": "0.14",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "0.00"
         }
     },
     "NASDAQ:GOOG": {
@@ -5935,17 +5781,6 @@
             "revenue_diff": "-0.17",
             "operating_margin_diff": "-0.67",
             "liabilities_to_assets_diff": "0.02"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "74968000",
-            "Total Assets": "276515000",
-            "Total Current Liabilities": "64726000",
-            "Total Liabilities": "176111000",
-            "current_liabilities_to_current_assets": "0.86",
-            "liabilities_to_assets": "0.64",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "0.02"
         }
     },
     "NYSE:HSBC": {
@@ -6575,17 +6410,6 @@
             "revenue_diff": "0.67",
             "operating_margin_diff": "0.03",
             "liabilities_to_assets_diff": "0.17"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "61947760",
-            "Total Assets": "71031415",
-            "Total Current Liabilities": "23750114",
-            "Total Liabilities": "23981579",
-            "current_liabilities_to_current_assets": "0.38",
-            "liabilities_to_assets": "0.34",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "0.00"
         }
     },
     "NYSE:ICE": {
@@ -6889,17 +6713,6 @@
             "revenue_diff": "0.12",
             "operating_margin_diff": "0.05",
             "liabilities_to_assets_diff": "0.00"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "857203110",
-            "Total Assets": "1991861643",
-            "Total Current Liabilities": "358706680",
-            "Total Liabilities": "469102000",
-            "current_liabilities_to_current_assets": "0.42",
-            "liabilities_to_assets": "0.24",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "-0.14"
         }
     },
     "NASDAQ:AVGO": {
@@ -7018,17 +6831,6 @@
             "revenue_diff": "0.06",
             "operating_margin_diff": "-0.22",
             "liabilities_to_assets_diff": "0.07"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "151169000",
-            "Total Assets": "251728000",
-            "Total Current Liabilities": "82057000",
-            "Total Liabilities": "121356000",
-            "current_liabilities_to_current_assets": "0.54",
-            "liabilities_to_assets": "0.48",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
-            "liabilities_to_assets_diff": "0.04"
         }
     },
     "BME:VID": {
@@ -7135,17 +6937,6 @@
             "liabilities_to_assets": "0.92",
             "revenue_diff": "0.02",
             "operating_margin_diff": "-0.17",
-            "liabilities_to_assets_diff": "0.00"
-        },
-        "2017-12-31": {
-            "Total Current Assets": "563619",
-            "Total Assets": "1221538",
-            "Total Current Liabilities": "978119",
-            "Total Liabilities": "1126536",
-            "current_liabilities_to_current_assets": "1.74",
-            "liabilities_to_assets": "0.92",
-            "revenue_diff": "-1.00",
-            "operating_margin_diff": "-1.00",
             "liabilities_to_assets_diff": "0.00"
         }
     },
@@ -8163,38 +7954,7 @@
             "liabilities_to_assets_diff": "0.04"
         }
     },
-    "NYSE:ABBV": {
-        "name": "ABBV",
-        "market": "NYSE",
-        "2017-12-31": {
-            "Total Current Assets": "21223000",
-            "Total Assets": "70786000",
-            "Total Current Liabilities": "16641000",
-            "Total Liabilities": "65689000",
-            "current_liabilities_to_current_assets": "0.78",
-            "liabilities_to_assets": "0.93",
-            "revenue_diff": "nan",
-            "operating_margin_diff": "nan",
-            "liabilities_to_assets_diff": "0.00"
-        },
-        "2016-12-31": {
-            "Total Current Assets": "16187000",
-            "Total Assets": "66099000",
-            "Total Current Liabilities": "9781000",
-            "Total Liabilities": "61463000",
-            "current_liabilities_to_current_assets": "0.60",
-            "liabilities_to_assets": "0.93"
-        },
-        "2015-12-31": {
-            "Total Current Assets": "16314000",
-            "Total Assets": "53050000",
-            "Total Current Liabilities": "10894000",
-            "Total Liabilities": "49105000",
-            "current_liabilities_to_current_assets": "0.67",
-            "liabilities_to_assets": "0.93"
-        }
-    },
-    "NYSE:MA": {
+    "NYSE:MA":  {
         "name": "MA",
         "market": "NYSE",
         "2014-12-31": {
