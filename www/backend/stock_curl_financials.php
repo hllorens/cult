@@ -6,27 +6,12 @@ require_once 'stock_helper_functions.php';
 
 echo date('Y-m-d H:i:s')." starting stock_curl_financials.php<br />";
 
-function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$default_val=0,$diff_margin=0){
-    if($results[$param_id][$index]=="-" || $results[$param_id][$index]==""){
-        $results[$param_id][$index]=$default_val;
-        send_mail('Error '.$name,"<br />Empty - in $param_id (stock_cron_leverage_book.php), setting $default_val<br /><br />","hectorlm1983@gmail.com");
-    }
-    if(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))>$diff_margin){
-        send_mail("New $orig_param ".$name,"<br />diff_margin=$diff_margin<br />New $param_id (stock_cron_leverage_book.php)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index].'<br /><br />',"hectorlm1983@gmail.com");
-    }
-    $orig[$orig_param]=$results[$param_id][$index];
-}
-
-
 $num_stocks_to_curl=2;
 $stock_last_financial_updated=0;
 if(file_exists ( 'stock_last_financial_updated.txt' )){
     $stock_last_financial_updated=intval(fgets(fopen('stock_last_financial_updated.txt', 'r')));
 }
 echo " curr_stock_num_to_curl=$stock_last_financial_updated num_stocks_to_curl=$num_stocks_to_curl<br />";
-
-
-
 
 $debug=false;
 if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug']=="1")){
@@ -41,67 +26,23 @@ if(file_exists ( 'stocks.financials.json' )){
     echo "stocks.financials.json does NOT exist -> using an empty array<br />";
 }
 
+TODO also load stocks formatted to load it with new stuff when needed.
 
-// google: does not have financials for BME/MCE/MC
-// yahoo:  https://finance.yahoo.com/quote/SGRE.MC/financials?p=SGRE.MC // prob multiple pages: balance-sheet?p cash-flow?p ...
-// yahoo-statistics: https://finance.yahoo.com/quote/SGRE.MC/key-statistics?p=SGRE.MC
-// msn: https://www.msn.com/en-us/money/stockdetails/financials/ //fi-199.1.SGRE.MCE (the number depends on the country)
-$the_url="https://www.msn.com/en-us/money/stockdetails/financials/"; //fi-199.1.SGRE.MCE (the number depends on the country)
-//$vals=",";
-$the_url_query_arr = explode(",", $stock_list);
+
+
+
 $num_stocks_to_curl=min($num_stocks_to_curl,count($the_url_query_arr)); // make sure we do not duplicate...
 for ($i=0;$i<$num_stocks_to_curl;$i++){
     $current_num_to_curl=($stock_last_financial_updated+$i) % count($the_url_query_arr);
-    
     if(substr($the_url_query_arr[$current_num_to_curl],0,5)=="INDEX") continue; // skip indexes
-    
-    $url_and_query=$the_url.get_msn_quote($the_url_query_arr[$current_num_to_curl]); //get_msn_quote($the_url_query_arr[$current_num_to_curl]);
-    echo "stock $url_and_query<br />";
-    $curl = curl_init();
-    curl_setopt( $curl, CURLOPT_URL, $url_and_query );
-    curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
-    $response = curl_exec( $curl ); //utf8_decode( not necessary
-    curl_close( $curl );
-    $response=preg_replace("/(\n|&nbsp;)/", " ", $response);
-    //if($debug) echo "base .<pre>".htmlspecialchars($response)."</pre>";
-    $response=preg_replace("/<title>/", "\ntd <title>", $response);
-    $response=preg_replace("/<\/title>/", "\n", $response);
-    $response=preg_replace("/<td/", "\ntd", $response);
-    //if($debug)  echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
-    $response=preg_replace("/<\/(td|table|ul)>/", "\n", $response);
-    //$response=preg_replace("/^[^t][^d].*$/m", "", $response);
-    $response = preg_replace('/^[ \t]*[\r\n]+/m', '', $response); // remove blank lines
-    $response = preg_replace('/\n(.*=\"val\".*)[\r\n]+/m', '${1}', $response); // remove blank lines
-    $response = preg_replace('/title=\'(Period End Date|Total Revenue|Operating Income|Net Income|Total Current Assets|Total Assets|Total Current Liabilities|Total Liabilities|Total Equity|Diluted EPS|Basic EPS|Cash Flow from Operating Activities|Cash Flow from Investing Activities|Cash Flow from Financing Activities|Free Cash Flow)\'[^>]*>\s*/', "\n", $response);
-    //$response = preg_replace('/\ntd class="lft name">Return on average equity\s*\ntd class=period>/',"\ntd class=\"lft name\">Return on average equity td class=period>",$response);
-//    if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
-    echo "----------end----------";
-    preg_match("/^Period End Date(.*)$/m", $response, $xxxx);
-    preg_match_all("/title='([^\/]*\/[^\/]*\/[^']*)'/", $xxxx[1], $period_arr);
-    //var_dump($period_arr[1]);
-    echo "<br />";
-    
-    
-    
-    
-    
-    
-    TODO, do all errors handling with emails!!!
-    
-    
-    
-    $vars2get=['Total Revenue','Operating Income','Net Income','Basic EPS'];
-    $results=array();
-    foreach($vars2get as $var2get){
-        if($debug) echo "getting results for: $var2get<br />";
-        preg_match("/^".$var2get."(.*)$/m", $response, $xxxx);
-        preg_match_all("/title='([^']*)'/", $xxxx[1], $xxxx_arr);
-        $results[$var2get]=str_replace(",","",$xxxx_arr[1]);
-    }
-
     $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
     $name=$query_arr[1];
     $market=$query_arr[0];
+    
+    
+    HERE WE GET THE curl_financial with the current stock...    
+    TODO, first thing compare the existing and the new to see if there is any update, otherwise do not update... financials or stock formatted    
+    
     // assignment to the array
     if(!array_key_exists($the_url_query_arr[$current_num_to_curl],$stock_financials_arr)){
         $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]=array();
@@ -133,10 +74,8 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
                 }
             }
         }
-        $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['operating_margin']=toFixed(floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Operating Income'])/floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Total Revenue']));
-        $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['net_margin']=toFixed(floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Net Income'])/floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]['Total Revenue']));
-        $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['revenue_diff']=toFixed((floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['Total Revenue'])-floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['Total Revenue']))/floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['Total Revenue']));
-        $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['operating_margin_diff']=toFixed((floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][0]]['operating_margin'])-floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['operating_margin']))/floatval($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][1]]['operating_margin']));
+        
+        
     }
     //var_dump($stock_financials_arr);
 

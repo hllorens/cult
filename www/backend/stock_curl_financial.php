@@ -1,6 +1,7 @@
 <?php
 
 require_once("email_config.php");
+require_once("stock_list.php");
 require_once 'stock_helper_functions.php';
 
 $debug=false;
@@ -20,11 +21,8 @@ if(file_exists ( 'stocks.financials.json' )){
     echo "stocks.financials.json does NOT exist -> using an empty array<br />";
 }
 $stock_financial=array();
-//TODO better just put in a var and on debug print it, then other scripts can do whatever with that var...
-//The name can be guessed from $name $market
-//We can also calculate the "clean" in that var so the wrapper script can update both stocks.formatted.json and financials...
 
-if(substr($_REQUEST['symbol'],0,5)=="INDEX"){echo "index (no financials), nothing to be done"; return;} continue; // skip indexes
+if(substr($_REQUEST['symbol'],0,5)=="INDEX"){echo "index (no financials), nothing to be done"; return;} // skip indexes
 
 // google: does not have financials for BME/MCE/MC
 // yahoo:  https://finance.yahoo.com/quote/SGRE.MC/financials?p=SGRE.MC // prob multiple pages: balance-sheet?p cash-flow?p ...
@@ -108,6 +106,9 @@ for ($period=0;$period<count($period_arr[1]);$period++){
     $new_period_report="";
     foreach($vars2get as $var2get){
         if($debug) echo "updating vars: $var2get<br />";
+        if($first_time_financials){
+            $stock_financial[$period_arr[1][$period]]=array();
+        }
         if(!array_key_exists($var2get,$stock_financial[$period_arr[1][$period]])){
             if($results[$var2get][$period]=="-" || $results[$var2get][$period]==""){
                 $results[$var2get][$period]=0;
@@ -123,9 +124,10 @@ for ($period=0;$period<count($period_arr[1]);$period++){
             }
         }
     }
-    if($new_period){
+    if($new_period && !$first_time_financials){
         send_mail('new financials '.$name,"<br />In ".$_REQUEST['symbol']." period:".$period_arr[1][$period]." ".$new_period_report."<br /><br />","hectorlm1983@gmail.com");
     }
+
 }
 
 if($debug) var_dump($stock_financial);
