@@ -68,6 +68,11 @@ foreach ($stock_details_arr as $key => $item) {
     if(array_key_exists($item['market'].":".$item['name'],$stock_details_arr)){
         echo "<br /> >details for ".$item['market'].":".$item['name']."<br/>";
         // refresh basic info
+        if(!isset($item['value'] || $item['title']=="" || $item['value']=""){
+            echo "ERROR: empty title or value in the details...<br />";
+            send_mail('ERROR:'.$item['name'].' details title or value !exist','<br />ERROR: empty title or value in the details...<br /><br />',"hectorlm1983@gmail.com");
+            continue;
+        }
         $symbol_object['name']=$item['name'];
         $symbol_object['market']=$item['market'];
         $symbol_object['date']=$timestamp_simplif;

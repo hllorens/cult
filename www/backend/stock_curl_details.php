@@ -57,6 +57,11 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         continue;
     }
     $title=substr(preg_replace('/( S\.?A\.?| [Ii][Nn][Cc]\.?)\s*$/m', '', $title[1]),0,20); // remove ending and reduce to 20 chars
+    if(!isset($title) || $title=="" || $title=="-"){
+        echo "<br />Empty value title, email sent...<br />";
+        send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty title, skipping...<br /><br />',"hectorlm1983@gmail.com");
+        continue;
+    }
     if($debug) echo "<br />title: ".$title."<br />";
 
     preg_match("/data-role=\"currentvalue\"[^>]*>\s*([^<]*)</m", $response, $value);
@@ -66,6 +71,11 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         continue;
     }
     $value=trim($value[1]);
+    if(!isset($value) || $value=="" || $value=="-"){
+        echo "<br />Empty value skipping, email sent...<br />";
+        send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty value, skipping...<br /><br />',"hectorlm1983@gmail.com");
+        continue;
+    }
     if($debug) echo "value: (".$value.")<br />";
 
     preg_match("/data-role=\"percentchange\"[^>]*>\s*([^<]*)</m", $response, $changep);
@@ -167,7 +177,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
     $name=$query_arr[1];
     $market=$query_arr[0];
-    // assignment to the array
+    // assignment to the array, only if all went ok
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]=array();
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['name']=$name;
     $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]['market']=$market;

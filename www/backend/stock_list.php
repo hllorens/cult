@@ -32,7 +32,7 @@ $stock_list="$stock_list,NASDAQ:FB,NYSE:TWTR,NYSE:SNAP";
 // index 54
 $stock_list="$stock_list,NYSE:MA,NYSE:V,NASDAQ:PYPL";
 // index 57
-$stock_list="$stock_list,NYSE:YRD,NYSE:FIT,NYSE:BABA,NYSE:BLK,NYSE:EL,NYSE:BA,NASDAQ:ATVI,NASDAQ:ADBE,NYSE:RHT,NYSE:CAT"; //new
+$stock_list="$stock_list,NYSE:YRD,NYSE:FIT,NYSE:BABA,NYSE:BLK,NYSE:EL,NYSE:BA,NASDAQ:ATVI,NASDAQ:ADBE,NYSE:RHT,NYSE:CAT"; //new, at some point we might want EPA:AIR (although Boeing is larger...)
 // index 67
 $stock_list="$stock_list,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:AMD,NASDAQ:TEAM,NASDAQ:BKCC,NASDAQ:IRBT";
 // index 76
@@ -40,6 +40,7 @@ $stock_list="$stock_list,NASDAQ:NTES,NYSE:ICE,NASDAQ:CME,NASDAQ:MCHP,NASDAQ:MU,N
 // index 87
 $stock_list="$stock_list,NASDAQ:BKNG,NASDAQ:TRIP,NASDAQ:EXPE";
 $stock_list="$stock_list,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:SSI,NYSE:O";
+//index 98
 $stock_list="$stock_list,NYSE:KO,NYSE:DPS,VTX:NESN,NASDAQ:PEP,EPA:BN";
 $stock_list="$stock_list,NYSE:VZ,NYSE:T,NASDAQ:VOD,NASDAQ:QCOM";
 $stock_list="$stock_list,NYSE:XOM,NYSE:DIS";

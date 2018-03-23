@@ -165,12 +165,10 @@ $stock_last_leverage_book_updated_f = fopen("stock_last_leverage_book_updated.tx
 fwrite($stock_last_leverage_book_updated_f, $stock_last_leverage_book_updated);
 fclose($stock_last_leverage_book_updated_f);
 
-$stocks_formatted_arr_json_str=json_encode( $stocks_formatted_arr );
-
-
 // update stocks.formatted.json
 echo date('Y-m-d H:i:s')." updating stocks.formatted.json\n";
 fwrite($stock_cron_leverage_book_log, date('Y-m-d H:i:s')." updating stocks.formatted.json\n");
+$stocks_formatted_arr_json_str=json_encode( $stocks_formatted_arr );
 $stocks_formatted_json_file = fopen("stocks.formatted.json", "w") or die("Unable to open file stocks.formatted.json!");
 fwrite($stocks_formatted_json_file, $stocks_formatted_arr_json_str);
 fclose($stocks_formatted_json_file);

@@ -3,6 +3,7 @@
 require_once 'stock_list.php';
 require_once("email_config.php");
 require_once 'stock_helper_functions.php';
+require_once 'stock_curl_financial.php';
 
 echo date('Y-m-d H:i:s')." starting stock_curl_financials.php<br />";
 
@@ -26,11 +27,15 @@ if(file_exists ( 'stocks.financials.json' )){
     echo "stocks.financials.json does NOT exist -> using an empty array<br />";
 }
 
-TODO also load stocks formatted to load it with new stuff when needed.
+$stocks_formatted_arr=array(); // to store stocks.formatted, typo "formatted"
+if(file_exists ( 'stocks.formatted.json' )){
+    echo "stocks.formatted.json exists -> reading...<br />";
+    $stocks_formatted_arr = json_decode(file_get_contents('stocks.formatted.json'), true);
+}else{
+    echo "stocks.formatted.json does NOT exist -> using an empty array<br />";
+}
 
-
-
-
+$the_url_query_arr = explode(",", $stock_list);
 $num_stocks_to_curl=min($num_stocks_to_curl,count($the_url_query_arr)); // make sure we do not duplicate...
 for ($i=0;$i<$num_stocks_to_curl;$i++){
     $current_num_to_curl=($stock_last_financial_updated+$i) % count($the_url_query_arr);
@@ -39,47 +44,38 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     $name=$query_arr[1];
     $market=$query_arr[0];
     
-    
-    HERE WE GET THE curl_financial with the current stock...    
-    TODO, first thing compare the existing and the new to see if there is any update, otherwise do not update... financials or stock formatted    
+    $stock_financial=get_financial($the_url_query_arr[$current_num_to_curl]);
     
     // assignment to the array
+    $updated=true;
     if(!array_key_exists($the_url_query_arr[$current_num_to_curl],$stock_financials_arr)){
-        $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]=array();
-        $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]['name']=$name;
-        $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]['market']=$market;
+        echo "$name first time financials, adding<br />";
+        $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]=$stock_financial;
+    }else if($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]!=$stock_financial){
+        echo "$name new values, updating<br />";
+        $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]=$stock_financial;
+    }else{
+        echo "$name equal, no update<br />";
+        $updated=false;
     }
-    for ($period=0;$period<count($period_arr[1]);$period++){
-        // Here we could detect if past is being changed...
-        $period_arr_arr=explode("/",$period_arr[1][$period]);
-        if(count($period_arr_arr)!=3 || strlen($period_arr_arr[2])!=4){
-            echo "ERROR (MSN INCOME): incorrect format ".$period_arr[1][$period];
-            $past_change_log_f = fopen("past-change-log.txt", "a") or die("Unable to open past-change-log.txt!");
-            fwrite($past_change_log_f, "\n".date("Y-m-d")." In ".$the_url_query_arr[$current_num_to_curl]." period:".$period_arr[1][$period]." incorrect format.");
-            fclose($past_change_log_f);
-        }
-        $period_arr[1][$period]=$period_arr_arr[2]."-".str_pad($period_arr_arr[0],2,"0",STR_PAD_LEFT)."-".str_pad($period_arr_arr[1],2,"0",STR_PAD_LEFT);
-        if(!array_key_exists($period_arr[1][$period],$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]])){$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]]=array();}
-        foreach($vars2get as $var2get){
-            if($debug) echo "updating vars: $var2get<br />";
-            if(!array_key_exists($var2get,$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]])){
-                $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
-            }else{
-                if($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]][$var2get]!=$results[$var2get][$period]){
-                    echo "ERROR changing the past!!! (keeping new value)";
-                    $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
-                    $past_change_log_f = fopen("past-change-log.txt", "a") or die("Unable to open past-change-log.txt!");
-                    fwrite($past_change_log_f, "\n".date("Y-m-d")." In ".$the_url_query_arr[$current_num_to_curl]." period:".$period_arr[1][$period]." var:".$var2get."  old:".$stock_financials_arr[$the_url_query_arr[$current_num_to_curl]][$period_arr[1][$period]][$var2get]." != new:".$results[$var2get][$period]);
-                    fclose($past_change_log_f);
-                }
+    if($updated && array_key_exists(($name.":".$market),$stocks_formatted_arr)){
+        echo "has stock formatted (updating) <br />";
+        $stocks_formatted_arr[$name.":".$market]['revenue_hist']=array();
+        $stocks_formatted_arr[$name.":".$market]['operating_income_hist']=array();
+        $stocks_formatted_arr[$name.":".$market]['net_income_hist']=array();
+        foreach ($stock_financials_arr[$market.":".$name] as $key2 => $item2) {
+            if($key2[0]=="2" && array_key_exists('Total Revenue',$item2)){
+                $stocks_formatted_arr[$name.":".$market]['revenue_hist'][]=[$key2,toFixed(floatval(($item2['Total Revenue'])/1000),2,'revenue')]; // PS can be calculated
+                $stocks_formatted_arr[$name.":".$market]['operating_income_hist'][]=[$key2,toFixed(floatval(($item2['Operating Income'])/1000),2,'operating income')]; // OM can be calculated
+                $stocks_formatted_arr[$name.":".$market]['net_income_hist'][]=[$key2,toFixed(floatval(($item2['Net Income'])/1000),2,'net income')]; // EPS can be calculated
+            }else if($key2[0]=="2"){
+                echo "FATAL ERROR, financials but not revenue for ".$name." ".$key2;
+                var_dump($item2);
+                send_mail('ERROR financials '.$name,"<br />FATAL ERROR, financials but not revenue for ".$name." ".$key2." ".implode(",",array_keys($item2))."<br /><br />","hectorlm1983@gmail.com");
+                exit(1);
             }
         }
-        
-        
     }
-    //var_dump($stock_financials_arr);
-
-
     
     // to avoid ban
     sleep(0.1);
@@ -93,13 +89,23 @@ $stock_last_financial_updated_f = fopen("stock_last_financial_updated.txt", "w")
 fwrite($stock_last_financial_updated_f, $stock_last_financial_updated);
 fclose($stock_last_financial_updated_f);
 
-$stocks_financials_arr_json_str=json_encode( $stock_financials_arr );
 
 // update stocks.financials.json
 echo date('Y-m-d H:i:s')." updating stocks.financials.json\n";
+$stocks_financials_arr_json_str=json_encode( $stock_financials_arr );
 $stocks_financials_json_file = fopen("stocks.financials.json", "w") or die("Unable to open file stocks.financials.json!");
 fwrite($stocks_financials_json_file, $stocks_financials_arr_json_str);
 fclose($stocks_financials_json_file);
+
+
+
+
+// update stocks.formatted.json
+echo date('Y-m-d H:i:s')." updating stocks.formatted.json\n";
+$stocks_formatted_arr_json_str=json_encode( $stocks_formatted_arr );
+$stocks_formatted_json_file = fopen("stocks.formatted.json", "w") or die("Unable to open file stocks.formatted.json!");
+fwrite($stocks_formatted_json_file, $stocks_formatted_arr_json_str);
+fclose($stocks_formatted_json_file);
 
 
 // backup history (monthly)
