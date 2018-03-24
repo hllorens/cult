@@ -68,7 +68,7 @@ foreach ($stock_details_arr as $key => $item) {
     if(array_key_exists($item['market'].":".$item['name'],$stock_details_arr)){
         echo "<br /> >details for ".$item['market'].":".$item['name']."<br/>";
         // refresh basic info
-        if(!isset($item['value'] || $item['title']=="" || $item['value']=""){
+        if(!isset($item['value']) || $item['title']=="" || $item['value']==""){
             echo "ERROR: empty title or value in the details...<br />";
             send_mail('ERROR:'.$item['name'].' details title or value !exist','<br />ERROR: empty title or value in the details...<br /><br />',"hectorlm1983@gmail.com");
             continue;
@@ -80,6 +80,7 @@ foreach ($stock_details_arr as $key => $item) {
         if(!$symbol_object['title']){$symbol_object['title']="ERROR: No title found";}
         $symbol_object['session_change_percentage']=$item['session_change_percentage'];
         $symbol_object['value']=str_replace(",","",$item['value']);
+        echo $item['value']." xx ".$symbol_object['value']."<br />";
         $symbol_object['range_52week_high']=trim($item['range_52week_high']);
         $symbol_object['range_52week_low']=trim($item['range_52week_low']);
         $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];   // already 0 if index in details
@@ -383,8 +384,10 @@ foreach ($stock_details_arr as $key => $item) {
             if(floatval($symbol_formatted['h_souce'])<1){echo " h_souce=".$symbol_formatted['h_souce'];}
             //hist_year_last_day('h_souce',$symbol_formatted); // yearly  TODO add when we close the app (slow, yearly)
         }
+        $stocks_formatted_arr[$symbol_formatted['name'].':'.$symbol_formatted['market']]=$symbol_formatted;
+    }else{
+        echo "ERROR: ".$item['market'].":".$item['name']." not found in details<br />";
     }
-    $stocks_formatted_arr[$symbol_formatted['name'].':'.$symbol_formatted['market']]=$symbol_formatted;
 }
 // --------------------------------------------- 
 

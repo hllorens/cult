@@ -52,14 +52,14 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
     preg_match("/^.* class=\"header-companyname[^>]*>\s*<[^>]*>\s*([^<]*)<.*$/m", $response, $title);
     if(count($title)<2){
-        echo "<br />Empty value title, email sent...<br />";
-        send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty title, skipping...<br /><br />',"hectorlm1983@gmail.com");
+        echo "<br />Empty value title1, email sent...<br />";
+        send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty title1, skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
         continue;
     }
     $title=substr(preg_replace('/( S\.?A\.?| [Ii][Nn][Cc]\.?)\s*$/m', '', $title[1]),0,20); // remove ending and reduce to 20 chars
     if(!isset($title) || $title=="" || $title=="-"){
-        echo "<br />Empty value title, email sent...<br />";
-        send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty title, skipping...<br /><br />',"hectorlm1983@gmail.com");
+        echo "<br />Empty value title2, email sent...<br />";
+        send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty title2, skipping...<br /><br />',"hectorlm1983@gmail.com");
         continue;
     }
     if($debug) echo "<br />title: ".$title."<br />";

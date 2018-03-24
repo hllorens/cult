@@ -70,16 +70,25 @@ foreach ($stocks_formatted_arr as $key => $item) {
         $symbol_object['revenue_hist']=array();
         $symbol_object['operating_income_hist']=array();
         $symbol_object['net_income_hist']=array();
+        $symbol_object['price_to_book_hist']=array();
         foreach ($stocks_financials_arr[$item['market'].":".$item['name']] as $key2 => $item2) {
             if($key2[0]=="2" && array_key_exists('Total Revenue',$item2)){
                 $symbol_object['revenue_hist'][]=[$key2,toFixed(floatval(($item2['Total Revenue'])/1000),2,'revenue')]; // PS can be calculated
                 $symbol_object['operating_income_hist'][]=[$key2,toFixed(floatval(($item2['Operating Income'])/1000),2,'operating income')]; // OM can be calculated
                 $symbol_object['net_income_hist'][]=[$key2,toFixed(floatval(($item2['Net Income'])/1000),2,'net income')]; // EPS can be calculated
-            }else{
-                echo "FATAL ERROR, financials but not revenue for ".$item['name'];
+                if(array_key_exists('Total Liabilities',$item2) && array_key_exists('Total Assets',$item2) && array_key_exists('shares',$symbol_object) && array_key_exists('value_hist',$symbol_object) && match_year_in_hist($key2,$symbol_object['value_hist'])!=null){
+                    $year_val=match_year_in_hist($key2,$symbol_object['value_hist']);
+                    $book=(  (floatval($item2['Total Assets'])/1000000)  -  (floatval($item2['Total Liabilities'])/1000000)  )/floatval($symbol_object['shares']);
+                    $price_to_book=floatval($year_val[1])/$book;
+                    echo "<br />PB ".$year_val[0]." ".$year_val[1]."/".$book." ".$item2['Total Assets']." ".$item2['Total Liabilities']." ".$symbol_object['shares'];
+                    $symbol_object['price_to_book_hist'][]=[$key2,toFixed($price_to_book,2,'price_to_book')];
+                }
+            }else if($key2[0]=="2"){
+                echo "FATAL ERROR, financials but not revenue for ".$item['name']." $key2 ".implode(" ",array_keys($item2));
                 exit(1);
             }
         }
+        if(count($symbol_object['price_to_book_hist'])==0){unset($symbol_object['price_to_book_hist']);}
     }
     $stocks_clean_arr[$item['name'].':'.$item['market']]=$symbol_object;
     //if($item['name']=='CMPR') break;

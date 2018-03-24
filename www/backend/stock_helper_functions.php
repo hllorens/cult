@@ -1,5 +1,6 @@
 <?php
 
+require_once("email_config.php");
 
 function toFixed($number, $decimals=2, $tracking="tracking unset") {
   if(!is_numeric($number)){
@@ -9,11 +10,25 @@ function toFixed($number, $decimals=2, $tracking="tracking unset") {
   return number_format($number, $decimals, ".", "");
 }
 
+function match_year_in_hist($date,$arr){
+    $year=substr($date,0,4);
+    foreach ($arr as $elem){
+        $year_hist=substr($elem[0],0,4);
+        if($year==$year_hist){
+            return $elem;
+        }
+    }
+    return null;
+}
+
 // freq can be 3 for quarters or 6 for halves, more sophisticated do it manually
 function hist($param_id,$freq, &$symbol_object, $max_elems_to_avg=8, $max_avg="no", $min_avg="no"){
     $timestamp_date=date("Y-m-d"); // refresh date
     $timestamp_freq=substr($timestamp_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $timestamp_date)->format('n') / $freq) % (12/$freq)) + 1 );
-    if(!array_key_exists($param_id,$symbol_object)){die('In hist() the param_id ('.$param_id.') does not exist');}
+    if(!array_key_exists($param_id,$symbol_object) || !isset($symbol_object[$param_id]) || $symbol_object[$param_id]=="" || $symbol_object[$param_id]=="-"){
+        send_mail('ERROR:'.$param_id.' !exist or empty','<br />hist: For '.implode(" ",array_keys($symbol_object)).'<br /><br />',"hectorlm1983@gmail.com");
+        die('In hist() the param_id ('.$param_id.') does not exist or empty or -');
+    }
     if(!array_key_exists($param_id.'_hist',$symbol_object)){$symbol_object[$param_id.'_hist']=array();}
     if(!array_key_exists($param_id.'_hist_last_diff',$symbol_object)){$symbol_object[$param_id.'_hist_last_diff']=0;}
     
@@ -75,7 +90,10 @@ function hist($param_id,$freq, &$symbol_object, $max_elems_to_avg=8, $max_avg="n
 function hist_min($param_id,$freq, &$symbol_object){
     $timestamp_date=date("Y-m-d"); // refresh date
     $timestamp_freq=substr($timestamp_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $timestamp_date)->format('n') / $freq) % (12/$freq)) + 1 );
-    if(!array_key_exists($param_id,$symbol_object)){die('In hist_min() the param_id ('.$param_id.') does not exist');}
+    if(!array_key_exists($param_id,$symbol_object) || !isset($symbol_object[$param_id]) || $symbol_object[$param_id]=="" || $symbol_object[$param_id]=="-"){
+        send_mail('ERROR:'.$param_id.' !exist or empty','<br />hist_min: For '.implode(" ",array_keys($symbol_object)).'<br /><br />',"hectorlm1983@gmail.com");
+        die('In hist_min() the param_id ('.$param_id.') does not exist or empty or -');
+    }
     if(!array_key_exists($param_id.'_hist',$symbol_object)){$symbol_object[$param_id.'_hist']=array();}    
     if(!array_key_exists($param_id.'_hist',$symbol_object) || count($symbol_object[$param_id.'_hist'])==0){
         $symbol_object[$param_id.'_hist'][]=[$timestamp_date,$symbol_object[$param_id]];
@@ -94,7 +112,10 @@ function hist_min($param_id,$freq, &$symbol_object){
 function hist_year_last_day($param_id, &$symbol_object){
     $timestamp_date=date("Y-m-d"); // refresh date
     $timestamp_freq=substr($timestamp_date,0,4);
-    if(!array_key_exists($param_id,$symbol_object)){die('In hist_year_last_day() the param_id ('.$param_id.') does not exist');}
+    if(!array_key_exists($param_id,$symbol_object) || !isset($symbol_object[$param_id]) || $symbol_object[$param_id]=="" || $symbol_object[$param_id]=="-"){
+        send_mail('ERROR:'.$param_id.' !exist or empty','<br />hist_year_last_day: For '.implode(" ",array_keys($symbol_object)).'<br /><br />',"hectorlm1983@gmail.com");
+        die('In hist_year_last_day() the param_id ('.$param_id.') does not exist or empty or -');
+    }
     if(!array_key_exists($param_id.'_hist',$symbol_object)){$symbol_object[$param_id.'_hist']=array();}
     if(!array_key_exists($param_id.'_hist',$symbol_object) || count($symbol_object[$param_id.'_hist'])==0){
         $symbol_object[$param_id.'_hist'][]=[$timestamp_date,$symbol_object[$param_id]];
@@ -126,8 +147,12 @@ function compound_average_growth($from, $to, $periods=1.0){
     $from=floatval($from);
     $to=floatval($to);
     $periods=floatval($periods);
-    if($from==$to){ echo "<br />cag: from=to"; return 0;} // no diff no calc
-    if($from==0){echo "<br />cag: from=0"; $from=0.001;} // protection against 0 division
+    if($from==$to){ 
+        //echo "<br />cag: from=to"; 
+        return 0;} // no diff no calc
+    if($from==0){
+         //echo "<br />cag: from=0";
+         $from=0.001;} // protection against 0 division
     $cag=$to/$from;
     //echo "<br />from=$from,to=$to,cag=$cag";
     if($periods>1){$cag=pow($cag,(1.0/$periods));}

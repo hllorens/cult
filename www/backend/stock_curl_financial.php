@@ -111,9 +111,11 @@ function get_financial($symbol,$debug=false){
                 $stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
                 $new_period_report.="<br />".$var2get.":".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
             }else{
-                if($stock_financial[$period_arr[1][$period]][$var2get]!=$results[$var2get][$period]){
+                if($stock_financial[$period_arr[1][$period]][$var2get]!=$results[$var2get][$period] 
+                   && abs(floatval($stock_financial[$period_arr[1][$period]][$var2get])-floatval($results[$var2get][$period]))>abs(floatval($results[$var2get][$period])/100)
+                   ){
                     echo "ERROR changing the past for ".$period_arr[1][$period]."!!! (keeping new value)";
-                    send_mail('financials change past '.$name,"<br />In ".$symbol." period:".$period_arr[1][$period]." var:".$var2get."  old:".$stock_financial[$period_arr[1][$period]][$var2get]." != new:".$results[$var2get][$period]."<br /><br />","hectorlm1983@gmail.com");
+                    send_mail('financials change past '.$name,"<br />In ".$symbol." period:".$period_arr[1][$period]." var:".$var2get."  old:".$stock_financial[$period_arr[1][$period]][$var2get]." != new:".$results[$var2get][$period]." (greater than 1% diff)<br /><br />","hectorlm1983@gmail.com");
                     $stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
                 }
             }
