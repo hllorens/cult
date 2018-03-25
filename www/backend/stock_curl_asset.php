@@ -93,6 +93,7 @@ function get_asset($symbol,$debug=false){
             }
         }
         $new_period_report="";
+        $change_past_report="";
         if($first_time_financials || $new_period){
             $stock_financial[$period_arr[1][$period]]=array();
         }
@@ -110,13 +111,16 @@ function get_asset($symbol,$debug=false){
                    && abs(floatval($stock_financial[$period_arr[1][$period]][$var2get])-floatval($results[$var2get][$period]))>abs(floatval($results[$var2get][$period])/20)
                    ){
                     echo "ERROR changing the past for ".$period_arr[1][$period]."!!! (keeping new value)<br />";
-                    send_mail('assets change past '.$name,"<br />In ".$symbol." period:".$period_arr[1][$period]." var:".$var2get."  old:".$stock_financial[$period_arr[1][$period]][$var2get]." != new:".$results[$var2get][$period]." (greater than 5% diff)<br /><br />","hectorlm1983@gmail.com");
+                    $change_past_report.="<br />var:".$var2get."  old:".$stock_financial[$period_arr[1][$period]][$var2get]." != new:".$results[$var2get][$period]." (greater than 5% diff)<br />";
                     $stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
                 }
             }
         }
         if($new_period && !$first_time_financials){
             send_mail('new assets '.$name,"<br />In ".$symbol." period:".$period_arr[1][$period]." ".$new_period_report."<br /><br />","hectorlm1983@gmail.com");
+        }
+        if($change_past_report!=""){
+            send_mail('assets change past '.$name,"<br />In ".$symbol." period:".$period_arr[1][$period]." ".$change_past_report."<br /><br />","hectorlm1983@gmail.com");
         }
     }
     return $stock_financial;

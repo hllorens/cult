@@ -152,8 +152,12 @@ function compound_average_growth($from, $to, $periods=1.0){
         return 0;} // no diff no calc
     if($from==0){
          //echo "<br />cag: from=0";
-         $from=0.001;} // protection against 0 division
+         $from=0.01;} // protection against 0 division
     $cag=$to/$from;
+    if($from<0 || $to<0){
+        $cag=($to-$from)/max(0.5,abs($from));
+        $cag=$cag+1; // to pow it if needed
+    }
     //echo "<br />from=$from,to=$to,cag=$cag";
     if($periods>1){$cag=pow($cag,(1.0/$periods));}
     //echo "<br />cag=$cag";
@@ -194,7 +198,7 @@ function hist_growth_array($param_id, $symbol_object,$num_periods=-1){
             $from_val=floatval($symbol_object[$param_id][$i][1]);
             $to_val=floatval($symbol_object[$param_id][$i+1][1]);
         }
-        $growth_array[]=compound_average_growth(floatval(toFixed($from_val,3)),floatval(toFixed($to_val,3)));
+        $growth_array[]=floatval(toFixed(compound_average_growth(floatval(toFixed($from_val,3)),floatval(toFixed($to_val,3))),2));
     }
     return $growth_array;
 }
@@ -204,9 +208,29 @@ function acceleration_array($growth_array){
     $acceleration_array=array();
     if(count($growth_array)<=1){$acceleration_array[0]=0;return $acceleration_array;}
     for($i=0;$i<(count($growth_array)-1);$i++){
-        $acceleration_array[]=compound_average_growth($growth_array[$i],$growth_array[($i+1)]);
+        $acceleration_array[]=floatval(toFixed($growth_array[($i+1)]-$growth_array[$i],2));
     }
     return $acceleration_array;
+}
+
+function facsum($n){
+    $n=intval($n);
+    $f=0;
+    if($n<=1){return 1;}
+    for($i=1;$i<=$n;$i++){
+        $f+=$i;
+    }
+    return $f;
+}
+
+function acceleration_avg_weighted($acceleration_array){
+    $acceleration=0;
+    if(count($acceleration_array)<=1){return 0;}
+    $tot_elems_weight=facsum(count($acceleration_array)-1);
+    for($i=1;$i<count($acceleration_array);$i++){
+        $acceleration+=(floatval($acceleration_array[$i])/$tot_elems_weight)*$i;
+    }
+    return floatval(toFixed($acceleration,2));
 }
 
 function trend($arr,$threshold=0.10){

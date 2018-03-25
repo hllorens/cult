@@ -273,7 +273,14 @@ foreach ($stock_details_arr as $key => $item) {
 
                 // growths, trends and accelerations
                 $symbol_formatted['revenue_growth_arr']=hist_growth_array('revenue_hist',$symbol_formatted,5);
+                $revenue_acceleration=acceleration_array($symbol_formatted['revenue_growth_arr']);
+                $symbol_formatted['revenue_acceleration']=acceleration_avg_weighted($revenue_acceleration);
+                $symbol_formatted['operating_income_growth_arr']=hist_growth_array('operating_income_hist',$symbol_formatted,5);
+                $operating_income_acceleration=acceleration_array($symbol_formatted['operating_income_growth_arr']);
+                $symbol_formatted['operating_income_acceleration']=acceleration_avg_weighted($operating_income_acceleration);
+
                 $symbol_formatted['net_income_growth_arr']=hist_growth_array('net_income_hist',$symbol_formatted,5);
+                
                 if(array_key_exists('equity_hist',$symbol_formatted)){
                     $symbol_formatted['equity_growth_arr']=hist_growth_array('equity_hist',$symbol_formatted,5);
                 }
