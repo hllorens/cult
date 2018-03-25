@@ -9,6 +9,8 @@
 //	exit("Permission denied");
 //}
 
+require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
+
 
 date_default_timezone_set('Europe/Madrid');
 $timestamp_date=date("Y-m-d");
@@ -21,10 +23,6 @@ if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug
     $debug=true;
 }
 
-// helper functions
-function toFixed($number, $decimals=2) {
-  return number_format($number, $decimals, ".", "");
-}
 
 
 $stocks_formatted_arr=array(); // to store stocks.formatted, typo "formatted"
@@ -41,13 +39,14 @@ echo date('Y-m-d H:i:s')." start stock_cron_alt.php<br />";
 $stock_cron_alt_log = fopen("stock_cron_alt.log", "w") or die("Unable to open/create stock_cron_alt.log!");
 fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_cron_alt.php\n");
 
-fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_list.php\n");
+#fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_list.php\n");
 require_once 'stock_list.php';
 fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_curl_usdeur.php\n");
 require_once 'stock_curl_usdeur.php';
 
-fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_curl_btcusd.php\n");
-require_once 'stock_curl_btcusd.php';
+# forget this no-value asset
+#fwrite($stock_cron_alt_log, date('Y-m-d H:i:s')." starting stock_curl_btcusd.php\n");
+#require_once 'stock_curl_btcusd.php';
 
 
 #ethereum
@@ -66,14 +65,13 @@ $stocks_formatted_arr['GOOG:NASDAQ']['date']=$timestamp_simplif;
 $stocks_formatted_arr['GOOG:NASDAQ']['usdeur']=$usdeur;
 $stocks_formatted_arr['GOOG:NASDAQ']['usdeur_change']=$usdeur_change;
 
-$stocks_formatted_arr['GOOG:NASDAQ']['btcusd']=$btcusd;
-$stocks_formatted_arr['GOOG:NASDAQ']['btcusd_change']=$btcusd_change;
+#$stocks_formatted_arr['GOOG:NASDAQ']['btcusd']=$btcusd;
+#$stocks_formatted_arr['GOOG:NASDAQ']['btcusd_change']=$btcusd_change;
 
 
 // add hist but do it with a function...
-require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
-hist('usdeur',3,$stocks_formatted_arr['GOOG:NASDAQ']);
-hist('btcusd',3,$stocks_formatted_arr['GOOG:NASDAQ']);
+hist_min('usdeur',3,$stocks_formatted_arr['GOOG:NASDAQ']);
+#hist('btcusd',3,$stocks_formatted_arr['GOOG:NASDAQ']);
 
 
 // TODO

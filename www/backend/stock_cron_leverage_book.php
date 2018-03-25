@@ -140,7 +140,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
 
     //hist_min('revenue',6,$stocks_formatted_arr[$name.":".$market]); // in msn this is last year, the ttm maybe use yahoo or do it manually for companies you care about
     hist_year_last_day('leverage',$stocks_formatted_arr[$name.":".$market]);
-    hist_year_last_day('price_to_book',$stocks_formatted_arr[$name.":".$market]);
+    hist_year_last_day('price_to_book',$stocks_formatted_arr[$name.":".$market]); // hist calculated by financials... safer
     //hist_min('price_to_sales',3,$stocks_formatted_arr[$name.":".$market]); //avg of 8 (default) 
     //hist_year_last_day('avg_revenue_growth_5y',$stocks_formatted_arr[$name.":".$market]);
     //hist_min('revenue_growth_qq_last_year',3,$stocks_formatted_arr[$name.":".$market]);

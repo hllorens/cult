@@ -178,6 +178,7 @@ foreach ($stock_details_arr as $key => $item) {
                 $ref_value=floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-2][1]); // last year's value (less volatility in scorings)
             }
             
+
             // set defaults if no leverage-book and send email
             if(!array_key_exists('leverage',$symbol_formatted) || !array_key_exists('price_to_book',$symbol_formatted) || !array_key_exists('avg_revenue_growth_5y',$symbol_formatted)){
                 send_mail('NOTE:'.$item['name'].' !revenue-book','<br />This stock is running stock_cron.php without revenue-book, fix manually (run leverage-book for it).<br /><br />',"hectorlm1983@gmail.com");
@@ -204,9 +205,26 @@ foreach ($stock_details_arr as $key => $item) {
             //---------------------------------------------
             
             if(array_key_exists('revenue_hist',$symbol_formatted)){
+                $last_revenue_year=floatval(substr(end($symbol_formatted['revenue_hist'])[0],0,4));
+                $last_value_year=floatval(substr(end($symbol_formatted['value_hist'])[0],0,4));
+                if(($last_value_year-$last_revenue_year)>2){
+                    echo "ERROR: too old financials $last_revenue_year<br />";
+                    send_mail(''.$item['name'].' too old financials',"<br />ERROR: too old financials $last_revenue_year<br /><br />","hectorlm1983@gmail.com");
+                    exit(1);
+                }
+                // if 2 year old revenue
+                if(count($symbol_formatted['value_hist'])>2 && ($last_value_year-$last_revenue_year)>2){
+                    $ref_value=floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-3][1]); // 2 years old value (more accurate, less volatility in scorings)
+                }
+            
                 //$symbol_formatted['last_financials_year']=substr($symbol_formatted['revenue_hist'][0][0],0,4); can be calculated directly in js
                 $revenue=floatval(end($symbol_formatted['revenue_hist'])[1]);
                 $operating_income=floatval(end($symbol_formatted['operating_income_hist'])[1]);
+                if(end($symbol_formatted['operating_income_hist'])[0]!=end($symbol_formatted['revenue_hist'])[0] || end($symbol_formatted['net_income_hist'])[0]!=end($symbol_formatted['revenue_hist'])[0]){
+                    echo "ERROR: Last operating income year (".end($symbol_formatted['operating_income_hist'])[0].") != last revenue year (".end($symbol_formatted['revenue_hist'])[0].")<br />";
+                    send_mail(''.$item['name'].' last hist year revenue!=op.inc!=net.inc',"<br />ERROR: Last operating income year (".end($symbol_formatted['operating_income_hist'])[0].") != last revenue year (".end($symbol_formatted['revenue_hist'])[0]." != last net inc year (".end($symbol_formatted['net_income_hist'])[0].")<br /><br /><br />","hectorlm1983@gmail.com");
+                    exit(1);
+                }
                 if($revenue==0){ 
                     echo "revenue 0"; 
                     send_mail('ERROR:'.$item['name'].' revenue 0','<br />This stock has financials but revenue is 0, fix manually.<br /><br />',"hectorlm1983@gmail.com");
@@ -215,6 +233,11 @@ foreach ($stock_details_arr as $key => $item) {
                 $symbol_formatted['operating_margin']=toFixed($operating_income/$revenue,2,'operating margin');
                 // average it if possible
                 if(count($symbol_formatted['operating_income_hist'])>1 && count($symbol_formatted['revenue_hist'])>1){
+                    if($symbol_formatted['operating_income_hist'][count($symbol_formatted['operating_income_hist'])-2][0]!=$symbol_formatted['operating_income_hist'][count($symbol_formatted['revenue_hist'])-2][0]){
+                        echo "ERROR: Last operating income year (".$symbol_formatted['operating_income_hist'][count($symbol_formatted['operating_income_hist'])-2][0].") != last revenue year (".$symbol_formatted['operating_income_hist'][count($symbol_formatted['revenue_hist'])-2][0].")<br />";
+                        send_mail(''.$item['name'].' last hist year revenue!=op.inc',"<br />ERROR: Last operating income year (".$symbol_formatted['operating_income_hist'][count($symbol_formatted['operating_income_hist'])-2][0].") != last revenue year (".$symbol_formatted['operating_income_hist'][count($symbol_formatted['revenue_hist'])-2][0].")<br /><br /><br />","hectorlm1983@gmail.com");
+                        exit(1);
+                    }
                     $symbol_formatted['operating_margin']=toFixed(
                                                             (
                                                                 ($operating_income/$revenue)+
@@ -251,7 +274,10 @@ foreach ($stock_details_arr as $key => $item) {
                 // growths, trends and accelerations
                 $symbol_formatted['revenue_growth_arr']=hist_growth_array('revenue_hist',$symbol_formatted,5);
                 $symbol_formatted['net_income_growth_arr']=hist_growth_array('net_income_hist',$symbol_formatted,5);
-                //$symbol_formatted['net_income_growth']
+                if(array_key_exists('equity_hist',$symbol_formatted)){
+                    $symbol_formatted['equity_growth_arr']=hist_growth_array('equity_hist',$symbol_formatted,5);
+                }
+                // we can also do the operating trend... maybe directly in js if no operations...
                 $symbol_formatted['eps_hist_trend']=trend($symbol_formatted['net_income_growth_arr']);
             }else{
                 echo "!financials (no revenue), consider running financials and leverage-book manually";
