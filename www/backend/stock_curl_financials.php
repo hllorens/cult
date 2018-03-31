@@ -68,6 +68,9 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     }else{
         echo "$name equal, no update<br />";
         $updated=false;
+		if(array_key_exists(($name.":".$market),$stocks_formatted_arr) && !array_key_exists('revenue_hist',$stocks_formatted_arr[$name.":".$market])){
+			$updated=true;
+		}
     }
     if($updated && array_key_exists(($name.":".$market),$stocks_formatted_arr)){
         echo "has stock formatted (updating) <br />";

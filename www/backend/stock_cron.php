@@ -4,6 +4,8 @@
 
 
 require_once("email_config.php");
+require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
+
 
 date_default_timezone_set('Europe/Madrid');
 $timestamp_date=date("Y-m-d");
@@ -35,7 +37,6 @@ fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_cron.php\n");
 
 fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_list.php\n");
 require_once 'stock_list.php';
-require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
 
 
 
@@ -84,8 +85,8 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['range_52week_high']=trim($item['range_52week_high']);
         $symbol_object['range_52week_low']=trim($item['range_52week_low']);
         $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];   // already 0 if index in details
-        if(array_key_exists('shares',$symbol_object) && abs(floatval($symbol_object['shares'])-floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares']))>max(0.04,floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])/50)){
-            // if the diff is bigger than 2% or 0.04 whatever is bigger
+        if(array_key_exists('shares',$symbol_object) && abs(floatval($symbol_object['shares'])-floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares']))>max(0.04,floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])/20)){
+            // if the diff is bigger than 5% or 0.04 whatever is bigger
             send_mail($item['name'].' sharenum change','<br />original('.$symbol_object['shares_source'].'):'.$symbol_object['shares'].' != new ('.$stock_details_arr[$item['market'].':'.$item['name']]['shares_source'].'):'.$stock_details_arr[$item['market'].':'.$item['name']]['shares'].
                                                        '<br />title:'.$symbol_object['title'].
                                                        '<br />value:'.$symbol_object['value'].
@@ -396,6 +397,7 @@ foreach ($stock_details_arr as $key => $item) {
                                     +(min(floatval($epsp),0.06)*400)           // max 24
                                     ,60),1)   // max 60, min 1                
                                   )/7); // ideally 7.5 but accounting for optimism
+                                  // TODO improve calculations with acceleration and better revenue hist
             
             $symbol_formatted['guessed_value']="".toFixed(((floatval($calc_value_sell_share)
                                   *

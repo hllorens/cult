@@ -20,6 +20,11 @@ if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug
     $debug=true;
 }
 
+$force=false;
+if( isset($_REQUEST['force']) && ($_REQUEST['force']=="true" || $_REQUEST['force']=="1")){
+    $force=true;
+}
+
 $stock_financials_arr=array(); // to store stocks_financialsa, typo "financials"
 if(file_exists ( 'stocks_financialsa.json' )){
     if($debug) echo "stocks_financialsa.json exists -> reading...<br />";
@@ -62,6 +67,9 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     }else{
         echo "$name equal, no update<br />";
         $updated=false;
+		if($force || (array_key_exists(($name.":".$market),$stocks_formatted_arr) && !array_key_exists('equity_hist',$stocks_formatted_arr[$name.":".$market]))){
+			$updated=true;
+		}
     }
     if($updated && array_key_exists(($name.":".$market),$stocks_formatted_arr)){
         echo "has stock formatted (updating) <br />";

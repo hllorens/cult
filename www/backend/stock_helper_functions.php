@@ -25,9 +25,13 @@ function match_year_in_hist($date,$arr){
 function hist($param_id,$freq, &$symbol_object, $max_elems_to_avg=8, $max_avg="no", $min_avg="no"){
     $timestamp_date=date("Y-m-d"); // refresh date
     $timestamp_freq=substr($timestamp_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $timestamp_date)->format('n') / $freq) % (12/$freq)) + 1 );
-    if(!array_key_exists($param_id,$symbol_object) || !isset($symbol_object[$param_id]) || $symbol_object[$param_id]=="" || $symbol_object[$param_id]=="-"){
-        send_mail('ERROR:'.$param_id.' !exist or empty','<br />hist: For '.implode(" ",array_keys($symbol_object)).'<br /><br />',"hectorlm1983@gmail.com");
-        die('In hist() the param_id ('.$param_id.') does not exist or empty or -');
+    if(!array_key_exists($param_id,$symbol_object) || $symbol_object[$param_id]==null || $symbol_object[$param_id]=="" || $symbol_object[$param_id]=="-"){
+        if($symbol_object[$param_id]!=0){ // non-string issue
+            send_mail('ERROR:'.$param_id.' !exist or empty','<br />hist: For '.$symbol_object['name'].' '.implode(" ",array_keys($symbol_object)).'<br /><br />',"hectorlm1983@gmail.com");
+            die('In hist() the param_id ('.$param_id.') does not exist or empty or -, For '.$symbol_object['name']);
+        }else{
+            $symbol_object[$param_id]="0";
+        }
     }
     if(!array_key_exists($param_id.'_hist',$symbol_object)){$symbol_object[$param_id.'_hist']=array();}
     if(!array_key_exists($param_id.'_hist_last_diff',$symbol_object)){$symbol_object[$param_id.'_hist_last_diff']=0;}
@@ -90,9 +94,13 @@ function hist($param_id,$freq, &$symbol_object, $max_elems_to_avg=8, $max_avg="n
 function hist_min($param_id,$freq, &$symbol_object){
     $timestamp_date=date("Y-m-d"); // refresh date
     $timestamp_freq=substr($timestamp_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $timestamp_date)->format('n') / $freq) % (12/$freq)) + 1 );
-    if(!array_key_exists($param_id,$symbol_object) || !isset($symbol_object[$param_id]) || $symbol_object[$param_id]=="" || $symbol_object[$param_id]=="-"){
-        send_mail('ERROR:'.$param_id.' !exist or empty','<br />hist_min: For '.implode(" ",array_keys($symbol_object)).'<br /><br />',"hectorlm1983@gmail.com");
-        die('In hist_min() the param_id ('.$param_id.') does not exist or empty or -');
+    if(!array_key_exists($param_id,$symbol_object) || $symbol_object[$param_id]==null || $symbol_object[$param_id]=="" || $symbol_object[$param_id]=="-"){
+        if($symbol_object[$param_id]!=0){ // non-string issue
+            send_mail('ERROR:'.$param_id.' !exist or empty','<br />hist_min: For '.$symbol_object['name'].' '.implode(" ",array_keys($symbol_object)).'<br /><br />',"hectorlm1983@gmail.com");
+            die('In hist_min() the param_id ('.$param_id.') does not exist or empty or -');
+        }else{
+            $symbol_object[$param_id]="0";
+        }
     }
     if(!array_key_exists($param_id.'_hist',$symbol_object)){$symbol_object[$param_id.'_hist']=array();}    
     if(!array_key_exists($param_id.'_hist',$symbol_object) || count($symbol_object[$param_id.'_hist'])==0){
@@ -112,9 +120,13 @@ function hist_min($param_id,$freq, &$symbol_object){
 function hist_year_last_day($param_id, &$symbol_object){
     $timestamp_date=date("Y-m-d"); // refresh date
     $timestamp_freq=substr($timestamp_date,0,4);
-    if(!array_key_exists($param_id,$symbol_object) || !isset($symbol_object[$param_id]) || $symbol_object[$param_id]=="" || $symbol_object[$param_id]=="-"){
-        send_mail('ERROR:'.$param_id.' !exist or empty','<br />hist_year_last_day: For '.implode(" ",array_keys($symbol_object)).'<br /><br />',"hectorlm1983@gmail.com");
-        die('In hist_year_last_day() the param_id ('.$param_id.') does not exist or empty or -');
+    if(!array_key_exists($param_id,$symbol_object) || $symbol_object[$param_id]==null || $symbol_object[$param_id]=="" || $symbol_object[$param_id]=="-"){
+        if($symbol_object[$param_id]!=0){ // non-string issue
+            send_mail('ERROR:'.$param_id.' !exist or empty','<br />hist_year_last_day: For '.$symbol_object['name'].' '.implode(" ",array_keys($symbol_object)).'<br /><br />',"hectorlm1983@gmail.com");
+            die('In hist_year_last_day() the param_id ('.$param_id.') does not exist or empty or -');
+        }else{
+            $symbol_object[$param_id]="0";
+        }
     }
     if(!array_key_exists($param_id.'_hist',$symbol_object)){$symbol_object[$param_id.'_hist']=array();}
     if(!array_key_exists($param_id.'_hist',$symbol_object) || count($symbol_object[$param_id.'_hist'])==0){
@@ -173,7 +185,7 @@ function compound_average_growth($from, $to, $periods=1.0){
 
 function hist_compound_average_growth($param_id, $symbol_object,$num_periods=5){
     $cag=0;
-    if(!array_key_exists($param_id,$symbol_object)){die('In growth_and_acceleration() the param_id ('.$param_id.') does not exist');}
+    if(!array_key_exists($param_id,$symbol_object)){die('In hist_compound_average_growth() the param_id ('.$param_id.') does not exist');}
     $curr_val=floatval(end($symbol_object[$param_id])[1]);
     $orig_val=floatval($symbol_object[$param_id][0][1]);
     if(count($symbol_object[$param_id])>$num_periods){
@@ -186,7 +198,7 @@ function hist_compound_average_growth($param_id, $symbol_object,$num_periods=5){
 
 function hist_growth_array($param_id, $symbol_object,$num_periods=-1){
     $growth_array=array();
-    if(!array_key_exists($param_id,$symbol_object)){die('In growth_and_acceleration() the param_id ('.$param_id.') does not exist');}
+    if(!array_key_exists($param_id,$symbol_object)){die('In hist_growth_array() the param_id ('.$param_id.') does not exist');}
     $hist=$symbol_object[$param_id];
     $hist_count=count($hist)-1;
     if($num_periods==-1) $num_periods=$hist_count; // with 6 elems we can compute 5 periods

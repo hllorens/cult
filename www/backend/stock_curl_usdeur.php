@@ -1,6 +1,7 @@
 <?php
 
 // USAGE: provides $usdeur variable for other scripts to use
+require_once 'stock_helper_functions.php';
 
 echo date('Y-m-d H:i:s')." starting stock_curl_usdeur.php<br />";
 //$url_and_query='https://finance.google.com/finance?q=usdeur';
@@ -22,10 +23,10 @@ curl_close( $curl );
     preg_match("/^1curr_change=([0-9,.-]*)\s*/m", $response, $change);
     $change=str_replace(",","",$change[1]);
 
-$usdeur=floatval($usdeurval);
-$usdeur_change=floatval($change)/100;
-echo "<br />usdeur=$usdeurval<br />";
-echo "<br />usdeur change=$change<br />";
+$usdeur=floatval(toFixed(floatval($usdeurval),2));
+$usdeur_change=floatval(toFixed(floatval($change)/100,2));
+echo "<br />usdeur=$usdeur(orig: $usdeurval)<br />";
+echo "<br />usdeur change=$usdeur_change(orig: $change)<br />";
 
 echo date('Y-m-d H:i:s')." ending stock_curl_usdeur.php<br />";
 
