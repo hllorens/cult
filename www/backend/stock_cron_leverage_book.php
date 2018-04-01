@@ -125,19 +125,23 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $name=$query_arr[1];
         $market=$query_arr[0];
         
-
-        handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_book',$results,'Price\/Book Value',0,$name,99,0.05);
-        handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_sales',$results,'Price\/Sales',0,$name,99,0.05);
-        handle_new_value($stocks_formatted_arr[$name.":".$market],'avg_revenue_growth_5y',$results,'avg_revenue_growth_5y',0,$name,0,0);
-        handle_new_value($stocks_formatted_arr[$name.":".$market],'revenue_growth_qq_last_year',$results,'revenue_growth_qq_last_year',0,$name,0,0);
-        handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage',$results,'Leverage Ratio',0,$name,99,0);
-        $stocks_formatted_arr[$name.":".$market]['leverage_industry']=0.01; // non-0 to avoid 0 division
+		$email_report="";
+        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_book',$results,'Price\/Book Value',0,$name,99,0.25);
+        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_sales',$results,'Price\/Sales',0,$name,99,0.25);
+        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'avg_revenue_growth_5y',$results,'avg_revenue_growth_5y',0,$name,0,0.05);
+        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'revenue_growth_qq_last_year',$results,'revenue_growth_qq_last_year',0,$name,0,0.05);
+        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage',$results,'Leverage Ratio',0,$name,99,0.15);
         if(count($results['Leverage Ratio'])>1){
-            handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage_industry',$results,'Leverage Ratio',1,$name,99,0);
+            $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage_industry',$results,'Leverage Ratio',1,$name,99,0.15);
+			if($stocks_formatted_arr[$name.":".$market]['leverage_industry']==0){
+				$stocks_formatted_arr[$name.":".$market]['leverage_industry']=0.01; // non-0 to avoid 0 division
+			}
         }
     }
     
-
+    if($email_report!=""){
+        send_mail("lev-book ".$name,$email_report,"hectorlm1983@gmail.com");
+    }
     //hist_min('revenue',6,$stocks_formatted_arr[$name.":".$market]); // in msn this is last year, the ttm maybe use yahoo or do it manually for companies you care about
     hist_year_last_day('leverage',$stocks_formatted_arr[$name.":".$market]);
     hist_year_last_day('price_to_book',$stocks_formatted_arr[$name.":".$market]); // hist calculated by financials... safer
@@ -148,14 +152,15 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
 // -----------update stocks formatted ----------------------------------
 
 function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$default_val=0,$diff_margin=0){
+	$report="";
     if($results[$param_id][$index]=="-" || $results[$param_id][$index]==""){
         $results[$param_id][$index]=$default_val;
-        send_mail('Error '.$name,"<br />Empty - in $param_id (stock_cron_leverage_book.php), setting $default_val<br /><br />","hectorlm1983@gmail.com");
-    }
-    if(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))>$diff_margin){
-        send_mail("New $orig_param ".$name,"<br />diff_margin=$diff_margin<br />New $param_id (stock_cron_leverage_book.php)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index].'<br /><br />',"hectorlm1983@gmail.com");
+        $report="<br />Empty - in $param_id (".$results[$param_id][$index].") (index=$index) ".implode(" ",$results[$param_id])." (stock_cron_leverage_book.php), setting $default_val<br /><br />";
+    }else if(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1) >$diff_margin){
+        $report="<br />New $param_id (orig: $orig_param)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]."<br />diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
     }
     $orig[$orig_param]=$results[$param_id][$index];
+	return $report;
 }
 
 

@@ -9,11 +9,11 @@ require_once 'stock_curl_asset.php';
 echo date('Y-m-d H:i:s')." starting stock_curl_assets.php<br />";
 
 $num_stocks_to_curl=2;
-$stock_last_financiala_updated=0;
-if(file_exists ( 'stock_last_financiala_updated.txt' )){
-    $stock_last_financiala_updated=intval(fgets(fopen('stock_last_financiala_updated.txt', 'r')));
+$stock_last_financial_updated=0;
+if(file_exists ( 'stock_last_financial_updated.txt' )){
+    $stock_last_financial_updated=intval(fgets(fopen('stock_last_financial_updated.txt', 'r')));
 }
-echo " curr_stock_num_to_curl=$stock_last_financiala_updated num_stocks_to_curl=$num_stocks_to_curl<br />";
+echo " curr_stock_num_to_curl=$stock_last_financial_updated num_stocks_to_curl=$num_stocks_to_curl<br />";
 
 $debug=false;
 if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug']=="1")){
@@ -44,7 +44,7 @@ if(file_exists ( 'stocks.formatted.json' )){
 $the_url_query_arr = explode(",", $stock_list);
 $num_stocks_to_curl=min($num_stocks_to_curl,count($the_url_query_arr)); // make sure we do not duplicate...
 for ($i=0;$i<$num_stocks_to_curl;$i++){
-    $current_num_to_curl=($stock_last_financiala_updated+$i) % count($the_url_query_arr);
+    $current_num_to_curl=($stock_last_financial_updated+$i) % count($the_url_query_arr);
     if(substr($the_url_query_arr[$current_num_to_curl],0,5)=="INDEX"){echo "<br /><br />Index (".$the_url_query_arr[$current_num_to_curl]."), nothing to be done<br /><br />"; continue;} // skip indexes
     $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
     $name=$query_arr[1];
@@ -63,6 +63,12 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]=$updated_financial;
     }else if($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]!=$updated_financial){
         echo "$name new values, updating<br />";
+        if($debug){
+            echo "original:<br />";
+            print_r($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]);
+            echo "<br />new:";
+            print_r($updated_financial);
+        }
         $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]=$updated_financial;
     }else{
         echo "$name equal, no update<br />";
@@ -94,18 +100,18 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
 if($debug) echo "<br />arr ".print_r($stock_financials_arr)."<br />";
 
 // update last updated number
-$stock_last_financiala_updated=($stock_last_financiala_updated+$num_stocks_to_curl) % count($the_url_query_arr); // modulo to avoid big nums...
-$stock_last_financiala_updated_f = fopen("stock_last_financiala_updated.txt", "w") or die("Unable to open file!");
-fwrite($stock_last_financiala_updated_f, $stock_last_financiala_updated);
-fclose($stock_last_financiala_updated_f);
+$stock_last_financial_updated=($stock_last_financial_updated+$num_stocks_to_curl) % count($the_url_query_arr); // modulo to avoid big nums...
+$stock_last_financial_updated_f = fopen("stock_last_financial_updated.txt", "w") or die("Unable to open file!");
+fwrite($stock_last_financial_updated_f, $stock_last_financial_updated);
+fclose($stock_last_financial_updated_f);
 
 
 // update stocks_financialsa.json
 echo date('Y-m-d H:i:s')." updating stocks_financialsa.json\n";
-$stocks_financialsa_arr_json_str=json_encode( $stock_financials_arr );
-$stocks_financialsa_json_file = fopen("stocks_financialsa.json", "w") or die("Unable to open file stocks_financialsa.json!");
-fwrite($stocks_financialsa_json_file, $stocks_financialsa_arr_json_str);
-fclose($stocks_financialsa_json_file);
+$stocks_financials_arr_json_str=json_encode( $stock_financials_arr );
+$stocks_financials_json_file = fopen("stocks_financialsa.json", "w") or die("Unable to open file stocks_financialsa.json!");
+fwrite($stocks_financials_json_file, $stocks_financials_arr_json_str);
+fclose($stocks_financials_json_file);
 
 
 

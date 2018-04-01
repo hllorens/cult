@@ -3837,14 +3837,18 @@
 			"Operating Income": "15403.0",
 			"Net Income": "12733.0",
 			"operating_margin": "0.28",
-			"net_margin": "0.23"
+			"net_margin": "0.23",
+			"Total Assets": "110920000",
+			"Total Liabilities": "23610000"
 		},
 		"2014-12-31": {
 			"Total Revenue": "66001.0",
 			"Operating Income": "16496.0",
 			"Net Income": "14136.0",
 			"operating_margin": "0.25",
-			"net_margin": "0.21"
+			"net_margin": "0.21",
+			"Total Assets": "129187000",
+			"Total Liabilities": "25327000"
 		},
 		"2015-12-31": {
 			"Total Revenue": "74989.0",
@@ -3887,59 +3891,6 @@
 			"revenue_diff": "0.23",
 			"operating_margin_diff": "-0.08",
 			"liabilities_to_assets_diff": "0.35"
-		}
-	},
-	"NASDAQ:GOOGL": {
-		"name": "GOOGL",
-		"market": "NASDAQ",
-		"2013-12-31": {
-			"Total Revenue": "55519.0",
-			"Operating Income": "15403.0",
-			"Net Income": "12733.0",
-			"operating_margin": "0.28",
-			"net_margin": "0.23"
-		},
-		"2014-12-31": {
-			"Total Revenue": "66001.0",
-			"Operating Income": "16496.0",
-			"Net Income": "14136.0",
-			"operating_margin": "0.25",
-			"net_margin": "0.21",
-			"Total Current Assets": "78656000",
-			"Total Assets": "129187000",
-			"Total Current Liabilities": "16779000",
-			"Total Liabilities": "25327000",
-			"current_liabilities_to_current_assets": "0.21",
-			"liabilities_to_assets": "0.20"
-		},
-		"2015-12-31": {
-			"Total Revenue": "74989.0",
-			"Operating Income": "19360.0",
-			"Net Income": "16348.0",
-			"operating_margin": "0.26",
-			"net_margin": "0.22",
-			"Total Current Assets": "90114000",
-			"Total Assets": "147461000",
-			"Total Current Liabilities": "19310000",
-			"Total Liabilities": "27130000",
-			"current_liabilities_to_current_assets": "0.21",
-			"liabilities_to_assets": "0.18"
-		},
-		"2016-12-31": {
-			"Total Revenue": "90272.0",
-			"Operating Income": "23716.0",
-			"Net Income": "19478.0",
-			"operating_margin": "0.26",
-			"net_margin": "0.22",
-			"Total Current Assets": "105408000",
-			"Total Assets": "167497000",
-			"Total Current Liabilities": "16756000",
-			"Total Liabilities": "28461000",
-			"current_liabilities_to_current_assets": "0.16",
-			"liabilities_to_assets": "0.17",
-			"revenue_diff": "0.20",
-			"operating_margin_diff": "0.00",
-			"liabilities_to_assets_diff": "-0.06"
 		}
 	},
 	"NASDAQ:MSFT": {

@@ -235,14 +235,16 @@ function facsum($n){
     return $f;
 }
 
-function acceleration_avg_weighted($acceleration_array){
-    $acceleration=0;
-    if(count($acceleration_array)<=1){return 0;}
-    $tot_elems_weight=facsum(count($acceleration_array)-1);
-    for($i=1;$i<count($acceleration_array);$i++){
-        $acceleration+=(floatval($acceleration_array[$i])/$tot_elems_weight)*$i;
+// weighted avg towards the most recent elements
+// see formula in the code (basically the weight is the position)
+function avg_weighted($arr){
+    $avgw=0;
+    if(count($arr)<=1){return 0;}
+    $tot_elems_weight=facsum(count($arr)-1);
+    for($i=1;$i<count($arr);$i++){
+        $avgw+=(floatval($arr[$i])/$tot_elems_weight)*$i;
     }
-    return floatval(toFixed($acceleration,2));
+    return floatval(toFixed($avgw,2));
 }
 
 function trend($arr,$threshold=0.10){

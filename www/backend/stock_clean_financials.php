@@ -32,7 +32,7 @@ require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
 $stocks_clean_arr=array();
 foreach ($stocks_financials_arr as $key => $item) {
 	$symbol_object=array();
-    echo "cleaning ".$item['name'].":".$item['market']."<br />";
+    echo "cleaning ".$item['market'].":".$item['name']."<br />";
     $symbol_object['name']=$item['name'];
     $symbol_object['market']=$item['market'];
     foreach ($stocks_financials_arr[$item['market'].":".$item['name']] as $key2 => $item2) {
