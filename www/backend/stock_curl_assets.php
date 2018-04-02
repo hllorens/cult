@@ -10,8 +10,8 @@ echo date('Y-m-d H:i:s')." starting stock_curl_assets.php<br />";
 
 $num_stocks_to_curl=2;
 $stock_last_financial_updated=0;
-if(file_exists ( 'stock_last_financial_updated.txt' )){
-    $stock_last_financial_updated=intval(fgets(fopen('stock_last_financial_updated.txt', 'r')));
+if(file_exists ( 'stock_last_financiala_updated.txt' )){
+    $stock_last_financial_updated=intval(fgets(fopen('stock_last_financiala_updated.txt', 'r')));
 }
 echo " curr_stock_num_to_curl=$stock_last_financial_updated num_stocks_to_curl=$num_stocks_to_curl<br />";
 
@@ -101,7 +101,7 @@ if($debug) echo "<br />arr ".print_r($stock_financials_arr)."<br />";
 
 // update last updated number
 $stock_last_financial_updated=($stock_last_financial_updated+$num_stocks_to_curl) % count($the_url_query_arr); // modulo to avoid big nums...
-$stock_last_financial_updated_f = fopen("stock_last_financial_updated.txt", "w") or die("Unable to open file!");
+$stock_last_financial_updated_f = fopen("stock_last_financiala_updated.txt", "w") or die("Unable to open file!");
 fwrite($stock_last_financial_updated_f, $stock_last_financial_updated);
 fclose($stock_last_financial_updated_f);
 
@@ -129,7 +129,7 @@ if(!file_exists( date("Y").'.stocks_financialsa.json' )){
     echo "creating backup: ".date("Y").".stocks_financialsa.json<br />";
     echo date('Y-m-d H:i:s')." creating backup: ".date("Y").".stocks_financialsa.json\n";
     $fileb = fopen(date("Y").".stocks_financialsa.json", "w") or die("Unable to open file Y.stocks_financialsa.json!");
-    fwrite($fileb, $stocks_financialsa_arr_json_str);
+    fwrite($fileb, $stocks_financials_arr_json_str);
     fclose($fileb);
 }
 

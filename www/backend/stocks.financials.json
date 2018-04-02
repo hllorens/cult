@@ -4003,6 +4003,8 @@
 		"name": "AMZN",
 		"market": "NASDAQ",
 		"2013-12-31": {
+			"Total Assets": "41400000",
+			"Total Liabilities": "31650000",
 			"Total Revenue": "74452.0",
 			"Operating Income": "745.0",
 			"Net Income": "274.0",
