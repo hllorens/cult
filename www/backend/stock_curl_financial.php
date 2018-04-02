@@ -77,6 +77,7 @@ function get_financial($symbol,$debug=false){
     $new_period_report="";
     $change_past_report="";
     for ($period=0;$period<count($period_arr[1]);$period++){
+		echo "<br />index:$period, new period: ".$period_arr[1][$period]."<br />";
         // Here we could detect if past is being changed...
         $period_arr_arr=explode("/",$period_arr[1][$period]);
         if(count($period_arr_arr)!=3 || strlen($period_arr_arr[2])!=4){

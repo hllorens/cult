@@ -1382,22 +1382,6 @@
 			"current_liabilities_to_current_assets": "0.40",
 			"liabilities_to_assets": "0.69"
 		},
-		"2017-01-01": {
-			"Total Revenue": "2559.6",
-			"Operating Income": "-462.4",
-			"Net Income": "-471.1",
-			"operating_margin": "-0.18",
-			"net_margin": "-0.18",
-			"Total Current Assets": "1914699",
-			"Total Assets": "4567167",
-			"Total Current Liabilities": "1090175",
-			"Total Liabilities": "3455714",
-			"current_liabilities_to_current_assets": "0.57",
-			"liabilities_to_assets": "0.76",
-			"revenue_diff": "0.62",
-			"operating_margin_diff": "0.38",
-			"liabilities_to_assets_diff": "0.10"
-		},
 		"2017-12-31": {
 			"Total Revenue": "1871.8",
 			"Operating Income": "-1018.5",
@@ -5982,19 +5966,6 @@
 			"current_liabilities_to_current_assets": "0.26",
 			"liabilities_to_assets": "0.21"
 		},
-		"2016-01-02": {
-			"Total Revenue": "616.8",
-			"Operating Income": "60.6",
-			"Net Income": "44.1",
-			"operating_margin": "0.10",
-			"net_margin": "0.07",
-			"Total Current Assets": "389349",
-			"Total Assets": "521743",
-			"Total Current Liabilities": "96626",
-			"Total Liabilities": "104332",
-			"current_liabilities_to_current_assets": "0.25",
-			"liabilities_to_assets": "0.20"
-		},
 		"2016-12-31": {
 			"Total Revenue": "660.6",
 			"Operating Income": "57.6",
@@ -6006,10 +5977,7 @@
 			"Total Current Liabilities": "112636",
 			"Total Liabilities": "118956",
 			"current_liabilities_to_current_assets": "0.29",
-			"liabilities_to_assets": "0.23",
-			"revenue_diff": "0.07",
-			"operating_margin_diff": "-0.10",
-			"liabilities_to_assets_diff": "0.15"
+			"liabilities_to_assets": "0.23"
 		},
 		"2017-12-30": {
 			"Total Revenue": "883.9",

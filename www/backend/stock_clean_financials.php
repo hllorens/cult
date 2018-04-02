@@ -35,6 +35,14 @@ foreach ($stocks_financials_arr as $key => $item) {
     echo "cleaning ".$item['market'].":".$item['name']."<br />";
     $symbol_object['name']=$item['name'];
     $symbol_object['market']=$item['market'];
+	$years_arr=array();
+	foreach (array_keys($stocks_financials_arr[$item['market'].":".$item['name']]) as $key){
+		if(in_array(substr($key,0,4),$years_arr)){
+			echo "<br />ERROR: DUP year ".substr($key,0,4)."<br />";
+			exit(1);
+		}
+		$years_arr[]=substr($key,0,4);
+	}
     foreach ($stocks_financials_arr[$item['market'].":".$item['name']] as $key2 => $item2) {
         if($key2[0]=="2" && array_key_exists('Total Revenue',$item2)){
             if(substr($key2,5,1)!="1"){
