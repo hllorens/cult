@@ -37,9 +37,9 @@ function get_details($symbol,$debug=false){
         return $details;
     }
     $title=substr(preg_replace('/( S\.?A\.?| [Ii][Nn][Cc]\.?)\s*$/m', '', $title[1]),0,20); // remove ending and reduce to 20 chars
-    if(!isset($title) || $title=="" || $title=="-"){
-        echo "<br />Empty value title2, email sent...<br />";
-        send_mail('Error '.$symbol,'<br />Empty title2, skipping...<br /><br />',"hectorlm1983@gmail.com");
+    if(!isset($title) || $title=="" || $title=="-" || $title=="Data not available"){
+        echo "<br />Empty value title2 ($title), email sent...<br />";
+        send_mail('Error '.$symbol,"<br />Empty title2 ($title), skipping...<pre>".htmlspecialchars($response)."</pre><br /><br />","hectorlm1983@gmail.com");
         return $details;
     }
     if($debug) echo "<br />title: ".$title."<br />";
@@ -196,7 +196,8 @@ if(isset($_REQUEST['symbol'])){
 	$num_stocks_to_curl=min($num_stocks_to_curl,count($the_url_query_arr)); // make sure we do not duplicate...
 	for ($i=0;$i<$num_stocks_to_curl;$i++){
 		$current_num_to_curl=($stock_last_detail_updated+$i) % count($the_url_query_arr);
-		$stock_details_arr[$the_url_query_arr[$current_num_to_curl]]=get_details($the_url_query_arr[$current_num_to_curl],$debug);
+		$temp_result=get_details($the_url_query_arr[$current_num_to_curl],$debug);
+		if(!empty($temp_result)) $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]=$temp_result;
 		// to avoid server ban
 		sleep(0.15);
 	}

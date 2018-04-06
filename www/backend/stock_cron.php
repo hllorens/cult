@@ -51,6 +51,12 @@ $stocks_formatted_arr['GOOG:NASDAQ']['date']=$timestamp_simplif;
 foreach ($stock_details_arr as $key => $item) {
 	$symbol_object=array();
     $symbol_formatted=array();
+	// stock_curl_details should avoid this already by not adding the key/item pair, but just to avoid failures we re-check
+	if(!isset($item['name']) || $item['name']==""){
+		echo "ERROR: empty name in the details...<br />";
+		send_mail('ERROR:'.$item['name'].' details name !exist','<br />ERROR: empty name in the details...<br /><br />',"hectorlm1983@gmail.com");
+		continue;
+	}
     if($debug) echo "encoding ".$item['name'].":".$item['market']."<br />";
     
     // load info if exists
