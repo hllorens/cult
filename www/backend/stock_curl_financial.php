@@ -56,7 +56,12 @@ function get_financial($symbol,$debug=false){
         if($debug) echo "getting results for: $var2get<br />";
         preg_match("/^".$var2get."(.*)$/m", $response, $xxxx);
         preg_match_all("/title='([^']*)'/", $xxxx[1], $xxxx_arr);
-        $results[$var2get]=str_replace(",","",$xxxx_arr[1]);
+        if(count($period_arr[1])!=count($xxxx_arr[1])){
+            echo "<br />count periods and count data is not the same...<br /><br />";
+            send_mail('ERROR financial '.$name,"<br />count periods and count data is not the same...<br /><br />","hectorlm1983@gmail.com");
+            exit(1);
+        }
+        $results[$var2get]=$xxxx_arr[1];
     }
 
     $query_arr=explode(":",$symbol);
@@ -77,7 +82,7 @@ function get_financial($symbol,$debug=false){
     $new_period_report="";
     $change_past_report="";
     for ($period=0;$period<count($period_arr[1]);$period++){
-		echo "<br />index:$period, new period: ".$period_arr[1][$period]."<br />";
+		echo "<br />index:$period, period: ".$period_arr[1][$period]."<br />";
         // Here we could detect if past is being changed...
         $period_arr_arr=explode("/",$period_arr[1][$period]);
         if(count($period_arr_arr)!=3 || strlen($period_arr_arr[2])!=4){
@@ -114,17 +119,18 @@ function get_financial($symbol,$debug=false){
         }
         foreach($vars2get as $var2get){
             if($debug) echo "updating vars: $var2get<br />";
+            $results[$var2get][$period]=str_replace(",","",$results[$var2get][$period]);
             if(!array_key_exists($var2get,$stock_financial[$period_arr[1][$period]])){
                 if($results[$var2get][$period]=="-" || $results[$var2get][$period]==""){
                     $results[$var2get][$period]=0;
-                    send_mail('Error financials '.$name,"<br />Empty - in $var2get (stock_curl_financial.php), setting 0<br /><br />","hectorlm1983@gmail.com");
+                    send_mail('Error financials '.$name,"<br />Empty - in $var2get, setting 0<br /><br />","hectorlm1983@gmail.com");
                 }
                 $stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
                 $new_period_report.="<br />".$period_arr[1][$period]." var:".$var2get.":".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
             }else{
                 if($results[$var2get][$period]=="-" || $results[$var2get][$period]==""){
-					echo "<br />".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") (stock_curl_financial.php) using the existing past...$var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
-                    $change_past_report.="<br />".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") (stock_curl_financial.php) using the existing past...$var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
+					echo "<br />".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") using the existing past...$var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
+                    $change_past_report.="<br />".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") using the existing past...$var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
                 }else if($stock_financial[$period_arr[1][$period]][$var2get]!=$results[$var2get][$period]){
 					if(abs(floatval($stock_financial[$period_arr[1][$period]][$var2get])-floatval($results[$var2get][$period]))>abs(floatval($results[$var2get][$period])/10)){
 						echo "ERROR changing the past for ".$period_arr[1][$period]." $var2get significantly!!! (keeping new value, email sent)<br />";

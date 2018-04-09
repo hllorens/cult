@@ -11,6 +11,7 @@ require_once("email_config.php");
 
 
 echo date('Y-m-d H:i:s')." starting stock_curl_details.php<br />";
+$latelog = fopen("late.log", "a") or die("Unable to open/create late.log!");
 
 function get_details($symbol,$debug=false){
 	$details=array();
@@ -32,14 +33,16 @@ function get_details($symbol,$debug=false){
     if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
     preg_match("/^.* class=\"header-companyname[^>]*>\s*<[^>]*>\s*([^<]*)<.*$/m", $response, $title);
     if(count($title)<2){
-        echo "<br />Empty value title1, email sent...<br />";
-        send_mail('Bad crawl '.$symbol,'<br />Bad crawl, no header-companyname, and often note even currentvalue or percentchange<br /><mpty title1, skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
+        echo "<br />Empty value title1, log created...no header-companyname, and often note even currentvalue or percentchange <pre>".htmlspecialchars($response)."</pre><br />";
+        fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_details.php. Bad crawl $symbol. Empty title1 no header-companyname, and often note even currentvalue or percentchange<br />\n");
+        //send_mail('Bad crawl '.$symbol,'<br />Bad crawl, no header-companyname, and often note even currentvalue or percentchange<br /><mpty title1, skipping...<br /><br />',"hectorlm1983@gmail.com");
         return $details;
     }
     $title=substr(preg_replace('/( S\.?A\.?| [Ii][Nn][Cc]\.?)\s*$/m', '', $title[1]),0,20); // remove ending and reduce to 20 chars
     if(!isset($title) || $title=="" || $title=="-" || $title=="Data not available"){
-        echo "<br />Empty value title2 ($title), email sent...<br />";
-        send_mail('Error '.$symbol,"<br />Empty title2 ($title), skipping...<pre>".htmlspecialchars($response)."</pre><br /><br />","hectorlm1983@gmail.com");
+        echo "<br />Empty value title2 ($title)...<pre>".htmlspecialchars($response)."</pre><br />";
+		fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_details.php. Bad crawl $symbol. Empty title2($title) no header-companyname or data not available, and often note even currentvalue or percentchange<br />\n");
+        //send_mail('Error '.$symbol,"<br />Empty title2 ($title), skipping...<pre>".htmlspecialchars($response)."</pre><br /><br />","hectorlm1983@gmail.com");
         return $details;
     }
     if($debug) echo "<br />title: ".$title."<br />";
@@ -211,6 +214,7 @@ if(isset($_REQUEST['symbol'])){
 	fclose($stock_last_detail_updated_f);
 }
 
+fclose($latelog);
 echo date('Y-m-d H:i:s')." ending stock_curl_details.php<br />";
 
 

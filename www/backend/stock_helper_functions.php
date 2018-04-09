@@ -225,24 +225,25 @@ function acceleration_array($growth_array){
     return $acceleration_array;
 }
 
-function facsum($n){
+function facsum($n,$init=3){
     $n=intval($n);
     $f=0;
-    if($n<=1){return 1;}
-    for($i=1;$i<=$n;$i++){
-        $f+=$i;
+	// TODO: if init < 0 halt error
+    if($n<=0){return 1;}
+    for($i=0;$i<=$n;$i++){
+        $f+=$i+1+$init;
     }
     return $f;
 }
 
 // weighted avg towards the most recent elements
 // see formula in the code (basically the weight is the position)
-function avg_weighted($arr){
+function avg_weighted($arr,$init=3){
     $avgw=0;
     if(count($arr)<=1){return 0;}
-    $tot_elems_weight=facsum(count($arr)-1);
-    for($i=1;$i<count($arr);$i++){
-        $avgw+=(floatval($arr[$i])/$tot_elems_weight)*$i;
+    $tot_elems_weight=facsum(count($arr),$init);
+    for($i=0;$i<count($arr);$i++){
+        $avgw+=(floatval($arr[$i])/$tot_elems_weight)*($i+1+$init);
     }
     return floatval(toFixed($avgw,2));
 }

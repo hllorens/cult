@@ -155,9 +155,15 @@ function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$de
 	$report="";
     if($results[$param_id][$index]=="-" || $results[$param_id][$index]==""){
         $results[$param_id][$index]=$default_val;
+		#exceptions stocks that don't have 5y or few data ------
+		if($param_id=="avg_revenue_growth_5y" && ($orig['name']=='SNAP' || $orig['name']=='YRD')){return "";}
+		if($param_id=="revenue_growth_qq_last_year" && (  $orig['name']=='KER'  )){return "";}
+		#-------------------------------------------
+		
         $report="<br />Empty - in $param_id (".$results[$param_id][$index].") (index=$index) ".implode(" ",$results[$param_id])." (stock_cron_leverage_book.php), setting $default_val<br /><br />";
     }else if(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1) >$diff_margin){
-        $report="<br />New $param_id (orig: $orig_param)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]."<br />diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
+		$diff=abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1);
+        $report="<br />New $param_id (orig: $orig_param)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]."<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
     }
     $orig[$orig_param]=$results[$param_id][$index];
 	return $report;
