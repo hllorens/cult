@@ -34,14 +34,14 @@ function get_details($symbol,$debug=false){
     preg_match("/^.* class=\"header-companyname[^>]*>\s*<[^>]*>\s*([^<]*)<.*$/m", $response, $title);
     if(count($title)<2){
         echo "<br />Empty value title1, log created...no header-companyname, and often note even currentvalue or percentchange <pre>".htmlspecialchars($response)."</pre><br />";
-        fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_details.php. Bad crawl $symbol. Empty title1 no header-companyname, and often note even currentvalue or percentchange<br />\n");
+        fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_details.php. Bad crawl $symbol. Empty title1 no header-companyname, and often note even currentvalue or percentchange $url_and_query<br />\n");
         //send_mail('Bad crawl '.$symbol,'<br />Bad crawl, no header-companyname, and often note even currentvalue or percentchange<br /><mpty title1, skipping...<br /><br />',"hectorlm1983@gmail.com");
         return $details;
     }
     $title=substr(preg_replace('/( S\.?A\.?| [Ii][Nn][Cc]\.?)\s*$/m', '', $title[1]),0,20); // remove ending and reduce to 20 chars
     if(!isset($title) || $title=="" || $title=="-" || $title=="Data not available"){
         echo "<br />Empty value title2 ($title)...<pre>".htmlspecialchars($response)."</pre><br />";
-		fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_details.php. Bad crawl $symbol. Empty title2($title) no header-companyname or data not available, and often note even currentvalue or percentchange<br />\n");
+		fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_details.php. Bad crawl $symbol. Empty title2($title) no header-companyname or data not available, and often note even currentvalue or percentchange $url_and_query<br />\n");
         //send_mail('Error '.$symbol,"<br />Empty title2 ($title), skipping...<pre>".htmlspecialchars($response)."</pre><br /><br />","hectorlm1983@gmail.com");
         return $details;
     }
@@ -187,7 +187,7 @@ if(isset($_REQUEST['symbol'])){
 	$result=get_details($_REQUEST['symbol'],$debug);
 	echo "<br />arr ".print_r($result)."<br />";
 }else{
-	$num_stocks_to_curl=5;
+	$num_stocks_to_curl=4;
 	$stock_last_detail_updated=0;
 	if(file_exists ( 'stock_last_detail_updated.txt' )){
 		$stock_last_detail_updated=intval(fgets(fopen('stock_last_detail_updated.txt', 'r')));

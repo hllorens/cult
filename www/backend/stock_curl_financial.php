@@ -92,6 +92,7 @@ function get_financial($symbol,$debug=false){
         }
         $period_arr[1][$period]=$period_arr_arr[2]."-".str_pad($period_arr_arr[0],2,"0",STR_PAD_LEFT)."-".str_pad($period_arr_arr[1],2,"0",STR_PAD_LEFT);
         $new_period=true;
+        $keep_old=false;
         foreach(array_keys($stock_financial) as $stock_financial_period){
             if($period_arr[1][$period]==$stock_financial_period){
                 $new_period=false;
@@ -109,10 +110,13 @@ function get_financial($symbol,$debug=false){
 					break;
                 }else{
                     echo "<br />ERROR: financial period change same year new ".$period_arr[1][$period]." vs existing ".$stock_financial_period." keeping the old with higher month<br />";
+					$keep_old=true;
 					break;
-					continue;
 				}
             }
+        }
+        if($keep_old){
+            continue;
         }
         if($first_time_financials || $new_period){
             $stock_financial[$period_arr[1][$period]]=array();
