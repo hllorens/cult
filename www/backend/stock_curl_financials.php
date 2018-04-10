@@ -65,8 +65,9 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         if($debug){
             echo "original:<br />";
             print_r($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]);
-            echo "<br />new:";
+            echo "<br />new:<br />";
             print_r($updated_financial);
+            echo "<br />";
         }
         $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]=$updated_financial;
     }else{
@@ -85,7 +86,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         foreach ($stock_financials_arr[$market.":".$name] as $key2 => $item2) {
             if($key2[0]=="2" && array_key_exists('Total Revenue',$item2)){
                 $stocks_formatted_arr[$name.":".$market]['revenue_hist'][]=[$key2,toFixed(floatval(($item2['Total Revenue'])/1000),2,'revenue')]; // PS can be calculated
-                if(floatval($item2['Operating Income'])==0){$item2['Operating Income']=$item2['Net Income'];}
+                //if(floatval($item2['Operating Income'])==0){$item2['Operating Income']=$item2['Net Income'];}
                 $stocks_formatted_arr[$name.":".$market]['operating_income_hist'][]=[$key2,toFixed(floatval(($item2['Operating Income'])/1000),2,'operating income')]; // OM can be calculated
                 $stocks_formatted_arr[$name.":".$market]['net_income_hist'][]=[$key2,toFixed(floatval(($item2['Net Income'])/1000),2,'net income')]; // EPS can be calculated
             }else if($key2[0]=="2"){
@@ -102,7 +103,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     
 }
 
-if($debug) echo "<br />arr ".print_r($stock_financials_arr)."<br />";
+//if($debug) echo "<br />arr ".print_r($stock_financials_arr)."<br />";
 
 // update last updated number
 $stock_last_financial_updated=($stock_last_financial_updated+$num_stocks_to_curl) % count($the_url_query_arr); // modulo to avoid big nums...

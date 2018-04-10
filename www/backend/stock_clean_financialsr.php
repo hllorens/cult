@@ -32,7 +32,7 @@ require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
 $stocks_clean_arr=array();
 foreach ($stocks_financials_arr as $key => $item) {
 	$symbol_object=array();
-    echo "cleaning ".$item['market'].":".$item['name']."<br />";
+    echo "<br />doing ".$item['market'].":".$item['name']."<br />";
     $symbol_object['name']=$item['name'];
     $symbol_object['market']=$item['market'];
 	$years_arr=array();
@@ -41,8 +41,15 @@ foreach ($stocks_financials_arr as $key => $item) {
 			echo "<br />ERROR: DUP year ".substr($key,0,4)."<br />";
 			exit(1);
 		}
-		$years_arr[]=substr($key,0,4);
+        if($key[0]=="2"){
+            if(count($years_arr)>0 && intval(end($years_arr))!=(intval(substr($key,0,4))-1)){
+                echo "<br />ERROR: MISSING year ".(intval(substr($key,0,4))-1)."<br />";
+                exit(1);
+            }
+            $years_arr[]=substr($key,0,4);
+        }
 	}
+    echo "<br />".implode(" ",$years_arr)."<br />";
     foreach ($stocks_financials_arr[$item['market'].":".$item['name']] as $key2 => $item2) {
         if($key2[0]=="2" && array_key_exists('Total Revenue',$item2)){
             if(substr($key2,5,1)!="1"){

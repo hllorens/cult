@@ -36,7 +36,7 @@ function send_mail($subject, $body, $user){
 	if(!$mail->Send()){   
         echo "<br />Error: " . $mail->ErrorInfo;
 	}else{
-        echo "Mail enviado. ";
+        echo "Mail enviado.<br />";
 	}
 	$mail->ClearAllRecipients();
 	$mail->ClearAttachments();

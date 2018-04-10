@@ -66,8 +66,9 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         if($debug){
             echo "original:<br />";
             print_r($stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]);
-            echo "<br />new:";
+            echo "<br />new:<br />";
             print_r($updated_financial);
+            echo "<br />";
         }
         $stock_financials_arr[$the_url_query_arr[$current_num_to_curl]]=$updated_financial;
     }else{
@@ -97,7 +98,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     
 }
 
-if($debug) echo "<br />arr ".print_r($stock_financials_arr)."<br />";
+//if($debug) echo "<br />arr ".print_r($stock_financials_arr)."<br />";
 
 // update last updated number
 $stock_last_financial_updated=($stock_last_financial_updated+$num_stocks_to_curl) % count($the_url_query_arr); // modulo to avoid big nums...

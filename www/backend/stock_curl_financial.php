@@ -4,7 +4,6 @@ require_once("email_config.php");
 require_once("stock_list.php");
 require_once 'stock_helper_functions.php';
 
-
 function get_financial($symbol,$debug=false){
     $stock_financials_old=array(); // to store stocks_financialsr, typo "financials"
     if(!isset($symbol)){echo "ERROR: empty sybmol";exit(1);}
@@ -58,7 +57,7 @@ function get_financial($symbol,$debug=false){
         preg_match_all("/title='([^']*)'/", $xxxx[1], $xxxx_arr);
         if(count($period_arr[1])!=count($xxxx_arr[1])){
             echo "<br />count periods and count data is not the same...<br /><br />";
-            send_mail('ERROR financial '.$name,"<br />count periods and count data is not the same...<br /><br />","hectorlm1983@gmail.com");
+            send_mail('ERROR financial '.$name,"$url_and_query<br />count periods and count data is not the same...<br /><br />","hectorlm1983@gmail.com");
             exit(1);
         }
         $results[$var2get]=$xxxx_arr[1];
@@ -72,7 +71,7 @@ function get_financial($symbol,$debug=false){
     if(!array_key_exists($symbol,$stock_financials_old)){
         echo "first time getting financials for ".$symbol;
         $first_time_financials=true;
-        send_mail('First time financials '.$name,"<br />Yay, first time<br /><br />","hectorlm1983@gmail.com");
+        send_mail('First time financials '.$name,"$url_and_query<br />Yay, first time<br /><br />","hectorlm1983@gmail.com");
         $stock_financial['name']=$name;
         $stock_financial['market']=$market;
     }else{
@@ -87,7 +86,12 @@ function get_financial($symbol,$debug=false){
         $period_arr_arr=explode("/",$period_arr[1][$period]);
         if(count($period_arr_arr)!=3 || strlen($period_arr_arr[2])!=4){
             echo "ERROR (financials): incorrect format ".$period_arr[1][$period];
-            send_mail('Error financials '.$name,"<br />"."ERROR (MSN INCOME): incorrect format period ".$period_arr[1][$period]."<br /><br />","hectorlm1983@gmail.com");
+            send_mail('Error financials '.$name,"$url_and_query<br />"."ERROR (MSN INCOME): incorrect format period ".$period_arr[1][$period]."<br /><br />","hectorlm1983@gmail.com");
+            continue;
+        }
+        if(intval($period_arr_arr[2])<2010){
+            echo "ERROR (assets): incorrect year ".$period_arr[1][$period];
+            send_mail('Error assets '.$name,"$url_and_query<br />"."ERROR (MSN INCOME): incorrect year period ".$period_arr[1][$period]."<br /><br />","hectorlm1983@gmail.com");
             continue;
         }
         $period_arr[1][$period]=$period_arr_arr[2]."-".str_pad($period_arr_arr[0],2,"0",STR_PAD_LEFT)."-".str_pad($period_arr_arr[1],2,"0",STR_PAD_LEFT);
@@ -105,7 +109,7 @@ function get_financial($symbol,$debug=false){
                 if($new_month>$original_month){
                     $new_period=true;
                     echo "<br />ERROR: financial period change same year new ".$period_arr[1][$period]." vs existing ".$stock_financial_period." keeping the new with higher month<br />";
-                    send_mail('Error financials '.$name,"<br />financial period change same year new ".$period_arr[1][$period]." vs existing ".$stock_financial_period.", keeping the one with higher month <br /><br />","hectorlm1983@gmail.com");
+                    send_mail('Error financials '.$name,"$url_and_query<br />financial period change same year new ".$period_arr[1][$period]." vs existing ".$stock_financial_period.", keeping the one with higher month <br /><br />","hectorlm1983@gmail.com");
                     unset($stock_financial[$stock_financial_period]);
 					break;
                 }else{
@@ -127,14 +131,21 @@ function get_financial($symbol,$debug=false){
             if(!array_key_exists($var2get,$stock_financial[$period_arr[1][$period]])){
                 if($results[$var2get][$period]=="-" || $results[$var2get][$period]==""){
                     $results[$var2get][$period]=0;
-                    send_mail('Error financials '.$name,"<br />Empty - in $var2get, setting 0<br /><br />","hectorlm1983@gmail.com");
+                    $latelog = fopen("late.log", "a") or die("Unable to open/create late.log!");
+                    fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_financial.php. Error financials ".$name.". Empty - in $var2get, setting 0<br />\n");
+                    fclose($latelog);
+                    //send_mail('Error financials '.$name,"<br />Empty - in $var2get, setting 0<br /><br />","hectorlm1983@gmail.com");
                 }
                 $stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
+                echo "<br />New period ".$period_arr[1][$period]." var:".$var2get.":".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
                 $new_period_report.="<br />".$period_arr[1][$period]." var:".$var2get.":".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
             }else{
                 if($results[$var2get][$period]=="-" || $results[$var2get][$period]==""){
 					echo "<br />".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") using the existing past...$var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
-                    $change_past_report.="<br />".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") using the existing past...$var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
+                    $latelog = fopen("late.log", "a") or die("Unable to open/create late.log!");
+                    fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_financial.php. Error financials ".$name.". ".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") using the existing past...$var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />\n");
+                    fclose($latelog);
+                    //$change_past_report.="<br />".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") using the existing past...$var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
                 }else if($stock_financial[$period_arr[1][$period]][$var2get]!=$results[$var2get][$period]){
 					if(abs(floatval($stock_financial[$period_arr[1][$period]][$var2get])-floatval($results[$var2get][$period]))>abs(floatval($results[$var2get][$period])/10)){
 						echo "ERROR changing the past for ".$period_arr[1][$period]." $var2get significantly!!! (keeping new value, email sent)<br />";
@@ -146,10 +157,10 @@ function get_financial($symbol,$debug=false){
         }
     }
 	if($new_period_report!="" && !$first_time_financials){
-		send_mail('new financials '.$name,"<br />In ".$symbol." ".$new_period_report."<br /><br />","hectorlm1983@gmail.com");
+		send_mail('new financials '.$name,"$url_and_query<br />In ".$symbol." ".$new_period_report."<br /><br />","hectorlm1983@gmail.com");
 	}
 	if($change_past_report!=""){
-		send_mail('financials change past '.$name,"<br />In ".$symbol." ".$change_past_report."<br /><br />","hectorlm1983@gmail.com");
+		send_mail('financials change past '.$name,"$url_and_query<br />In ".$symbol." ".$change_past_report."<br /><br />","hectorlm1983@gmail.com");
 	}
     return $stock_financial;
 }
@@ -163,6 +174,7 @@ if( isset($_REQUEST['symbol']) ){
     $stock_financial=get_financial($_REQUEST['symbol'],$debug);
     var_dump($stock_financial);
 }
+
 
 
 ?>
