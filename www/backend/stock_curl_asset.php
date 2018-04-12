@@ -153,7 +153,7 @@ function get_asset($symbol,$debug=false){
 	if($change_past_report!=""){
 		send_mail('financials change past '.$name,"$url_and_query<br />In ".$symbol." ".$change_past_report."<br /><br />","hectorlm1983@gmail.com");
 	}
-    return $stock_financial;
+    return ksort($stock_financial);
 }
 
 if( isset($_REQUEST['symbol']) ){

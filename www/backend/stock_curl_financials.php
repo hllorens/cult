@@ -54,7 +54,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         echo "ERROR: not updated<br />";
         continue;
     }
-
+    
     // assignment to the array
     $updated=true;
     if(!array_key_exists($the_url_query_arr[$current_num_to_curl],$stock_financials_arr)){
@@ -82,7 +82,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         $stocks_formatted_arr[$name.":".$market]['revenue_hist']=array();
         $stocks_formatted_arr[$name.":".$market]['operating_income_hist']=array();
         $stocks_formatted_arr[$name.":".$market]['net_income_hist']=array();
-        
+        ksort($stock_financials_arr[$market.":".$name]); // in case it is forced and was wrongly ordered and not updated
         foreach ($stock_financials_arr[$market.":".$name] as $key2 => $item2) {
             if($key2[0]=="2" && array_key_exists('Total Revenue',$item2)){
                 $stocks_formatted_arr[$name.":".$market]['revenue_hist'][]=[$key2,toFixed(floatval(($item2['Total Revenue'])/1000),2,'revenue')]; // PS can be calculated

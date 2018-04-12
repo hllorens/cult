@@ -81,6 +81,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     if($updated && array_key_exists(($name.":".$market),$stocks_formatted_arr)){
         echo "has stock formatted (updating) <br />";
         $stocks_formatted_arr[$name.":".$market]['equity_hist']=array();
+        ksort($stock_financials_arr[$market.":".$name]); // in case it is forced and was wrongly ordered and not updated
         foreach ($stock_financials_arr[$market.":".$name] as $key2 => $item2) {
             if($key2[0]=="2" && array_key_exists('Total Assets',$item2) && array_key_exists('Total Liabilities',$item2)){
                 $stocks_formatted_arr[$name.":".$market]['equity_hist'][]=[$key2,toFixed(  ((floatval($item2['Total Assets'])/1000000)  -  (floatval($item2['Total Liabilities'])/1000000))  ,2,'equity')]; // PB can be calculated

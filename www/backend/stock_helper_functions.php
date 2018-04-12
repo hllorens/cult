@@ -196,6 +196,26 @@ function hist_compound_average_growth($param_id, $symbol_object,$num_periods=5){
     return $cag;
 }
 
+
+function pad_array_with_first_value($arr,$desired_elems){
+    if($desired_elems<=0){echo "ERROR: desired_elems=$desired_elems (<=0)";exit(1);}
+    if(count($arr)<1){echo "ERROR: empty array";exit(1);}
+    if(count($arr)>=$desired_elems){
+        return array_slice($arr, -$desired_elems);
+    }else{
+        $ret_array=array();
+        $diff=count($arr)-$desired_elems;
+        for($i=0;$i<$desired_elems;$i++){
+            if( ($i+$diff)>=0 ){
+                $ret_array[]=$arr[($i+$diff)];
+            }else{
+                $ret_array[]=$arr[0];
+            }
+        }
+        return $ret_array;
+    }
+}
+
 function hist_growth_array($param_id, $symbol_object,$num_periods=-1){
     $growth_array=array();
     if(!array_key_exists($param_id,$symbol_object)){die('In hist_growth_array() the param_id ('.$param_id.') does not exist');}
@@ -228,7 +248,7 @@ function acceleration_array($growth_array){
 function facsum($n,$init=3){
     $n=intval($n);
     $f=0;
-	// TODO: if init < 0 halt error
+    if($init<0){echo "ERROR: init=$init (<0)";exit(1);}
     if($n<=0){return 1;}
     for($i=0;$i<=$n;$i++){
         $f+=$i+1+$init;
@@ -271,6 +291,56 @@ function trend($arr,$threshold=0.10){
         }
     }
     return $trend;
+}
+
+function smooth_avg_7($arr){
+    $arr=pad_array_with_first_value($arr,7);
+    // TODO
+}
+
+
+function test_pad_arr(){
+    $arr=[2,3];
+    $padded_arr=pad_array_with_first_value($arr,5);
+	echo "<br />origarr=[".implode(" ",$arr)."] padded(5)=[".implode(" ",$padded_arr)."]<br />";
+    $padded_arr=pad_array_with_first_value($arr,3);
+	echo "<br />origarr=[".implode(" ",$arr)."] padded(3)=[".implode(" ",$padded_arr)."]<br />";
+}
+
+function test_ksort(){
+    /*
+		"name": "KER",
+		"market": "EPA",
+		"2014-12-31": {
+			"Total Assets": "23253900",
+			"Total Liabilities": "11991600"
+		},
+		"2015-12-31": {
+			"Total Assets": "23850800",
+			"Total Liabilities": "12227700"
+		},
+		"2016-12-31": {
+			"Total Assets": "24139000",
+			"Total Liabilities": "12175100"
+		},
+		"2017-12-31": {
+			"Total Assets": "25577400",
+			"Total Liabilities": "12951000"
+		}
+    */
+    $test_arr=array("name"=>"ker","market"=>"EPA","2014-12-31"=>"XXX","2017-12-31"=>"XXX","2015-12-31"=>"XXX","2016-12-31"=>"XXX");
+    echo "unsorted<br />";
+    print_r($test_arr);
+    ksort($test_arr);
+    echo "sorted<br />";
+    print_r($test_arr);
+}
+
+if(isset($_REQUEST['test'])){
+    //test_pad_arr();
+    // TODO smooth_avg_7
+    test_ksort();
+    
 }
 
 

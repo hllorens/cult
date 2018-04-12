@@ -62,13 +62,14 @@ foreach ($stock_details_arr as $key => $item) {
     // load info if exists
     if(array_key_exists($item['name'].":".$item['market'],$stocks_formatted_arr)){
         if($debug) echo "loading existing info for ".$item['name'].":".$item['market']."<br />";
-        echo "<br />old info exists (load)";
         $symbol_object=$stocks_formatted_arr[$item['name'].":".$item['market']];
         if(!array_key_exists('title',$symbol_object) || !array_key_exists('shares',$symbol_object)){
             echo "title or shares not exist";
             send_mail('ERROR:'.$item['name'].' title or shares !exist','<br />This stock was in stocks.formatted.json but without title or shares, fix manually.<br /><br />',"hectorlm1983@gmail.com");
             exit(1);
         }
+    }else{
+        echo "<br />No old info... first time?<br />";
     }
 
     // update new gathered details
@@ -87,7 +88,7 @@ foreach ($stock_details_arr as $key => $item) {
         if(!$symbol_object['title']){$symbol_object['title']="ERROR: No title found";}
         $symbol_object['session_change_percentage']=$item['session_change_percentage'];
         $symbol_object['value']=str_replace(",","",$item['value']);
-        echo $item['value']." xx ".$symbol_object['value']."<br />";
+        #echo $item['value']." xx ".$symbol_object['value']."<br />";
         $symbol_object['range_52week_high']=trim($item['range_52week_high']);
         $symbol_object['range_52week_low']=trim($item['range_52week_low']);
         $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];   // already 0 if index in details
@@ -130,17 +131,17 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_formatted['val_change_3yp']=toFixed(compound_average_growth(floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-5][1]),floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-2][1]),3)*100,1,"val_change_3yp");
         }
         // annualized 3y prev prev
-        $symbol_formatted['val_change_3ypp']=min(floatval($symbol_formatted['val_change_3y']),2); // by default use 3y val change
+        $symbol_formatted['val_change_3ypp']=min(floatval($symbol_formatted['val_change_3yp']),2); // by default use 3y val change
         if(count($symbol_formatted['value_hist'])>5){
             $symbol_formatted['val_change_3ypp']=toFixed(compound_average_growth(floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-6][1]),floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-3][1]),3)*100,1,"val_change_3ypp");
         }
         // annualized 5y
-        $symbol_formatted['val_change_5y']=min(floatval($symbol_formatted['val_change_3y']),2); // by default use 3y val change
+        $symbol_formatted['val_change_5y']=min(floatval($symbol_formatted['val_change_3y']),1); // by default use 3y val change
         if(count($symbol_formatted['value_hist'])>5){
             $symbol_formatted['val_change_5y']=toFixed(compound_average_growth(floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-6][1]),floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-1][1]),5)*100,1,"val_change_5y");
         }
         // annualized 5y prev (without the current)
-        $symbol_formatted['val_change_5yp']=min(floatval($symbol_formatted['val_change_5y']),2); // by default use 5y val change
+        $symbol_formatted['val_change_5yp']=min(floatval($symbol_formatted['val_change_5y']),1); // by default use 5y val change
         if(count($symbol_formatted['value_hist'])>6){
             $symbol_formatted['val_change_5yp']=toFixed(compound_average_growth(floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-7][1]),floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-2][1]),5)*100,1,"val_change_5yp");
         }
@@ -180,12 +181,6 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_formatted['leverage']=99;
         }else{
             echo "!idx";
-            $ref_value=floatval($symbol_formatted['value']);
-            if(count($symbol_formatted['value_hist'])>1){
-                $ref_value=floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-2][1]); // last year's value (less volatility in scorings)
-            }
-            
-
             // set defaults if no leverage-book and send email
             if(!array_key_exists('leverage',$symbol_formatted) || !array_key_exists('price_to_book',$symbol_formatted) || !array_key_exists('avg_revenue_growth_5y',$symbol_formatted)){
                 send_mail('NOTE:'.$item['name'].' !revenue-book','<br />This stock is running stock_cron.php without revenue-book, fix manually (run leverage-book for it).<br /><br />',"hectorlm1983@gmail.com");
@@ -195,7 +190,6 @@ foreach ($stock_details_arr as $key => $item) {
                 $symbol_formatted['price_to_book']=99;
                 
             }
-            
             // reset things that are going to be calculated
             //$symbol_formatted['last_financials_year']=0000;
             $symbol_formatted['operating_margin']=0;
@@ -210,7 +204,10 @@ foreach ($stock_details_arr as $key => $item) {
             // leverage, price to book  are not calculated
             //$symbol_formatted['eps_hist_last_diff']=0;
             //---------------------------------------------
-            
+            $ref_value=floatval($symbol_formatted['value']);
+            if(count($symbol_formatted['value_hist'])>1){
+                $ref_value=floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-2][1]); // last year's value (less volatility in scorings)
+            }
             if(array_key_exists('revenue_hist',$symbol_formatted)){
                 $last_revenue_year=floatval(substr(end($symbol_formatted['revenue_hist'])[0],0,4));
                 $last_value_year=floatval(substr(end($symbol_formatted['value_hist'])[0],0,4));
@@ -220,7 +217,7 @@ foreach ($stock_details_arr as $key => $item) {
                     exit(1);
                 }
                 // if 2 year old revenue
-                if(count($symbol_formatted['value_hist'])>2 && ($last_value_year-$last_revenue_year)>2){
+                if(count($symbol_formatted['value_hist'])>2 && ($last_value_year-$last_revenue_year)==2){
                     $ref_value=floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-3][1]); // 2 years old value (more accurate, less volatility in scorings)
                 }
             
@@ -280,6 +277,7 @@ foreach ($stock_details_arr as $key => $item) {
 
                 // growths, trends and accelerations
                 $symbol_formatted['revenue_growth_arr']=hist_growth_array('revenue_hist',$symbol_formatted,5);
+                $symbol_formatted['revenue_growth']=avg_weighted($symbol_formatted['revenue_growth_arr']);
                 $revenue_acceleration=acceleration_array($symbol_formatted['revenue_growth_arr']);
                 $symbol_formatted['revenue_acceleration']=avg_weighted($revenue_acceleration);
                 $symbol_formatted['operating_income_growth_arr']=hist_growth_array('operating_income_hist',$symbol_formatted,5);
@@ -290,6 +288,7 @@ foreach ($stock_details_arr as $key => $item) {
                 
                 if(array_key_exists('equity_hist',$symbol_formatted)){
                     $symbol_formatted['equity_growth_arr']=hist_growth_array('equity_hist',$symbol_formatted,5);
+                    $symbol_formatted['equity_growth']=avg_weighted($symbol_formatted['equity_growth_arr']);
                 }
                 // we can also do the operating trend... maybe directly in js if no operations...
                 $symbol_formatted['eps_hist_trend']=trend($symbol_formatted['net_income_growth_arr']);
@@ -312,7 +311,7 @@ foreach ($stock_details_arr as $key => $item) {
             
             $score_rev_growth=0;
             if(array_key_exists('avg_revenue_growth_5y',$symbol_formatted) && floatval($symbol_formatted['avg_revenue_growth_5y'])>0){
-                $score_rev_growth=min(floatval($symbol_formatted['avg_revenue_growth_5y']),20)*5/100;
+                $score_rev_growth=min(min(floatval($symbol_formatted['avg_revenue_growth_5y']),floatval($symbol_formatted['revenue_growth']))*100,20)*5/100;
             }
             $score_rev_growth+=$om_to_ps*0.3; // max 0.1 (can be penalizing -0.1)
             // good quarter only +0.1 (cannot penalize), and only if good means om_to_ps>0.2
