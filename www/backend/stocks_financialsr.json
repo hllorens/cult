@@ -279,30 +279,6 @@
 			"Net Income": "685.5"
 		}
 	},
-	"OTCMKTS:NTDOY": {
-		"name": "NTDOY",
-		"market": "OTCMKTS",
-		"2014-03-31": {
-			"Total Revenue": "5351.4",
-			"Operating Income": "-434.5",
-			"Net Income": "-217.4"
-		},
-		"2015-03-31": {
-			"Total Revenue": "5145.9",
-			"Operating Income": "231.8",
-			"Net Income": "391.7"
-		},
-		"2016-03-31": {
-			"Total Revenue": "4721.7",
-			"Operating Income": "307.8",
-			"Net Income": "154.5"
-		},
-		"2017-03-31": {
-			"Total Revenue": "4577.9",
-			"Operating Income": "274.8",
-			"Net Income": "960.1"
-		}
-	},
 	"NASDAQ:NFLX": {
 		"name": "NFLX",
 		"market": "NASDAQ",
@@ -599,7 +575,7 @@
 		"2016-12-31": {
 			"Total Revenue": "2559.8",
 			"Operating Income": "-255.1",
-			"Net Income": "-471.2" 
+			"Net Income": "-471.2"
 		},
 		"2017-12-31": {
 			"Total Revenue": "1871.8",
@@ -1776,32 +1752,30 @@
 		}
 	},
 	"NYSE:YRD": {
-		"name": "YRD",
-		"market": "NYSE",
 		"2013-12-31": {
 			"Total Revenue": "3.0",
 			"Operating Income": "-7.6",
-			"Net Income": "-8.0"
+			"Net Income": "-8.1"
 		},
 		"2014-12-31": {
-			"Total Revenue": "31.1",
+			"Total Revenue": "31.4",
 			"Operating Income": "-4.2",
 			"Net Income": "-4.4"
 		},
 		"2015-12-31": {
-			"Total Revenue": "208.9",
+			"Total Revenue": "210.4",
 			"Operating Income": "62.6",
-			"Net Income": "43.6"
+			"Net Income": "43.9"
 		},
 		"2016-12-31": {
-			"Total Revenue": "519.0",
+			"Total Revenue": "522.5",
 			"Operating Income": "169.2",
-			"Net Income": "176.9"
-		}
+			"Net Income": "178.1"
+		},
+		"market": "NYSE",
+		"name": "YRD"
 	},
 	"NYSE:FIT": {
-		"name": "FIT",
-		"market": "NYSE",
 		"2013-12-31": {
 			"Total Revenue": "271.1",
 			"Operating Income": "-9.0",
@@ -1814,7 +1788,7 @@
 		},
 		"2015-12-31": {
 			"Total Revenue": "1858.0",
-			"Operating Income": "348.2",
+			"Operating Income": "340.5",
 			"Net Income": "175.7"
 		},
 		"2016-12-31": {
@@ -1826,35 +1800,35 @@
 			"Total Revenue": "1615.5",
 			"Operating Income": "-201.1",
 			"Net Income": "-277.2"
-		}
+		},
+		"market": "NYSE",
+		"name": "FIT"
 	},
 	"NYSE:BABA": {
-		"name": "BABA",
-		"market": "NYSE",
 		"2014-03-31": {
-			"Total Revenue": "8319.0",
-			"Operating Income": "3948.4",
-			"Net Income": "3694.1"
+			"Total Revenue": "8377.3",
+			"Operating Income": "3983.1",
+			"Net Income": "3720.0"
 		},
 		"2015-03-31": {
-			"Total Revenue": "12074.1",
-			"Operating Income": "3665.6",
-			"Net Income": "3844.0"
+			"Total Revenue": "12158.7",
+			"Operating Income": "3719.2",
+			"Net Income": "3871.0"
 		},
 		"2016-03-31": {
-			"Total Revenue": "16025.6",
-			"Operating Income": "4611.1",
-			"Net Income": "11322.5"
+			"Total Revenue": "16137.9",
+			"Operating Income": "4716.0",
+			"Net Income": "11401.8"
 		},
 		"2017-03-31": {
-			"Total Revenue": "25077.6",
-			"Operating Income": "7614.1",
-			"Net Income": "6920.1"
-		}
+			"Total Revenue": "25253.2",
+			"Operating Income": "7667.4",
+			"Net Income": "6968.6"
+		},
+		"market": "NYSE",
+		"name": "BABA"
 	},
 	"NYSE:BLK": {
-		"name": "BLK",
-		"market": "NYSE",
 		"2013-12-31": {
 			"Total Revenue": "10180.0",
 			"Operating Income": "3857.0",
@@ -1872,18 +1846,18 @@
 		},
 		"2016-12-31": {
 			"Total Revenue": "11155.0",
-			"Operating Income": "4570.0",
+			"Operating Income": "4646.0",
 			"Net Income": "3172.0"
 		},
 		"2017-12-31": {
 			"Total Revenue": "12491.0",
 			"Operating Income": "5272.0",
 			"Net Income": "4970.0"
-		}
+		},
+		"market": "NYSE",
+		"name": "BLK"
 	},
 	"NASDAQ:NUAN": {
-		"name": "NUAN",
-		"market": "NASDAQ",
 		"2013-09-30": {
 			"Total Revenue": "1855.3",
 			"Operating Income": "48.5",
@@ -1891,24 +1865,26 @@
 		},
 		"2014-09-30": {
 			"Total Revenue": "1923.5",
-			"Operating Income": "-21.4",
+			"Operating Income": "22.3",
 			"Net Income": "-150.3"
 		},
 		"2015-09-30": {
 			"Total Revenue": "1931.1",
-			"Operating Income": "54.9",
+			"Operating Income": "84.5",
 			"Net Income": "-115.0"
 		},
 		"2016-09-30": {
 			"Total Revenue": "1948.9",
-			"Operating Income": "138.5",
+			"Operating Income": "170.0",
 			"Net Income": "-12.5"
 		},
 		"2017-09-30": {
 			"Total Revenue": "1939.4",
-			"Operating Income": "52.0",
+			"Operating Income": "128.1",
 			"Net Income": "-151.0"
-		}
+		},
+		"market": "NASDAQ",
+		"name": "NUAN"
 	},
 	"NASDAQ:CMPR": {
 		"name": "CMPR",
@@ -2386,64 +2362,6 @@
 			"Total Revenue": "54449.0",
 			"Operating Income": "17167.0",
 			"Net Income": "10798.0"
-		}
-	},
-	"OTCMKTS:ZURVY": {
-		"name": "ZURVY",
-		"market": "OTCMKTS",
-		"2013-12-31": {
-			"Total Revenue": "72045.0",
-			"Operating Income": "5959.0",
-			"Net Income": "4028.0"
-		},
-		"2014-12-31": {
-			"Total Revenue": "72571.0",
-			"Operating Income": "5899.0",
-			"Net Income": "3949.0"
-		},
-		"2015-12-31": {
-			"Total Revenue": "60568.0",
-			"Operating Income": "3341.0",
-			"Net Income": "1842.0"
-		},
-		"2016-12-31": {
-			"Total Revenue": "67246.0",
-			"Operating Income": "5321.0",
-			"Net Income": "3211.0"
-		},
-		"2017-12-31": {
-			"Total Revenue": "63961.0",
-			"Operating Income": "5127.0",
-			"Net Income": "3004.0"
-		}
-	},
-	"OTCMKTS:RHHBY": {
-		"name": "RHHBY",
-		"market": "OTCMKTS",
-		"2013-12-31": {
-			"Total Revenue": "49630.4",
-			"Operating Income": "16719.1",
-			"Net Income": "11397.9"
-		},
-		"2014-12-31": {
-			"Total Revenue": "52105.0",
-			"Operating Income": "14722.6",
-			"Net Income": "9751.0"
-		},
-		"2015-12-31": {
-			"Total Revenue": "52666.1",
-			"Operating Income": "14441.6",
-			"Net Income": "9260.9"
-		},
-		"2016-12-31": {
-			"Total Revenue": "52846.9",
-			"Operating Income": "14700.7",
-			"Net Income": "10006.0"
-		},
-		"2017-12-31": {
-			"Total Revenue": "55692.1",
-			"Operating Income": "13586.8",
-			"Net Income": "9020.6"
 		}
 	},
 	"NASDAQ:NVDA": {
@@ -3300,8 +3218,6 @@
 		}
 	},
 	"NYSE:V": {
-		"name": "V",
-		"market": "NYSE",
 		"2014-09-30": {
 			"Total Revenue": "12702.0",
 			"Operating Income": "7697.0",
@@ -3314,14 +3230,16 @@
 		},
 		"2016-09-30": {
 			"Total Revenue": "15082.0",
-			"Operating Income": "7883.0",
+			"Operating Income": "9760.0",
 			"Net Income": "5991.0"
 		},
 		"2017-09-30": {
 			"Total Revenue": "18358.0",
 			"Operating Income": "12144.0",
 			"Net Income": "6699.0"
-		}
+		},
+		"market": "NYSE",
+		"name": "V"
 	},
 	"NASDAQ:PYPL": {
 		"name": "PYPL",

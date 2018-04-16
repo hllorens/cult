@@ -6,6 +6,9 @@ require_once 'stock_helper_functions.php';
 
 
 function get_asset($symbol,$debug=false){
+    $query_arr=explode(":",$symbol);
+    $name=$query_arr[1];
+    $market=$query_arr[0];
     $stock_financials_old=array(); // to store stocks.assets, typo "assets"
     if(!isset($symbol)){echo "ERROR: empty sybmol";exit(1);}
     if(file_exists ( 'stocks_financialsa.json' )){
@@ -28,11 +31,26 @@ function get_asset($symbol,$debug=false){
     $response2=preg_replace("/<title>/", "\ntd <title>", $response2);
     $response2=preg_replace("/<\/title>/", "\n", $response2);
     $response2=preg_replace("/<tr/", "\ntr", $response2);
-    //if($debug)  echo "aaa.<pre>".htmlspecialchars($response2)."</pre>";
+    if($debug)  echo "aaa.<pre>".htmlspecialchars($response2)."</pre>";
     $response2=preg_replace("/<\/(tr|table|ul)>/", "\n", $response2);
     //$response2=preg_replace("/^[^t][^d].*$/m", "", $response2);
     $response2 = preg_replace('/^[ \t]*[\r\n]+/m', '', $response2); // remove blank lines
     if($debug) echo "----------end----------";
+    
+    $manual_update=false;
+    preg_match("/^.*data-reactid=\"26\"[^C]*Currency in (...)\./m", $response2, $currency);
+    if(count($currency)>1){
+        $currency=$currency[1];
+    }else{
+        $currency="USD";
+    }
+    //if($currency!="USD"){}
+    if($currency!="USD"){ // && $currency!="EUR"){
+        $manual_update=true;
+        echo "<br />currency:$currency<br />";
+        //send_mail('Manual '.$name,"$url_and_query<br />currency:$currency<br /><br />","hectorlm1983@gmail.com");
+    }
+    
     preg_match("/^.*Period Ending(.*)$/m", $response2, $xxxx);
     preg_match_all("/<span[^>]*>([^\/]*\/[^\/]*\/[^<]*)<\/span>/", $xxxx[1], $period_arr);
     if($debug) echo "<br />";
@@ -54,9 +72,7 @@ function get_asset($symbol,$debug=false){
     }
     
     
-    $query_arr=explode(":",$symbol);
-    $name=$query_arr[1];
-    $market=$query_arr[0];
+
 
     $first_time_financials=false;
     if(!array_key_exists($symbol,$stock_financials_old)){
@@ -131,29 +147,37 @@ function get_asset($symbol,$debug=false){
                 echo "<br />New period ".$period_arr[1][$period]." var:".$var2get.":".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
                 $new_period_report.="<br />".$period_arr[1][$period]." var:".$var2get.":".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
             }else{
-                if($results[$var2get][$period]=="-" || $results[$var2get][$period]==""){
-					echo "<br />".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") using the existing past...$var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
-                    $latelog = fopen("late.log", "a") or die("Unable to open/create late.log!");
-                    fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_asset.php. Error financials ".$name.". ".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") using the existing past...$var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />\n");
-                    fclose($latelog);
-                    //$change_past_report.="<br />".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") using the existing past... $var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
-                }else if($stock_financial[$period_arr[1][$period]][$var2get]!=$results[$var2get][$period]){
-					if(abs(floatval($stock_financial[$period_arr[1][$period]][$var2get])-floatval($results[$var2get][$period]))>abs(floatval($results[$var2get][$period])/10)){
-						echo "ERROR changing the past for ".$period_arr[1][$period]." $var2get significantly!!! (keeping new value, email sent)<br />";
-						$change_past_report.="<br />".$period_arr[1][$period]." var:".$var2get."  old:".$stock_financial[$period_arr[1][$period]][$var2get]." != new:".$results[$var2get][$period]." (greater than 10% diff). Keeping new.<br />";
-					}
-                    $stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
+                if(!$manual_update){
+                    if($results[$var2get][$period]=="-" || $results[$var2get][$period]==""){
+                        echo "<br />".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") using the existing past...$var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
+                        $latelog = fopen("late.log", "a") or die("Unable to open/create late.log!");
+                        fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_asset.php. Error financials ".$name.". ".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") using the existing past...$var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />\n");
+                        fclose($latelog);
+                        //$change_past_report.="<br />".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") using the existing past... $var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
+                    }else if($stock_financial[$period_arr[1][$period]][$var2get]!=$results[$var2get][$period]){
+                        if(abs(floatval($stock_financial[$period_arr[1][$period]][$var2get])-floatval($results[$var2get][$period]))>abs(floatval($results[$var2get][$period])/10)){
+                            $diff=toFixed(((floatval($results[$var2get][$period])-floatval($stock_financial[$period_arr[1][$period]][$var2get]))/max(abs(floatval($results[$var2get][$period])),0.1))*100,2,"asset diff");
+                            echo "ERROR changing the past for ".$period_arr[1][$period]." $var2get significantly ($diff%) !!! (keeping new value, email sent)<br />";
+                            $change_past_report.="<br />".$period_arr[1][$period]." var:".$var2get."  old:".$stock_financial[$period_arr[1][$period]][$var2get]." != new:".$results[$var2get][$period]." ($diff% greater than 10% diff). Keeping new.<br />";
+                        }
+                        $stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
+                    }
                 }
             }
         }
     }
 	if($new_period_report!="" && !$first_time_financials){
-		send_mail('new financials '.$name,"$url_and_query<br />In ".$symbol." ".$new_period_report."<br /><br />","hectorlm1983@gmail.com");
+        if(!$manual_update){
+            send_mail('new financials '.$name,"$url_and_query<br />In ".$symbol." ".$new_period_report."<br /><br />","hectorlm1983@gmail.com");
+        }else{
+            send_mail('IMP update manually '.$name,"$url_and_query<br />In ".$symbol." (seek new info in the correct currency) ".$new_period_report."<br /><br />","hectorlm1983@gmail.com");
+        }
 	}
 	if($change_past_report!=""){
 		send_mail('financials change past '.$name,"$url_and_query<br />In ".$symbol." ".$change_past_report."<br /><br />","hectorlm1983@gmail.com");
 	}
-    return ksort($stock_financial);
+    ksort($stock_financial);
+    return $stock_financial;
 }
 
 if( isset($_REQUEST['symbol']) ){
@@ -163,7 +187,7 @@ if( isset($_REQUEST['symbol']) ){
     }
     echo "symbol found, manual mode<br /><br />";
     $stock_financial=get_asset($_REQUEST['symbol'],$debug);
-    var_dump($stock_financial);
+    echo "Result:<br />---<pre>".json_encode($stock_financial, JSON_PRETTY_PRINT)."</pre>---<br />";
 }
 
 

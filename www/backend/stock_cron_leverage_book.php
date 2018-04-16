@@ -55,6 +55,7 @@ $the_url="https://www.msn.com/en-us/money/stockdetails/analysis/"; //fi-199.1.SG
 // IMPORTANT: Price\/Sales does NOT appear in the first page but surprisingly it can be crawled!!
 
 //$vals=",";
+$url_and_query="url_and_query not set yet";
 $the_url_query_arr = explode(",", $stock_list);
 $num_stocks_to_curl=min($num_stocks_to_curl,count($the_url_query_arr)); // make sure we do not duplicate...
 for ($i=0;$i<$num_stocks_to_curl;$i++){
@@ -108,13 +109,13 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
             preg_match("/^".$var2get."(.*)$/m", $response, $xxxx);
             if(count($xxxx)<2){
                 echo "<br />Empty $var2get skipping, email sent...<br />";
-                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty $var2get (stock_cron_leverage_book.php step 1), skipping...<br /><br />',"hectorlm1983@gmail.com");
+                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],"$url_and_query<br />Empty $var2get (stock_cron_leverage_book.php step 1), skipping...<br /><br />","hectorlm1983@gmail.com");
                 continue;
             }
             preg_match_all("/title='([^']*)'/", $xxxx[1], $xxxx_arr);
             if(count($xxxx_arr)<2){
                 echo "<br />Empty $var2get skipping, email sent...<br />";
-                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],'<br />Empty $var2get (stock_cron_leverage_book.php step title), skipping...<br /><br />',"hectorlm1983@gmail.com");
+                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],"$url_and_query<br />Empty $var2get (stock_cron_leverage_book.php step title), skipping...<br /><br />","hectorlm1983@gmail.com");
                 continue;
             }
             $results[$var2get]=str_replace(",","",$xxxx_arr[1]);
@@ -154,18 +155,32 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
 function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$default_val=0,$diff_margin=0){
 	$report="";
     if($results[$param_id][$index]=="-" || $results[$param_id][$index]==""){
+        #exceptions stocks that don't have 5y or few data ------
+        if($param_id=="avg_revenue_growth_5y" && ($orig['name']=='SNAP' || $orig['name']=='YRD')){return "";}
+        if($param_id=="revenue_growth_qq_last_year" && (  $orig['name']=='KER'  )){return "";}
+        #-------------------------------------------
         $results[$param_id][$index]=$default_val;
-		#exceptions stocks that don't have 5y or few data ------
-		if($param_id=="avg_revenue_growth_5y" && ($orig['name']=='SNAP' || $orig['name']=='YRD')){return "";}
-		if($param_id=="revenue_growth_qq_last_year" && (  $orig['name']=='KER'  )){return "";}
-		#-------------------------------------------
-		
-        $report="<br />Empty - in $param_id (".$results[$param_id][$index].") (index=$index) ".implode(" ",$results[$param_id])." (stock_cron_leverage_book.php), setting $default_val<br /><br />";
-    }else if(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1) >$diff_margin){
-		$diff=abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1);
-        $report="<br />New $param_id (orig: $orig_param)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]."<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
+        $report="$url_and_query<br /><br />Empty - in $param_id (".$results[$param_id][$index].") (index=$index) ".implode(" ",$results[$param_id])." (stock_cron_leverage_book.php), setting $default_val<br /><br />";
     }
-    $orig[$orig_param]=$results[$param_id][$index];
+    if(!array_key_exists($orig_param,$orig)){
+        $report.="$url_and_query<br /><br />New: ".$results[$param_id][$index]."<br />(stock_cron_leverage_book.php)<br />";
+        $orig[$orig_param]=$results[$param_id][$index];
+    }else{
+        if(floatval($orig[$orig_param])==$default_val){
+            $orig[$orig_param]=$results[$param_id][$index];
+            $report="";
+        }else{
+            if(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1) >$diff_margin){
+                $diff=toFixed(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1),2,"lev-book diff");
+                if(floatval($results[$param_id][$index])==$default_val){
+                    $report.="$url_and_query<br /><br />New $param_id (orig: $orig_param)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]." (default, empty)<br />Keeping original since new is the default (empty)<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
+                }else{
+                    $report.="$url_and_query<br /><br />New $param_id (orig: $orig_param)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]."<br />Keeping the new<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
+                    $orig[$orig_param]=$results[$param_id][$index];
+                }
+            }
+        }
+    }
 	return $report;
 }
 

@@ -97,6 +97,7 @@ function get_details($symbol,$debug=false){
     $divval=0;
     $yieldval=0;
     $shares=0;
+    $shares_from_mktcap=0;
     $mktcap=0;
     $shares_source="direct";
 
@@ -129,6 +130,8 @@ function get_details($symbol,$debug=false){
             send_mail('Error '.$symbol,'<br />Empty mktcap (no parse/curl), skipping...<br /><br />',"hectorlm1983@gmail.com");
             return $details;
         }
+        
+        $shares_from_mktcap=toFixed(floatval($mktcap)/floatval($value),2,"cap and shares");
         preg_match("/>\s*Shares Outstanding[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $shares);
         if(count($shares)>1){
             $shares=trim($shares[1]);
@@ -136,7 +139,7 @@ function get_details($symbol,$debug=false){
             if($shares=="-" || $shares==""){
                 // shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
                 $shares_source="from_mktcap_found_empty";
-                $shares=toFixed(floatval($mktcap)/floatval($value),2,"cap and shares");
+                $shares=$shares_from_mktcap;
                 if(floatval($shares)<0.020){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
                     echo "<br />Too few shares $shares calculated (min 0.02)..., email sent...<br />";
                     send_mail('Err. few shares '.$symbol,"<br />Too few shares calc $mktcap/$value=$shares, skipping...<br /><br />","hectorlm1983@gmail.com");
@@ -148,7 +151,7 @@ function get_details($symbol,$debug=false){
         }else{
             // shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
             $shares_source="from_mktcap_not_found";
-            $shares=toFixed(floatval($mktcap)/floatval($value),3,"cap and shares");
+            $shares=$shares_from_mktcap;
             if(floatval($shares)<0.020){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
                 echo "<br />Too few shares $shares calculated (min 0.02)..., email sent...<br />";
                 send_mail('Err. few shares '.$symbol,"<br />Too few shares calc $mktcap/$value=$shares, skipping (consider removing this stock, too small)...<br /><br />","hectorlm1983@gmail.com");
@@ -171,6 +174,7 @@ function get_details($symbol,$debug=false){
     $details['dividend']=$divval;
     $details['mktcap']=$mktcap;
     $details['shares']=$shares;
+    $details['shares_from_mktcap']=$shares_from_mktcap;
     $details['shares_source']=$shares_source;
     $details['range_52week_high']=$range_52week_high;
     $details['range_52week_low']=$range_52week_low;
@@ -187,7 +191,9 @@ if(isset($_REQUEST['symbol'])){
 	$result=array();
 	echo "individual details for: (".$_REQUEST['symbol'].")<br />";
 	$result=get_details($_REQUEST['symbol'],$debug);
-	echo "<br />arr ".print_r($result)."<br />";
+	//echo "<br />arr <pre>".print_r($result,true)."</pre><br />";
+	echo "<br />arr <pre>".json_encode($result, JSON_PRETTY_PRINT)."</pre><br />";
+    
 }else{
 	$num_stocks_to_curl=5;
 	$stock_last_detail_updated=0;

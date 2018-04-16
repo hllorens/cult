@@ -148,8 +148,9 @@ function get_financial($symbol,$debug=false){
                     //$change_past_report.="<br />".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") using the existing past...$var2get=".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
                 }else if($stock_financial[$period_arr[1][$period]][$var2get]!=$results[$var2get][$period]){
 					if(abs(floatval($stock_financial[$period_arr[1][$period]][$var2get])-floatval($results[$var2get][$period]))>abs(floatval($results[$var2get][$period])/10)){
-						echo "ERROR changing the past for ".$period_arr[1][$period]." $var2get significantly!!! (keeping new value, email sent)<br />";
-						$change_past_report.="<br />".$period_arr[1][$period]." var:".$var2get."  old:".$stock_financial[$period_arr[1][$period]][$var2get]." != new:".$results[$var2get][$period]." (greater than 10% diff). Keeping new.<br />";
+                        $diff=toFixed(((floatval($results[$var2get][$period])-floatval($stock_financial[$period_arr[1][$period]][$var2get]))/max(abs(floatval($results[$var2get][$period])),0.1))*100,2,"financial diff");
+						echo "ERROR changing the past for ".$period_arr[1][$period]." $var2get significantly ($diff%) !!! (keeping new value, email sent)<br />";
+						$change_past_report.="<br />".$period_arr[1][$period]." var:".$var2get."  old:".$stock_financial[$period_arr[1][$period]][$var2get]." != new:".$results[$var2get][$period]." ($diff% greater than 10% diff). Keeping new.<br />";
 					}
                     $stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
                 }
@@ -162,7 +163,8 @@ function get_financial($symbol,$debug=false){
 	if($change_past_report!=""){
 		send_mail('financials change past '.$name,"$url_and_query<br />In ".$symbol." ".$change_past_report."<br /><br />","hectorlm1983@gmail.com");
 	}
-    return ksort($stock_financial);
+    ksort($stock_financial);
+    return $stock_financial;
 }
 
 if( isset($_REQUEST['symbol']) ){
@@ -172,7 +174,7 @@ if( isset($_REQUEST['symbol']) ){
     }
     echo "symbol found, manual mode<br /><br />";
     $stock_financial=get_financial($_REQUEST['symbol'],$debug);
-    var_dump($stock_financial);
+    echo "Result:<br />---<pre>".json_encode($stock_financial, JSON_PRETTY_PRINT)."</pre>---<br />";
 }
 
 

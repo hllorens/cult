@@ -2,6 +2,11 @@
 
 require_once("email_config.php");
 
+
+//function print_r_pretty_html($arr){
+    // BETTER USE <pre></pre> with either print_r(xxx,true) or json_encode($data, JSON_PRETTY_PRINT) perfect for json 
+
+
 function toFixed($number, $decimals=2, $tracking="tracking unset") {
   if(!is_numeric($number)){
         echo "not numeric: $number ($tracking)";

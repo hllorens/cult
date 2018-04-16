@@ -19,7 +19,7 @@ $stock_list="$stock_list,BME:TEF,BME:TL5,BME:TRE,BME:VID,BME:R4,BME:CLNX";
 // otras interesantes españa o farmaceuticas (society is aging... pharmacy will play a role)
 
 // index 36
-$stock_list="$stock_list,BME:FAE,OTCMKTS:RHHBY,NASDAQ:SUPN,NASDAQ:REGN,NASDAQ:ALXN,NASDAQ:VRTX,NYSE:ABBV";
+$stock_list="$stock_list,BME:FAE,NASDAQ:SUPN,NASDAQ:REGN,NASDAQ:ALXN,NASDAQ:VRTX,NYSE:ABBV"; //OTCMKTS:RHHBY,
 
 //index 43
 $stock_list="$stock_list,INDEXSTOXX:SX5E";
@@ -36,7 +36,7 @@ $stock_list="$stock_list,NYSE:YRD,NYSE:FIT,NYSE:BABA,NYSE:BLK,NYSE:EL,NYSE:BA,NA
 // index 67
 $stock_list="$stock_list,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:AMD,NASDAQ:TEAM,NASDAQ:BKCC,NASDAQ:IRBT";
 // index 76
-$stock_list="$stock_list,NASDAQ:NTES,NYSE:ICE,NASDAQ:CME,NASDAQ:MCHP,NASDAQ:MU,NYSE:TSM,NASDAQ:AVGO,NASDAQ:BIDU,NASDAQ:WDC,NASDAQ:CAR,EPA:KER";
+$stock_list="$stock_list,NASDAQ:NTES,NYSE:ICE,NASDAQ:CME,NASDAQ:MCHP,NASDAQ:MU,NYSE:TSM,NASDAQ:AVGO,NASDAQ:BIDU,NASDAQ:WDC,NASDAQ:CAR,EPA:KER"; // KOR y LVMH not so interesting for now...
 // index 87
 $stock_list="$stock_list,NASDAQ:BKNG,NASDAQ:TRIP,NASDAQ:EXPE";
 $stock_list="$stock_list,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,NYSE:SSI,NYSE:O";
@@ -44,8 +44,8 @@ $stock_list="$stock_list,NYSE:ING,NYSE:MMM,NYSE:JNJ,NYSE:GE,NYSE:WMT,NYSE:IBM,NY
 $stock_list="$stock_list,NYSE:KO,NYSE:DPS,VTX:NESN,NASDAQ:PEP,EPA:BN";
 $stock_list="$stock_list,NYSE:VZ,NYSE:T,NASDAQ:VOD,NASDAQ:QCOM";
 $stock_list="$stock_list,NYSE:XOM,NYSE:DIS";
-$stock_list="$stock_list,NYSE:BP,NYSE:HSBC,OTCMKTS:ZURVY";
-$stock_list="$stock_list,NYSE:SNE,OTCMKTS:NTDOY";
+$stock_list="$stock_list,NYSE:BP,NYSE:HSBC"; // ,OTCMKTS:ZURVY 
+$stock_list="$stock_list,NYSE:SNE"; //,OTCMKTS:NTDOY             avoid otcmkts for now
 $stock_list="$stock_list,NASDAQ:NFLX,NYSE:TWX,NASDAQ:CMCSA,NASDAQ:FOXA"; // HBO is part of time Warner
 $stock_list="$stock_list,NYSE:TM,NYSE:GM,EPA:UG,NYSE:F"; // maybe add FRA:VOW, but ETR financials are not good
 // solar power and machines -- semiconductor producers (review)

@@ -196,6 +196,10 @@ foreach ($stock_details_arr as $key => $item) {
             $om_to_ps=0;
             $revenue=0;
             $symbol_formatted['epsp']=0;
+            //$symbol_formatted['revp']=0;
+            $symbol_formatted['oip']=0;
+            $symbol_formatted['eqp']=0;
+            $symbol_formatted['levp']=0;
             $symbol_formatted['eps_hist_trend']="--";
             $symbol_formatted['price_to_sales']=99;
             $symbol_formatted['h_souce']=0;
@@ -224,6 +228,9 @@ foreach ($stock_details_arr as $key => $item) {
                 //$symbol_formatted['last_financials_year']=substr($symbol_formatted['revenue_hist'][0][0],0,4); can be calculated directly in js
                 $revenue=floatval(end($symbol_formatted['revenue_hist'])[1]);
                 $operating_income=floatval(end($symbol_formatted['operating_income_hist'])[1]);
+                $symbol_formatted['oip']=($operating_income/floatval($symbol_formatted['shares']))/max(0.01,$ref_value);
+                $equity=floatval(end($symbol_formatted['equity_hist'])[1]);
+                $symbol_formatted['eqp']=($equity/floatval($symbol_formatted['shares']))/max(0.01,$ref_value);
                 if(end($symbol_formatted['operating_income_hist'])[0]!=end($symbol_formatted['revenue_hist'])[0] || end($symbol_formatted['net_income_hist'])[0]!=end($symbol_formatted['revenue_hist'])[0]){
                     echo "ERROR: Last operating income year (".end($symbol_formatted['operating_income_hist'])[0].") != last revenue year (".end($symbol_formatted['revenue_hist'])[0].")<br />";
                     send_mail(''.$item['name'].' last hist year revenue!=op.inc!=net.inc',"<br />ERROR: Last operating income year (".end($symbol_formatted['operating_income_hist'])[0].") != last revenue year (".end($symbol_formatted['revenue_hist'])[0]." != last net inc year (".end($symbol_formatted['net_income_hist'])[0].")<br /><br /><br />","hectorlm1983@gmail.com");
@@ -346,7 +353,7 @@ foreach ($stock_details_arr as $key => $item) {
                 if(in_array($symbol_formatted['name'], ['SAN','BBVA','ING','BKIA','BKT','SAB','CABK','MAP','ZURVY','HSBC','R4'])){ 
                     $acceptable_leverage=10; // finance/insurance industry lives on this so we cannot penalize as much
                 }
-                if(array_key_exists('leverage_industry',$symbol_formatted) && floatval($symbol_formatted['leverage_industry'])!=0){
+                if(array_key_exists('leverage_industry',$symbol_formatted) && floatval($symbol_formatted['leverage_industry'])!=0 && floatval($symbol_formatted['leverage_industry'])!=0.01){
                     $acceptable_leverage=max(floatval($symbol_formatted['leverage_industry']),2.5);
                 }
                 $leverage_industry_ratio=floatval($symbol_formatted['leverage'])/$acceptable_leverage;
