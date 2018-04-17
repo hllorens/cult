@@ -82,7 +82,12 @@ function get_tsv($symbol,$debug=false){
 			if(array_key_exists(substr($valdata[0],0,4),$seen_years)){echo "ERROR duplicated year in operating_income_hist ".substr($valdata[0],0,4)."<br />"; exit(1);}
 			$seen_years[substr($valdata[0],0,4)]=true;
 			if(array_key_exists(substr($valdata[0],0,4),$tsv_arr)){
-				$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1];
+				if($i==0)
+					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	0	0";
+				else if ($i==1)
+					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	".$val_g[($i-1)]."	0";
+				else
+					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	".$val_g[($i-1)]."	".$val_a[($i-2)];
 			}else{
 				echo "ignoring op inc year because no value  ".substr($valdata[0],0,4)."<br />";
 			}
@@ -101,7 +106,12 @@ function get_tsv($symbol,$debug=false){
 			if(array_key_exists(substr($valdata[0],0,4),$seen_years)){echo "ERROR duplicated year in net_income_hist ".substr($valdata[0],0,4)."<br />"; exit(1);}
 			$seen_years[substr($valdata[0],0,4)]=true;
 			if(array_key_exists(substr($valdata[0],0,4),$tsv_arr)){
-				$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1];
+				if($i==0)
+					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	0	0";
+				else if ($i==1)
+					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	".$val_g[($i-1)]."	0";
+				else
+					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	".$val_g[($i-1)]."	".$val_a[($i-2)];
 			}else{
 				echo "ignoring op inc year because no value  ".substr($valdata[0],0,4)."<br />";
 			}
