@@ -167,6 +167,8 @@ foreach ($stock_details_arr as $key => $item) {
                                  /5)/100;
         $symbol_formatted['computable_val_growth']="".toFixed($computable_val_growth);
         
+		$symbol_formatted['eps']=0;
+		$symbol_formatted['epsp']=0;
 
         // ONLY IF IT IS NOT AN INDEX
         if(substr($symbol_formatted['market'],0,5)=="INDEX"){
@@ -174,8 +176,6 @@ foreach ($stock_details_arr as $key => $item) {
             // only minimal things used for sorting (those shown in the details page can be unset)
             $symbol_formatted['h_souce']=0;
             $symbol_formatted['avgyield']=0;
-            $symbol_formatted['eps']=0;
-            $symbol_formatted['epsp']=0;
             //$symbol_formatted['eps_hist_last_diff']=0; TODO unused in favor of epsp last diff
             $symbol_formatted['om_to_ps']=0;
             $symbol_formatted['leverage']=99;
@@ -195,16 +195,14 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_formatted['operating_margin']=0;
             $om_to_ps=0;
             $revenue=0;
-            $symbol_formatted['epsp']=0;
             //$symbol_formatted['revp']=0;
             $symbol_formatted['oip']=0;
             $symbol_formatted['eqp']=0;
-            $symbol_formatted['levp']=0;
+            $symbol_formatted['lp']=0;
             $symbol_formatted['eps_hist_trend']="--";
             $symbol_formatted['price_to_sales']=99;
             $symbol_formatted['h_souce']=0;
             $symbol_formatted['guessed_value']=0;
-            $symbol_formatted['eps']=0;
             // leverage, price to book  are not calculated
             //$symbol_formatted['eps_hist_last_diff']=0;
             //---------------------------------------------
@@ -230,7 +228,12 @@ foreach ($stock_details_arr as $key => $item) {
                 $operating_income=floatval(end($symbol_formatted['operating_income_hist'])[1]);
                 $symbol_formatted['oip']=($operating_income/floatval($symbol_formatted['shares']))/max(0.01,$ref_value);
                 $equity=floatval(end($symbol_formatted['equity_hist'])[1]);
-                $symbol_formatted['eqp']=($equity/floatval($symbol_formatted['shares']))/max(0.01,$ref_value);
+				$equity_per_share=($equity/floatval($symbol_formatted['shares']));
+                $symbol_formatted['eqp']=toFixed($equity_per_share/max(0.01,$ref_value),2,'eqp');
+                $symbol_formatted['price_to_book_calc']=toFixed($ref_value/$equity_per_share,2,'pbc');
+				$assets=floatval($symbol_formatted['leverage'])*$equity;
+                $symbol_formatted['ap']=toFixed(($assets/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),2,'ap');
+                $symbol_formatted['lp']=toFixed((($assets-$equity)/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),2,'lp');
                 if(end($symbol_formatted['operating_income_hist'])[0]!=end($symbol_formatted['revenue_hist'])[0] || end($symbol_formatted['net_income_hist'])[0]!=end($symbol_formatted['revenue_hist'])[0]){
                     echo "ERROR: Last operating income year (".end($symbol_formatted['operating_income_hist'])[0].") != last revenue year (".end($symbol_formatted['revenue_hist'])[0].")<br />";
                     send_mail(''.$item['name'].' last hist year revenue!=op.inc!=net.inc',"<br />ERROR: Last operating income year (".end($symbol_formatted['operating_income_hist'])[0].") != last revenue year (".end($symbol_formatted['revenue_hist'])[0]." != last net inc year (".end($symbol_formatted['net_income_hist'])[0].")<br /><br /><br />","hectorlm1983@gmail.com");

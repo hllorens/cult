@@ -250,28 +250,7 @@ function acceleration_array($growth_array){
     return $acceleration_array;
 }
 
-function facsum($n,$init=3){
-    $n=intval($n);
-    $f=0;
-    if($init<0){echo "ERROR: init=$init (<0)";exit(1);}
-    if($n<=0){return 1;}
-    for($i=0;$i<=$n;$i++){
-        $f+=$i+1+$init;
-    }
-    return $f;
-}
 
-// weighted avg towards the most recent elements
-// see formula in the code (basically the weight is the position)
-function avg_weighted($arr,$init=3){
-    $avgw=0;
-    if(count($arr)<=1){return 0;}
-    $tot_elems_weight=facsum(count($arr),$init);
-    for($i=0;$i<count($arr);$i++){
-        $avgw+=(floatval($arr[$i])/$tot_elems_weight)*($i+1+$init);
-    }
-    return floatval(toFixed($avgw,2));
-}
 
 function trend($arr,$threshold=0.10){
     $trend="--";
@@ -304,6 +283,54 @@ function smooth_avg_7($arr){
 }
 
 
+function facsum($n,$init=3){
+    $n=intval($n);
+    $f=0;
+    if($init<0){echo "ERROR: init=$init (<0)";exit(1);}
+    if($n<=0){return 1;}
+    for($i=0;$i<$n;$i++){
+        $f+=$i+1+$init;
+    }
+    return $f;
+}
+
+// weighted avg towards the most recent elements
+// see formula in the code (basically the weight is the position)
+function avg_weighted_sum($arr,$init=3){
+    $avgw=0;
+    if(count($arr)<1){return 0;}
+    $tot_elems_weight=facsum(count($arr),$init);
+    for($i=0;$i<count($arr);$i++){
+        $avgw+=(floatval($arr[$i])/$tot_elems_weight)*($i+1+$init);
+    }
+    return floatval(toFixed($avgw,2));
+}
+
+function avg_weighted($arr,$percent_weight=0.66){
+    if(count($arr)<1){return 0;}
+    $avgw=0;
+	$curr_weight=1;
+    $total_elems_weight=0;
+    for($i=0;$i<count($arr);$i++){
+		$total_elems_weight+=$curr_weight;
+        $avgw+=floatval($arr[$i])*$curr_weight;
+		$curr_weight=$curr_weight+($curr_weight*$percent_weight);
+    }
+	$avgw=$avgw/$total_elems_weight;
+    return floatval(toFixed($avgw,2));
+}
+
+function avg_normal($arr){
+    if(count($arr)<1){return 0;}
+	$avg=0;
+    for($i=0;$i<count($arr);$i++){
+        $avg+=floatval($arr[$i]);
+    }
+	$avg=$avg/count($arr);
+    return floatval(toFixed($avg,2));	
+}
+
+
 function test_pad_arr(){
     $arr=[2,3];
     $padded_arr=pad_array_with_first_value($arr,5);
@@ -313,26 +340,6 @@ function test_pad_arr(){
 }
 
 function test_ksort(){
-    /*
-		"name": "KER",
-		"market": "EPA",
-		"2014-12-31": {
-			"Total Assets": "23253900",
-			"Total Liabilities": "11991600"
-		},
-		"2015-12-31": {
-			"Total Assets": "23850800",
-			"Total Liabilities": "12227700"
-		},
-		"2016-12-31": {
-			"Total Assets": "24139000",
-			"Total Liabilities": "12175100"
-		},
-		"2017-12-31": {
-			"Total Assets": "25577400",
-			"Total Liabilities": "12951000"
-		}
-    */
     $test_arr=array("name"=>"ker","market"=>"EPA","2014-12-31"=>"XXX","2017-12-31"=>"XXX","2015-12-31"=>"XXX","2016-12-31"=>"XXX");
     echo "unsorted<br />";
     print_r($test_arr);
@@ -341,11 +348,21 @@ function test_ksort(){
     print_r($test_arr);
 }
 
+function test_avg_weighted(){
+	$arr=[1,2,3,4,5];
+	echo "<br />arr=[".implode(", ",$arr)."] avg=".avg_normal($arr)." avgs=".avg_weighted_sum($arr)." avgw=".avg_weighted($arr,0.66);
+	$arr=[1,2,3,4,1];
+	echo "<br />arr=[".implode(", ",$arr)."] avg=".avg_normal($arr)." avgs=".avg_weighted_sum($arr)." avgw=".avg_weighted($arr,0.66);
+	$arr=[1,1,3,5,5];
+	echo "<br />arr=[".implode(", ",$arr)."] avg=".avg_normal($arr)." avgs=".avg_weighted_sum($arr)." avgw=".avg_weighted($arr,0.66);
+	
+}
+
 if(isset($_REQUEST['test'])){
     //test_pad_arr();
     // TODO smooth_avg_7
     test_ksort();
-    
+    test_avg_weighted();
 }
 
 
