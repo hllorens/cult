@@ -3,6 +3,42 @@
 require_once 'stock_helper_functions.php';
 
 
+function get_anualized_data($param,$stock_data,&$tsv_arr){
+	if(array_key_exists($param.'_hist',$stock_data)){
+		$i=0;
+		$val_g=hist_growth_array($param.'_hist',$stock_data);
+		$val_a=acceleration_array($val_g);
+		$tsv_arr[$param[0].'gl']=end($val_g);
+		$tsv_arr[$param[0].'ga']=avg_weighted($val_g);
+		$tsv_arr[$param[0].'aa']=avg_weighted($val_a);
+		$seen_years=array();
+		foreach ($stock_data[$param.'_hist'] as $valdata){
+			//echo $valdata[0]."<br />";
+			if(array_key_exists(substr($valdata[0],0,4),$seen_years)){echo "ERROR duplicated year in $param_hist ".substr($valdata[0],0,4)."<br />"; exit(1);}
+			$seen_years[substr($valdata[0],0,4)]=true;
+			$tsv_arr[substr($valdata[0],0,4)][$param]=$valdata[1];
+			if(array_key_exists(substr($valdata[0],0,4),$tsv_arr)){
+				if($i==0){
+					$tsv_arr[substr($valdata[0],0,4)][$param.'_g']=0;
+					$tsv_arr[substr($valdata[0],0,4)][$param.'_a']=0;
+				}else if ($i==1){
+					$tsv_arr[substr($valdata[0],0,4)][$param.'_g']=$val_g[($i-1)];
+					$tsv_arr[substr($valdata[0],0,4)][$param.'_a']=0;
+				}else{
+					$tsv_arr[substr($valdata[0],0,4)][$param.'_g']=$val_g[($i-1)];
+					$tsv_arr[substr($valdata[0],0,4)][$param.'_a']=$val_a[($i-2)];
+				}
+			}else{
+				echo "ERROR: in $param, year ".substr($valdata[0],0,4)." is not in tsv_arr<br />"; exit(1);
+			}
+			$i++;
+		}
+	}else{
+		echo "<br />ERR: no $param in stock_data<br />";
+		exit(1);
+	}
+}
+
 function get_tsv($symbol,$debug=false){
     $stocks_formatted=array();
     $stock_data=array();
@@ -24,7 +60,6 @@ function get_tsv($symbol,$debug=false){
     }else{
         $stock_data=$stocks_formatted[$symbol];
     }
-    $tsv="shares	".$stock_data['shares']."\n";
 	
 	$last_year=intval(date("Y"))-1;
 	$last_rev_year=substr(end($stock_data['revenue_hist'])[0],0,4);
@@ -47,148 +82,115 @@ function get_tsv($symbol,$debug=false){
 		echo "WARNING: data might be outdated $last_rev_year vs $last_year<br />";
 	}
 	
+	echo "TODO: create a function to validate/check stocks.formatted.json to see that there are no missing years or empty values, if they are, we have to manually fill them or get rid of the stock in the list";
 	echo "<br />--------------------------<br />";
 	$val_g=hist_growth_array('value_hist',$stock_data);
 	$val_a=acceleration_array($val_g);
 	$i=0;
     foreach ($stock_data['value_hist'] as $valdata){
 		if(array_key_exists(substr($valdata[0],0,4),$tsv_arr)){echo "ERROR duplicated year in value_hist ".substr($valdata[0],0,4)."<br />"; exit(1);}
-		if(substr($valdata[0],0,4)==date("Y") || floatval(substr($valdata[0],0,4))>floatval($last_rev_year) || floatval(substr($valdata[0],0,4))<=2012){$i++;continue;}
-		$tsv_arr[substr($valdata[0],0,4)]=substr($valdata[0],0,4)."	".$valdata[1];
+		if(substr($valdata[0],0,4)==date("Y") || floatval(substr($valdata[0],0,4))>floatval($last_rev_year) || floatval(substr($valdata[0],0,4))<floatval($first_rev_year)){$i++;continue;}
+		
+		$tsv_arr[substr($valdata[0],0,4)]['year']=substr($valdata[0],0,4);
+		$tsv_arr[substr($valdata[0],0,4)]['value']=$valdata[1];
 		if($i==0){
-			$tsv_arr[substr($valdata[0],0,4)].="	0";
-			$tsv_arr[substr($valdata[0],0,4)].="	0";
+			$tsv_arr[substr($valdata[0],0,4)]['value_g']=0;
+			$tsv_arr[substr($valdata[0],0,4)]['value_a']=0;
 		}else if ($i==1){
-			$tsv_arr[substr($valdata[0],0,4)].="	".$val_g[($i-1)];
-			$tsv_arr[substr($valdata[0],0,4)].="	0";
+			$tsv_arr[substr($valdata[0],0,4)]['value_g']=$val_g[($i-1)];
+			$tsv_arr[substr($valdata[0],0,4)]['value_a']=0;
 		}else{
-			$tsv_arr[substr($valdata[0],0,4)].="	".$val_g[($i-1)];
-			$tsv_arr[substr($valdata[0],0,4)].="	".$val_a[($i-2)];
+			$tsv_arr[substr($valdata[0],0,4)]['value_g']=$val_g[($i-1)];
+			$tsv_arr[substr($valdata[0],0,4)]['value_a']=$val_a[($i-2)];
 		}
 		$i++;
     }
-	if(array_key_exists('revenue_hist',$stock_data)){
-		$i=0;
-		$val_g=hist_growth_array('revenue_hist',$stock_data);
-		$val_a=acceleration_array($val_g);
-		$ga=avg_weighted($val_g);
-		$aa=avg_weighted($val_a);
-		$tsv.="avg rev g/a	".$ga."	".$aa;
-		$seen_years=array();
-		foreach ($stock_data['revenue_hist'] as $valdata){
-			//echo $valdata[0]."<br />";
-			if(array_key_exists(substr($valdata[0],0,4),$seen_years)){echo "ERROR duplicated year in revenue_hist ".substr($valdata[0],0,4)."<br />"; exit(1);}
-			$seen_years[substr($valdata[0],0,4)]=true;
-			if(array_key_exists(substr($valdata[0],0,4),$tsv_arr)){
-				if($i==0)
-					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	0	0";
-				else if ($i==1)
-					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	".$val_g[($i-1)]."	0";
-				else
-					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	".$val_g[($i-1)]."	".$val_a[($i-2)];
-			}else{
-				echo "ignoring revenue year because no value  ".substr($valdata[0],0,4)."<br />";
-			}
-			$i++;
-		}
-	}else{
-		echo "<br />ERR: no revenue<br />"; exit(1);
-	}
-	if(array_key_exists('operating_income_hist',$stock_data)){
-		$i=0;
-		$val_g=hist_growth_array('operating_income_hist',$stock_data);
-		$val_a=acceleration_array($val_g);
-		$ga=avg_weighted($val_g);
-		$aa=avg_weighted($val_a);
-		$tsv.="\navg oi g/a	".$ga."	".$aa;
-		$seen_years=array();
-		foreach ($stock_data['operating_income_hist'] as $valdata){
-			if(array_key_exists(substr($valdata[0],0,4),$seen_years)){echo "ERROR duplicated year in operating_income_hist ".substr($valdata[0],0,4)."<br />"; exit(1);}
-			$seen_years[substr($valdata[0],0,4)]=true;
-			if(array_key_exists(substr($valdata[0],0,4),$tsv_arr)){
-				if($i==0)
-					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	0	0";
-				else if ($i==1)
-					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	".$val_g[($i-1)]."	0";
-				else
-					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	".$val_g[($i-1)]."	".$val_a[($i-2)];
-			}else{
-				echo "ignoring op inc year because no value  ".substr($valdata[0],0,4)."<br />";
-			}
-			$i++;
-		}
-		
-	}else{
-		echo "<br />ERR: no op inc<br />"; exit(1);
-	}
-	if(array_key_exists('net_income_hist',$stock_data)){
-		$i=0;
-		$val_g=hist_growth_array('net_income_hist',$stock_data);
-		$val_a=acceleration_array($val_g);
-		$ga=avg_weighted($val_g);
-		$aa=avg_weighted($val_a);
-		$tsv.="\navg ni g/a	".$ga."	".$aa;
-		$seen_years=array();
-		foreach ($stock_data['net_income_hist'] as $valdata){
-			if(array_key_exists(substr($valdata[0],0,4),$seen_years)){echo "ERROR duplicated year in net_income_hist ".substr($valdata[0],0,4)."<br />"; exit(1);}
-			$seen_years[substr($valdata[0],0,4)]=true;
-			if(array_key_exists(substr($valdata[0],0,4),$tsv_arr)){
-				if($i==0)
-					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	0	0";
-				else if ($i==1)
-					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	".$val_g[($i-1)]."	0";
-				else
-					$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1]."	".$val_g[($i-1)]."	".$val_a[($i-2)];
-			}else{
-				echo "ignoring op inc year because no value  ".substr($valdata[0],0,4)."<br />";
-			}
-			$i++;
-		}
-		
-	}else{
-		echo "<br />ERR: no net inc<br />"; exit(1);
-	}
-	if(array_key_exists('equity_hist',$stock_data)){
-		$i=0;
-		$val_g=hist_growth_array('equity_hist',$stock_data);
-		$val_a=acceleration_array($val_g);
-		$ga=avg_weighted($val_g);
-		$aa=avg_weighted($val_a);
-		$tsv.="\navg eq g/a	".$ga."	".$aa;
-		$seen_years=array();
-		foreach ($stock_data['equity_hist'] as $valdata){
-			if(array_key_exists(substr($valdata[0],0,4),$seen_years)){echo "ERROR duplicated year in equity_hist ".substr($valdata[0],0,4)."<br />"; exit(1);}
-			$seen_years[substr($valdata[0],0,4)]=true;
-			if(array_key_exists(substr($valdata[0],0,4),$tsv_arr)){
-				$tsv_arr[substr($valdata[0],0,4)].="	".$valdata[1];
-				if($i==0){
-					$tsv_arr[substr($valdata[0],0,4)].="	0";
-					$tsv_arr[substr($valdata[0],0,4)].="	0";
-				}else if ($i==1){
-					$tsv_arr[substr($valdata[0],0,4)].="	".$val_g[($i-1)];
-					$tsv_arr[substr($valdata[0],0,4)].="	0";
-				}else{
-					$tsv_arr[substr($valdata[0],0,4)].="	".$val_g[($i-1)];
-					$tsv_arr[substr($valdata[0],0,4)].="	".$val_a[($i-2)];
-				}
-			}else{
-				echo "ignoring op inc year because no value  ".substr($valdata[0],0,4)."<br />";
-			}
-			$i++;
-		}
-		
-	}else{
-		echo "<br />ERR: no equity_hist<br />"; exit(1);
-	}
+	
+	get_anualized_data('revenue',$stock_data,$tsv_arr);
+	get_anualized_data('operating_income',$stock_data,$tsv_arr);
+	get_anualized_data('net_income',$stock_data,$tsv_arr);
+	get_anualized_data('equity',$stock_data,$tsv_arr);
 
-    $tsv.="\nperiod	value	g	a	revenue	g	a	op_inc	g	a	net_inc	g	a	eq	g	a\n";
-	foreach ($tsv_arr as $tsv_line){
-		$tsv.=$tsv_line."\n";
+	
+	$tsv="shares	".$stock_data['shares']."\n";
+	$tsv.="avg rev g/a	".$tsv_arr['rga']."	".$tsv_arr['raa'];
+	$tsv.="\navg oi g/a	".$tsv_arr['oga']."	".$tsv_arr['oaa']."	om	".$stock_data['operating_margin'];
+	$tsv.="\navg ni g/a	".$tsv_arr['nga']."	".$tsv_arr['naa'];
+	$tsv.="\navg eq g/a	".$tsv_arr['ega']."	".$tsv_arr['eaa'];
+
+	$highest_om=floatval($stock_data['operating_margin']);
+    $tsv.="\nperiod	value	g	a	revenue	g	a	op_inc	g	a	om	net_inc	g	a	eq	g	a\n";
+	foreach ($tsv_arr as $key => $value){
+		if(strval($key)[0]=="2"){
+			//echo "key=$key<br />";
+			$tsv.=$value['year'];
+			$om=floatval(toFixed(floatval($value['operating_income'])/floatval($value['revenue']),2));
+			if($om>$highest_om) $highest_om=$om;
+			$tsv.="	".$value['value']."	".$value['value_g']."	".$value['value_a'];
+			$tsv.="	".$value['revenue']."	".$value['revenue_g']."	".$value['revenue_a'];
+			$tsv.="	".$value['operating_income']."	".$value['operating_income_g']."	".$value['operating_income_a']."	".$om;
+			$tsv.="	".$value['net_income']."	".$value['net_income_g']."	".$value['net_income_a'];
+			$tsv.="	".$value['equity']."	".$value['equity_g']."	".$value['equity_a'];
+			$tsv.="\n";
+		}
 	}
+	$acceleration_factor=2;
+	$guess_revenue=floatval(end($stock_data['revenue_hist'])[1])*(1+$tsv_arr['rga']+($acceleration_factor*$tsv_arr['raa']));
+	$guess_revenueg=($guess_revenue/floatval(end($stock_data['revenue_hist'])[1])) - 1;
+	$guess_oi=floatval(end($stock_data['operating_income_hist'])[1])*(1+$tsv_arr['oga']+($acceleration_factor*$tsv_arr['oaa']));
+	$guess_ni=floatval(end($stock_data['net_income_hist'])[1])*(1+$tsv_arr['nga']+($acceleration_factor*$tsv_arr['naa']));
+	$guess_nig=($guess_ni/floatval(end($stock_data['net_income_hist'])[1])) - 1;
+	$guess_eq=floatval(end($stock_data['equity_hist'])[1])*(1+$tsv_arr['ega']+($acceleration_factor*$tsv_arr['eaa']));
+	$guess_eqg=($guess_eq/floatval(end($stock_data['equity_hist'])[1])) - 1;
+	$guess_oi=max($guess_oi,$guess_revenue*$highest_om,$guess_ni*1.10);
+	$guess_oig=($guess_oi/floatval(end($stock_data['operating_income_hist'])[1])) - 1;
+	$tsv.="currval	".end($stock_data['value_hist'])[1]."		guess	".toFixed($guess_revenue,2)."	".toFixed($guess_revenueg,2)."	".($guess_revenueg-$tsv_arr['rgl']);
+	$tsv.="	".toFixed($guess_oi,2)."	".toFixed($guess_oig,2)."	".toFixed($guess_oig-$tsv_arr['ogl'],2)."	".floatval(toFixed($guess_oi/$guess_revenue,2));
+	$tsv.="	".toFixed($guess_ni,2)."	".toFixed($guess_nig,2)."	".toFixed($guess_nig-$tsv_arr['ngl'],2);
+	$tsv.="	".toFixed($guess_eq,2)."	".toFixed($guess_eqg,2)."	".toFixed($guess_eqg-$tsv_arr['egl'],2);
+	$tsv.="\n";
+	
+	$max_eq_percent=0.66;
+	
+	$revp=(floatval(end($stock_data['revenue_hist'])[1])/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
+	$oip=(floatval(end($stock_data['operating_income_hist'])[1])/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
+	$epsp=(floatval(end($stock_data['net_income_hist'])[1])/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
+	$eqp=(floatval(end($stock_data['equity_hist'])[1])/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
+	$eqpc=min($eqp,0.66);
+	$tsv.="\n	revp	oip	epsp	eqp	eqpc	oi+eq\n";
+	$tsv.="current	".toFixed($revp,2)."	".toFixed($oip,2)."	".toFixed($epsp,2)."	".toFixed($eqp,2)."	".toFixed($eqpc,2)."	".toFixed($eqpc+$oip,2)."\n";
+	$revp=($guess_revenue/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
+	$oip=($guess_oi/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
+	$epsp=($guess_ni/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
+	$eqp=($guess_eq/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
+	$eqpc=min($eqp,0.66);
+	$tsv.="guessG	".toFixed($revp,2)."	".toFixed($oip,2)."	".toFixed($epsp,2)."	".toFixed($eqp,2)."	".toFixed($eqpc,2)."	".toFixed($eqpc+$oip,2)."\n";
+
+	$tsv.="\n	eqc max	$max_eq_percent%\n";
+	$revps=(floatval(end($stock_data['revenue_hist'])[1])/floatval($stock_data['shares']));
+	$oips=(floatval(end($stock_data['operating_income_hist'])[1])/floatval($stock_data['shares']));
+	$epsps=(floatval(end($stock_data['net_income_hist'])[1])/floatval($stock_data['shares']));
+	$eqps=(floatval(end($stock_data['equity_hist'])[1])/floatval($stock_data['shares']));
+	$eqpsc=min($eqps,0.66*floatval($tsv_arr[$last_rev_year]['value']));
+	$tsv.="\n	revps	oips	epsps	eqps	eqpsc	oi+eq\n";
+	$tsv.="current	".toFixed($revps,2)."	".toFixed($oips,2)."	".toFixed($epsps,2)."	".toFixed($eqps,2)."	".toFixed($eqpsc,2)."	".toFixed($eqpsc+$oips,2)."\n";
+	$revps=($guess_revenue/floatval($stock_data['shares']));
+	$oips=($guess_oi/floatval($stock_data['shares']));
+	$epsps=($guess_ni/floatval($stock_data['shares']));
+	$eqps=($guess_eq/floatval($stock_data['shares']));
+	$eqpsc=min($eqps,0.66*floatval($tsv_arr[$last_rev_year]['value']));
+	$tsv.="guessG	".toFixed($revps,2)."	".toFixed($oips,2)."	".toFixed($epsps,2)."	".toFixed($eqps,2)."	".toFixed($eqpsc,2)."	".toFixed($eqpsc+$oips,2)."\n";
+	
+	$last_value=floatval($stock_data['value_hist'][count($stock_data['value_hist'])-2][1]);
+	$last_ni=floatval($stock_data['net_income_hist'][count($stock_data['net_income_hist'])-1][1]);
+	$last_eq=floatval($stock_data['equity_hist'][count($stock_data['equity_hist'])-1][1]);
 	$tsv.="\n\n\n	last	avg	";
 	$tsv.="\npb	".$stock_data['price_to_book'];
-	$tsv.="\neps	"."to be calc net inc/shares"."	".$stock_data['eps'];
-	
+	$tsv.="\nb(p/pb)	".toFixed(floatval(end($stock_data['value_hist'])[1])/floatval($stock_data['price_to_book']),2)."	".toFixed($last_value/floatval($stock_data['price_to_book']),2)."	with last year price";
+	$tsv.="\nb(eq/s)	".toFixed($last_eq/floatval($stock_data['shares']),2);
+	$last_eps=floatval(toFixed($last_ni/floatval($stock_data['shares']),2));
+	$tsv.="\neps	".$last_eps."	".$stock_data['eps'];
+	$tsv.="\nepsp	".toFixed($last_eps/$last_value,3)."	".$stock_data['epsp'];
 
     return $tsv;
 }
