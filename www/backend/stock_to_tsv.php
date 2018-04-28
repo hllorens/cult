@@ -17,6 +17,8 @@ function get_anualized_data($param,$stock_data,&$tsv_arr){
 			if(array_key_exists(substr($valdata[0],0,4),$seen_years)){echo "ERROR duplicated year in $param_hist ".substr($valdata[0],0,4)."<br />"; exit(1);}
 			$seen_years[substr($valdata[0],0,4)]=true;
 			$tsv_arr[substr($valdata[0],0,4)][$param]=$valdata[1];
+			$tsv_arr[substr($valdata[0],0,4)][$param.'_ps']=floatval(toFixed(floatval($valdata[1])/floatval($stock_data['shares']),2));
+			$tsv_arr[substr($valdata[0],0,4)][$param.'_psp']=toFixed($tsv_arr[substr($valdata[0],0,4)][$param.'_ps']/floatval($tsv_arr[substr($valdata[0],0,4)]['value']),2);
 			if(array_key_exists(substr($valdata[0],0,4),$tsv_arr)){
 				if($i==0){
 					$tsv_arr[substr($valdata[0],0,4)][$param.'_g']=0;
@@ -37,6 +39,10 @@ function get_anualized_data($param,$stock_data,&$tsv_arr){
 		echo "<br />ERR: no $param in stock_data<br />";
 		exit(1);
 	}
+}
+
+function compound_interest_4($principal,$interest,$years){
+	return floatval(toFixed( $principal*pow((1+(floatval($interest)/4)),$years*4) ,2));
 }
 
 function get_tsv($symbol,$debug=false){
@@ -118,23 +124,26 @@ function get_tsv($symbol,$debug=false){
 	$tsv.="\navg ni g/a	".$tsv_arr['nga']."	".$tsv_arr['naa'];
 	$tsv.="\navg eq g/a	".$tsv_arr['ega']."	".$tsv_arr['eaa'];
 
-	$highest_om=floatval($stock_data['operating_margin']);
-    $tsv.="\nperiod	value	g	a	revenue	g	a	op_inc	g	a	om	net_inc	g	a	eq	g	a\n";
+	$om_max=floatval($stock_data['operating_margin']);
+    $tsv.="\nperiod	value	g	a	revenue	g	a	op_inc	g	a	om	oip	net_inc	g	a	nip	eq	g	a\n";
 	foreach ($tsv_arr as $key => $value){
 		if(strval($key)[0]=="2"){
 			//echo "key=$key<br />";
 			$tsv.=$value['year'];
 			$om=floatval(toFixed(floatval($value['operating_income'])/floatval($value['revenue']),2));
-			if($om>$highest_om) $highest_om=$om;
+			if($om>$om_max) $om_max=$om;
 			$tsv.="	".$value['value']."	".$value['value_g']."	".$value['value_a'];
 			$tsv.="	".$value['revenue']."	".$value['revenue_g']."	".$value['revenue_a'];
-			$tsv.="	".$value['operating_income']."	".$value['operating_income_g']."	".$value['operating_income_a']."	".$om;
-			$tsv.="	".$value['net_income']."	".$value['net_income_g']."	".$value['net_income_a'];
+			$tsv.="	".$value['operating_income']."	".$value['operating_income_g']."	".$value['operating_income_a']."	".$om."	".$value['operating_income_psp'];
+			$tsv.="	".$value['net_income']."	".$value['net_income_g']."	".$value['net_income_a']."	".$value['net_income_psp'];
 			$tsv.="	".$value['equity']."	".$value['equity_g']."	".$value['equity_a'];
 			$tsv.="\n";
 		}
 	}
-	$acceleration_factor=2;
+	// TUNINGS
+	$acceleration_factor=2; // NO NEED TO INFLATE FURTHER
+	$max_eq_percent=0.5; // 0.66 was before..., 0.5 is sensible too
+
 	$guess_revenue=floatval(end($stock_data['revenue_hist'])[1])*(1+$tsv_arr['rga']+($acceleration_factor*$tsv_arr['raa']));
 	$guess_revenueg=($guess_revenue/floatval(end($stock_data['revenue_hist'])[1])) - 1;
 	$guess_oi=floatval(end($stock_data['operating_income_hist'])[1])*(1+$tsv_arr['oga']+($acceleration_factor*$tsv_arr['oaa']));
@@ -142,28 +151,27 @@ function get_tsv($symbol,$debug=false){
 	$guess_nig=($guess_ni/floatval(end($stock_data['net_income_hist'])[1])) - 1;
 	$guess_eq=floatval(end($stock_data['equity_hist'])[1])*(1+$tsv_arr['ega']+($acceleration_factor*$tsv_arr['eaa']));
 	$guess_eqg=($guess_eq/floatval(end($stock_data['equity_hist'])[1])) - 1;
-	$guess_oi=max($guess_oi,$guess_revenue*$highest_om,$guess_ni*1.10);
+	$guess_oi=max($guess_oi,$guess_revenue*$om_max,$guess_ni*1.10);  // ALREADY A VERY GOOD GUESS
 	$guess_oig=($guess_oi/floatval(end($stock_data['operating_income_hist'])[1])) - 1;
-	$tsv.="currval	".end($stock_data['value_hist'])[1]."		guess	".toFixed($guess_revenue,2)."	".toFixed($guess_revenueg,2)."	".($guess_revenueg-$tsv_arr['rgl']);
-	$tsv.="	".toFixed($guess_oi,2)."	".toFixed($guess_oig,2)."	".toFixed($guess_oig-$tsv_arr['ogl'],2)."	".floatval(toFixed($guess_oi/$guess_revenue,2));
-	$tsv.="	".toFixed($guess_ni,2)."	".toFixed($guess_nig,2)."	".toFixed($guess_nig-$tsv_arr['ngl'],2);
+	$tsv.="\ncurrval	".end($stock_data['value_hist'])[1]."		guess	".toFixed($guess_revenue,2)."	".toFixed($guess_revenueg,2)."	".toFixed(($guess_revenueg-$tsv_arr['rgl']),2);
+	$tsv.="	".toFixed($guess_oi,2)."	".toFixed($guess_oig,2)."	".toFixed($guess_oig-$tsv_arr['ogl'],2)."	".floatval(toFixed($guess_oi/$guess_revenue,2))."	";
+	$tsv.="	".toFixed($guess_ni,2)."	".toFixed($guess_nig,2)."	".toFixed($guess_nig-$tsv_arr['ngl'],2)."	";
 	$tsv.="	".toFixed($guess_eq,2)."	".toFixed($guess_eqg,2)."	".toFixed($guess_eqg-$tsv_arr['egl'],2);
 	$tsv.="\n";
 	
-	$max_eq_percent=0.66;
 	
 	$revp=(floatval(end($stock_data['revenue_hist'])[1])/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
 	$oip=(floatval(end($stock_data['operating_income_hist'])[1])/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
 	$epsp=(floatval(end($stock_data['net_income_hist'])[1])/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
 	$eqp=(floatval(end($stock_data['equity_hist'])[1])/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
-	$eqpc=min($eqp,0.66);
+	$eqpc=min($eqp,$max_eq_percent);
 	$tsv.="\n	revp	oip	epsp	eqp	eqpc	oi+eq\n";
 	$tsv.="current	".toFixed($revp,2)."	".toFixed($oip,2)."	".toFixed($epsp,2)."	".toFixed($eqp,2)."	".toFixed($eqpc,2)."	".toFixed($eqpc+$oip,2)."\n";
 	$revp=($guess_revenue/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
 	$oip=($guess_oi/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
 	$epsp=($guess_ni/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
 	$eqp=($guess_eq/floatval($stock_data['shares']))/floatval($tsv_arr[$last_rev_year]['value']);
-	$eqpc=min($eqp,0.66);
+	$eqpc=min($eqp,$max_eq_percent);
 	$tsv.="guessG	".toFixed($revp,2)."	".toFixed($oip,2)."	".toFixed($epsp,2)."	".toFixed($eqp,2)."	".toFixed($eqpc,2)."	".toFixed($eqpc+$oip,2)."\n";
 
 	$tsv.="\n	eqc max	$max_eq_percent%\n";
@@ -171,15 +179,45 @@ function get_tsv($symbol,$debug=false){
 	$oips=(floatval(end($stock_data['operating_income_hist'])[1])/floatval($stock_data['shares']));
 	$epsps=(floatval(end($stock_data['net_income_hist'])[1])/floatval($stock_data['shares']));
 	$eqps=(floatval(end($stock_data['equity_hist'])[1])/floatval($stock_data['shares']));
-	$eqpsc=min($eqps,0.66*floatval($tsv_arr[$last_rev_year]['value']));
+	$eqpsc=min($eqps,$max_eq_percent*floatval($tsv_arr[$last_rev_year]['value']));
 	$tsv.="\n	revps	oips	epsps	eqps	eqpsc	oi+eq\n";
 	$tsv.="current	".toFixed($revps,2)."	".toFixed($oips,2)."	".toFixed($epsps,2)."	".toFixed($eqps,2)."	".toFixed($eqpsc,2)."	".toFixed($eqpsc+$oips,2)."\n";
 	$revps=($guess_revenue/floatval($stock_data['shares']));
 	$oips=($guess_oi/floatval($stock_data['shares']));
 	$epsps=($guess_ni/floatval($stock_data['shares']));
 	$eqps=($guess_eq/floatval($stock_data['shares']));
-	$eqpsc=min($eqps,0.66*floatval($tsv_arr[$last_rev_year]['value']));
+	$eqpsc=min($eqps,$max_eq_percent*floatval($tsv_arr[$last_rev_year]['value']));
 	$tsv.="guessG	".toFixed($revps,2)."	".toFixed($oips,2)."	".toFixed($epsps,2)."	".toFixed($eqps,2)."	".toFixed($eqpsc,2)."	".toFixed($eqpsc+$oips,2)."\n";
+	
+	#$revps=(floatval(end($stock_data['revenue_hist'])[1])/floatval($stock_data['shares']));
+	#$oips=(floatval(end($stock_data['operating_income_hist'])[1])/floatval($stock_data['shares']));
+	#$epsps=(floatval(end($stock_data['net_income_hist'])[1])/floatval($stock_data['shares']));
+	$tsv.="\nom_max	".$om_max;
+	$prod=$oips; // $guess_oi alredy uses the max ---> max($revps*$om_max,$oips,$epsps*1.10);
+	$tsv.="\nPROD/y	max(revps*om_max,oips,nips*1.1)";
+	$tsv.="\n	prod/y	revg	reva	eq+1y";
+	$tsv.="\n	".toFixed($prod,2)."	".$tsv_arr['rga']."	".$tsv_arr['raa']."	".toFixed($eqpsc,2);
+	$tsv.="\n";
+	$tsv.="\n1y	1*".compound_interest_4($prod,floatval($tsv_arr['rga']),1)."	=".compound_interest_4($prod,floatval($tsv_arr['rga']),1)."	".toFixed( $eqpsc,2);
+	$tsv.="\n3y	3*".compound_interest_4($prod,floatval($tsv_arr['rga']),3)."	=".(3*compound_interest_4($prod,floatval($tsv_arr['rga']),3))."	".toFixed( $eqpsc,2);
+	$tsv.="\n5y	5*".compound_interest_4($prod,floatval($tsv_arr['rga']),5)."	=".(5*compound_interest_4($prod,floatval($tsv_arr['rga']),5))."	".toFixed( $eqpsc,2);
+	$tsv.="\n10y	10*".compound_interest_4($prod,floatval($tsv_arr['rga']),10)."	=".(10*compound_interest_4($prod,floatval($tsv_arr['rga']),10))."	".toFixed( $eqpsc,2);
+
+
+	$tsv.="\nBased on rev with 3*om, like if managing a lot of money gave you advantage";
+	$prod=max($revps*max(min($om_max*3,0.30),$om_max),$oips,$epsps*1.10); // max optimistic om 30% unless om_max is higher
+	// assuming 20%om is just too optimistic for big revenue companies...
+	// it is true that for some reason the more you sell the more expensive the share is... 
+	$tsv.="\nPROD/y	max(revps*om_max,oips,nips*1.1)";
+	$tsv.="\n	prod/y	revg	reva	eq+1y";
+	$tsv.="\n	".toFixed($prod,2)."	".$tsv_arr['rga']."	".$tsv_arr['raa']."	".toFixed($eqpsc,2);
+	$tsv.="\n";
+	$tsv.="\n1y	1*".compound_interest_4($prod,floatval($tsv_arr['rga']),1)."	=".compound_interest_4($prod,floatval($tsv_arr['rga']),1)."	".toFixed( $eqpsc,2);
+	$tsv.="\n3y	3*".compound_interest_4($prod,floatval($tsv_arr['rga']),3)."	=".(3*compound_interest_4($prod,floatval($tsv_arr['rga']),3))."	".toFixed( $eqpsc,2);
+	$tsv.="\n5y	5*".compound_interest_4($prod,floatval($tsv_arr['rga']),5)."	=".(5*compound_interest_4($prod,floatval($tsv_arr['rga']),5))."	".toFixed( $eqpsc,2);
+	$tsv.="\n10y	10*".compound_interest_4($prod,floatval($tsv_arr['rga']),10)."	=".(10*compound_interest_4($prod,floatval($tsv_arr['rga']),10))."	".toFixed( $eqpsc,2);
+
+
 	
 	$last_value=floatval($stock_data['value_hist'][count($stock_data['value_hist'])-2][1]);
 	$last_ni=floatval($stock_data['net_income_hist'][count($stock_data['net_income_hist'])-1][1]);

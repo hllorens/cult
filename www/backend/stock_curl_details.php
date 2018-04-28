@@ -55,7 +55,7 @@ function get_details($symbol,$debug=false){
         send_mail('Bad crawl '.$symbol,'<br />Empty value, skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
         return $details;
     }
-    $value=trim($value[1]);
+    $value=str_replace(",","",trim($value[1]));
     if(!isset($value) || $value=="" || $value=="-"){
         echo "<br />Empty value skipping, email sent...<br />";
         send_mail('Error '.$symbol,'<br />Empty value(!isset, "" or "-"), skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
@@ -158,6 +158,11 @@ function get_details($symbol,$debug=false){
                 return $details;
             }
         }
+		
+		if(abs(floatval($shares)-floatval($shares_from_mktcap))>(floatval($shares_from_mktcap)/4)){
+            echo "<br /> $shares(direct) != $shares_from_mktcap (mktcap)<br />";
+            //send_mail('Err. shares '.$symbol,"<br />$shares (direct) != $shares_from_mktcap (mktcap), bad stock? remove? use always marketcap?...<br /><br />","hectorlm1983@gmail.com");
+		}
     }
 
     $query_arr=explode(":",$symbol);

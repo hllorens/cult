@@ -87,16 +87,18 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['title']=$item['title'];
         if(!$symbol_object['title']){$symbol_object['title']="ERROR: No title found";}
         $symbol_object['session_change_percentage']=$item['session_change_percentage'];
-        $symbol_object['value']=str_replace(",","",$item['value']);
+        $symbol_object['value']=$item['value'];
         #echo $item['value']." xx ".$symbol_object['value']."<br />";
         $symbol_object['range_52week_high']=trim($item['range_52week_high']);
         $symbol_object['range_52week_low']=trim($item['range_52week_low']);
         $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];   // already 0 if index in details
+		if($symbol_object['name']=='KO' && floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])<3.5){$stock_details_arr[$item['market'].':'.$item['name']]['shares']=4.26;}
         if(array_key_exists('shares',$symbol_object) && abs(floatval($symbol_object['shares'])-floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares']))>max(0.04,floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])/20)){
             // if the diff is bigger than 5% or 0.04 whatever is bigger
             send_mail($item['name'].' sharenum change','<br />original('.$symbol_object['shares_source'].'):'.$symbol_object['shares'].' != new ('.$stock_details_arr[$item['market'].':'.$item['name']]['shares_source'].'):'.$stock_details_arr[$item['market'].':'.$item['name']]['shares'].
-                                                       '<br />title:'.$symbol_object['title'].
-                                                       '<br />value:'.$symbol_object['value'].
+ 													   '<br />shares from mktcap:'.$symbol_object['shares_from_mktcap'].
+                                                       '<br /><br />title:'.$symbol_object['title'].
+                                                       '<br /><br /><br />value:'.$symbol_object['value'].
                                                        '<br />change:'.$symbol_object['session_change_percentage'].
                                                        '<br /><br />',"hectorlm1983@gmail.com");
         }
