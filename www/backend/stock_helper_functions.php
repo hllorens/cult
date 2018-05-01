@@ -306,14 +306,14 @@ function avg_weighted_sum($arr,$init=3){
     return floatval(toFixed($avgw,2));
 }
 
-function avg_weighted($arr,$percent_weight=0.66){
+function avg_weighted($arr,$percent_weight=0.66,$max=1000000000000.0){
     if(count($arr)<1){return 0;}
     $avgw=0;
 	$curr_weight=1;
     $total_elems_weight=0;
     for($i=0;$i<count($arr);$i++){
 		$total_elems_weight+=$curr_weight;
-        $avgw+=floatval($arr[$i])*$curr_weight;
+        $avgw+=min(floatval($arr[$i]),$max)*$curr_weight;
 		$curr_weight=$curr_weight+($curr_weight*$percent_weight);
     }
 	$avgw=$avgw/$total_elems_weight;

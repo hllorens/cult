@@ -181,6 +181,8 @@ foreach ($stock_details_arr as $key => $item) {
             //$symbol_formatted['eps_hist_last_diff']=0; TODO unused in favor of epsp last diff
             $symbol_formatted['om_to_ps']=0;
             $symbol_formatted['leverage']=99;
+            $symbol_formatted['eps_hist_trend']="--";
+            $symbol_formatted['prod']=0;
         }else{
             echo "!idx";
             // set defaults if no leverage-book and send email
@@ -195,9 +197,10 @@ foreach ($stock_details_arr as $key => $item) {
             // reset things that are going to be calculated
             //$symbol_formatted['last_financials_year']=0000;
             $symbol_formatted['operating_margin']=0;
+            $symbol_formatted['prod']=0;
             $om_to_ps=0;
             $revenue=0;
-            //$symbol_formatted['revp']=0;
+            $symbol_formatted['revp']=0;
             $symbol_formatted['oip']=0;
             $symbol_formatted['eqp']=0;
             $symbol_formatted['lp']=0;
@@ -228,7 +231,6 @@ foreach ($stock_details_arr as $key => $item) {
                 //$symbol_formatted['last_financials_year']=substr($symbol_formatted['revenue_hist'][0][0],0,4); can be calculated directly in js
                 $revenue=floatval(end($symbol_formatted['revenue_hist'])[1]);
                 $operating_income=floatval(end($symbol_formatted['operating_income_hist'])[1]);
-                $symbol_formatted['oip']=($operating_income/floatval($symbol_formatted['shares']))/max(0.01,$ref_value);
                 $equity=floatval(end($symbol_formatted['equity_hist'])[1]);
 				$equity_per_share=($equity/floatval($symbol_formatted['shares']));
                 $symbol_formatted['eqp']=toFixed($equity_per_share/max(0.01,$ref_value),2,'eqp');
@@ -277,7 +279,12 @@ foreach ($stock_details_arr as $key => $item) {
                 // EPSP (inverse of PER, 1/PER), it is also eps/price
                 // since price and num shares change, if we want to use averages, it is safer to calculate as PER inverse
                 // however, PER does not account for negative EPS, so we are forced to calculate as eps/price
+                $symbol_formatted['revp']=toFixed(($revenue/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),3,'revp');
+                $symbol_formatted['oip']=toFixed(($operating_income/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),3,'oip');
                 $symbol_formatted['epsp']=toFixed(floatval($symbol_formatted['eps'])/max(0.01,$ref_value),3,"epsp");
+                $symbol_formatted['prod']=toFixed(max(floatval($symbol_formatted['revp'])*floatval($symbol_formatted['operating_margin']),floatval($symbol_formatted['oip']),floatval($symbol_formatted['epsp'])*1.1),3,'oip');
+
+
                 if(count($symbol_formatted['net_income_hist'])>1){
                     $symbol_formatted['epsp']=toFixed(
                                                     (
@@ -289,7 +296,7 @@ foreach ($stock_details_arr as $key => $item) {
 
                 // growths, trends and accelerations
                 $symbol_formatted['revenue_growth_arr']=hist_growth_array('revenue_hist',$symbol_formatted,5);
-                $symbol_formatted['revenue_growth']=avg_weighted($symbol_formatted['revenue_growth_arr']);
+                $symbol_formatted['revenue_growth']=avg_weighted($symbol_formatted['revenue_growth_arr'],0.66,3);
                 $revenue_acceleration=acceleration_array($symbol_formatted['revenue_growth_arr']);
                 $symbol_formatted['revenue_acceleration']=avg_weighted($revenue_acceleration);
                 $symbol_formatted['operating_income_growth_arr']=hist_growth_array('operating_income_hist',$symbol_formatted,5);
