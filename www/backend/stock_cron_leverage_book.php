@@ -128,12 +128,12 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         
 		$email_report="";
         $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_book',$results,'Price\/Book Value',0,$name,99,0.34);
-        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_sales',$results,'Price\/Sales',0,$name,99,0.34);
-        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'avg_revenue_growth_5y',$results,'avg_revenue_growth_5y',0,$name,0,0.10);
-        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'revenue_growth_qq_last_year',$results,'revenue_growth_qq_last_year',0,$name,0,0.10);
-        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage',$results,'Leverage Ratio',0,$name,99,0.15);
+        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_sales',$results,'Price\/Sales',0,$name,99,0.5);
+        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'avg_revenue_growth_5y',$results,'avg_revenue_growth_5y',0,$name,0,0.34);
+        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'revenue_growth_qq_last_year',$results,'revenue_growth_qq_last_year',0,$name,0,0.50);
+        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage',$results,'Leverage Ratio',0,$name,99,0.34);
         if(count($results['Leverage Ratio'])>1){
-            $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage_industry',$results,'Leverage Ratio',1,$name,99,0.15);
+            $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage_industry',$results,'Leverage Ratio',1,$name,99,0.34);
 			if($stocks_formatted_arr[$name.":".$market]['leverage_industry']==0){
 				$stocks_formatted_arr[$name.":".$market]['leverage_industry']=0.01; // non-0 to avoid 0 division
 			}
