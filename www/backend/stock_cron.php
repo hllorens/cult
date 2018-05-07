@@ -13,6 +13,9 @@ $timestamp_simplif=date("d H:i");
 $timestamp_quarter=substr($timestamp_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $timestamp_date)->format('n') / 3) % 4) + 1 );
 $timestamp_half=substr($timestamp_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $timestamp_date)->format('n') / 6) % 2) + 1 );
 
+$FIREBASE='https://cult-game.firebaseio.com/';
+
+
 $debug=false;
 if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug']=="1")){
     $debug=true;
@@ -59,13 +62,17 @@ foreach ($stock_details_arr as $key => $item) {
 	}
     if($debug) echo "encoding ".$item['name'].":".$item['market']."<br />";
     
+	$json_name=$item['name'];
+	// HANDLE EXCEPTIONS FOR BAD FIREBASE NAMES including '.' or '[]' or ...
+	if($item['name']==".INX"){$json_name="INX";}
+
     // load info if exists
-    if(array_key_exists($item['name'].":".$item['market'],$stocks_formatted_arr)){
-        if($debug) echo "loading existing info for ".$item['name'].":".$item['market']."<br />";
-        $symbol_object=$stocks_formatted_arr[$item['name'].":".$item['market']];
+    if(array_key_exists($json_name.":".$item['market'],$stocks_formatted_arr)){
+        if($debug) echo "loading existing info for ".$json_name.":".$item['market']."<br />";
+        $symbol_object=$stocks_formatted_arr[$json_name.":".$item['market']];
         if(!array_key_exists('title',$symbol_object) || !array_key_exists('shares',$symbol_object)){
             echo "title or shares not exist";
-            send_mail('ERROR:'.$item['name'].' title or shares !exist','<br />This stock was in stocks.formatted.json but without title or shares, fix manually.<br /><br />',"hectorlm1983@gmail.com");
+            send_mail('ERROR:'.$json_name.' title or shares !exist','<br />This stock was in stocks.formatted.json but without title or shares, fix manually.<br /><br />',"hectorlm1983@gmail.com");
             exit(1);
         }
     }else{
@@ -296,9 +303,13 @@ foreach ($stock_details_arr as $key => $item) {
 
                 // growths, trends and accelerations
                 $symbol_formatted['revenue_growth_arr']=hist_growth_array('revenue_hist',$symbol_formatted,5);
-                $symbol_formatted['revenue_growth']=avg_weighted($symbol_formatted['revenue_growth_arr'],0.66,3);
+                $symbol_formatted['revenue_growth']=avg_weighted($symbol_formatted['revenue_growth_arr'],0.66,0.99); // max 0.99
+				// protection against negative growth in most recent year
+				if(floatval(end($symbol_formatted['revenue_growth_arr']))<floatval($symbol_formatted['revenue_growth'])){
+					$symbol_formatted['revenue_growth']=floatval(end($symbol_formatted['revenue_growth_arr']));
+				}
                 $revenue_acceleration=acceleration_array($symbol_formatted['revenue_growth_arr']);
-                $symbol_formatted['revenue_acceleration']=avg_weighted($revenue_acceleration);
+                $symbol_formatted['revenue_acceleration']=avg_weighted($revenue_acceleration,0.66,0.99);
                 $symbol_formatted['operating_income_growth_arr']=hist_growth_array('operating_income_hist',$symbol_formatted,5);
                 $operating_income_acceleration=acceleration_array($symbol_formatted['operating_income_growth_arr']);
                 $symbol_formatted['operating_income_acceleration']=avg_weighted($operating_income_acceleration);
@@ -311,6 +322,7 @@ foreach ($stock_details_arr as $key => $item) {
                 }
                 // we can also do the operating trend... maybe directly in js if no operations...
                 $symbol_formatted['eps_hist_trend']=trend($symbol_formatted['net_income_growth_arr']);
+                $symbol_formatted['revenue_growth_trend']=trend($symbol_formatted['revenue_growth_arr']);
             }else{
                 echo "!financials (no revenue), consider running financials and leverage-book manually";
                 send_mail('NOTE:'.$item['name'].' !financials','<br />From stock_cron.php, there is no revenue_hist for this stock. !financials? fix manually (run financials).<br /><br />',"hectorlm1983@gmail.com");
@@ -329,27 +341,37 @@ foreach ($stock_details_arr as $key => $item) {
             }
             
             $score_rev_growth=0;
-            if(array_key_exists('avg_revenue_growth_5y',$symbol_formatted) && floatval($symbol_formatted['avg_revenue_growth_5y'])>0){
-                $score_rev_growth=min(min(floatval($symbol_formatted['avg_revenue_growth_5y']),floatval($symbol_formatted['revenue_growth']))*100,20)*5/100;
+            if(array_key_exists('revenue_growth',$symbol_formatted) && floatval($symbol_formatted['revenue_growth'])>0){
+                $score_rev_growth=(min(floatval($symbol_formatted['revenue_growth'])*100,34)*2)/100;
+				if(floatval($symbol_formatted['revenue_growth'])>0.01) $score_rev_growth+=0.1;
+				if(floatval($symbol_formatted['revenue_growth'])>0.03) $score_rev_growth+=0.1;
+				if(floatval($symbol_formatted['revenue_growth'])>0.05) $score_rev_growth+=0.1; // 0.30+0.05x2=0.40 
+				if(floatval($symbol_formatted['revenue_growth'])>0.06) $score_rev_growth+=0.1; // 0.40+0.05x2=0.50 
+				if(floatval($symbol_formatted['revenue_growth'])>0.10) $score_rev_growth+=0.1; // 0.50+0.1x2=0.70
+																							  // 0.5+0.2x2=0.9 y 0.25 10
             }
-            $score_rev_growth+=$om_to_ps*0.3; // max 0.1 (can be penalizing -0.1)
+            //$score_rev_growth+=$om_to_ps*0.3; // max 0.1 (can be penalizing -0.1)
             // good quarter only +0.1 (cannot penalize), and only if good means om_to_ps>0.2
-            if(array_key_exists('revenue_growth_qq_last_year',$symbol_formatted) && floatval($symbol_formatted['revenue_growth_qq_last_year'])>0 && $om_to_ps>0.2){
+            if(array_key_exists('revenue_growth_qq_last_year',$symbol_formatted) && floatval($symbol_formatted['revenue_growth_qq_last_year'])>0){ // && $om_to_ps>0.2
                 $score_rev_growth+=min(floatval($symbol_formatted['revenue_growth_qq_last_year']),10)/100;
             }
             $score_rev_growth=max(min($score_rev_growth,1),0);  // min 0 max 1
 
             $score_epsp=0;
             $epsp=floatval($symbol_formatted['epsp']);
-            if($epsp>=0){
-                // the distribution of positive cases goes from 0 to 10%
-                // we decided that 6.67% (per=15) is good enough to get 100% score
-                $score_epsp=($epsp)*15;
+            $prod=floatval($symbol_formatted['prod']);
+            if($prod>=0){
+                // DEPRECATED: the distribution of positive cases goes from 0 to 10%
+                // DEPRECATED: we decided that 6.67% (per=15) is good enough to get 100% score
+				// avg is aroun 0.07, highest is around 0.20, multiplying by 5 would make it 1
+                //$score_epsp=($prod)*5; // 7*5=35, 20*5=100
+				// 7 should be at least 5
+                $score_epsp=($prod)*8; // 7*8=56, 13*8=100
                 if($computable_yield>($epsp+0.006)) $score_epsp-=($epsp-$computable_yield)*15; // penalized if yield > $epsp
                 if(array_key_exists('eps_hist_trend',$symbol_formatted)){
-                    if($symbol_formatted['eps_hist_trend']=='/-') $score_epsp+=0.10; 
-                    if($symbol_formatted['eps_hist_trend']=='_/') $score_epsp+=0.20; 
-                    if($symbol_formatted['eps_hist_trend']=='/') $score_epsp+=0.30;
+                    if($symbol_formatted['eps_hist_trend']=='/-') $score_epsp+=0.05; 
+                    if($symbol_formatted['eps_hist_trend']=='_/') $score_epsp+=0.08; 
+                    if($symbol_formatted['eps_hist_trend']=='/') $score_epsp+=0.10;
                 }
                 $score_epsp=max(min($score_epsp,1),0);  // min 0 max 1
             }
@@ -399,13 +421,13 @@ foreach ($stock_details_arr as $key => $item) {
 
             $negative_eps_growth_penalty=0.0;
             if($epsp<0.03 && array_key_exists('eps_hist_trend',$symbol_formatted)){
-                if($symbol_formatted['eps_hist_trend']=='\\') $negative_eps_growth_penalty=-1;
-                if($symbol_formatted['eps_hist_trend']=='-\\') $negative_eps_growth_penalty=-0.5;
-                if($symbol_formatted['eps_hist_trend']=='\_') $negative_eps_growth_penalty=-0.5;
+                if($symbol_formatted['eps_hist_trend']=='\\') $negative_eps_growth_penalty=-0.5;
+                if($symbol_formatted['eps_hist_trend']=='-\\') $negative_eps_growth_penalty=-0.25;
+                if($symbol_formatted['eps_hist_trend']=='\_') $negative_eps_growth_penalty=-0.15;
                 if($symbol_formatted['eps_hist_trend']=='^') $negative_eps_growth_penalty=-0.25;
             }
             if($epsp<-0.015){
-                $negative_eps_growth_penalty=-1;
+                $negative_eps_growth_penalty=-0.5;
             }
 
             $symbol_formatted['om_to_ps']="".toFixed($om_to_ps,2,"setting om_to_ps in symbol_formatted");
@@ -431,11 +453,11 @@ foreach ($stock_details_arr as $key => $item) {
 
 
             $symbol_formatted['h_souce']="".toFixed(
-                                                 ($score_val_growth*5)+
-                                                 ($score_rev_growth*2)+
-                                                 ($score_epsp*2)+
+                                                 ($score_val_growth*3)+
+                                                 ($score_rev_growth*3)+
+                                                 ($score_epsp*3)+
                                                  ($score_leverage*1)+
-                                                 ($negative_val_growth_penalty*3)+
+                                                 ($negative_val_growth_penalty*2)+
                                                  ($negative_rev_growth_penalty*2)+
                                                  ($negative_eps_growth_penalty*2)
                                                  ,1,"h_souce div");
@@ -443,7 +465,16 @@ foreach ($stock_details_arr as $key => $item) {
             if(floatval($symbol_formatted['h_souce'])<1){echo " h_souce=".$symbol_formatted['h_souce'];}
             //hist_year_last_day('h_souce',$symbol_formatted); // yearly  TODO add when we close the app (slow, yearly)
         }
-        $stocks_formatted_arr[$symbol_formatted['name'].':'.$symbol_formatted['market']]=$symbol_formatted;
+        $stocks_formatted_arr[$json_name.':'.$symbol_formatted['market']]=$symbol_formatted;
+		// update firebase for that symbol
+		$curl = curl_init();
+		curl_setopt( $curl, CURLOPT_URL, $FIREBASE .'stocks_formatted/'. $json_name.':'.$symbol_formatted['market'].'.json' ); ///'.$usr.'_'.$symbol.'
+		curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "PUT" );
+		curl_setopt( $curl, CURLOPT_POSTFIELDS, json_encode($symbol_formatted) );
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+		$response = curl_exec( $curl );
+		curl_close( $curl );
+		
     }else{
         echo "ERROR: ".$item['market'].":".$item['name']." not found in details<br />";
     }
@@ -473,6 +504,19 @@ if(!file_exists( date("Y-m").'.stocks.formatted.json' )){
 fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_send-alert-fire.php\n");
 echo "<br />".date('Y-m-d H:i:s')." starting stock_send-alerts-fire.php<br />";
 require_once 'stock_send-alerts-fire.php';
+
+// 1st time just upload the json, put the stocks.formatted.json in firebase
+// then, normal only update the updated stocks and GOOG (completely) since there is the usdeur info
+$curl = curl_init();
+curl_setopt( $curl, CURLOPT_URL, $FIREBASE . 'stocks_formatted/GOOG:NASDAQ.json' ); ///'.$usr.'_'.$symbol.'
+curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "PUT" );
+curl_setopt( $curl, CURLOPT_POSTFIELDS, json_encode($stocks_formatted_arr['GOOG:NASDAQ']) );
+curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+$response = curl_exec( $curl );
+curl_close( $curl );
+
+
+
 
 
 fwrite($stock_cron_log, date('Y-m-d H:i:s')." done with stock_cron.php\n");

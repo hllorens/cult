@@ -44,7 +44,9 @@ $the_url_query_arr = explode(",", $stock_list);
 $num_stocks_to_curl=min($num_stocks_to_curl,count($the_url_query_arr)); // make sure we do not duplicate...
 for ($i=0;$i<$num_stocks_to_curl;$i++){
     $current_num_to_curl=($stock_last_financial_updated+$i) % count($the_url_query_arr);
-    if(substr($the_url_query_arr[$current_num_to_curl],0,5)=="INDEX"){echo "<br /><br />Index (".$the_url_query_arr[$current_num_to_curl]."), nothing to be done<br /><br />"; continue;} // skip indexes
+    if(substr($the_url_query_arr[$current_num_to_curl],0,5)=="INDEX"){
+		echo "<br /><br />Index (".$the_url_query_arr[$current_num_to_curl]."), nothing to be done<br /><br />"; continue;
+	} // skip indexes
     $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
     $name=$query_arr[1];
     $market=$query_arr[0];

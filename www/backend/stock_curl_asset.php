@@ -96,7 +96,7 @@ function get_asset($symbol,$debug=false){
             send_mail('Error assets '.$name,"$url_and_query<br />"."ERROR (MSN INCOME): incorrect format period ".$period_arr[1][$period]."<br /><br />","hectorlm1983@gmail.com");
             continue;
         }
-        if(intval($period_arr_arr[2])<2010){
+        if(intval($period_arr_arr[2])<2010 && $name!="ELE"){ // Exception for ELE
             echo "ERROR (assets): incorrect year ".$period_arr[1][$period];
             send_mail('Error assets '.$name,"$url_and_query<br />"."ERROR (MSN INCOME): incorrect year period ".$period_arr[1][$period]."<br /><br />","hectorlm1983@gmail.com");
             continue;

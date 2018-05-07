@@ -64,6 +64,8 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     echo "<br />stock ".$the_url_query_arr[$current_num_to_curl]."<br />";
     $name=$query_arr[1];
     $market=$query_arr[0];
+	// HANDLE EXCEPTIONS FOR BAD FIREBASE NAMES including '.' or '[]' or ...
+	if($name==".INX"){$name="INX";}
     if(!array_key_exists($name.":".$market,$stocks_formatted_arr)){
         echo "Stock $name still does not have basic info: skipping... run stock_cron.php first";
         send_mail('Error '.$name,"<br />Stock $name still does not have basic info: skipping... run stock_cron.php first<br /><br />","hectorlm1983@gmail.com");
@@ -122,15 +124,13 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         }
         
         if($debug)  var_dump($results);
-        $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);
-        $name=$query_arr[1];
-        $market=$query_arr[0];
+
         
 		$email_report="";
         $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_book',$results,'Price\/Book Value',0,$name,99,0.34);
-        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_sales',$results,'Price\/Sales',0,$name,99,0.5);
+        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_sales',$results,'Price\/Sales',0,$name,99,0.34);
         $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'avg_revenue_growth_5y',$results,'avg_revenue_growth_5y',0,$name,0,0.34);
-        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'revenue_growth_qq_last_year',$results,'revenue_growth_qq_last_year',0,$name,0,0.50);
+        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'revenue_growth_qq_last_year',$results,'revenue_growth_qq_last_year',0,$name,0,0.34);
         $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage',$results,'Leverage Ratio',0,$name,99,0.34);
         if(count($results['Leverage Ratio'])>1){
             $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage_industry',$results,'Leverage Ratio',1,$name,99,0.34);
@@ -175,8 +175,12 @@ function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$de
                 if(floatval($results[$param_id][$index])==$default_val){
                     $report.="$url_and_query<br /><br />New $param_id (orig: $orig_param)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]." (default, empty)<br />Keeping original since new is the default (empty)<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
                 }else{
-                    $report.="$url_and_query<br /><br />New $param_id (orig: $orig_param)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]."<br />Keeping the new<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
-                    $orig[$orig_param]=$results[$param_id][$index];
+					// only email with greater margin, otherwise just update
+					if(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1) >($diff_margin+0.3)){
+						$report.="$url_and_query<br /><br />New $param_id (orig: $orig_param)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]."<br />Keeping the new<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
+					}
+					
+					$orig[$orig_param]=$results[$param_id][$index];
                 }
             }
         }
