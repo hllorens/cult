@@ -41,9 +41,6 @@ function get_anualized_data($param,$stock_data,&$tsv_arr){
 	}
 }
 
-function compound_interest_4($principal,$interest,$years){
-	return floatval(toFixed( $principal*pow((1+(floatval($interest)/4)),$years*4) ,2));
-}
 
 function get_tsv($symbol,$debug=false){
     $stocks_formatted=array();

@@ -182,6 +182,10 @@ function compound_average_growth($from, $to, $periods=1.0){
     return $cag;
 }
 
+function compound_interest_4($principal,$interest,$years){
+	return floatval(toFixed( $principal*pow((1+(floatval($interest)/4)),$years*4) ,2));
+}
+
 
 // if there are not enough periods the oldest will be used
 // e.g., existing   5 6

@@ -287,9 +287,10 @@ foreach ($stock_details_arr as $key => $item) {
                 // since price and num shares change, if we want to use averages, it is safer to calculate as PER inverse
                 // however, PER does not account for negative EPS, so we are forced to calculate as eps/price
                 $symbol_formatted['revp']=toFixed(($revenue/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),3,'revp');
+                $symbol_formatted['oips']=floatval(toFixed(($operating_income/floatval($symbol_formatted['shares'])),2,'oips'));
                 $symbol_formatted['oip']=toFixed(($operating_income/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),3,'oip');
                 $symbol_formatted['epsp']=toFixed(floatval($symbol_formatted['eps'])/max(0.01,$ref_value),3,"epsp");
-                $symbol_formatted['prod']=toFixed(max(floatval($symbol_formatted['revp'])*floatval($symbol_formatted['operating_margin']),floatval($symbol_formatted['oip']),floatval($symbol_formatted['epsp'])*1.1),3,'oip');
+                $symbol_formatted['prod']=toFixed(max(floatval($symbol_formatted['revp'])*floatval($symbol_formatted['operating_margin']),floatval($symbol_formatted['oip']),floatval($symbol_formatted['epsp'])*1.1),3,'prod');
 
 
                 if(count($symbol_formatted['net_income_hist'])>1){
@@ -310,9 +311,10 @@ foreach ($stock_details_arr as $key => $item) {
 				}
                 $revenue_acceleration=acceleration_array($symbol_formatted['revenue_growth_arr']);
                 $symbol_formatted['revenue_acceleration']=avg_weighted($revenue_acceleration,0.66,0.99);
-                $symbol_formatted['operating_income_growth_arr']=hist_growth_array('operating_income_hist',$symbol_formatted,5);
-                $operating_income_acceleration=acceleration_array($symbol_formatted['operating_income_growth_arr']);
-                $symbol_formatted['operating_income_acceleration']=avg_weighted($operating_income_acceleration);
+                //$symbol_formatted['operating_income_growth_arr']=hist_growth_array('operating_income_hist',$symbol_formatted,5);
+                //$operating_income_acceleration=acceleration_array($symbol_formatted['operating_income_growth_arr']);
+                //$symbol_formatted['operating_income_acceleration']=avg_weighted($operating_income_acceleration);
+				// although maybe this could be better than eps trend...
 
                 $symbol_formatted['net_income_growth_arr']=hist_growth_array('net_income_hist',$symbol_formatted,5);
                 
@@ -436,7 +438,7 @@ foreach ($stock_details_arr as $key => $item) {
 
             $calc_value_sell_share_raw=((floatval($revenue)/max(0.0001,floatval($symbol_formatted['shares']))));
             $calc_value_sell_share=($calc_value_sell_share_raw*min((floatval($symbol_formatted['operating_margin'])*100)/33,1));
-            $calc_value_asset_share=(floatval($symbol_formatted['value'])/max(0.0001,floatval($symbol_formatted['price_to_book'])));
+            $calc_value_asset_share=floatval($symbol_formatted['value'])/max(0.0001,floatval($symbol_formatted['price_to_book']));
             $calc_value_mult_factor=                          ((
                                     max(min(
                                     min(floatval($symbol_formatted['avg_revenue_growth_5y']),40)   // max 40
@@ -448,8 +450,22 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_formatted['guessed_value']="".toFixed(((floatval($calc_value_sell_share)
                                   *
                                   floatval($calc_value_mult_factor))
-                                  +floatval($calc_value_asset_share)
+                                  +min($calc_value_asset_share,
+			                            floatval($symbol_formatted['value'])/2)
                                   ),1,"calc_value guessed_value");
+								  
+            $symbol_formatted['guessed_value_5y']="".toFixed(
+									5*compound_interest_4($symbol_formatted['oips'],  // we should calculate the pot om and prodps...
+										min(
+										floatval($symbol_formatted['revenue_growth'])
+										+
+                                        max(-0.1,min(0.1,floatval($symbol_formatted['revenue_acceleration'])/2))
+										, 0.60)
+										,5)
+								  
+                                  +min($calc_value_asset_share,
+			                            floatval($symbol_formatted['value'])/2)   // we should calculate this from equity...
+                                  ,1,"calc_value guessed_value");
 
 
             $symbol_formatted['h_souce']="".toFixed(
