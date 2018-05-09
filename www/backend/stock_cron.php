@@ -214,7 +214,9 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_formatted['eps_hist_trend']="--";
             $symbol_formatted['price_to_sales']=99;
             $symbol_formatted['h_souce']=0;
-            $symbol_formatted['guessed_value']=0;
+            $symbol_formatted['guessed_value']=$symbol_formatted['value'];
+            $symbol_formatted['guessed_value_5y']=$symbol_formatted['value'];
+            $symbol_formatted['guessed_percentage']=1;
             // leverage, price to book  are not calculated
             //$symbol_formatted['eps_hist_last_diff']=0;
             //---------------------------------------------
@@ -323,8 +325,8 @@ foreach ($stock_details_arr as $key => $item) {
                     $symbol_formatted['equity_growth']=avg_weighted($symbol_formatted['equity_growth_arr']);
                 }
                 // we can also do the operating trend... maybe directly in js if no operations...
-                $symbol_formatted['eps_hist_trend']=trend($symbol_formatted['net_income_growth_arr']);
-                $symbol_formatted['revenue_growth_trend']=trend($symbol_formatted['revenue_growth_arr']);
+                $symbol_formatted['eps_hist_trend']=trend($symbol_formatted['net_income_growth_arr']); // default 0.10
+                $symbol_formatted['revenue_growth_trend']=trend($symbol_formatted['revenue_growth_arr']); // default 0.1  ... ,0.06 nah.. focus on hard events
             }else{
                 echo "!financials (no revenue), consider running financials and leverage-book manually";
                 send_mail('NOTE:'.$item['name'].' !financials','<br />From stock_cron.php, there is no revenue_hist for this stock. !financials? fix manually (run financials).<br /><br />',"hectorlm1983@gmail.com");
@@ -466,6 +468,15 @@ foreach ($stock_details_arr as $key => $item) {
                                   +min($calc_value_asset_share,
 			                            floatval($symbol_formatted['value'])/2)   // we should calculate this from equity...
                                   ,1,"calc_value guessed_value");
+			$symbol_formatted['guessed_percentage']=floatval(toFixed(
+														(
+														floatval($symbol_formatted['value'])  // cannot be <0
+														/
+														max(
+															floatval($symbol_formatted['guessed_value_5y'])
+															,0.001) // avoid 0 or negative divission this small val will make overvalued look OVERVALUED
+														)
+														,2,"guessed_percentage"));
 
 
             $symbol_formatted['h_souce']="".toFixed(
