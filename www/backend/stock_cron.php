@@ -243,7 +243,7 @@ foreach ($stock_details_arr as $key => $item) {
                 $equity=floatval(end($symbol_formatted['equity_hist'])[1]);
 				$equity_per_share=($equity/floatval($symbol_formatted['shares']));
                 $symbol_formatted['eqp']=toFixed($equity_per_share/max(0.01,$ref_value),2,'eqp');
-                $symbol_formatted['price_to_book_calc']=toFixed($ref_value/$equity_per_share,2,'pbc');
+                $symbol_formatted['price_to_book_calc']=toFixed($ref_value/max(0.001,$equity_per_share),2,'pbc');
 				$assets=floatval($symbol_formatted['leverage'])*$equity;
                 $symbol_formatted['ap']=toFixed(($assets/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),2,'ap');
                 $symbol_formatted['lp']=toFixed((($assets-$equity)/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),2,'lp');
@@ -285,24 +285,6 @@ foreach ($stock_details_arr as $key => $item) {
                                                         (floatval($symbol_formatted['net_income_hist'][count($symbol_formatted['net_income_hist'])-2][1])/floatval($symbol_formatted['shares']))
                                                     )/2,2,"stock_cron eps with 2 avg");
                 }
-                // EPSP (inverse of PER, 1/PER), it is also eps/price
-                // since price and num shares change, if we want to use averages, it is safer to calculate as PER inverse
-                // however, PER does not account for negative EPS, so we are forced to calculate as eps/price
-                $symbol_formatted['revp']=toFixed(($revenue/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),3,'revp');
-                $symbol_formatted['oips']=floatval(toFixed(($operating_income/floatval($symbol_formatted['shares'])),2,'oips'));
-                $symbol_formatted['oip']=toFixed(($operating_income/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),3,'oip');
-                $symbol_formatted['epsp']=toFixed(floatval($symbol_formatted['eps'])/max(0.01,$ref_value),3,"epsp");
-                $symbol_formatted['prod']=toFixed(max(floatval($symbol_formatted['revp'])*floatval($symbol_formatted['operating_margin']),floatval($symbol_formatted['oip']),floatval($symbol_formatted['epsp'])*1.1),3,'prod');
-
-
-                if(count($symbol_formatted['net_income_hist'])>1){
-                    $symbol_formatted['epsp']=toFixed(
-                                                    (
-                                                        floatval($symbol_formatted['eps'])+
-                                                        (floatval($symbol_formatted['net_income_hist'][count($symbol_formatted['net_income_hist'])-2][1])/floatval($symbol_formatted['shares']))
-                                                    )/2
-                                                    /max(0.01,$ref_value),3,"epsp");
-                }
 
                 // growths, trends and accelerations
                 $symbol_formatted['revenue_growth_arr']=hist_growth_array('revenue_hist',$symbol_formatted,5);
@@ -317,9 +299,7 @@ foreach ($stock_details_arr as $key => $item) {
                 //$operating_income_acceleration=acceleration_array($symbol_formatted['operating_income_growth_arr']);
                 //$symbol_formatted['operating_income_acceleration']=avg_weighted($operating_income_acceleration);
 				// although maybe this could be better than eps trend...
-
-                $symbol_formatted['net_income_growth_arr']=hist_growth_array('net_income_hist',$symbol_formatted,5);
-                
+                $symbol_formatted['net_income_growth_arr']=hist_growth_array('net_income_hist',$symbol_formatted,5);                
                 if(array_key_exists('equity_hist',$symbol_formatted)){
                     $symbol_formatted['equity_growth_arr']=hist_growth_array('equity_hist',$symbol_formatted,5);
                     $symbol_formatted['equity_growth']=avg_weighted($symbol_formatted['equity_growth_arr']);
@@ -327,7 +307,32 @@ foreach ($stock_details_arr as $key => $item) {
                 // we can also do the operating trend... maybe directly in js if no operations...
                 $symbol_formatted['eps_hist_trend']=trend($symbol_formatted['net_income_growth_arr']); // default 0.10
                 $symbol_formatted['revenue_growth_trend']=trend($symbol_formatted['revenue_growth_arr']); // default 0.1  ... ,0.06 nah.. focus on hard events
-            }else{
+
+                $symbol_formatted['revps']=floatval(toFixed(($revenue/floatval($symbol_formatted['shares'])),2,'revps'));
+                $symbol_formatted['revp']=toFixed(($symbol_formatted['revps'])/max(0.01,$ref_value),3,'revp');
+                $symbol_formatted['oips']=floatval(toFixed(($operating_income/floatval($symbol_formatted['shares'])),2,'oips'));
+                $symbol_formatted['oip']=toFixed(($operating_income/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),3,'oip');
+                // EPSP (inverse of PER, 1/PER), it is also eps/price
+                // since price and num shares change, if we want to use averages, it is safer to calculate as PER inverse
+                // however, PER does not account for negative EPS, so we are forced to calculate as eps/price
+                $symbol_formatted['epsp']=toFixed(floatval($symbol_formatted['eps'])/max(0.01,$ref_value),3,"epsp");
+                if(count($symbol_formatted['net_income_hist'])>1){
+                    $symbol_formatted['epsp']=toFixed(
+                                                    (
+                                                        floatval($symbol_formatted['eps'])+
+                                                        (floatval($symbol_formatted['net_income_hist'][count($symbol_formatted['net_income_hist'])-2][1])/floatval($symbol_formatted['shares']))
+                                                    )/2
+                                                    /max(0.01,$ref_value),3,"epsp");
+                }
+
+				$operating_margin_pot=floatval($symbol_formatted['operating_margin']); // TODO: get the max, avg... 
+				if($operating_margin_pot<0.01 && $symbol_formatted['revenue_growth']>=0.25){
+					$operating_margin_pot=0.01;
+				}
+                $symbol_formatted['prod']=toFixed(max(floatval($symbol_formatted['revp'])*$operating_margin_pot,floatval($symbol_formatted['oip']),floatval($symbol_formatted['epsp'])*1.1),3,'prod');
+                $symbol_formatted['prod_ps']=toFixed(max(floatval($symbol_formatted['revps'])*$operating_margin_pot,floatval($symbol_formatted['oips']),floatval($symbol_formatted['eps'])*1.1),3,'prod');
+
+			}else{
                 echo "!financials (no revenue), consider running financials and leverage-book manually";
                 send_mail('NOTE:'.$item['name'].' !financials','<br />From stock_cron.php, there is no revenue_hist for this stock. !financials? fix manually (run financials).<br /><br />',"hectorlm1983@gmail.com");
             }
@@ -457,7 +462,7 @@ foreach ($stock_details_arr as $key => $item) {
                                   ),1,"calc_value guessed_value");
 								  
             $symbol_formatted['guessed_value_5y']="".toFixed(
-									5*compound_interest_4($symbol_formatted['oips'],  // we should calculate the pot om and prodps...
+									5*compound_interest_4($symbol_formatted['prod_ps'],  // we should calculate the pot om and prodps...
 										min(
 										floatval($symbol_formatted['revenue_growth'])
 										+
@@ -489,6 +494,21 @@ foreach ($stock_details_arr as $key => $item) {
                                                  ($negative_eps_growth_penalty*2)
                                                  ,1,"h_souce div");
             
+			// TODO: improve this
+			if($symbol_formatted['guessed_percentage']<0.9){
+				$symbol_formatted['h_souce']+=0.5;
+			}
+			if($symbol_formatted['guessed_percentage']<0.7){
+				$symbol_formatted['h_souce']+=0.5;
+			}
+			if($symbol_formatted['guessed_percentage']>1.7){
+				$symbol_formatted['h_souce']+=0.5;
+			}
+			if($symbol_formatted['guessed_percentage']>2.7){
+				$symbol_formatted['h_souce']+=0.5;
+			}
+			
+			
             if(floatval($symbol_formatted['h_souce'])<1){echo " h_souce=".$symbol_formatted['h_souce'];}
             //hist_year_last_day('h_souce',$symbol_formatted); // yearly  TODO add when we close the app (slow, yearly)
         }
