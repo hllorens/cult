@@ -473,16 +473,19 @@ foreach ($stock_details_arr as $key => $item) {
                                   +min($calc_value_asset_share,
 			                            floatval($symbol_formatted['value'])/2)   // we should calculate this from equity...
                                   ,1,"calc_value guessed_value");
-			$symbol_formatted['guessed_percentage']=floatval(toFixed(
-														(
-														floatval($symbol_formatted['value'])  // cannot be <0
-														/
-														max(
-															floatval($symbol_formatted['guessed_value_5y'])
-															,0.001) // avoid 0 or negative divission this small val will make overvalued look OVERVALUED
-														)
-														,2,"guessed_percentage"));
-
+			if(intval(substr(end($symbol_formatted['revenue_hist'])[0],0,4))<(intval(date("Y"))-1) && intval(date("n"))>4){
+				$symbol_formatted['guessed_percentage']=1; // with lack of data just neutral valuation...
+			}else{
+				$symbol_formatted['guessed_percentage']=floatval(toFixed(
+															(
+															floatval($symbol_formatted['value'])  // cannot be <0
+															/
+															max(
+																floatval($symbol_formatted['guessed_value_5y'])
+																,0.001) // avoid 0 or negative divission this small val will make overvalued look OVERVALUED
+															)
+															,2,"guessed_percentage"));
+			}
 
             $symbol_formatted['h_souce']="".toFixed(
                                                  ($score_val_growth*3)+
