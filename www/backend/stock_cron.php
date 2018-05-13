@@ -345,7 +345,7 @@ foreach ($stock_details_arr as $key => $item) {
                 }
 
 				$operating_margin_pot=$symbol_formatted['om_pot']; 
-				if($operating_margin_pot<0.01 && $symbol_formatted['revenue_growth']>=0.25){
+				if($operating_margin_pot<0.01 && $symbol_formatted['revenue_growth']>=0.20){
 					$operating_margin_pot=0.01;
 				}
                 $symbol_formatted['prod']=toFixed(max(floatval($symbol_formatted['revp'])*$operating_margin_pot,floatval($symbol_formatted['oip']),floatval($symbol_formatted['epsp'])*1.1),3,'prod');

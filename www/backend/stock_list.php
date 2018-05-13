@@ -49,7 +49,7 @@ $stock_list="$stock_list,NYSE:SNE"; //,OTCMKTS:NTDOY             avoid otcmkts f
 $stock_list="$stock_list,NASDAQ:NFLX,NYSE:TWX,NASDAQ:CMCSA,NASDAQ:FOXA"; // HBO is part of time Warner
 $stock_list="$stock_list,NYSE:TM,NYSE:GM,EPA:UG,NYSE:F"; // maybe add FRA:VOW, but ETR financials are not good
 // solar power and machines -- semiconductor producers (review)
-$stock_list="$stock_list,NYSE:ED,NYSE:EIX,NASDAQ:SPWR,NASDAQ:TSLA,NYSE:NEE,NYSE:DUK,NYSE:SO,NYSE:D,NYSE:EXC";  // ,NASDAQ:SCTY acquired by TESLA 2016/2017?
+$stock_list="$stock_list,NYSE:ED,NYSE:EIX,NASDAQ:SPWR,NASDAQ:TSLA,NYSE:NEE,NYSE:DUK,NYSE:SO,NYSE:D,NYSE:EXC,NASDAQ:STX";  // ,NASDAQ:SCTY acquired by TESLA 2016/2017?
 
 // FUTURE:
 // Uber, airbnb, dropbox, spotify is not yet in stock, IPO estimated 2019
