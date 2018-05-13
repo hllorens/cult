@@ -3,44 +3,6 @@
 require_once 'stock_helper_functions.php';
 
 
-function get_anualized_data($param,$stock_data,&$tsv_arr){
-	if(array_key_exists($param.'_hist',$stock_data)){
-		$i=0;
-		$val_g=hist_growth_array($param.'_hist',$stock_data);
-		$val_a=acceleration_array($val_g);
-		$tsv_arr[$param[0].'gl']=end($val_g);
-		$tsv_arr[$param[0].'ga']=avg_weighted($val_g);
-		$tsv_arr[$param[0].'aa']=avg_weighted($val_a);
-		$seen_years=array();
-		foreach ($stock_data[$param.'_hist'] as $valdata){
-			//echo $valdata[0]."<br />";
-			if(array_key_exists(substr($valdata[0],0,4),$seen_years)){echo "ERROR duplicated year in $param_hist ".substr($valdata[0],0,4)."<br />"; exit(1);}
-			$seen_years[substr($valdata[0],0,4)]=true;
-			$tsv_arr[substr($valdata[0],0,4)][$param]=$valdata[1];
-			$tsv_arr[substr($valdata[0],0,4)][$param.'_ps']=floatval(toFixed(floatval($valdata[1])/floatval($stock_data['shares']),2));
-			$tsv_arr[substr($valdata[0],0,4)][$param.'_psp']=toFixed($tsv_arr[substr($valdata[0],0,4)][$param.'_ps']/floatval($tsv_arr[substr($valdata[0],0,4)]['value']),2);
-			if(array_key_exists(substr($valdata[0],0,4),$tsv_arr)){
-				if($i==0){
-					$tsv_arr[substr($valdata[0],0,4)][$param.'_g']=0;
-					$tsv_arr[substr($valdata[0],0,4)][$param.'_a']=0;
-				}else if ($i==1){
-					$tsv_arr[substr($valdata[0],0,4)][$param.'_g']=$val_g[($i-1)];
-					$tsv_arr[substr($valdata[0],0,4)][$param.'_a']=0;
-				}else{
-					$tsv_arr[substr($valdata[0],0,4)][$param.'_g']=$val_g[($i-1)];
-					$tsv_arr[substr($valdata[0],0,4)][$param.'_a']=$val_a[($i-2)];
-				}
-			}else{
-				echo "ERROR: in $param, year ".substr($valdata[0],0,4)." is not in tsv_arr<br />"; exit(1);
-			}
-			$i++;
-		}
-	}else{
-		echo "<br />ERR: no $param in stock_data<br />";
-		exit(1);
-	}
-}
-
 
 function get_tsv($symbol,$debug=false){
     $stocks_formatted=array();
@@ -121,6 +83,9 @@ function get_tsv($symbol,$debug=false){
 	$tsv.="\navg ni g/a	".$tsv_arr['nga']."	".$tsv_arr['naa'];
 	$tsv.="\navg eq g/a	".$tsv_arr['ega']."	".$tsv_arr['eaa'];
 
+	
+	// TODO we could use get_om_max_avg_pot here... 
+	
 	$om_max=floatval($stock_data['operating_margin']);
     $tsv.="\nperiod	value	g	a	revenue	g	a	op_inc	g	a	om	oip	net_inc	g	a	nip	eq	g	a\n";
 	foreach ($tsv_arr as $key => $value){

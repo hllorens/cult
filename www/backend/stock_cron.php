@@ -100,10 +100,17 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['range_52week_low']=trim($item['range_52week_low']);
         $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];   // already 0 if index in details
 		if($symbol_object['name']=='KO' && floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])<3.5){$stock_details_arr[$item['market'].':'.$item['name']]['shares']=4.26;}
-        if(array_key_exists('shares',$symbol_object) && abs(floatval($symbol_object['shares'])-floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares']))>max(0.04,floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])/20)){
+		if(!array_key_exists('shares_manual',$symbol_object)){
+			$symbol_object['shares_manual']=array();
+			$symbol_object['shares_manual'][]=array('2017-12-31',$symbol_object['shares']);
+            send_mail($item['name'].' shares manual missing','<br />shares manual missing in '.$item['name'].', please review the automatically added version<br /><br />',"hectorlm1983@gmail.com");
+		}
+        if(array_key_exists('shares',$symbol_object) && abs(floatval($symbol_object['shares'])-floatval(end($symbol_object['shares_manual'])[1]))>max(0.04,floatval($symbol_object['shares'])/20)){
             // if the diff is bigger than 5% or 0.04 whatever is bigger
             send_mail($item['name'].' sharenum change','<br />original('.$symbol_object['shares_source'].'):'.$symbol_object['shares'].' != new ('.$stock_details_arr[$item['market'].':'.$item['name']]['shares_source'].'):'.$stock_details_arr[$item['market'].':'.$item['name']]['shares'].
- 													   '<br />shares from mktcap:'.$symbol_object['shares_from_mktcap'].
+ 													   '<br />shares manual:'.$symbol_object['shares_from_mktcap'].
+ 													   '<br />shares from mktcap:'.end($symbol_object['shares_manual'])[1].
+                                                       '<br /><br />Time to update the manual shares?'.
                                                        '<br /><br />title:'.$symbol_object['title'].
                                                        '<br /><br /><br />value:'.$symbol_object['value'].
                                                        '<br />change:'.$symbol_object['session_change_percentage'].
@@ -220,6 +227,18 @@ foreach ($stock_details_arr as $key => $item) {
             // leverage, price to book  are not calculated
             //$symbol_formatted['eps_hist_last_diff']=0;
             //---------------------------------------------
+			
+			$tsv_arr=array();
+			get_anualized_data('value',$symbol_formatted,$tsv_arr);
+			get_anualized_data('revenue',$symbol_formatted,$tsv_arr);
+			get_anualized_data('operating_income',$symbol_formatted,$tsv_arr);
+			get_anualized_data('net_income',$symbol_formatted,$tsv_arr);
+			//var_dump($tsv_arr);
+			clean_no_revenue($tsv_arr);
+			$om_obj=get_om_max_avg_pot($tsv_arr);
+			//echo "om_max=".$om_obj['max']." om_avg=".$om_obj['avg']." om_pot=".$om_obj['pot']."<br />";
+			$symbol_formatted['om_pot']=$om_obj['pot'];
+			
             $ref_value=floatval($symbol_formatted['value']);
             if(count($symbol_formatted['value_hist'])>1){
                 $ref_value=floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-2][1]); // last year's value (less volatility in scorings)
@@ -325,7 +344,7 @@ foreach ($stock_details_arr as $key => $item) {
                                                     /max(0.01,$ref_value),3,"epsp");
                 }
 
-				$operating_margin_pot=floatval($symbol_formatted['operating_margin']); // TODO: get the max, avg... 
+				$operating_margin_pot=$symbol_formatted['om_pot']; 
 				if($operating_margin_pot<0.01 && $symbol_formatted['revenue_growth']>=0.25){
 					$operating_margin_pot=0.01;
 				}

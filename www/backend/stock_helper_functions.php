@@ -334,6 +334,94 @@ function avg_normal($arr){
     return floatval(toFixed($avg,2));	
 }
 
+function clean_no_revenue(&$tsv_arr){
+	$keys_to_remove=array();
+	foreach ($tsv_arr as $key => $value){
+		if(strval($key)[0]=="2"){
+			if(!array_key_exists('revenue',$value)){
+				$keys_to_remove[]=$key;
+			}
+		}
+	}
+	foreach($keys_to_remove as $key){
+		unset($tsv_arr[$key]);
+	}
+}
+
+
+// adds om and returns om_max, om_avg, om_pot
+function get_om_max_avg_pot(&$tsv_arr){
+	$om_obj=array();
+	$om_obj['max']=-0.01;
+	$om_obj['avg']=0;
+	$om_obj['pot']=0.01;
+	$om=0;
+	$num_years=0;
+	foreach ($tsv_arr as $key => $value){
+		if(strval($key)[0]=="2"){
+			$num_years++;
+			//echo "key=$key<br />";
+			//var_dump($value);
+			if(floatval($value['operating_income'])!=0){
+				$om=floatval(toFixed(floatval($value['operating_income'])/floatval($value['revenue']),2));
+			}else{  // use net income if om=0 (no data)
+				$om=floatval(toFixed((floatval($value['net_income'])*1.1)/floatval($value['revenue']),2));
+			}
+			$om_obj['avg']+=$om;
+			$tsv_arr[$key]['operating_income']=$om;
+			if($om>$om_obj['max']) $om_obj['max']=$om;
+		}
+	}
+	if($num_years>0){
+		$om_obj['avg']=floatval(toFixed($om_obj['avg']/$num_years,2));
+	}
+	$om_obj['pot']=max(($om_obj['avg']+$om_obj['max'])/2,$om);
+	
+	return $om_obj;
+}
+
+function get_anualized_data($param,$stock_data,&$tsv_arr){
+	if(array_key_exists($param.'_hist',$stock_data)){
+		$i=0;
+		$val_g=hist_growth_array($param.'_hist',$stock_data);
+		$val_a=acceleration_array($val_g);
+		$tsv_arr[$param[0].'gl']=end($val_g);
+		$tsv_arr[$param[0].'ga']=avg_weighted($val_g);
+		$tsv_arr[$param[0].'aa']=avg_weighted($val_a);
+		$seen_years=array();
+		foreach ($stock_data[$param.'_hist'] as $valdata){
+			//echo $valdata[0]."<br />";
+			if(array_key_exists(substr($valdata[0],0,4),$seen_years)){
+			echo "ERROR duplicated year in ${param}_hist ".substr($valdata[0],0,4)."<br />"; exit(1);
+			send_mail('ERROR:'.$param.'_hist dup year '.$stock_data['name'],'<br />For '.$stock_data['name']."ERROR duplicated year in ${param}_hist ".substr($valdata[0],0,4).'<br /><br />',"hectorlm1983@gmail.com");
+			}
+			$seen_years[substr($valdata[0],0,4)]=true;
+			$tsv_arr[substr($valdata[0],0,4)][$param]=$valdata[1];
+			$tsv_arr[substr($valdata[0],0,4)][$param.'_ps']=floatval(toFixed(floatval($valdata[1])/floatval($stock_data['shares']),2));
+			$tsv_arr[substr($valdata[0],0,4)][$param.'_psp']=toFixed($tsv_arr[substr($valdata[0],0,4)][$param.'_ps']/floatval($tsv_arr[substr($valdata[0],0,4)]['value']),2);
+			if(array_key_exists(substr($valdata[0],0,4),$tsv_arr)){
+				if($i==0){
+					$tsv_arr[substr($valdata[0],0,4)][$param.'_g']=0;
+					$tsv_arr[substr($valdata[0],0,4)][$param.'_a']=0;
+				}else if ($i==1){
+					$tsv_arr[substr($valdata[0],0,4)][$param.'_g']=$val_g[($i-1)];
+					$tsv_arr[substr($valdata[0],0,4)][$param.'_a']=0;
+				}else{
+					$tsv_arr[substr($valdata[0],0,4)][$param.'_g']=$val_g[($i-1)];
+					$tsv_arr[substr($valdata[0],0,4)][$param.'_a']=$val_a[($i-2)];
+				}
+			}else{
+				echo "ERROR: in $param, year ".substr($valdata[0],0,4)." is not in tsv_arr<br />"; exit(1);
+			}
+			$i++;
+		}
+	}else{
+		echo "<br />ERR: no $param in stock_data<br />";
+		exit(1);
+	}
+}
+
+
 
 function test_pad_arr(){
     $arr=[2,3];

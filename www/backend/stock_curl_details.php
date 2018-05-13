@@ -20,6 +20,9 @@ function get_details($symbol,$debug=false){
 	//$the_url="https://finance.google.com/search?q=";  quite not...
 	$the_url="https://www.msn.com/en-us/money/stockdetails/";
     $url_and_query=$the_url.get_msn_quote($symbol);
+    $query_arr=explode(":",$symbol);
+    $name=$query_arr[1];
+    $market=$query_arr[0];
     echo "stock $url_and_query<br />";
     $curl = curl_init();
     curl_setopt( $curl, CURLOPT_URL, $url_and_query );
@@ -159,15 +162,19 @@ function get_details($symbol,$debug=false){
             }
         }
 		
+		// special cases
+		if($name=="GOOG"){
+			// goog has special case of GOOG(C) + GOOGL(A)=0.29 + GOOGX (B, reserved) 0.5
+			$shares=floatval($shares)+0.29+0.05;
+		}
+		
 		if(abs(floatval($shares)-floatval($shares_from_mktcap))>(floatval($shares_from_mktcap)/4)){
             echo "<br /> $shares(direct) != $shares_from_mktcap (mktcap)<br />";
             //send_mail('Err. shares '.$symbol,"<br />$shares (direct) != $shares_from_mktcap (mktcap), bad stock? remove? use always marketcap?...<br /><br />","hectorlm1983@gmail.com");
 		}
     }
 
-    $query_arr=explode(":",$symbol);
-    $name=$query_arr[1];
-    $market=$query_arr[0];
+
     // assignment to the array, only if all went ok
 
     $details['name']=$name;

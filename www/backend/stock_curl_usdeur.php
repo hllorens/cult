@@ -12,16 +12,18 @@ curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
 $response = curl_exec( $curl ); //utf8_decode( not necessary
 curl_close( $curl );
     $response=preg_replace("/(\n|&nbsp;)/", " ", $response);
-    $response=preg_replace("/react-text: 36 -->([^<]*)</", "\n1USD=$1\n", $response);
-    $response=preg_replace("/react-text: 38 -->[-]?[0-9.]*\s*\(([^%]*)%/", "\n1curr_change=$1\n", $response);
+//    $response=preg_replace("/react-text: 36 -->([^<]*)</", "\n1USD=$1\n", $response);
+    $response=preg_replace("/reactid=\"35\"[^>]*>([0-9][^<]*)</", "\n1USD=$1\n", $response);
+//    $response=preg_replace("/react-text: 38 -->[-]?[0-9.]*\s*\(([^%]*)%/", "\n1curr_change=$1\n", $response);
+    $response=preg_replace("/reactid=\"36\"[^>]*>[-+]?[0-9.]+\s*\(([^%]*)%/", "\n1curr_change=$1\n", $response);
     //$response=preg_replace("/1\s+USD\s+=\s+([^E]+)EUR[^\(]*\(([^%]*)%/", "\n1USD=$1\n1curr_change=$2\n", $response);
     //$response=preg_replace("/^[^1].*$/m", "", $response); // needs m to work
     //$response=preg_replace("/<[^>]*>/", "", $response);
-    //echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
+   // echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
     preg_match("/^1USD=([0-9,.]*)\s*/m", $response, $usdeurval);
     $usdeurval=str_replace(",","",$usdeurval[1]);
-    preg_match("/^1curr_change=([0-9,.-]*)\s*/m", $response, $change);
-    $change=str_replace(",","",$change[1]);
+    preg_match("/^1curr_change=([0-9,.+-]*)\s*/m", $response, $change);
+    $change=str_replace("+","",str_replace(",","",$change[1]));
 
 $usdeur=floatval(toFixed(floatval($usdeurval),2));
 $usdeur_change=floatval(toFixed(floatval($change)/100,2));

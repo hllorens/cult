@@ -127,10 +127,20 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
 
         
 		$email_report="";
-        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_book',$results,'Price\/Book Value',0,$name,99,0.34);
-        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_sales',$results,'Price\/Sales',0,$name,99,0.34);
-        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'avg_revenue_growth_5y',$results,'avg_revenue_growth_5y',0,$name,0,0.34);
-        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'revenue_growth_qq_last_year',$results,'revenue_growth_qq_last_year',0,$name,0,0.34);
+		
+        // In msn I am not sure but in yahoo it is most-recent-quarter (mrq) we should probably ignore this and only use equity (financils)
+		$email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_book',$results,'Price\/Book Value',0,$name,99,0.34);
+        
+		// If missing could be calculated from financials and just send slow emeail
+		$email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_sales',$results,'Price\/Sales',0,$name,99,0.34);
+        
+		// If missing could be calculated from financials
+		$email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'avg_revenue_growth_5y',$results,'avg_revenue_growth_5y',0,$name,0,0.34);
+        
+		// this is the only truly important one
+		$email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'revenue_growth_qq_last_year',$results,'revenue_growth_qq_last_year',0,$name,0,0.34);
+
+		// probably calculate that from financials (if the val is empty, no need to send email but just slow log)
         $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage',$results,'Leverage Ratio',0,$name,99,0.34);
         if(count($results['Leverage Ratio'])>1){
             $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage_industry',$results,'Leverage Ratio',1,$name,99,0.34);
@@ -156,11 +166,13 @@ function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$de
 	$report="";
     if($results[$param_id][$index]=="-" || $results[$param_id][$index]==""){
         #exceptions stocks that don't have 5y or few data ------
-        if($param_id=="avg_revenue_growth_5y" && ($orig['name']=='SNAP' || $orig['name']=='YRD')){return "";}
-        if($param_id=="revenue_growth_qq_last_year" && (  $orig['name']=='KER'  )){return "";}
+        if($param_id=="avg_revenue_growth_5y"){return "";} // we use financials for this already && ($orig['name']=='SNAP' || $orig['name']=='YRD')
+        if($param_id=="revenue_growth_qq_last_year" && (  $orig['name']=='KER'  )){return "";} // the only truly important
+        if($param_id=="price_to_book" && (  $orig['name']=='BIDU' || $orig['name']=='ACX' )){return "";}
+        if($param_id=="leverage" && (  $orig['name']=='BIDU' || $orig['name']=='ACX' )){return "";}
         #-------------------------------------------
         $results[$param_id][$index]=$default_val;
-        $report="$url_and_query<br /><br />Empty - in $param_id (".$results[$param_id][$index].") (index=$index) ".implode(" ",$results[$param_id])." (stock_cron_leverage_book.php), setting $default_val<br /><br />";
+        $report="$url_and_query<br /><br />Empty - in $param_id (".$results[$param_id][$index].") (index=$index) new:[".implode(" ",$results[$param_id])."] (stock_cron_leverage_book.php), setting $default_val<br /><br />";
     }
     if(!array_key_exists($orig_param,$orig)){
         $report.="$url_and_query<br /><br />New: ".$results[$param_id][$index]."<br />(stock_cron_leverage_book.php)<br />";
