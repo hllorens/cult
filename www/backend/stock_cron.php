@@ -99,25 +99,27 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['range_52week_high']=trim($item['range_52week_high']);
         $symbol_object['range_52week_low']=trim($item['range_52week_low']);
         $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];   // already 0 if index in details
-		if($symbol_object['name']=='KO' && floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])<3.5){$stock_details_arr[$item['market'].':'.$item['name']]['shares']=4.26;}
 		if(!array_key_exists('shares_manual',$symbol_object)){
 			$symbol_object['shares_manual']=array();
-			$symbol_object['shares_manual'][]=array('2017-12-31',$symbol_object['shares']);
+			$symbol_object['shares_manual'][]=array('2017-12-31',$stock_details_arr[$item['market'].':'.$item['name']]['shares']);
             send_mail($item['name'].' shares manual missing','<br />shares manual missing in '.$item['name'].', please review the automatically added version<br /><br />',"hectorlm1983@gmail.com");
 		}
-        if(array_key_exists('shares',$symbol_object) && abs(floatval($symbol_object['shares'])-floatval(end($symbol_object['shares_manual'])[1]))>max(0.04,floatval($symbol_object['shares'])/20)){
+        if(array_key_exists('shares',$symbol_object) && // avoid this check if it is the first time
+		        abs(floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])-floatval(end($symbol_object['shares_manual'])[1]))>max(0.04,floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])/20)){
             // if the diff is bigger than 5% or 0.04 whatever is bigger
             send_mail($item['name'].' sharenum change','<br />original('.$symbol_object['shares_source'].'):'.$symbol_object['shares'].' != new ('.$stock_details_arr[$item['market'].':'.$item['name']]['shares_source'].'):'.$stock_details_arr[$item['market'].':'.$item['name']]['shares'].
- 													   '<br />shares manual:'.$symbol_object['shares_from_mktcap'].
- 													   '<br />shares from mktcap:'.end($symbol_object['shares_manual'])[1].
+ 													   '<br />shares manual:'.end($symbol_object['shares_manual'])[1].
                                                        '<br /><br />Time to update the manual shares?'.
                                                        '<br /><br />title:'.$symbol_object['title'].
                                                        '<br /><br /><br />value:'.$symbol_object['value'].
                                                        '<br />change:'.$symbol_object['session_change_percentage'].
                                                        '<br /><br />',"hectorlm1983@gmail.com");
-        }
-        $symbol_object['shares']=$stock_details_arr[$item['market'].':'.$item['name']]['shares']; // already 0 if index in details
-        $symbol_object['shares_source']=$stock_details_arr[$item['market'].':'.$item['name']]['shares_source'];
+			$symbol_object['shares']=end($symbol_object['shares_manual'])[1]; // already 0 if index in details
+			$symbol_object['shares_source']='manual';
+	   }else{
+			$symbol_object['shares']=$stock_details_arr[$item['market'].':'.$item['name']]['shares']; // already 0 if index in details
+			$symbol_object['shares_source']=$stock_details_arr[$item['market'].':'.$item['name']]['shares_source'];
+		}
         $symbol_object['mktcap']=$stock_details_arr[$item['market'].':'.$item['name']]['mktcap'];// already 0 if index in details
 
         // hist of basic stuff needs to be done here since it is used below, and if it is the first time a new value is added, it would be needed
@@ -228,22 +230,22 @@ foreach ($stock_details_arr as $key => $item) {
             //$symbol_formatted['eps_hist_last_diff']=0;
             //---------------------------------------------
 			
-			$tsv_arr=array();
-			get_anualized_data('value',$symbol_formatted,$tsv_arr);
-			get_anualized_data('revenue',$symbol_formatted,$tsv_arr);
-			get_anualized_data('operating_income',$symbol_formatted,$tsv_arr);
-			get_anualized_data('net_income',$symbol_formatted,$tsv_arr);
-			//var_dump($tsv_arr);
-			clean_no_revenue($tsv_arr);
-			$om_obj=get_om_max_avg_pot($tsv_arr);
-			//echo "om_max=".$om_obj['max']." om_avg=".$om_obj['avg']." om_pot=".$om_obj['pot']."<br />";
-			$symbol_formatted['om_pot']=$om_obj['pot'];
 			
             $ref_value=floatval($symbol_formatted['value']);
             if(count($symbol_formatted['value_hist'])>1){
                 $ref_value=floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-2][1]); // last year's value (less volatility in scorings)
             }
             if(array_key_exists('revenue_hist',$symbol_formatted)){
+				$tsv_arr=array();
+				get_anualized_data('value',$symbol_formatted,$tsv_arr);
+				get_anualized_data('revenue',$symbol_formatted,$tsv_arr);
+				get_anualized_data('operating_income',$symbol_formatted,$tsv_arr);
+				get_anualized_data('net_income',$symbol_formatted,$tsv_arr);
+				//var_dump($tsv_arr);
+				clean_no_revenue($tsv_arr);
+				$om_obj=get_om_max_avg_pot($tsv_arr);
+				//echo "om_max=".$om_obj['max']." om_avg=".$om_obj['avg']." om_pot=".$om_obj['pot']."<br />";
+				$symbol_formatted['om_pot']=floatval(toFixed($om_obj['pot'],3,'om_pot'));
                 $last_revenue_year=floatval(substr(end($symbol_formatted['revenue_hist'])[0],0,4));
                 $last_value_year=floatval(substr(end($symbol_formatted['value_hist'])[0],0,4));
                 if(($last_value_year-$last_revenue_year)>2){
@@ -352,7 +354,7 @@ foreach ($stock_details_arr as $key => $item) {
                 $symbol_formatted['prod_ps']=toFixed(max(floatval($symbol_formatted['revps'])*$operating_margin_pot,floatval($symbol_formatted['oips']),floatval($symbol_formatted['eps'])*1.1),3,'prod');
 
 			}else{
-                echo "!financials (no revenue), consider running financials and leverage-book manually";
+                echo "!financials (no revenue), consider running financials and fiancials, leverage-book manually";
                 send_mail('NOTE:'.$item['name'].' !financials','<br />From stock_cron.php, there is no revenue_hist for this stock. !financials? fix manually (run financials).<br /><br />',"hectorlm1983@gmail.com");
             }
 

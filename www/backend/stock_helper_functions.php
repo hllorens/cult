@@ -362,6 +362,11 @@ function get_om_max_avg_pot(&$tsv_arr){
 			$num_years++;
 			//echo "key=$key<br />";
 			//var_dump($value);
+			
+			//avoid 0 division
+			if(floatval($value['revenue'])==0){
+				$value['revenue']=0.001;
+			}
 			if(floatval($value['operating_income'])!=0){
 				$om=floatval(toFixed(floatval($value['operating_income'])/floatval($value['revenue']),2));
 			}else{  // use net income if om=0 (no data)
@@ -375,7 +380,12 @@ function get_om_max_avg_pot(&$tsv_arr){
 	if($num_years>0){
 		$om_obj['avg']=floatval(toFixed($om_obj['avg']/$num_years,2));
 	}
-	$om_obj['pot']=max(($om_obj['avg']+$om_obj['max'])/2,$om);
+	
+	//$om_obj['pot']=max(($om_obj['avg']+$om_obj['max'])/2,$om);
+	$om_obj['pot']=$om;
+	if($om>0.01 && $om<$om_obj['avg']){
+		$om_obj['pot']=($om_obj['avg']+$om)/2;
+	}
 	
 	return $om_obj;
 }
@@ -417,7 +427,7 @@ function get_anualized_data($param,$stock_data,&$tsv_arr){
 		}
 	}else{
 		echo "<br />ERR: no $param in stock_data<br />";
-		exit(1);
+		send_mail('ERROR: no '.$param.' in '.$stock_data['name'],'<br />For '.$stock_data['name']."ERROR no ${param}<br /><br />","hectorlm1983@gmail.com");
 	}
 }
 

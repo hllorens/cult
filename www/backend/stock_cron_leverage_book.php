@@ -172,10 +172,10 @@ function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$de
         if($param_id=="leverage" && (  $orig['name']=='BIDU' || $orig['name']=='ACX' )){return "";}
         #-------------------------------------------
         $results[$param_id][$index]=$default_val;
-        $report="$url_and_query<br /><br />Empty - in $param_id (".$results[$param_id][$index].") (index=$index) new:[".implode(" ",$results[$param_id])."] (stock_cron_leverage_book.php), setting $default_val<br /><br />";
+        $report="$name<br /><br />Empty - in $param_id (".$results[$param_id][$index].") (index=$index) new:[".implode(" ",$results[$param_id])."] (stock_cron_leverage_book.php), setting $default_val<br /><br />";
     }
     if(!array_key_exists($orig_param,$orig)){
-        $report.="$url_and_query<br /><br />New: ".$results[$param_id][$index]."<br />(stock_cron_leverage_book.php)<br />";
+        $report.="$name<br /><br />New: ".$results[$param_id][$index]."<br />(stock_cron_leverage_book.php)<br />";
         $orig[$orig_param]=$results[$param_id][$index];
     }else{
         if(floatval($orig[$orig_param])==$default_val){
@@ -185,11 +185,11 @@ function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$de
             if(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1) >$diff_margin){
                 $diff=toFixed(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1),2,"lev-book diff");
                 if(floatval($results[$param_id][$index])==$default_val){
-                    $report.="$url_and_query<br /><br />New $param_id (orig: $orig_param)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]." (default, empty)<br />Keeping original since new is the default (empty)<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
+                    $report.="$name<br /><br />New $param_id (orig: $orig_param)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]." (default, empty)<br />Keeping original since new is the default (empty)<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
                 }else{
 					// only email with greater margin, otherwise just update
 					if(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1) >($diff_margin+0.3)){
-						$report.="$url_and_query<br /><br />New $param_id (orig: $orig_param)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]."<br />Keeping the new<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
+						$report.="$name<br /><br />New $param_id (orig: $orig_param)<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]."<br />Keeping the new<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
 					}
 					
 					$orig[$orig_param]=$results[$param_id][$index];
