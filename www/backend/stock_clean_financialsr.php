@@ -33,8 +33,6 @@ $stocks_clean_arr=array();
 foreach ($stocks_financials_arr as $key => $item) {
 	$symbol_object=array();
     echo "<br />doing ".$item['market'].":".$item['name']."<br />";
-    $symbol_object['name']=$item['name'];
-    $symbol_object['market']=$item['market'];
 	$years_arr=array();
 	foreach (array_keys($stocks_financials_arr[$item['market'].":".$item['name']]) as $key){
 		if(in_array(substr($key,0,4),$years_arr)){
@@ -57,6 +55,9 @@ foreach ($stocks_financials_arr as $key => $item) {
             }
             $symbol_object[$key2]=array();
             $symbol_object[$key2]['Total Revenue']=$item2['Total Revenue'];
+			if(floatval($item2['Operating Income'])==0){
+                echo "&nbsp; $key2 operating_income=".$item2['Operating Income']."... ERROR, MANUAL REVIEW NEEDED<br />";
+			}
             $symbol_object[$key2]['Operating Income']=$item2['Operating Income'];
             $symbol_object[$key2]['Net Income']=$item2['Net Income'];
         }else if($key2[0]=="2"){
@@ -64,6 +65,8 @@ foreach ($stocks_financials_arr as $key => $item) {
             exit(1);
         }
     }
+    $symbol_object['name']=$item['name'];
+    $symbol_object['market']=$item['market'];
     $stocks_clean_arr[$item['market'].':'.$item['name']]=$symbol_object;
     //if($item['name']=='CMPR') break;
 }
@@ -73,7 +76,6 @@ $stocks_clean_arr_json_str=json_encode( $stocks_clean_arr );
 $stocks_clean_json_file = fopen("stocks_financials_cleanr.json", "w") or die("Unable to open file stocks_clean.json!");
 fwrite($stocks_clean_json_file, $stocks_clean_arr_json_str);
 fclose($stocks_clean_json_file);
-
 echo "<br />".date('Y-m-d H:i:s')." done with stocks_clean.json <br />";
 
 ?>

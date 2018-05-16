@@ -107,13 +107,23 @@ foreach ($stock_details_arr as $key => $item) {
         if(array_key_exists('shares',$symbol_object) && // avoid this check if it is the first time
 		        abs(floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])-floatval(end($symbol_object['shares_manual'])[1]))>max(0.04,floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])/20)){
             // if the diff is bigger than 5% or 0.04 whatever is bigger
-            send_mail($item['name'].' sharenum change','<br />original('.$symbol_object['shares_source'].'):'.$symbol_object['shares'].' != new ('.$stock_details_arr[$item['market'].':'.$item['name']]['shares_source'].'):'.$stock_details_arr[$item['market'].':'.$item['name']]['shares'].
- 													   '<br />shares manual:'.end($symbol_object['shares_manual'])[1].
-                                                       '<br /><br />Time to update the manual shares?'.
-                                                       '<br /><br />title:'.$symbol_object['title'].
-                                                       '<br /><br /><br />value:'.$symbol_object['value'].
-                                                       '<br />change:'.$symbol_object['session_change_percentage'].
-                                                       '<br /><br />',"hectorlm1983@gmail.com");
+			
+			// exceptions
+			if(
+				($symbol_object['name']=="SGRE" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="0.28")
+
+			){
+				echo "sharenum exception<br />";
+			}else{
+				send_mail($item['name'].' sharenum change','<br />original('.$symbol_object['shares_source'].'):'.$symbol_object['shares'].
+														   ' <br />new ('.$stock_details_arr[$item['market'].':'.$item['name']]['shares_source'].'):'.$stock_details_arr[$item['market'].':'.$item['name']]['shares'].
+														   '<br />shares manual:'.end($symbol_object['shares_manual'])[1].
+														   '<br /><br />Time to update the manual shares?'.
+														   '<br /><br />title:'.$symbol_object['title'].
+														   '<br /><br /><br />value:'.$symbol_object['value'].
+														   '<br />change:'.$symbol_object['session_change_percentage'].
+														   '<br /><br />',"hectorlm1983@gmail.com");
+			}
 			$symbol_object['shares']=end($symbol_object['shares_manual'])[1]; // already 0 if index in details
 			$symbol_object['shares_source']='manual';
 	   }else{
@@ -347,7 +357,7 @@ foreach ($stock_details_arr as $key => $item) {
                 }
 
 				$operating_margin_pot=$symbol_formatted['om_pot']; 
-				if($operating_margin_pot<0.01 && $symbol_formatted['revenue_growth']>=0.20){
+				if($operating_margin_pot<0.01 && $symbol_formatted['revenue_growth']>=0.25){
 					$operating_margin_pot=0.01;
 				}
                 $symbol_formatted['prod']=toFixed(max(floatval($symbol_formatted['revp'])*$operating_margin_pot,floatval($symbol_formatted['oip']),floatval($symbol_formatted['epsp'])*1.1),3,'prod');

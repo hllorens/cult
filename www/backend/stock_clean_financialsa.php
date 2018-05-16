@@ -33,8 +33,6 @@ $stocks_clean_arr=array();
 foreach ($stocks_financials_arr as $key => $item) {
 	$symbol_object=array();
     echo "<br />doing ".$item['market'].":".$item['name']."<br />";
-    $symbol_object['name']=$item['name'];
-    $symbol_object['market']=$item['market'];
 	$years_arr=array();
 	foreach (array_keys($stocks_financials_arr[$item['market'].":".$item['name']]) as $key){
 		if(in_array(substr($key,0,4),$years_arr)){
@@ -63,6 +61,8 @@ foreach ($stocks_financials_arr as $key => $item) {
             exit(1);
         }
     }
+    $symbol_object['name']=$item['name'];
+    $symbol_object['market']=$item['market'];
     $stocks_clean_arr[$item['market'].':'.$item['name']]=$symbol_object;
     //if($item['name']=='CMPR') break;
 }
