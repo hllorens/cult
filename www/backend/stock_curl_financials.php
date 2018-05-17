@@ -88,7 +88,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         foreach ($stock_financials_arr[$market.":".$name] as $key2 => $item2) {
             if($key2[0]=="2" && array_key_exists('Total Revenue',$item2)){
                 $stocks_formatted_arr[$name.":".$market]['revenue_hist'][]=[$key2,toFixed(floatval(($item2['Total Revenue'])/1000),2,'revenue')]; // PS can be calculated
-                //if(floatval($item2['Operating Income'])==0){$item2['Operating Income']=$item2['Net Income'];}
+                //if(floatval($item2['Operating Income'])==0){$item2['Operating Income']=$item2['Net Income'];} // we keep as it is and send alerts...
                 $stocks_formatted_arr[$name.":".$market]['operating_income_hist'][]=[$key2,toFixed(floatval(($item2['Operating Income'])/1000),2,'operating income')]; // OM can be calculated
                 $stocks_formatted_arr[$name.":".$market]['net_income_hist'][]=[$key2,toFixed(floatval(($item2['Net Income'])/1000),2,'net income')]; // EPS can be calculated
             }else if($key2[0]=="2"){

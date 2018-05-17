@@ -54,6 +54,9 @@ foreach ($stocks_financials_arr as $key => $item) {
                 echo "$key2 ... suspicious<br />";
             }                                          
             $symbol_object[$key2]=array();
+			if(floatval($item2['Total Assets'])==0){
+                echo "&nbsp; $key2 assets=".$item2['Total Assets']."... ERROR, MANUAL REVIEW NEEDED<br />";
+			}
             $symbol_object[$key2]['Total Assets']=$item2['Total Assets'];
             $symbol_object[$key2]['Total Liabilities']=$item2['Total Liabilities'];
         }else if($key2[0]=="2" && floatval(substr($key2,0,4))>2014){

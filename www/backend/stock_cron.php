@@ -536,10 +536,10 @@ foreach ($stock_details_arr as $key => $item) {
 				$symbol_formatted['h_souce']+=0.5;
 			}
 			if($symbol_formatted['guessed_percentage']>1.7){
-				$symbol_formatted['h_souce']+=0.5;
+				$symbol_formatted['h_souce']+=-0.5;
 			}
 			if($symbol_formatted['guessed_percentage']>2.7){
-				$symbol_formatted['h_souce']+=0.5;
+				$symbol_formatted['h_souce']+=-0.5; 
 			}
 			
 			

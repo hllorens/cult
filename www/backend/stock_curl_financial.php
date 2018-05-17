@@ -90,8 +90,8 @@ function get_financial($symbol,$debug=false){
             continue;
         }
         if(intval($period_arr_arr[2])<2010){
-            echo "ERROR (assets): incorrect year ".$period_arr[1][$period];
-            send_mail('Error assets '.$name,"$url_and_query<br />"."ERROR (MSN INCOME): incorrect year period ".$period_arr[1][$period]."<br /><br />","hectorlm1983@gmail.com");
+            echo "ERROR (financials): incorrect year ".$period_arr[1][$period];
+            send_mail('Error financials '.$name,"$url_and_query<br />"."ERROR (MSN INCOME): incorrect year period ".$period_arr[1][$period]."<br /><br />","hectorlm1983@gmail.com");
             continue;
         }
         $period_arr[1][$period]=$period_arr_arr[2]."-".str_pad($period_arr_arr[0],2,"0",STR_PAD_LEFT)."-".str_pad($period_arr_arr[1],2,"0",STR_PAD_LEFT);

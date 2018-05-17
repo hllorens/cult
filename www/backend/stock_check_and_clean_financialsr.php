@@ -55,8 +55,8 @@ foreach ($stocks_financials_arr as $key => $item) {
             }
             $symbol_object[$key2]=array();
             $symbol_object[$key2]['Total Revenue']=$item2['Total Revenue'];
-			if(floatval($item2['Operating Income'])==0){
-                echo "&nbsp; $key2 operating_income=".$item2['Operating Income']."... ERROR, MANUAL REVIEW NEEDED<br />";
+			if(floatval($item2['Operating Income'])==0 || floatval($item2['Total Revenue'])==0){
+                echo "&nbsp; $key2 revenue=".$item2['Total Revenue']." operating_income=".$item2['Operating Income']."... ERROR, MANUAL REVIEW NEEDED<br />";
 			}
             $symbol_object[$key2]['Operating Income']=$item2['Operating Income'];
             $symbol_object[$key2]['Net Income']=$item2['Net Income'];
