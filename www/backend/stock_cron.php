@@ -224,6 +224,7 @@ foreach ($stock_details_arr as $key => $item) {
             //$symbol_formatted['last_financials_year']=0000;
             $symbol_formatted['operating_margin']=0;
             $symbol_formatted['prod']=0;
+			$prod_ps_guess=0;
             $om_to_ps=0;
             $revenue=0;
             $symbol_formatted['revp']=0;
@@ -254,6 +255,9 @@ foreach ($stock_details_arr as $key => $item) {
 				//var_dump($tsv_arr);
 				clean_no_revenue($tsv_arr);
 				$om_obj=get_om_max_avg_pot($tsv_arr);
+				$prod_ps_hist_obj=get_prod_ps($tsv_arr);
+                $prod_ps_growth_arr=hist_growth_array('prod_ps_hist',$prod_ps_hist_obj,5);
+				$symbol_formatted['prod_ps_trend']=trend($prod_ps_growth_arr,0.05);
 				//echo "om_max=".$om_obj['max']." om_avg=".$om_obj['avg']." om_pot=".$om_obj['pot']."<br />";
 				$symbol_formatted['om_pot']=floatval(toFixed($om_obj['pot'],3,'om_pot'));
                 $last_revenue_year=floatval(substr(end($symbol_formatted['revenue_hist'])[0],0,4));
@@ -273,7 +277,25 @@ foreach ($stock_details_arr as $key => $item) {
                 $operating_income=floatval(end($symbol_formatted['operating_income_hist'])[1]);
                 $equity=floatval(end($symbol_formatted['equity_hist'])[1]);
 				$equity_per_share=($equity/floatval($symbol_formatted['shares']));
-                $symbol_formatted['eqp']=toFixed($equity_per_share/max(0.01,$ref_value),2,'eqp');
+                $symbol_formatted['eqp']=floatval(toFixed($equity_per_share/max(0.01,$ref_value),2,'eqp'));
+                $price_to_book_inv=1/max(0.0001,floatval($symbol_formatted['price_to_book']));
+				if(floatval($symbol_formatted['price_to_book'])!=99 && $symbol_formatted['eqp']==0) {
+					$symbol_formatted['eqp']=$price_to_book_inv;
+				}
+				if(floatval($symbol_formatted['price_to_book'])!=99 && abs($symbol_formatted['eqp']-$price_to_book_inv)>0.10) {
+					/*send_mail(''.$item['name'].' eqp!=pb_inv',
+					                           "<br />ERROR: eqp(".$symbol_formatted['eqp'].")!=pb_inv($price_to_book_inv)".
+                            				   " using pb_inv...<br />equity=$equity  shares=".$symbol_formatted['shares'].
+											   "<br />equity_per_share=$equity_per_share<br /><br />","hectorlm1983@gmail.com");
+					*/
+					echo "ERROR eqp(".$symbol_formatted['eqp'].")!=pb_inv($price_to_book_inv) TODO better handle...<br />";
+					
+					     // TODO cambiar email por slow log....
+					
+					
+					
+					$symbol_formatted['eqp']=$price_to_book_inv;
+				}
                 $symbol_formatted['price_to_book_calc']=toFixed($ref_value/max(0.001,$equity_per_share),2,'pbc');
 				$assets=floatval($symbol_formatted['leverage'])*$equity;
                 $symbol_formatted['ap']=toFixed(($assets/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),2,'ap');
@@ -289,7 +311,7 @@ foreach ($stock_details_arr as $key => $item) {
                     exit(1);
                 }
                 $symbol_formatted['operating_margin']=toFixed($operating_income/$revenue,2,'operating margin');
-                // average it if possible
+                // average operating margin if possible
                 if(count($symbol_formatted['operating_income_hist'])>1 && count($symbol_formatted['revenue_hist'])>1){
                     if($symbol_formatted['operating_income_hist'][count($symbol_formatted['operating_income_hist'])-2][0]!=$symbol_formatted['operating_income_hist'][count($symbol_formatted['revenue_hist'])-2][0]){
                         echo "ERROR: Last operating income year (".$symbol_formatted['operating_income_hist'][count($symbol_formatted['operating_income_hist'])-2][0].") != last revenue year (".$symbol_formatted['operating_income_hist'][count($symbol_formatted['revenue_hist'])-2][0].")<br />";
@@ -308,7 +330,7 @@ foreach ($stock_details_arr as $key => $item) {
                 $symbol_formatted['price_to_sales']=toFixed($ref_value/($revenue/floatval($symbol_formatted['shares'])),2,'operating margin');
                 $om_to_ps=min(max(floatval($symbol_formatted['operating_margin'])*300,0)/max(floatval($symbol_formatted['price_to_sales'])*10,0.1),1);
                 $symbol_formatted['eps']=toFixed(floatval(end($symbol_formatted['net_income_hist'])[1])/floatval($symbol_formatted['shares']),2,"stock_cron eps");
-                // average it if possible
+                // average eps if possible
                 if(count($symbol_formatted['net_income_hist'])>1){
                     $symbol_formatted['eps']=toFixed(
                                                     (
@@ -330,7 +352,7 @@ foreach ($stock_details_arr as $key => $item) {
                 //$operating_income_acceleration=acceleration_array($symbol_formatted['operating_income_growth_arr']);
                 //$symbol_formatted['operating_income_acceleration']=avg_weighted($operating_income_acceleration);
 				// although maybe this could be better than eps trend...
-                $symbol_formatted['net_income_growth_arr']=hist_growth_array('net_income_hist',$symbol_formatted,5);                
+                $symbol_formatted['net_income_growth_arr']=hist_growth_array('net_income_hist',$symbol_formatted,5);
                 if(array_key_exists('equity_hist',$symbol_formatted)){
                     $symbol_formatted['equity_growth_arr']=hist_growth_array('equity_hist',$symbol_formatted,5);
                     $symbol_formatted['equity_growth']=avg_weighted($symbol_formatted['equity_growth_arr']);
@@ -347,22 +369,24 @@ foreach ($stock_details_arr as $key => $item) {
                 // since price and num shares change, if we want to use averages, it is safer to calculate as PER inverse
                 // however, PER does not account for negative EPS, so we are forced to calculate as eps/price
                 $symbol_formatted['epsp']=toFixed(floatval($symbol_formatted['eps'])/max(0.01,$ref_value),3,"epsp");
-                if(count($symbol_formatted['net_income_hist'])>1){
-                    $symbol_formatted['epsp']=toFixed(
-                                                    (
-                                                        floatval($symbol_formatted['eps'])+
-                                                        (floatval($symbol_formatted['net_income_hist'][count($symbol_formatted['net_income_hist'])-2][1])/floatval($symbol_formatted['shares']))
-                                                    )/2
-                                                    /max(0.01,$ref_value),3,"epsp");
-                }
 
-				$operating_margin_pot=$symbol_formatted['om_pot']; 
+				$operating_margin_pot=$symbol_formatted['om_pot'];
+				
+				
+				
+				
+				
+				// TODO: this is wrong... should we just use the latest? we are dividing the avg oi by the current shares and current price...
+				// EITHER WE DO MORE COMPLEX OR THIS IS WRONG...?
+				
+				
+				
+                $symbol_formatted['prod']=toFixed(max(floatval($symbol_formatted['revp'])*$operating_margin_pot,floatval($symbol_formatted['oip']),floatval($symbol_formatted['epsp'])+(0.1*floatval($symbol_formatted['epsp']))),3,'prod');
+                $symbol_formatted['prod_ps']=toFixed(max(floatval($symbol_formatted['revps'])*$operating_margin_pot,floatval($symbol_formatted['oips']),floatval($symbol_formatted['eps'])+(0.1*floatval($symbol_formatted['eps']))),3,'prodps');
+				$prod_ps_guess=$symbol_formatted['prod_ps'];
 				if($operating_margin_pot<0.01 && $symbol_formatted['revenue_growth']>=0.25){
-					$operating_margin_pot=0.01;
+					$prod_ps_guess=toFixed(max(floatval($symbol_formatted['revps'])*0.01,floatval($symbol_formatted['oips']),floatval($symbol_formatted['eps'])*1.1),3,'prod');
 				}
-                $symbol_formatted['prod']=toFixed(max(floatval($symbol_formatted['revp'])*$operating_margin_pot,floatval($symbol_formatted['oip']),floatval($symbol_formatted['epsp'])*1.1),3,'prod');
-                $symbol_formatted['prod_ps']=toFixed(max(floatval($symbol_formatted['revps'])*$operating_margin_pot,floatval($symbol_formatted['oips']),floatval($symbol_formatted['eps'])*1.1),3,'prod');
-
 			}else{
                 echo "!financials (no revenue), consider running financials and fiancials, leverage-book manually";
                 send_mail('NOTE:'.$item['name'].' !financials','<br />From stock_cron.php, there is no revenue_hist for this stock. !financials? fix manually (run financials).<br /><br />',"hectorlm1983@gmail.com");
@@ -406,12 +430,17 @@ foreach ($stock_details_arr as $key => $item) {
 				// avg is aroun 0.07, highest is around 0.20, multiplying by 5 would make it 1
                 //$score_epsp=($prod)*5; // 7*5=35, 20*5=100
 				// 7 should be at least 5
-                $score_epsp=($prod)*8; // 7*8=56, 13*8=100
+                $score_epsp=($prod)*7; // 7*8=56, 13*8=100
                 if($computable_yield>($epsp+0.006)) $score_epsp-=($epsp-$computable_yield)*15; // penalized if yield > $epsp
-                if(array_key_exists('eps_hist_trend',$symbol_formatted)){
+                /*if(array_key_exists('eps_hist_trend',$symbol_formatted)){
                     if($symbol_formatted['eps_hist_trend']=='/-') $score_epsp+=0.05; 
                     if($symbol_formatted['eps_hist_trend']=='_/') $score_epsp+=0.08; 
                     if($symbol_formatted['eps_hist_trend']=='/') $score_epsp+=0.10;
+                }*/
+                if(array_key_exists('prod_ps_trend',$symbol_formatted)){
+                    if($symbol_formatted['prod_ps_trend']=='/-') $score_epsp+=0.05; 
+                    if($symbol_formatted['prod_ps_trend']=='_/') $score_epsp+=0.08; 
+                    if($symbol_formatted['prod_ps_trend']=='/') $score_epsp+=0.10;
                 }
                 $score_epsp=max(min($score_epsp,1),0);  // min 0 max 1
             }
@@ -460,11 +489,17 @@ foreach ($stock_details_arr as $key => $item) {
             $negative_rev_growth_penalty=max(min($negative_rev_growth_penalty,0),-1);  // min 0 max 1
 
             $negative_eps_growth_penalty=0.0;
-            if($epsp<0.03 && array_key_exists('eps_hist_trend',$symbol_formatted)){
+            /*if($epsp<0.03 && array_key_exists('eps_hist_trend',$symbol_formatted)){
                 if($symbol_formatted['eps_hist_trend']=='\\') $negative_eps_growth_penalty=-0.5;
                 if($symbol_formatted['eps_hist_trend']=='-\\') $negative_eps_growth_penalty=-0.25;
                 if($symbol_formatted['eps_hist_trend']=='\_') $negative_eps_growth_penalty=-0.15;
                 if($symbol_formatted['eps_hist_trend']=='^') $negative_eps_growth_penalty=-0.25;
+            }*/
+            if($epsp<0.03 && array_key_exists('prod_ps_trend',$symbol_formatted)){
+                if($symbol_formatted['prod_ps_trend']=='\\') $negative_eps_growth_penalty=-0.5;
+                if($symbol_formatted['prod_ps_trend']=='-\\') $negative_eps_growth_penalty=-0.25;
+                if($symbol_formatted['prod_ps_trend']=='\_') $negative_eps_growth_penalty=-0.15;
+                if($symbol_formatted['prod_ps_trend']=='^') $negative_eps_growth_penalty=-0.25;
             }
             if($epsp<-0.015){
                 $negative_eps_growth_penalty=-0.5;
@@ -493,7 +528,7 @@ foreach ($stock_details_arr as $key => $item) {
                                   ),1,"calc_value guessed_value");
 								  
             $symbol_formatted['guessed_value_5y']="".toFixed(
-									5*compound_interest_4($symbol_formatted['prod_ps'],  // we should calculate the pot om and prodps...
+									5*compound_interest_4($prod_ps_guess,  // we should calculate the pot om and prodps...
 										min(
 										floatval($symbol_formatted['revenue_growth'])
 										+
@@ -517,9 +552,21 @@ foreach ($stock_details_arr as $key => $item) {
 															)
 															,2,"guessed_percentage"));
 			}
+			
+			// risk (eqp) warren buffet
+			$score_eqp=1;
+			// buffet pb=1.5 -> 0.66, avg pb=4 --> 0.20
+			if($symbol_formatted['eqp']<=0.66){$score_eqp=0.9;}  // buffet acceptance
+			if($symbol_formatted['eqp']<=0.5){$score_eqp=0.8;}
+			if($symbol_formatted['eqp']<=0.4){$score_eqp=0.7;}
+			if($symbol_formatted['eqp']<=0.3){$score_eqp=0.6;}
+			if($symbol_formatted['eqp']<=0.2){$score_eqp=0.5;}  // average
+			if($symbol_formatted['eqp']<=0.15){$score_eqp=0.3;}
+			if($symbol_formatted['eqp']<=0.10){$score_eqp=0;}
 
             $symbol_formatted['h_souce']="".toFixed(
-                                                 ($score_val_growth*3)+
+                                                 ($score_eqp*1)+
+                                                 ($score_val_growth*2)+
                                                  ($score_rev_growth*3)+
                                                  ($score_epsp*3)+
                                                  ($score_leverage*1)+
@@ -541,7 +588,7 @@ foreach ($stock_details_arr as $key => $item) {
 			if($symbol_formatted['guessed_percentage']>2.7){
 				$symbol_formatted['h_souce']+=-0.5; 
 			}
-			
+            $symbol_formatted['h_souce']="".toFixed($symbol_formatted['h_souce'],1,"h_souce div2");
 			
             if(floatval($symbol_formatted['h_souce'])<1){echo " h_souce=".$symbol_formatted['h_souce'];}
             //hist_year_last_day('h_souce',$symbol_formatted); // yearly  TODO add when we close the app (slow, yearly)

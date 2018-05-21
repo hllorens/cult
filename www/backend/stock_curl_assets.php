@@ -86,7 +86,12 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         ksort($stock_financials_arr[$market.":".$name]); // in case it is forced and was wrongly ordered and not updated
         foreach ($stock_financials_arr[$market.":".$name] as $key2 => $item2) {
             if($key2[0]=="2" && array_key_exists('Total Assets',$item2) && array_key_exists('Total Liabilities',$item2)){
-                $stocks_formatted_arr[$name.":".$market]['equity_hist'][]=[$key2,toFixed(  ((floatval($item2['Total Assets'])/1000000)  -  (floatval($item2['Total Liabilities'])/1000000))  ,2,'equity')]; // PB can be calculated
+				if(floatval($item2['Total Assets'])!=0){
+					$stocks_formatted_arr[$name.":".$market]['equity_hist'][]=[$key2,toFixed(  ((floatval($item2['Total Assets'])/1000000)  -  (floatval($item2['Total Liabilities'])/1000000))  ,2,'equity')]; // PB can be calculated
+				}else{
+					echo "<br />FATAL ERROR, assets==0 for ".$name." ".$key2."<br />";
+					send_mail('ERROR financialsa '.$name,"<br />ERROR, assets==0 in $name $key2 consider manual fix<br /><br />","hectorlm1983@gmail.com");
+				}
             }else if($key2[0]=="2"){
                 echo "FATAL ERROR, financials but not var for ".$name." ".$key2;
                 var_dump($item2);

@@ -55,7 +55,7 @@ foreach ($stocks_financials_arr as $key => $item) {
             }                                          
             $symbol_object[$key2]=array();
 			if(floatval($item2['Total Assets'])==0){
-                echo "&nbsp; $key2 assets=".$item2['Total Assets']."... ERROR, MANUAL REVIEW NEEDED<br />";
+                echo "&nbsp; ".$item['name']." $key2 assets=".$item2['Total Assets']."... ERROR, MANUAL REVIEW NEEDED<br />";
 			}
             $symbol_object[$key2]['Total Assets']=$item2['Total Assets'];
             $symbol_object[$key2]['Total Liabilities']=$item2['Total Liabilities'];

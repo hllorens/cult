@@ -370,25 +370,52 @@ function get_om_max_avg_pot(&$tsv_arr){
 			if(floatval($value['operating_income'])!=0){
 				$om=floatval(toFixed(floatval($value['operating_income'])/floatval($value['revenue']),2));
 			}else{  // use net income if om=0 (no data)
-				$om=floatval(toFixed((floatval($value['net_income'])*1.1)/floatval($value['revenue']),2));
+				$om=floatval(toFixed((floatval($value['net_income'])+(abs($value['net_income'])*0.1))/floatval($value['revenue']),2));
 			}
 			$om_obj['avg']+=$om;
-			$tsv_arr[$key]['operating_income']=$om;
+			$tsv_arr[$key]['operating_margin']=$om;
 			if($om>$om_obj['max']) $om_obj['max']=$om;
 		}
 	}
 	if($num_years>0){
 		$om_obj['avg']=floatval(toFixed($om_obj['avg']/$num_years,2));
+		$om_obj['avg_no_max']=floatval(toFixed(($om_obj['avg']-$om_obj['max'])/($num_years-1),2));
 	}
 	
 	//$om_obj['pot']=max(($om_obj['avg']+$om_obj['max'])/2,$om);
 	$om_obj['pot']=$om;
-	if($om>0.01 && $om<$om_obj['avg']){
-		$om_obj['pot']=($om_obj['avg']+$om)/2;
+	if($om>0.01 && $om<$om_obj['avg_no_max']){
+		$om_obj['pot']=($om_obj['avg_no_max']+$om)/2;
 	}
 	
 	return $om_obj;
 }
+
+// adds om and returns om_max, om_avg, om_pot
+function get_prod_ps(&$tsv_arr){
+	$hist_obj=array();
+	$hist_obj['prod_ps_hist']=array();
+	$num_years=0;
+	foreach ($tsv_arr as $key => $value){
+		if(strval($key)[0]=="2"){
+			$num_years++;
+			//echo "key=$key<br />";
+			//var_dump($value);
+			$tsv_arr[$key]['prod_ps']=floatval(toFixed(max(
+													//$tsv_arr[$key]['revenue_ps']*$tsv_arr[$key]['operating_margin'],
+													$tsv_arr[$key]['operating_income_ps'],
+													$tsv_arr[$key]['net_income_ps']+(abs($tsv_arr[$key]['net_income_ps'])*0.1) ),2));
+			$hist_obj['prod_ps_hist'][]=$tsv_arr[$key]['prod_ps'];
+			$tsv_arr[$key]['prod_source']='O';
+			if($tsv_arr[$key]['prod_ps']==floatval(toFixed($tsv_arr[$key]['net_income_ps']+(abs($tsv_arr[$key]['net_income_ps'])*0.1),2))) $tsv_arr[$key]['prod_source']='N';
+		}
+	}
+	/*if($num_years>0){
+		$om_obj['avg']=floatval(toFixed($om_obj['avg']/$num_years,2));
+	}*/
+	return $hist_obj;
+}
+
 
 function get_anualized_data($param,$stock_data,&$tsv_arr){
 	if(array_key_exists($param.'_hist',$stock_data)){
