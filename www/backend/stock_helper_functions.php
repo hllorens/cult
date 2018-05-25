@@ -266,9 +266,9 @@ function trend($arr,$threshold=0.10){
             $trend="/-";
         }else if($arr2[0] <$threshold && $arr2[0] >-$threshold && $arr2[1]>$threshold){
             $trend="_/";
-        }else if($arr2[0]<-$threshold && $arr2[1] > $arr2[0] ){
+        }else if($arr2[0]<-$threshold && $arr2[1] > $threshold){  //$arr2[0] if we want this we need more options `/ 
             $trend="v";
-        }else if($arr2[0]>$threshold && $arr2[1] < (-1*$arr2[0])){
+        }else if($arr2[0]>$threshold && $arr2[1] < -$threshold){  //(-1*$arr2[0]) if we want this we need more option ´\
             $trend="^";
         }else if($arr2[0]<-$threshold && $arr2[1] <$threshold && $arr2[1] >-$threshold){
             $trend="\_";
@@ -405,7 +405,7 @@ function get_prod_ps(&$tsv_arr){
 													//$tsv_arr[$key]['revenue_ps']*$tsv_arr[$key]['operating_margin'],
 													$tsv_arr[$key]['operating_income_ps'],
 													$tsv_arr[$key]['net_income_ps']+(abs($tsv_arr[$key]['net_income_ps'])*0.1) ),2));
-			$hist_obj['prod_ps_hist'][]=$tsv_arr[$key]['prod_ps'];
+			$hist_obj['prod_ps_hist'][]=[$key, $tsv_arr[$key]['prod_ps']];
 			$tsv_arr[$key]['prod_source']='O';
 			if($tsv_arr[$key]['prod_ps']==floatval(toFixed($tsv_arr[$key]['net_income_ps']+(abs($tsv_arr[$key]['net_income_ps'])*0.1),2))) $tsv_arr[$key]['prod_source']='N';
 		}

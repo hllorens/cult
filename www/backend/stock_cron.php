@@ -209,6 +209,7 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_formatted['leverage']=99;
             $symbol_formatted['eps_hist_trend']="--";
             $symbol_formatted['prod']=0;
+			$symbol_formatted['last_prod_ps_g']=0;
         }else{
             echo "!idx";
             // set defaults if no leverage-book and send email
@@ -257,6 +258,9 @@ foreach ($stock_details_arr as $key => $item) {
 				$om_obj=get_om_max_avg_pot($tsv_arr);
 				$prod_ps_hist_obj=get_prod_ps($tsv_arr);
                 $prod_ps_growth_arr=hist_growth_array('prod_ps_hist',$prod_ps_hist_obj,5);
+				//var_dump($prod_ps_hist_obj);
+				//var_dump($prod_ps_growth_arr);
+				$symbol_formatted['last_prod_ps_g']=end($prod_ps_growth_arr);
 				$symbol_formatted['prod_ps_trend']=trend($prod_ps_growth_arr,0.05);
 				//echo "om_max=".$om_obj['max']." om_avg=".$om_obj['avg']." om_pot=".$om_obj['pot']."<br />";
 				$symbol_formatted['om_pot']=floatval(toFixed($om_obj['pot'],3,'om_pot'));
@@ -289,11 +293,7 @@ foreach ($stock_details_arr as $key => $item) {
 											   "<br />equity_per_share=$equity_per_share<br /><br />","hectorlm1983@gmail.com");
 					*/
 					echo "ERROR eqp(".$symbol_formatted['eqp'].")!=pb_inv($price_to_book_inv) TODO better handle...<br />";
-					
-					     // TODO cambiar email por slow log....
-					
-					
-					
+					// TODO cambiar email por slow log....
 					$symbol_formatted['eqp']=$price_to_book_inv;
 				}
                 $symbol_formatted['price_to_book_calc']=toFixed($ref_value/max(0.001,$equity_per_share),2,'pbc');
@@ -331,13 +331,13 @@ foreach ($stock_details_arr as $key => $item) {
                 $om_to_ps=min(max(floatval($symbol_formatted['operating_margin'])*300,0)/max(floatval($symbol_formatted['price_to_sales'])*10,0.1),1);
                 $symbol_formatted['eps']=toFixed(floatval(end($symbol_formatted['net_income_hist'])[1])/floatval($symbol_formatted['shares']),2,"stock_cron eps");
                 // average eps if possible
-                if(count($symbol_formatted['net_income_hist'])>1){
+                /*if(count($symbol_formatted['net_income_hist'])>1){
                     $symbol_formatted['eps']=toFixed(
                                                     (
                                                         floatval($symbol_formatted['eps'])+
                                                         (floatval($symbol_formatted['net_income_hist'][count($symbol_formatted['net_income_hist'])-2][1])/floatval($symbol_formatted['shares']))
                                                     )/2,2,"stock_cron eps with 2 avg");
-                }
+                }*/
 
                 // growths, trends and accelerations
                 $symbol_formatted['revenue_growth_arr']=hist_growth_array('revenue_hist',$symbol_formatted,5);
@@ -410,7 +410,7 @@ foreach ($stock_details_arr as $key => $item) {
 				if(floatval($symbol_formatted['revenue_growth'])>0.01) $score_rev_growth+=0.1;
 				if(floatval($symbol_formatted['revenue_growth'])>0.03) $score_rev_growth+=0.1;
 				if(floatval($symbol_formatted['revenue_growth'])>0.05) $score_rev_growth+=0.1; // 0.30+0.05x2=0.40 
-				if(floatval($symbol_formatted['revenue_growth'])>0.06) $score_rev_growth+=0.1; // 0.40+0.05x2=0.50 
+				if(floatval($symbol_formatted['revenue_growth'])>0.06) $score_rev_growth+=0.1; // 0.40+0.06x2=0.52 
 				if(floatval($symbol_formatted['revenue_growth'])>0.10) $score_rev_growth+=0.1; // 0.50+0.1x2=0.70
 																							  // 0.5+0.2x2=0.9 y 0.25 10
             }
@@ -438,7 +438,7 @@ foreach ($stock_details_arr as $key => $item) {
                     if($symbol_formatted['eps_hist_trend']=='/') $score_epsp+=0.10;
                 }*/
                 if(array_key_exists('prod_ps_trend',$symbol_formatted)){
-                    if($symbol_formatted['prod_ps_trend']=='/-') $score_epsp+=0.05; 
+                    if($symbol_formatted['prod_ps_trend']=='v') $score_epsp+=0.05; 
                     if($symbol_formatted['prod_ps_trend']=='_/') $score_epsp+=0.08; 
                     if($symbol_formatted['prod_ps_trend']=='/') $score_epsp+=0.10;
                 }
@@ -475,6 +475,7 @@ foreach ($stock_details_arr as $key => $item) {
             $negative_val_growth_penalty=max(min($negative_val_growth_penalty,0),-1);
                 
             $negative_rev_growth_penalty=0.0;
+			/*
             if(floatval($symbol_formatted['avg_revenue_growth_5y'])<0 && $epsp<0.03){
                 // max -0.15 to be a bad groinging company
                 $negative_rev_growth_penalty=-0.25+max(floatval($symbol_formatted['avg_revenue_growth_5y']),-50)/100;
@@ -483,9 +484,16 @@ foreach ($stock_details_arr as $key => $item) {
                     $negative_rev_growth_penalty+=max(floatval($symbol_formatted['revenue_growth_qq_last_year'])+floatval($symbol_formatted['avg_revenue_growth_5y']),-20)/200;
                 }
             }
+			// TODO THIS ALSO NEEDS REVIEW...
             if(floatval($symbol_formatted['revenue_growth_qq_last_year'])< -0.15 && $epsp<0.03){
                 $negative_rev_growth_penalty+=min(max(floatval($symbol_formatted['revenue_growth_qq_last_year'])+floatval($symbol_formatted['avg_revenue_growth_5y']),-50),0)/200;
-            }
+            }*/
+			if(floatval($symbol_formatted['revenue_growth_qq_last_year'])< 0){
+				$negative_rev_growth_penalty+=max(-0.1, floatval($symbol_formatted['revenue_growth_qq_last_year'])/100);
+			}
+			if(floatval($symbol_formatted['revenue_growth'])< 0){ // note if last_year < avg, then last_year is used!! (see above)
+				$negative_rev_growth_penalty+=floatval($symbol_formatted['revenue_growth'])*3;  // if -0.33 already max penalty
+			}
             $negative_rev_growth_penalty=max(min($negative_rev_growth_penalty,0),-1);  // min 0 max 1
 
             $negative_eps_growth_penalty=0.0;
@@ -495,7 +503,7 @@ foreach ($stock_details_arr as $key => $item) {
                 if($symbol_formatted['eps_hist_trend']=='\_') $negative_eps_growth_penalty=-0.15;
                 if($symbol_formatted['eps_hist_trend']=='^') $negative_eps_growth_penalty=-0.25;
             }*/
-            if($epsp<0.03 && array_key_exists('prod_ps_trend',$symbol_formatted)){
+            if(array_key_exists('prod_ps_trend',$symbol_formatted)){
                 if($symbol_formatted['prod_ps_trend']=='\\') $negative_eps_growth_penalty=-0.5;
                 if($symbol_formatted['prod_ps_trend']=='-\\') $negative_eps_growth_penalty=-0.25;
                 if($symbol_formatted['prod_ps_trend']=='\_') $negative_eps_growth_penalty=-0.15;
