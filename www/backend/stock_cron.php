@@ -358,8 +358,8 @@ foreach ($stock_details_arr as $key => $item) {
                     $symbol_formatted['equity_growth']=avg_weighted($symbol_formatted['equity_growth_arr']);
                 }
                 // we can also do the operating trend... maybe directly in js if no operations...
-                $symbol_formatted['eps_hist_trend']=trend($symbol_formatted['net_income_growth_arr']); // default 0.10
-                $symbol_formatted['revenue_growth_trend']=trend($symbol_formatted['revenue_growth_arr']); // default 0.1  ... ,0.06 nah.. focus on hard events
+                $symbol_formatted['eps_hist_trend']=trend($symbol_formatted['net_income_growth_arr'],0.03); // default 0.10
+                $symbol_formatted['revenue_growth_trend']=trend($symbol_formatted['revenue_growth_arr'],0.02); // default 0.10, 0.02 to make it more sensitive
 
                 $symbol_formatted['revps']=floatval(toFixed(($revenue/floatval($symbol_formatted['shares'])),2,'revps'));
                 $symbol_formatted['revp']=toFixed(($symbol_formatted['revps'])/max(0.01,$ref_value),3,'revp');
@@ -414,11 +414,16 @@ foreach ($stock_details_arr as $key => $item) {
 				if(floatval($symbol_formatted['revenue_growth'])>0.10) $score_rev_growth+=0.1; // 0.50+0.1x2=0.70
 																							  // 0.5+0.2x2=0.9 y 0.25 10
             }
-            //$score_rev_growth+=$om_to_ps*0.3; // max 0.1 (can be penalizing -0.1)
-            // good quarter only +0.1 (cannot penalize), and only if good means om_to_ps>0.2
             if(array_key_exists('revenue_growth_qq_last_year',$symbol_formatted) && floatval($symbol_formatted['revenue_growth_qq_last_year'])>0){ // && $om_to_ps>0.2
                 $score_rev_growth+=min(floatval($symbol_formatted['revenue_growth_qq_last_year']),10)/100;
             }
+			if($symbol_formatted['revenue_growth_trend']=="/"){ // the good healthy revenue growth pattern
+				$score_rev_growth+=0.1;
+				if(end($revenue_acceleration)>0){
+					$score_rev_growth+=0.1; // expansive bonus
+					$symbol_formatted['revenue_acceleration']=end($revenue_acceleration); // use last acceleration to represent
+				}
+			}
             $score_rev_growth=max(min($score_rev_growth,1),0);  // min 0 max 1
 
             $score_epsp=0;
@@ -473,26 +478,19 @@ foreach ($stock_details_arr as $key => $item) {
             if(floatval($symbol_formatted['val_yy_drops'])>0.3) $negative_val_growth_penalty-=0.15;
             if(floatval($symbol_formatted['val_yy_drops'])>0.67) $negative_val_growth_penalty-=0.25;
             $negative_val_growth_penalty=max(min($negative_val_growth_penalty,0),-1);
-                
+			
             $negative_rev_growth_penalty=0.0;
-			/*
-            if(floatval($symbol_formatted['avg_revenue_growth_5y'])<0 && $epsp<0.03){
-                // max -0.15 to be a bad groinging company
-                $negative_rev_growth_penalty=-0.25+max(floatval($symbol_formatted['avg_revenue_growth_5y']),-50)/100;
-                if(floatval($symbol_formatted['revenue_growth_qq_last_year'])< 0){
-                    //subtratct the average with max of -0.1
-                    $negative_rev_growth_penalty+=max(floatval($symbol_formatted['revenue_growth_qq_last_year'])+floatval($symbol_formatted['avg_revenue_growth_5y']),-20)/200;
-                }
-            }
-			// TODO THIS ALSO NEEDS REVIEW...
-            if(floatval($symbol_formatted['revenue_growth_qq_last_year'])< -0.15 && $epsp<0.03){
-                $negative_rev_growth_penalty+=min(max(floatval($symbol_formatted['revenue_growth_qq_last_year'])+floatval($symbol_formatted['avg_revenue_growth_5y']),-50),0)/200;
-            }*/
 			if(floatval($symbol_formatted['revenue_growth_qq_last_year'])< 0){
 				$negative_rev_growth_penalty+=max(-0.1, floatval($symbol_formatted['revenue_growth_qq_last_year'])/100);
 			}
 			if(floatval($symbol_formatted['revenue_growth'])< 0){ // note if last_year < avg, then last_year is used!! (see above)
 				$negative_rev_growth_penalty+=floatval($symbol_formatted['revenue_growth'])*3;  // if -0.33 already max penalty
+			}
+			if($symbol_formatted['revenue_growth_trend']!="/" && $symbol_formatted['revenue_growth_trend']!="_/" && $symbol_formatted['revenue_growth_trend']!="v" ){
+				$negative_rev_growth_penalty+=-0.1;
+			}
+			if($symbol_formatted['revenue_growth_trend']=="\\" || $symbol_formatted['revenue_growth_trend']=="-\\"){
+				$negative_rev_growth_penalty+=-0.1;
 			}
             $negative_rev_growth_penalty=max(min($negative_rev_growth_penalty,0),-1);  // min 0 max 1
 
@@ -509,7 +507,7 @@ foreach ($stock_details_arr as $key => $item) {
                 if($symbol_formatted['prod_ps_trend']=='\_') $negative_eps_growth_penalty=-0.15;
                 if($symbol_formatted['prod_ps_trend']=='^') $negative_eps_growth_penalty=-0.25;
             }
-            if($epsp<-0.015){
+            if($epsp<-0.015 || floatval($symbol_formatted['operating_margin'])<-0.015){
                 $negative_eps_growth_penalty=-0.5;
             }
 
