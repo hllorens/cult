@@ -150,7 +150,9 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         }
     }
     
-    if($email_report!=""){
+    if($email_report!="" && 
+	      !(substr($timestamp_date,0,4)=='2018' && ($name=='REE' || $name=='AMS' || $name=='ACX')) // Excepted 2018
+		  ){ 
         send_mail("lev-book ".$name,$email_report,"hectorlm1983@gmail.com");
     }
     //hist_min('revenue',6,$stocks_formatted_arr[$name.":".$market]); // in msn this is last year, the ttm maybe use yahoo or do it manually for companies you care about
