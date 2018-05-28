@@ -46,7 +46,7 @@ foreach ($stocks_financials_arr as $key => $item) {
         if($key[0]=="2"){
             if(count($years_arr)>0 && intval(end($years_arr))!=(intval(substr($key,0,4))-1)){
                 echo "<br />ERROR: MISSING year ".(intval(substr($key,0,4))-1)."<br />";
-                send_mail('ERROR MISSING year financialsR '.$item['name'],$item['name']." MISSING dup year ".(intval(substr($key,0,4))-1)."<br /><br />","hectorlm1983@gmail.com");
+                send_mail('ERROR MISSING year financialsA '.$item['name'],$item['name']." MISSING dup year ".(intval(substr($key,0,4))-1)."<br /><br />","hectorlm1983@gmail.com");
                 exit(1);
             }
             $years_arr[]=substr($key,0,4);

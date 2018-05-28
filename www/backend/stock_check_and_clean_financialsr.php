@@ -40,13 +40,13 @@ foreach ($stocks_financials_arr as $key => $item) {
 	foreach (array_keys($stocks_financials_arr[$item['market'].":".$item['name']]) as $key){
 		if(in_array(substr($key,0,4),$years_arr)){
 			echo "<br />ERROR: DUP year ".substr($key,0,4)."<br />";
-            send_mail('ERROR DUP year financialsR '.$item['name'],$item['name']." ERROR dup year ".substr($key,0,4)."<br /><br />","hectorlm1983@gmail.com");
+            send_mail('ERROR check financialsR DUP year'.$item['name'],$item['name']." ERROR dup year ".substr($key,0,4)."<br /><br />","hectorlm1983@gmail.com");
 			exit(1);
 		}
         if($key[0]=="2"){
             if(count($years_arr)>0 && intval(end($years_arr))!=(intval(substr($key,0,4))-1)){
                 echo "<br />ERROR: MISSING year ".(intval(substr($key,0,4))-1)."<br />";
-                send_mail('ERROR MISSING year financialsR '.$item['name'],$item['name']." MISSING dup year ".(intval(substr($key,0,4))-1)."<br /><br />","hectorlm1983@gmail.com");
+                send_mail('ERROR MISSING year financialsR '.$item['name'],$item['name']." MISSING year ".(intval(substr($key,0,4))-1)."<br /><br />","hectorlm1983@gmail.com");
                 exit(1);
             }
             $years_arr[]=substr($key,0,4);
