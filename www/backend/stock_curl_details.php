@@ -13,6 +13,8 @@ require_once("email_config.php");
 echo date('Y-m-d H:i:s')." starting stock_curl_details.php<br />";
 $latelog = fopen("late.log", "a") or die("Unable to open/create late.log!");
 
+$timestamp_date=date("Y-m-d");
+
 function get_details($symbol,$debug=false){
 	$details=array();
 	//$the_url="https://www.google.com/finance?q="; deprecated
@@ -118,59 +120,79 @@ function get_details($symbol,$debug=false){
             $divval="0";
             $yieldval="0";
         }
-        
+        $do_send_mail=false;
+		if(floatval(substr($timestamp_date,0,4))>(floatval(substr(end($shares_manual)[0],0,4))+1)){
+			$do_send_mail=true;
+		}else{
+			// default keep what we have
+			$mktcap=$details['mktcap'];
+			$shares=$details['shares'];
+			$shares_from_mktcap=$details['shares_from_mktcap'];
+			$shares_source=$details['shares_source'];
+		}
+		
+		
+		$mktcap_updated=false;
         preg_match("/>\s*Market Cap[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $mktcap);
         if(count($mktcap)>1){
             $mktcap=trim($mktcap[1]);
             if($mktcap=="-" || $mktcap==""){
-                echo "<br />Empty mktcap skipping, email sent...<br />";
-                send_mail('Error '.$symbol,'<br />Empty mktcap (- or empty), skipping...<br /><br />',"hectorlm1983@gmail.com");
-                return $details;
-            }
-            $mktcap=format_billions($mktcap);
+				if($do_send_mail){
+					echo "<br />Empty mktcap skipping, email sent...<br />";
+					send_mail('Error '.$symbol,'<br />Empty mktcap (- or empty), skipping...<br /><br />',"hectorlm1983@gmail.com");
+					return $details;
+				}
+            }else{
+				$mktcap=format_billions($mktcap);
+				$mktcap_updated=true;
+			}
         }else{
-            echo "<br />Empty mktcap skipping, email sent...<br />";
-            send_mail('Error '.$symbol,'<br />Empty mktcap (no parse/curl), skipping...<br /><br />',"hectorlm1983@gmail.com");
-            return $details;
+			if($do_send_mail){
+				echo "<br />Empty mktcap skipping, email sent...<br />";
+				send_mail('Error '.$symbol,'<br />Empty mktcap (no parse/curl), skipping...<br /><br />',"hectorlm1983@gmail.com");
+				return $details;
+			}
         }
         
-        $shares_from_mktcap=toFixed(floatval($mktcap)/floatval($value),2,"cap and shares");
-        preg_match("/>\s*Shares Outstanding[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $shares);
-        if(count($shares)>1){
-            $shares=trim($shares[1]);
-            $shares_source="direct";
-            if($shares=="-" || $shares==""){
-                // shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
-                $shares_source="from_mktcap_found_empty";
-                $shares=$shares_from_mktcap;
-                if(floatval($shares)<0.020){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
-                    echo "<br />Too few shares $shares calculated (min 0.02)..., email sent...<br />";
-                    send_mail('Err. few shares '.$symbol,"<br />Too few shares calc $mktcap/$value=$shares, skipping...<br /><br />","hectorlm1983@gmail.com");
-                    return $details;
-                }
-            }else{
-                $shares=format_billions($shares);
-            }
-        }else{
-            // shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
-            $shares_source="from_mktcap_not_found";
-            $shares=$shares_from_mktcap;
-            if(floatval($shares)<0.020){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
-                echo "<br />Too few shares $shares calculated (min 0.02)..., email sent...<br />";
-                send_mail('Err. few shares '.$symbol,"<br />Too few shares calc $mktcap/$value=$shares, skipping (consider removing this stock, too small)...<br /><br />","hectorlm1983@gmail.com");
-                return $details;
-            }
-        }
-		
-		// special cases
-		if($name=="GOOG"){
-			// goog has special case of GOOG(C) + GOOGL(A)=0.29 + GOOGX (B, reserved) 0.5
-			$shares=floatval($shares)+0.29+0.05;
-		}
-		
-		if(abs(floatval($shares)-floatval($shares_from_mktcap))>(floatval($shares_from_mktcap)/4)){
-            echo "<br /> $shares(direct) != $shares_from_mktcap (mktcap)<br />";
-            //send_mail('Err. shares '.$symbol,"<br />$shares (direct) != $shares_from_mktcap (mktcap), bad stock? remove? use always marketcap?...<br /><br />","hectorlm1983@gmail.com");
+		if($mktcap_updated){
+			$shares_from_mktcap=toFixed(floatval($mktcap)/floatval($value),2,"cap and shares");
+			preg_match("/>\s*Shares Outstanding[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $shares);
+			if(count($shares)>1){
+				$shares=trim($shares[1]);
+				$shares_source="direct";
+				if($shares=="-" || $shares==""){
+					// shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
+					$shares_source="from_mktcap_found_empty";
+					$shares=$shares_from_mktcap;
+					if(floatval($shares)<0.020){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
+						echo "<br />Too few shares $shares calculated (min 0.02)..., email sent...<br />";
+						send_mail('Err. few shares '.$symbol,"<br />Too few shares calc $mktcap/$value=$shares, skipping...<br /><br />","hectorlm1983@gmail.com");
+						return $details;
+					}
+				}else{
+					$shares=format_billions($shares);
+				}
+			}else{
+				// shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
+				$shares_source="from_mktcap_not_found";
+				$shares=$shares_from_mktcap;
+				if(floatval($shares)<0.020){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
+					echo "<br />Too few shares $shares calculated (min 0.02)..., email sent...<br />";
+					send_mail('Err. few shares '.$symbol,"<br />Too few shares calc $mktcap/$value=$shares, skipping (consider removing this stock, too small)...<br /><br />","hectorlm1983@gmail.com");
+					return $details;
+				}
+			}
+			
+			// special cases
+			if($name=="GOOG"){
+				// goog has special case of GOOG(C) + GOOGL(A)=0.29 + GOOGX (B, reserved) 0.5
+				$shares=floatval($shares)+0.29+0.05;
+			}
+			
+			if(abs(floatval($shares)-floatval($shares_from_mktcap))>(floatval($shares_from_mktcap)/4)){
+				echo "<br /> $shares(direct) != $shares_from_mktcap (mktcap)<br />";
+				//send_mail('Err. shares '.$symbol,"<br />$shares (direct) != $shares_from_mktcap (mktcap), bad stock? remove? use always marketcap?...<br /><br />","hectorlm1983@gmail.com");
+			}
 		}
     }
 

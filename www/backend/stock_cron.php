@@ -47,6 +47,7 @@ fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_curl_details.php\n"
 require_once 'stock_curl_details.php';
 
 
+
 // only add in GOOG latest date and usdeur
 if(!array_key_exists('GOOG:NASDAQ',$stocks_formatted_arr)){$stocks_formatted_arr['GOOG:NASDAQ']=array();}
 $stocks_formatted_arr['GOOG:NASDAQ']['date']=$timestamp_simplif;
@@ -457,6 +458,7 @@ foreach ($stock_details_arr as $key => $item) {
 
             $score_leverage=0;
             $acceptable_leverage=2; // (used to be 2.5) 2 would be liabilities==equity i.e., liabilities/assets=0.5 perfect balance
+			$debt_ralenization_ratio=4;
             $leverage_industry_ratio=99;
             if(array_key_exists('leverage',$symbol_formatted) && floatval($symbol_formatted['leverage'])!=0){
                 // Most industries have 3 auto, teleco, energy
@@ -467,6 +469,7 @@ foreach ($stock_details_arr as $key => $item) {
                 }
                 if(in_array($symbol_formatted['name'], ['SAN','BBVA','ING','BKIA','BKT','SAB','CABK','MAP','ZURVY','HSBC','R4'])){ 
                     $acceptable_leverage=9; // finance/insurance industry lives on this so we cannot penalize as much
+					$debt_ralenization_ratio=40; // like only pay 5% of debt in 5y
                 }
                 $leverage_industry_ratio=floatval($symbol_formatted['leverage'])/$acceptable_leverage;
                 $score_leverage=(-1*min(max($leverage_industry_ratio,1.0),2.0))+2;
@@ -546,9 +549,10 @@ foreach ($stock_details_arr as $key => $item) {
 											, 0.60
 										)
 									,5)
-									// remove some debt issue (liabilities/4 means if we had to return in 20y how much pay in 5y)
+									// remove some debt issue (liabilities/4 means pay 25% in 5y if we had to return in 20y how much pay in 5y)
+									// for banks do it 20 like pay 5% in 5y
 									-
-									($liabilities_ps/4)
+									($liabilities_ps/$debt_ralenization_ratio)
                                   +min($calc_value_asset_share,
 			                            floatval($symbol_formatted['value'])/2)   // we should calculate this from equity...
                                   ,1,"calc_value guessed_value");
@@ -577,7 +581,7 @@ foreach ($stock_details_arr as $key => $item) {
 			if($symbol_formatted['eqp']<=0.15){$score_eqp=0.3;}
 			if($symbol_formatted['eqp']<=0.10){$score_eqp=0;}
 
-            $symbol_formatted['h_souce']="".toFixed(
+            $symbol_formatted['h_souce']=
                                                  ($score_eqp*1)+
                                                  ($score_val_growth*2)+
                                                  ($score_rev_growth*3)+
@@ -586,7 +590,7 @@ foreach ($stock_details_arr as $key => $item) {
                                                  ($negative_val_growth_penalty*2)+
                                                  ($negative_rev_growth_penalty*2)+
                                                  ($negative_eps_growth_penalty*2)
-                                                 ,1,"h_souce div");
+                                                 ;
             
 			// TODO: improve this
 			if($symbol_formatted['guessed_percentage']<0.9){
@@ -612,10 +616,19 @@ foreach ($stock_details_arr as $key => $item) {
         }
         $stocks_formatted_arr[$json_name.':'.$symbol_formatted['market']]=$symbol_formatted;
 		// update firebase for that symbol
+		
+		// symbol formatted extra
+		$symbol_formatted_extra=$symbol_formatted;
+		$symbol_formatted_extra["score_val_g"]=$score_val_growth;
+		$symbol_formatted_extra["score_rev_g"]=$score_rev_growth;
+		$symbol_formatted_extra["score_epsp"]=$score_epsp;
+		$symbol_formatted_extra["score_lev"]=$score_leverage;
+		
+		
 		$curl = curl_init();
 		curl_setopt( $curl, CURLOPT_URL, $FIREBASE .'stocks_formatted/'. $json_name.':'.$symbol_formatted['market'].'.json' ); ///'.$usr.'_'.$symbol.'
 		curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "PUT" );
-		curl_setopt( $curl, CURLOPT_POSTFIELDS, json_encode($symbol_formatted) );
+		curl_setopt( $curl, CURLOPT_POSTFIELDS, json_encode($symbol_formatted_extra) );
 		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
 		$response = curl_exec( $curl );
 		curl_close( $curl );
