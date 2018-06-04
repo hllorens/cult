@@ -72,12 +72,15 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         continue;
     }
     
+	$email_report="";
     if(substr($the_url_query_arr[$current_num_to_curl],0,5)=="INDEX"){
         echo "<br />INDEX ignoring... all 0<br />";
         //$stocks_formatted_arr[$name.":".$market]['revenue']=0;
+		$email_report="";
         $stocks_formatted_arr[$name.":".$market]['price_to_book']=0;
         $stocks_formatted_arr[$name.":".$market]['price_to_sales']=99;
         $stocks_formatted_arr[$name.":".$market]['leverage']=99; // mrq in this case equivalent to ttm (current moment), in balance sheet
+        $stocks_formatted_arr[$name.":".$market]['current_ratio']=0.01; // mrq 
         $stocks_formatted_arr[$name.":".$market]['leverage_industry']=2.5;
         $stocks_formatted_arr[$name.":".$market]['avg_revenue_growth_5y']=0;
         $stocks_formatted_arr[$name.":".$market]['revenue_growth_qq_last_year']=0;
@@ -99,13 +102,13 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         //$response=preg_replace("/^[^t][^d].*$/m", "", $response);
         $response = preg_replace('/^[ \t]*[\r\n]+/m', '', $response); // remove blank lines
         $response = preg_replace('/\n(.*=\"val\".*)[\r\n]+/m', '${1}', $response); // remove blank lines
-        $response = preg_replace('/title=\'(Revenue|Price\/Book Value|Leverage Ratio|Price\/Sales)\'[^>]*>\s*/', "\n", $response);
+        $response = preg_replace('/title=\'(Revenue|Price\/Book Value|Leverage Ratio|Current Ratio|Price\/Sales)\'[^>]*>\s*/', "\n", $response);
         $response = preg_replace('/title=\'Sales \(Revenue\)\'[^5]*5-Year Annual Average[^>]*>\s*/', "\navg_revenue_growth_5y", $response);
         $response = preg_replace('/title=\'Sales \(Revenue\)\'[^Q]*Q\/Q \(Last Year\)[^>]*>\s*/', "\nrevenue_growth_qq_last_year", $response);
         if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
         echo "----------end----------";
         echo "<br />";
-        $vars2get=['Price\/Book Value','Leverage Ratio','Price\/Sales','avg_revenue_growth_5y','revenue_growth_qq_last_year']; //'Revenue' from financials
+        $vars2get=['Price\/Book Value','Leverage Ratio','Current Ratio','Price\/Sales','avg_revenue_growth_5y','revenue_growth_qq_last_year']; //'Revenue' from financials
         $results=array();
         foreach($vars2get as $var2get){
             preg_match("/^".$var2get."(.*)$/m", $response, $xxxx);
@@ -142,6 +145,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
 
 		// probably calculate that from financials (if the val is empty, no need to send email but just slow log)
         $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage',$results,'Leverage Ratio',0,$name,99,0.34);
+        $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'current_ratio',$results,'Current Ratio',0,$name,1,0.20);
         if(count($results['Leverage Ratio'])>1){
             $email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'leverage_industry',$results,'Leverage Ratio',1,$name,99,0.34);
 			if($stocks_formatted_arr[$name.":".$market]['leverage_industry']==0){
@@ -157,6 +161,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     }
     //hist_min('revenue',6,$stocks_formatted_arr[$name.":".$market]); // in msn this is last year, the ttm maybe use yahoo or do it manually for companies you care about
     hist_year_last_day('leverage',$stocks_formatted_arr[$name.":".$market]);
+    hist_year_last_day('current_ratio',$stocks_formatted_arr[$name.":".$market]);
     hist_year_last_day('price_to_book',$stocks_formatted_arr[$name.":".$market]); // hist calculated by financials... safer
     //hist_min('price_to_sales',3,$stocks_formatted_arr[$name.":".$market]); //avg of 8 (default) 
     //hist_year_last_day('avg_revenue_growth_5y',$stocks_formatted_arr[$name.":".$market]);
@@ -177,8 +182,9 @@ function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$de
         $report="$name<br /><br />Empty - in $param_id (".$results[$param_id][$index].") (index=$index) new:[".implode(" ",$results[$param_id])."] (stock_cron_leverage_book.php), setting $default_val<br /><br />";
     }
     if(!array_key_exists($orig_param,$orig)){
-        $report.="$name<br /><br />New: ".$results[$param_id][$index]."<br />(stock_cron_leverage_book.php)<br />";
+        $report.="$name<br /><br />New $param_id: ".$results[$param_id][$index]."<br />(stock_cron_leverage_book.php)<br />";
         $orig[$orig_param]=$results[$param_id][$index];
+		$orig[$orig_param."_date"]=$timestamp_date;
     }else{
         if(floatval($orig[$orig_param])==$default_val){
             $orig[$orig_param]=$results[$param_id][$index];
@@ -187,14 +193,20 @@ function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$de
             if(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1) >$diff_margin){
                 $diff=toFixed(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1),2,"lev-book diff");
                 if(floatval($results[$param_id][$index])==$default_val){
-                    $report.="$name<br />$param_id<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]." (default, empty)<br />Keeping original since new is the default (empty)<br />New $param_id (orig: $orig_param)<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
+					if(!array_key_exists($orig_param."_date",$orig)){
+						$orig[$orig_param."_date"]=$timestamp_date;
+					}
+					// only report if the orig is too old (2 years)
+					if(floatval(substr($timestamp_date,0,4))>(floatval(substr($orig[$orig_param."_date"],0,4))+1)){
+						$report.="$name<br />$param_id<br />Orig (".$orig[$orig_param."_date"]."): ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]." (default, empty)<br />Keeping original since new is the default (empty)<br />New $param_id (orig: $orig_param)<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
+					}
                 }else{
 					// only email with greater margin, otherwise just update
 					if(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1) >($diff_margin+0.3)){
 						$report.="$name<br />$param_id<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]."<br />Keeping the new<br />New $param_id (orig: $orig_param)<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
 					}
-					
 					$orig[$orig_param]=$results[$param_id][$index];
+					$orig[$orig_param."_date"]=$timestamp_date;
                 }
             }
         }

@@ -45,7 +45,7 @@ function get_asset($symbol,$debug=false){
         $currency="USD";
     }
     //if($currency!="USD"){}
-    if($currency!="USD"){ // && $currency!="EUR"){
+    if($currency!="USD" && $currency!="EUR"){ // maybe only USD should be there... but... to avoid emails
         $manual_update=true;
         echo "<br />currency:$currency<br />";
         //send_mail('Manual '.$name,"$url_and_query<br />currency:$currency<br /><br />","hectorlm1983@gmail.com");
@@ -56,7 +56,7 @@ function get_asset($symbol,$debug=false){
     if($debug) echo "<br />";
     
     // EQUITY=TOTAL ASSETS - TOTAL LIABILITES
-    $vars2get=['Total Assets','Total Liabilities']; //'Total Current Assets','Total Current Liabilities'
+    $vars2get=['Total Assets','Total Liabilities']; // ,'Total Stockholder Equity''Total Current Assets','Total Current Liabilities'
 
     $results=array();
     foreach($vars2get as $var2get){

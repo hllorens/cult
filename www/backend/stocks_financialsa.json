@@ -434,19 +434,19 @@
 	"NASDAQ:TSLA": {
 		"2014-12-31": {
 			"Total Assets": "5830667",
-			"Total Liabilities": "4860761"
+			"Total Liabilities": "4918957"
 		},
 		"2015-12-31": {
 			"Total Assets": "8067939",
-			"Total Liabilities": "6936950"
+			"Total Liabilities": "6984235"
 		},
 		"2016-12-31": {
 			"Total Assets": "22664076",
-			"Total Liabilities": "17535342"
+			"Total Liabilities": "16758951"
 		},
 		"2017-12-31": {
 			"Total Assets": "28655372",
-			"Total Liabilities": "24020326"
+			"Total Liabilities": "23023050"
 		},
 		"market": "NASDAQ",
 		"name": "TSLA"
@@ -692,7 +692,7 @@
 		"name": "DIA"
 	},
 	"BME:ELE": {
-		"2013-12-31": { 
+		"2013-12-31": {
 			"Total Assets": "55957000",
 			"Total Liabilities": "29195000"
 		},
@@ -1000,8 +1000,6 @@
 		}
 	},
 	"BME:MTS": {
-		"name": "MTS",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Assets": "112308000",
 			"Total Liabilities": "59135000"
@@ -1012,16 +1010,18 @@
 		},
 		"2015-12-31": {
 			"Total Assets": "76846000",
-			"Total Liabilities": "49276000"
+			"Total Liabilities": "51574000"
 		},
 		"2016-12-31": {
 			"Total Assets": "75142000",
-			"Total Liabilities": "42817000"
+			"Total Liabilities": "45007000"
 		},
 		"2017-12-31": {
 			"Total Assets": "85297000",
-			"Total Liabilities": "44442000"
-		}
+			"Total Liabilities": "46508000"
+		},
+		"market": "BME",
+		"name": "MTS"
 	},
 	"BME:OHL": {
 		"name": "OHL",
@@ -1081,16 +1081,16 @@
 			"Total Liabilities": "23735000"
 		},
 		"2015-12-31": {
-			"Total Assets": "68650000",
-			"Total Liabilities": "37406000"
+			"Total Assets": "39449",
+			"Total Liabilities": "4629"
 		},
 		"2016-12-31": {
-			"Total Assets": "68400000",
-			"Total Liabilities": "35585000"
+			"Total Assets": "42544",
+			"Total Liabilities": "6770"
 		},
 		"2017-12-31": {
-			"Total Assets": "71877000",
-			"Total Liabilities": "35777000"
+			"Total Assets": "42801",
+			"Total Liabilities": "10794"
 		},
 		"market": "BME",
 		"name": "REP"
@@ -1240,8 +1240,6 @@
 		}
 	},
 	"BME:FAE": {
-		"name": "FAE",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Assets": "274000",
 			"Total Liabilities": "76000"
@@ -1261,11 +1259,11 @@
 		"2017-12-31": {
 			"Total Assets": "430000",
 			"Total Liabilities": "110000"
-		}
+		},
+		"market": "BME",
+		"name": "FAE"
 	},
 	"NASDAQ:GOOG": {
-		"name": "GOOG",
-		"market": "NASDAQ",
 		"2013-12-31": {
 			"Total Assets": "110920000",
 			"Total Liabilities": "23610000"
@@ -1285,7 +1283,9 @@
 		"2017-12-31": {
 			"Total Assets": "197295000",
 			"Total Liabilities": "44793000"
-		}
+		},
+		"market": "NASDAQ",
+		"name": "GOOG"
 	},
 	"NASDAQ:MSFT": {
 		"2014-06-30": {
@@ -1308,8 +1308,6 @@
 		"name": "MSFT"
 	},
 	"NASDAQ:EBAY": {
-		"name": "EBAY",
-		"market": "NASDAQ",
 		"2014-12-31": {
 			"Total Assets": "45132000",
 			"Total Liabilities": "25226000"
@@ -1325,11 +1323,11 @@
 		"2017-12-31": {
 			"Total Assets": "25981000",
 			"Total Liabilities": "17918000"
-		}
+		},
+		"market": "NASDAQ",
+		"name": "EBAY"
 	},
 	"NASDAQ:AMZN": {
-		"name": "AMZN",
-		"market": "NASDAQ",
 		"2013-12-31": {
 			"Total Assets": "41400000",
 			"Total Liabilities": "31650000"
@@ -1349,11 +1347,11 @@
 		"2017-12-31": {
 			"Total Assets": "131310000",
 			"Total Liabilities": "103601000"
-		}
+		},
+		"market": "NASDAQ",
+		"name": "AMZN"
 	},
 	"NASDAQ:FB": {
-		"name": "FB",
-		"market": "NASDAQ",
 		"2014-12-31": {
 			"Total Assets": "39966000",
 			"Total Liabilities": "3870000"
@@ -1369,11 +1367,11 @@
 		"2017-12-31": {
 			"Total Assets": "84524000",
 			"Total Liabilities": "10177000"
-		}
+		},
+		"market": "NASDAQ",
+		"name": "FB"
 	},
 	"NYSE:TWTR": {
-		"name": "TWTR",
-		"market": "NYSE",
 		"2014-12-31": {
 			"Total Assets": "5583082",
 			"Total Liabilities": "1956679"
@@ -1389,11 +1387,11 @@
 		"2017-12-31": {
 			"Total Assets": "7412477",
 			"Total Liabilities": "2365259"
-		}
+		},
+		"market": "NYSE",
+		"name": "TWTR"
 	},
 	"NYSE:SNAP": {
-		"name": "SNAP",
-		"market": "NYSE",
 		"2015-12-31": {
 			"Total Assets": "938936",
 			"Total Liabilities": "174791"
@@ -1405,7 +1403,9 @@
 		"2017-12-31": {
 			"Total Assets": "3421566",
 			"Total Liabilities": "429239"
-		}
+		},
+		"market": "NYSE",
+		"name": "SNAP"
 	},
 	"NYSE:YRD": {
 		"2013-12-31": {
@@ -1868,8 +1868,6 @@
 		"name": "HSBC"
 	},
 	"NASDAQ:NVDA": {
-		"name": "NVDA",
-		"market": "NASDAQ",
 		"2015-01-25": {
 			"Total Assets": "7201000",
 			"Total Liabilities": "2783000"
@@ -1885,7 +1883,9 @@
 		"2018-01-28": {
 			"Total Assets": "11241000",
 			"Total Liabilities": "3770000"
-		}
+		},
+		"market": "NASDAQ",
+		"name": "NVDA"
 	},
 	"NASDAQ:TEAM": {
 		"2014-06-30": {
@@ -2144,8 +2144,6 @@
 		}
 	},
 	"NASDAQ:SUPN": {
-		"name": "SUPN",
-		"market": "NASDAQ",
 		"2014-12-31": {
 			"Total Assets": "136784",
 			"Total Liabilities": "96085"
@@ -2161,11 +2159,11 @@
 		"2017-12-31": {
 			"Total Assets": "424464",
 			"Total Liabilities": "156984"
-		}
+		},
+		"market": "NASDAQ",
+		"name": "SUPN"
 	},
 	"NASDAQ:REGN": {
-		"name": "REGN",
-		"market": "NASDAQ",
 		"2014-12-31": {
 			"Total Assets": "3837672",
 			"Total Liabilities": "1287421"
@@ -2181,11 +2179,11 @@
 		"2017-12-31": {
 			"Total Assets": "8764286",
 			"Total Liabilities": "2620208"
-		}
+		},
+		"market": "NASDAQ",
+		"name": "REGN"
 	},
 	"NASDAQ:ALXN": {
-		"name": "ALXN",
-		"market": "NASDAQ",
 		"2014-12-31": {
 			"Total Assets": "4201962",
 			"Total Liabilities": "899944"
@@ -2201,7 +2199,9 @@
 		"2017-12-31": {
 			"Total Assets": "13583300",
 			"Total Liabilities": "4690200"
-		}
+		},
+		"market": "NASDAQ",
+		"name": "ALXN"
 	},
 	"NASDAQ:AMD": {
 		"2014-12-27": {

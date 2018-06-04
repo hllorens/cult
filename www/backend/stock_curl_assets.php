@@ -87,7 +87,15 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         foreach ($stock_financials_arr[$market.":".$name] as $key2 => $item2) {
             if($key2[0]=="2" && array_key_exists('Total Assets',$item2) && array_key_exists('Total Liabilities',$item2)){
 				if(floatval($item2['Total Assets'])!=0){
-					$stocks_formatted_arr[$name.":".$market]['equity_hist'][]=[$key2,toFixed(  ((floatval($item2['Total Assets'])/1000000)  -  (floatval($item2['Total Liabilities'])/1000000))  ,2,'equity')]; // PB can be calculated
+					$temp_eq=((floatval($item2['Total Assets'])/1000000)  -  (floatval($item2['Total Liabilities'])/1000000));
+					$stocks_formatted_arr[$name.":".$market]['equity_hist'][]=[$key2,toFixed(  $temp_eq  ,2,'equity')]; // PB can be calculated
+					// too many factors affecting stockhoders equity (there are preferred stocks and treasury (private) stocks, we do better with assets-liabilities and pb)
+					/*if(array_key_exists('Total Stockholder Equity',$item2) && floatval($item2['Total Stockholder Equity'])!=0
+						&& abs(($temp_eq/(floatval($item2['Total Stockholder Equity'])/1000000))-1)>0.15 ){
+							echo "<br />suspicious EQ for ".$name." ".$key2."<br />";
+							send_mail('SUSPICIOUS financialsa '.$name,"<br />in $name $key2 consider manual fix<br />calc eq:$temp_eq<br />total stockholder eq:".(floatval($item2['Total Stockholder Equity'])/1000000)."<br />diff%:".
+							abs(($temp_eq/(floatval($item2['Total Stockholder Equity'])/1000000))-1)."<br />","hectorlm1983@gmail.com");
+						}*/
 				}else{
 					echo "<br />FATAL ERROR, assets==0 for ".$name." ".$key2."<br />";
 					send_mail('ERROR financialsa '.$name,"<br />ERROR, assets==0 in $name $key2 consider manual fix<br /><br />","hectorlm1983@gmail.com");

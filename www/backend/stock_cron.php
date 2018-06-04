@@ -105,12 +105,14 @@ foreach ($stock_details_arr as $key => $item) {
             send_mail($item['name'].' shares manual missing','<br />shares manual missing in '.$item['name'].', please review the automatically added version<br /><br />',"hectorlm1983@gmail.com");
 		}
         if(array_key_exists('shares',$symbol_object) && // avoid this check if it is the first time
-		        abs(floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])-floatval(end($symbol_object['shares_manual'])[1]))>max(0.04,floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])/20)){
-            // if the diff is bigger than 5% or 0.04 whatever is bigger
-			
+		        abs(floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])-floatval(end($symbol_object['shares_manual'])[1]))>max(0.04,floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])/15)){
+            // if the diff is bigger than 6.6% or 0.04 whatever is bigger
+
 			// exceptions
 			if(
 				($symbol_object['name']=="SGRE" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="0.28")
+				||
+				($symbol_object['name']=="SNAP" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="1.22")
 
 			){
 				echo "sharenum exception<br />";
@@ -118,6 +120,7 @@ foreach ($stock_details_arr as $key => $item) {
 				send_mail($item['name'].' sharenum change','<br />original('.$symbol_object['shares_source'].'):'.$symbol_object['shares'].
 														   ' <br />new ('.$stock_details_arr[$item['market'].':'.$item['name']]['shares_source'].'):'.$stock_details_arr[$item['market'].':'.$item['name']]['shares'].
 														   '<br />shares manual:'.end($symbol_object['shares_manual'])[1].
+														   '<br />diff%:'.abs(floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])-floatval(end($symbol_object['shares_manual'])[1])).
 														   '<br /><br />Time to update the manual shares?'.
 														   '<br /><br />title:'.$symbol_object['title'].
 														   '<br /><br /><br />value:'.$symbol_object['value'].
@@ -299,7 +302,9 @@ foreach ($stock_details_arr as $key => $item) {
                 $symbol_formatted['price_to_book_calc']=toFixed($ref_value/max(0.001,$equity_per_share),2,'pbc');
 				$assets=floatval($symbol_formatted['leverage'])*$equity;
                 $symbol_formatted['ap']=toFixed(($assets/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),2,'ap');
-                $symbol_formatted['lp']=toFixed((($assets-$equity)/floatval($symbol_formatted['shares']))/max(0.01,$ref_value),2,'lp');
+				$liabilities=$assets-$equity;
+				$liabilities_ps=$liabilities/floatval($symbol_formatted['shares']);
+                $symbol_formatted['lp']=toFixed($liabilities_ps/max(0.01,$ref_value),2,'lp');
                 if(end($symbol_formatted['operating_income_hist'])[0]!=end($symbol_formatted['revenue_hist'])[0] || end($symbol_formatted['net_income_hist'])[0]!=end($symbol_formatted['revenue_hist'])[0]){
                     echo "ERROR: Last operating income year (".end($symbol_formatted['operating_income_hist'])[0].") != last revenue year (".end($symbol_formatted['revenue_hist'])[0].")<br />";
                     send_mail(''.$item['name'].' last hist year revenue!=op.inc!=net.inc',"<br />ERROR: Last operating income year (".end($symbol_formatted['operating_income_hist'])[0].") != last revenue year (".end($symbol_formatted['revenue_hist'])[0]." != last net inc year (".end($symbol_formatted['net_income_hist'])[0].")<br /><br /><br />","hectorlm1983@gmail.com");
@@ -451,18 +456,17 @@ foreach ($stock_details_arr as $key => $item) {
             }
 
             $score_leverage=0;
-            // improved ypr with leverage (if lower or equal to 2.5 it makes no difference)
-            $acceptable_leverage=2.5; // 2 would be liabilities==equity i.e., liabilities/assets=0.5 perfect balance
+            $acceptable_leverage=2; // (used to be 2.5) 2 would be liabilities==equity i.e., liabilities/assets=0.5 perfect balance
             $leverage_industry_ratio=99;
             if(array_key_exists('leverage',$symbol_formatted) && floatval($symbol_formatted['leverage'])!=0){
                 // Most industries have 3 auto, teleco, energy
                 // tech has 2
                 // 2.5 is a good compromise
-                if(in_array($symbol_formatted['name'], ['SAN','BBVA','ING','BKIA','BKT','SAB','CABK','MAP','ZURVY','HSBC','R4'])){ 
-                    $acceptable_leverage=10; // finance/insurance industry lives on this so we cannot penalize as much
-                }
                 if(array_key_exists('leverage_industry',$symbol_formatted) && floatval($symbol_formatted['leverage_industry'])!=0 && floatval($symbol_formatted['leverage_industry'])!=0.01){
-                    $acceptable_leverage=max(floatval($symbol_formatted['leverage_industry']),2.5);
+                    $acceptable_leverage=min(max(floatval($symbol_formatted['leverage_industry']),$acceptable_leverage),3);
+                }
+                if(in_array($symbol_formatted['name'], ['SAN','BBVA','ING','BKIA','BKT','SAB','CABK','MAP','ZURVY','HSBC','R4'])){ 
+                    $acceptable_leverage=9; // finance/insurance industry lives on this so we cannot penalize as much
                 }
                 $leverage_industry_ratio=floatval($symbol_formatted['leverage'])/$acceptable_leverage;
                 $score_leverage=(-1*min(max($leverage_industry_ratio,1.0),2.0))+2;
@@ -536,12 +540,15 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_formatted['guessed_value_5y']="".toFixed(
 									5*compound_interest_4($prod_ps_guess,  // we should calculate the pot om and prodps...
 										min(
-										floatval($symbol_formatted['revenue_growth'])
-										+
-                                        max(-0.1,min(0.1,floatval($symbol_formatted['revenue_acceleration'])/2))
-										, 0.60)
-										,5)
-								  
+											floatval($symbol_formatted['revenue_growth'])
+											+
+											max(-0.1,min(0.1,floatval($symbol_formatted['revenue_acceleration'])/2))
+											, 0.60
+										)
+									,5)
+									// remove some debt issue (liabilities/4 means if we had to return in 20y how much pay in 5y)
+									-
+									($liabilities_ps/4)
                                   +min($calc_value_asset_share,
 			                            floatval($symbol_formatted['value'])/2)   // we should calculate this from equity...
                                   ,1,"calc_value guessed_value");
@@ -594,7 +601,11 @@ foreach ($stock_details_arr as $key => $item) {
 			if($symbol_formatted['guessed_percentage']>2.7){
 				$symbol_formatted['h_souce']+=-0.5; 
 			}
-            $symbol_formatted['h_souce']="".toFixed($symbol_formatted['h_souce'],1,"h_souce div2");
+			if(floatval($symbol_formatted['current_ratio'])<1){
+				$symbol_formatted['h_souce']-=(1-floatval($symbol_formatted['current_ratio']));
+			}
+
+			$symbol_formatted['h_souce']="".toFixed($symbol_formatted['h_souce'],1,"h_souce div2");
 			
             if(floatval($symbol_formatted['h_souce'])<1){echo " h_souce=".$symbol_formatted['h_souce'];}
             //hist_year_last_day('h_souce',$symbol_formatted); // yearly  TODO add when we close the app (slow, yearly)

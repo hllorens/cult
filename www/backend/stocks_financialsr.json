@@ -175,24 +175,24 @@
 	},
 	"NASDAQ:VOD": {
 		"2014-03-31": {
-			"Total Revenue": "55469.7",
-			"Operating Income": "4521.9",
-			"Net Income": "85714.3"
+			"Total Revenue": "54156.6",
+			"Operating Income": "4414.9",
+			"Net Income": "83685.2"
 		},
 		"2015-03-31": {
-			"Total Revenue": "57831.9",
-			"Operating Income": "2571.0",
-			"Net Income": "8700.2"
+			"Total Revenue": "56462.9",
+			"Operating Income": "2510.1",
+			"Net Income": "8494.2"
 		},
 		"2016-03-31": {
-			"Total Revenue": "59535.2",
-			"Operating Income": "2186.1",
-			"Net Income": "-6460.3"
+			"Total Revenue": "58125.8",
+			"Operating Income": "2134.4",
+			"Net Income": "-6307.4"
 		},
 		"2017-03-31": {
-			"Total Revenue": "56930.7",
-			"Operating Income": "4396.1",
-			"Net Income": "-7526.5"
+			"Total Revenue": "55583.0",
+			"Operating Income": "4292.0",
+			"Net Income": "-7348.3"
 		},
 		"market": "NASDAQ",
 		"name": "VOD"
@@ -257,24 +257,24 @@
 	},
 	"NYSE:SNE": {
 		"2014-03-31": {
-			"Total Revenue": "70922.9",
-			"Operating Income": "753.6",
-			"Net Income": "-1172.1"
+			"Total Revenue": "70915.1",
+			"Operating Income": "753.5",
+			"Net Income": "-1172.0"
 		},
 		"2015-03-31": {
-			"Total Revenue": "75019.2",
-			"Operating Income": "2248.8",
-			"Net Income": "-1150.3"
+			"Total Revenue": "75011.0",
+			"Operating Income": "2248.6",
+			"Net Income": "-1150.2"
 		},
 		"2016-03-31": {
-			"Total Revenue": "74013.3",
-			"Operating Income": "3096.6",
-			"Net Income": "1349.5"
+			"Total Revenue": "74005.2",
+			"Operating Income": "3096.3",
+			"Net Income": "1349.3"
 		},
 		"2017-03-31": {
-			"Total Revenue": "69425.3",
-			"Operating Income": "3964.1",
-			"Net Income": "669.2"
+			"Total Revenue": "69417.7",
+			"Operating Income": "3963.7",
+			"Net Income": "669.1"
 		},
 		"market": "NYSE",
 		"name": "SNE"
@@ -392,24 +392,24 @@
 	},
 	"NYSE:TM": {
 		"2014-03-31": {
-			"Total Revenue": "234926.8",
-			"Operating Income": "20959.1",
-			"Net Income": "16670.6"
+			"Total Revenue": "234567.1",
+			"Operating Income": "20927.0",
+			"Net Income": "16645.1"
 		},
 		"2015-03-31": {
-			"Total Revenue": "249032.5",
-			"Operating Income": "25151.2",
-			"Net Income": "19873.0"
+			"Total Revenue": "248651.2",
+			"Operating Income": "25112.6",
+			"Net Income": "19842.6"
 		},
 		"2016-03-31": {
-			"Total Revenue": "259718.1",
-			"Operating Income": "26096.7",
-			"Net Income": "21147.3"
+			"Total Revenue": "259320.5",
+			"Operating Income": "26056.8",
+			"Net Income": "21114.9"
 		},
 		"2017-03-31": {
-			"Total Revenue": "252348.7",
-			"Operating Income": "18236.5",
-			"Net Income": "16743.7"
+			"Total Revenue": "251962.4",
+			"Operating Income": "18208.6",
+			"Net Income": "16718.0"
 		},
 		"market": "NYSE",
 		"name": "TM"
@@ -526,8 +526,6 @@
 		"name": "F"
 	},
 	"NYSE:ED": {
-		"name": "ED",
-		"market": "NYSE",
 		"2013-12-31": {
 			"Total Revenue": "12354.0",
 			"Operating Income": "2244.0",
@@ -552,7 +550,9 @@
 			"Total Revenue": "12033.0",
 			"Operating Income": "2609.0",
 			"Net Income": "1525.0"
-		}
+		},
+		"market": "NYSE",
+		"name": "ED"
 	},
 	"NASDAQ:SPWR": {
 		"name": "SPWR",
@@ -642,8 +642,6 @@
 		"name": "ACS"
 	},
 	"BME:ACX": {
-		"name": "ACX",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "3966.3",
 			"Operating Income": "88.3",
@@ -661,14 +659,16 @@
 		},
 		"2016-12-31": {
 			"Total Revenue": "3968.1",
-			"Operating Income": "163.1",
-			"Net Income": "80.3"
+			"Operating Income": "3968.1",
+			"Net Income": "3968.1"
 		},
 		"2017-12-31": {
 			"Total Revenue": "4626.9",
-			"Operating Income": "326.5",
-			"Net Income": "234.1"
-		}
+			"Operating Income": "4626.9",
+			"Net Income": "4626.9"
+		},
+		"market": "BME",
+		"name": "ACX"
 	},
 	"BME:AENA": {
 		"name": "AENA",
@@ -891,45 +891,45 @@
 		},
 		"2016-12-31": {
 			"Total Revenue": "8692.6",
-			"Operating Income": "277.5",
+			"Operating Income": "7044.8",
 			"Net Income": "174.0"
 		},
 		"2017-12-31": {
 			"Total Revenue": "8655.2",
-			"Operating Income": "203.1",
+			"Operating Income": "7011.7",
 			"Net Income": "109.6"
 		},
 		"market": "BME",
 		"name": "DIA"
 	},
 	"BME:ELE": {
-		"name": "ELE",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "20509.0",
 			"Operating Income": "1615.0",
 			"Net Income": "1879.0"
 		},
 		"2014-12-31": {
-			"Total Revenue": "18719.0",
+			"Total Revenue": "20473.0",
 			"Operating Income": "928.0",
 			"Net Income": "3337.0"
 		},
 		"2015-12-31": {
-			"Total Revenue": "18237.0",
+			"Total Revenue": "19281.0",
 			"Operating Income": "1034.0",
 			"Net Income": "1086.0"
 		},
 		"2016-12-31": {
-			"Total Revenue": "17298.0",
+			"Total Revenue": "18313.0",
 			"Operating Income": "1658.0",
 			"Net Income": "1411.0"
 		},
 		"2017-12-31": {
-			"Total Revenue": "18341.0",
+			"Total Revenue": "19556.0",
 			"Operating Income": "1852.0",
 			"Net Income": "1463.0"
-		}
+		},
+		"market": "BME",
+		"name": "ELE"
 	},
 	"BME:ENG": {
 		"name": "ENG",
@@ -1212,8 +1212,6 @@
 		}
 	},
 	"BME:MAP": {
-		"name": "MAP",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "22382.1",
 			"Operating Income": "1563.9",
@@ -1230,15 +1228,17 @@
 			"Net Income": "708.8"
 		},
 		"2016-12-31": {
-			"Total Revenue": "23702.0",
+			"Total Revenue": "22589.1",
 			"Operating Income": "1845.1",
 			"Net Income": "775.5"
 		},
 		"2017-12-31": {
-			"Total Revenue": "24218.0",
+			"Total Revenue": "22577.3",
 			"Operating Income": "1508.7",
 			"Net Income": "700.5"
-		}
+		},
+		"market": "BME",
+		"name": "MAP"
 	},
 	"BME:MEL": {
 		"name": "MEL",
@@ -1276,24 +1276,24 @@
 			"Net Income": "-2190.3"
 		},
 		"2014-12-31": {
-			"Total Revenue": "66192.5",
-			"Operating Income": "2533.1",
-			"Net Income": "-906.7"
+			"Total Revenue": "68016.0",
+			"Operating Income": "2602.9",
+			"Net Income": "-931.7"
 		},
 		"2015-12-31": {
-			"Total Revenue": "53081.3",
-			"Operating Income": "-3474.0",
-			"Net Income": "-6634.1"
+			"Total Revenue": "54543.6",
+			"Operating Income": "-3569.7",
+			"Net Income": "-6816.9"
 		},
 		"2016-12-31": {
-			"Total Revenue": "47414.8",
-			"Operating Income": "3474.0",
-			"Net Income": "1485.3"
+			"Total Revenue": "48721.0",
+			"Operating Income": "3569.7",
+			"Net Income": "1526.2"
 		},
 		"2017-12-31": {
-			"Total Revenue": "57340.1",
-			"Operating Income": "4536.8",
-			"Net Income": "3813.8"
+			"Total Revenue": "58919.7",
+			"Operating Income": "4661.8",
+			"Net Income": "3918.9"
 		},
 		"market": "BME",
 		"name": "MTS"
@@ -1419,28 +1419,38 @@
 		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "45630.0",
+			"Total Revenue Manual": "44750.0",
 			"Operating Income": "7378.0",
-			"Net Income": "4175.0"
+			"Net Income": "4175.0",
+			"Net Income Manual": "4370.0"
 		},
 		"2014-12-31": {
 			"Total Revenue": "47742.0",
+			"Total Revenue Manual": "47742.0",
 			"Operating Income": "10873.0",
-			"Net Income": "5816.0"
+			"Net Income": "5816.0",
+			"Net Income Manual": "5816.0"
 		},
 		"2015-12-31": {
 			"Total Revenue": "48753.0",
+			"Total Revenue Manual": "48753.0",
 			"Operating Income": "10006.0",
-			"Net Income": "5966.0"
+			"Net Income": "5966.0",
+			"Net Income Manual": "5966.0"
 		},
 		"2016-12-31": {
 			"Total Revenue": "47602.0",
+			"Total Revenue Manual": "47602.0",
 			"Operating Income": "10854.0",
-			"Net Income": "6204.0"
+			"Net Income": "6204.0",
+			"Net Income Manual": "6204.0"
 		},
 		"2017-12-31": {
 			"Total Revenue": "52106.0",
+			"Total Revenue Manual": "52106.0",
 			"Operating Income": "11000.0",
-			"Net Income": "6619.0"
+			"Net Income": "6619.0",
+			"Net Income Manual": "6619.0"
 		}
 	},
 	"BME:SCYR": {
@@ -1783,24 +1793,24 @@
 			"Net Income": "-8.0"
 		},
 		"2014-12-31": {
-			"Total Revenue": "30.9",
+			"Total Revenue": "30.5",
 			"Operating Income": "-4.2",
-			"Net Income": "-4.4"
+			"Net Income": "-4.3"
 		},
 		"2015-12-31": {
-			"Total Revenue": "205.4",
+			"Total Revenue": "203.1",
 			"Operating Income": "62.6",
-			"Net Income": "43.3"
+			"Net Income": "42.8"
 		},
 		"2016-12-31": {
-			"Total Revenue": "511.4",
+			"Total Revenue": "505.8",
 			"Operating Income": "169.2",
-			"Net Income": "175.4"
+			"Net Income": "173.5"
 		},
 		"2017-12-31": {
-			"Total Revenue": "882.7",
+			"Total Revenue": "873.0",
 			"Operating Income": "257.5",
-			"Net Income": "215.5"
+			"Net Income": "213.2"
 		},
 		"market": "NYSE",
 		"name": "YRD"
@@ -1836,24 +1846,24 @@
 	},
 	"NYSE:BABA": {
 		"2014-03-31": {
-			"Total Revenue": "8249.4",
-			"Operating Income": "3922.3",
-			"Net Income": "3663.3"
+			"Total Revenue": "8158.3",
+			"Operating Income": "3879.0",
+			"Net Income": "3622.8"
 		},
 		"2015-03-31": {
-			"Total Revenue": "11973.2",
-			"Operating Income": "3662.5",
-			"Net Income": "3811.9"
+			"Total Revenue": "11841.0",
+			"Operating Income": "3622.0",
+			"Net Income": "3769.8"
 		},
 		"2016-03-31": {
-			"Total Revenue": "15891.6",
-			"Operating Income": "4644.0",
-			"Net Income": "11227.8"
+			"Total Revenue": "15716.1",
+			"Operating Income": "4592.7",
+			"Net Income": "11103.8"
 		},
 		"2017-03-31": {
-			"Total Revenue": "24867.9",
-			"Operating Income": "7550.4",
-			"Net Income": "6862.2"
+			"Total Revenue": "24593.3",
+			"Operating Income": "7467.0",
+			"Net Income": "6786.4"
 		},
 		"market": "NYSE",
 		"name": "BABA"
@@ -2116,24 +2126,24 @@
 			"Net Income": "5681.9"
 		},
 		"2014-12-31": {
-			"Total Revenue": "18213.4",
+			"Total Revenue": "17754.0",
 			"Operating Income": "4143.6",
-			"Net Income": "1152.9"
+			"Net Income": "1123.8"
 		},
 		"2015-12-31": {
-			"Total Revenue": "20965.7",
+			"Total Revenue": "20436.8",
 			"Operating Income": "9041.7",
-			"Net Income": "5897.2"
+			"Net Income": "5748.4"
 		},
 		"2016-12-31": {
-			"Total Revenue": "21324.8",
+			"Total Revenue": "20786.9",
 			"Operating Income": "7784.2",
-			"Net Income": "5955.8"
+			"Net Income": "5805.6"
 		},
 		"2017-12-31": {
-			"Total Revenue": "22040.7",
+			"Total Revenue": "21484.7",
 			"Operating Income": "9967.6",
-			"Net Income": "6541.2"
+			"Net Income": "6376.2"
 		},
 		"market": "NYSE",
 		"name": "ING"
@@ -2541,24 +2551,24 @@
 			"Net Income": "706.6"
 		},
 		"2014-12-31": {
-			"Total Revenue": "1840.3",
-			"Operating Income": "748.7",
-			"Net Income": "747.4"
+			"Total Revenue": "1820.0",
+			"Operating Income": "740.4",
+			"Net Income": "739.1"
 		},
 		"2015-12-31": {
-			"Total Revenue": "3582.8",
-			"Operating Income": "1142.6",
-			"Net Income": "1058.2"
+			"Total Revenue": "3543.2",
+			"Operating Income": "1130.0",
+			"Net Income": "1046.5"
 		},
 		"2016-12-31": {
-			"Total Revenue": "5998.7",
-			"Operating Income": "1984.2",
-			"Net Income": "1823.3"
+			"Total Revenue": "5932.4",
+			"Operating Income": "1962.3",
+			"Net Income": "1803.2"
 		},
 		"2017-12-31": {
-			"Total Revenue": "8500.5",
-			"Operating Income": "1909.6",
-			"Net Income": "1684.7"
+			"Total Revenue": "8406.6",
+			"Operating Income": "1888.5",
+			"Net Income": "1666.1"
 		},
 		"market": "NASDAQ",
 		"name": "NTES"
@@ -2600,7 +2610,7 @@
 		},
 		"2014-12-31": {
 			"Total Revenue": "3112.5",
-			"Operating Income": "1897.0",
+			"Operating Income": "1768.4",
 			"Net Income": "1127.1"
 		},
 		"2015-12-31": {
@@ -2622,8 +2632,6 @@
 		"name": "CME"
 	},
 	"NASDAQ:MCHP": {
-		"name": "MCHP",
-		"market": "NASDAQ",
 		"2014-03-31": {
 			"Total Revenue": "1931.2",
 			"Operating Income": "461.9",
@@ -2643,7 +2651,14 @@
 			"Total Revenue": "3407.8",
 			"Operating Income": "374.4",
 			"Net Income": "164.6"
-		}
+		},
+		"2018-03-31": {
+			"Total Revenue": "3980.8",
+			"Operating Income": "953.8",
+			"Net Income": "255.4"
+		},
+		"market": "NASDAQ",
+		"name": "MCHP"
 	},
 	"NASDAQ:MU": {
 		"2014-08-28": {
@@ -2676,24 +2691,24 @@
 			"Net Income": "6290.2"
 		},
 		"2014-12-31": {
-			"Total Revenue": "25714.2",
-			"Operating Income": "10005.2",
-			"Net Income": "8572.5"
+			"Total Revenue": "25580.7",
+			"Operating Income": "9953.3",
+			"Net Income": "8528.0"
 		},
 		"2015-12-31": {
-			"Total Revenue": "28434.3",
-			"Operating Income": "10845.0",
-			"Net Income": "10209.1"
+			"Total Revenue": "28286.7",
+			"Operating Income": "10788.7",
+			"Net Income": "10156.1"
 		},
 		"2016-12-31": {
-			"Total Revenue": "31955.0",
-			"Operating Income": "12740.4",
-			"Net Income": "11182.1"
+			"Total Revenue": "31789.1",
+			"Operating Income": "12674.2",
+			"Net Income": "11124.0"
 		},
 		"2017-12-31": {
-			"Total Revenue": "32949.7",
-			"Operating Income": "13034.4",
-			"Net Income": "11629.9"
+			"Total Revenue": "32778.7",
+			"Operating Income": "12966.7",
+			"Net Income": "11569.5"
 		},
 		"market": "NYSE",
 		"name": "TSM"
@@ -2729,24 +2744,24 @@
 			"Net Income": "1625.8"
 		},
 		"2014-12-31": {
-			"Total Revenue": "7707.1",
-			"Operating Income": "2011.7",
-			"Net Income": "2073.5"
+			"Total Revenue": "7622.0",
+			"Operating Income": "1989.5",
+			"Net Income": "2050.6"
 		},
 		"2015-12-31": {
-			"Total Revenue": "10429.9",
-			"Operating Income": "1833.9",
-			"Net Income": "5289.3"
+			"Total Revenue": "10314.8",
+			"Operating Income": "1813.7",
+			"Net Income": "5230.9"
 		},
 		"2016-12-31": {
-			"Total Revenue": "11084.7",
-			"Operating Income": "1578.9",
-			"Net Income": "1827.6"
+			"Total Revenue": "10962.3",
+			"Operating Income": "1561.5",
+			"Net Income": "1807.4"
 		},
 		"2017-12-31": {
-			"Total Revenue": "13325.2",
-			"Operating Income": "2465.4",
-			"Net Income": "2875.5"
+			"Total Revenue": "13178.0",
+			"Operating Income": "2438.1",
+			"Net Income": "2843.7"
 		},
 		"market": "NASDAQ",
 		"name": "BIDU"
@@ -2998,8 +3013,6 @@
 		}
 	},
 	"NYSE:NEE": {
-		"name": "NEE",
-		"market": "NYSE",
 		"2013-12-31": {
 			"Total Revenue": "15136.0",
 			"Operating Income": "3241.0",
@@ -3012,19 +3025,21 @@
 		},
 		"2015-12-31": {
 			"Total Revenue": "17486.0",
-			"Operating Income": "4664.0",
+			"Operating Income": "4730.0",
 			"Net Income": "2752.0"
 		},
 		"2016-12-31": {
 			"Total Revenue": "16155.0",
-			"Operating Income": "4304.0",
+			"Operating Income": "4383.0",
 			"Net Income": "2912.0"
 		},
 		"2017-12-31": {
 			"Total Revenue": "17195.0",
-			"Operating Income": "5985.0",
+			"Operating Income": "4822.0",
 			"Net Income": "5378.0"
-		}
+		},
+		"market": "NYSE",
+		"name": "NEE"
 	},
 	"NYSE:DUK": {
 		"name": "DUK",
@@ -3438,22 +3453,22 @@
 	"NASDAQ:CAR": {
 		"2014-12-31": {
 			"Total Revenue": "8485.0",
-			"Operating Income": "965.0",
+			"Operating Income": "971.0",
 			"Net Income": "245.0"
 		},
 		"2015-12-31": {
 			"Total Revenue": "8502.0",
-			"Operating Income": "974.0",
+			"Operating Income": "914.0",
 			"Net Income": "313.0"
 		},
 		"2016-12-31": {
 			"Total Revenue": "8659.0",
-			"Operating Income": "843.0",
+			"Operating Income": "833.0",
 			"Net Income": "163.0"
 		},
 		"2017-12-31": {
 			"Total Revenue": "8848.0",
-			"Operating Income": "776.0",
+			"Operating Income": "828.0",
 			"Net Income": "361.0"
 		},
 		"market": "NASDAQ",
