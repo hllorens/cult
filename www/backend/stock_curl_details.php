@@ -106,6 +106,15 @@ function get_details($symbol,$debug=false){
     $mktcap=0;
     $shares_source="direct";
 
+    $details['name']=$name;
+    $details['market']=$market;
+    $details['title']=$title;
+    $details['value']=$value;
+    $details['session_change_percentage']=$changep;
+    $details['range_52week_high']=$range_52week_high;
+    $details['range_52week_low']=$range_52week_low;
+
+
     if(substr($symbol,0,5)!="INDEX"){
         preg_match("/>\s*Dividend\s*Rate[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $dividend_yield);
         if(count($dividend_yield)>1 && strpos($dividend_yield[1], '(') !== FALSE){
@@ -120,38 +129,24 @@ function get_details($symbol,$debug=false){
             $divval="0";
             $yieldval="0";
         }
-        $do_send_mail=false;
-		if(floatval(substr($timestamp_date,0,4))>(floatval(substr(end($shares_manual)[0],0,4))+1)){
-			$do_send_mail=true;
-		}else{
-			// default keep what we have
-			$mktcap=$details['mktcap'];
-			$shares=$details['shares'];
-			$shares_from_mktcap=$details['shares_from_mktcap'];
-			$shares_source=$details['shares_source'];
-		}
-		
-		
+		$details['yield']=$yieldval;
+		$details['dividend']=$divval;
+
+
+		// at this point we don't have values for mktcap or shares only in stock_cron.php so we handle that there assuming 0 is empty or error
 		$mktcap_updated=false;
         preg_match("/>\s*Market Cap[^<]*<[^<]*<[^<]*<[^<]*<p [^>]*>\s*([^<]*)\s*</m", $response, $mktcap);
         if(count($mktcap)>1){
             $mktcap=trim($mktcap[1]);
             if($mktcap=="-" || $mktcap==""){
-				if($do_send_mail){
-					echo "<br />Empty mktcap skipping, email sent...<br />";
-					send_mail('Error '.$symbol,'<br />Empty mktcap (- or empty), skipping...<br /><br />',"hectorlm1983@gmail.com");
-					return $details;
-				}
+				$mktcap=0;
             }else{
 				$mktcap=format_billions($mktcap);
 				$mktcap_updated=true;
 			}
         }else{
-			if($do_send_mail){
-				echo "<br />Empty mktcap skipping, email sent...<br />";
-				send_mail('Error '.$symbol,'<br />Empty mktcap (no parse/curl), skipping...<br /><br />',"hectorlm1983@gmail.com");
-				return $details;
-			}
+			echo "<br />Empty mktcap skipping, email sent if old...<br />";
+			$mktcap=0;
         }
         
 		if($mktcap_updated){
@@ -164,11 +159,6 @@ function get_details($symbol,$debug=false){
 					// shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
 					$shares_source="from_mktcap_found_empty";
 					$shares=$shares_from_mktcap;
-					if(floatval($shares)<0.020){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
-						echo "<br />Too few shares $shares calculated (min 0.02)..., email sent...<br />";
-						send_mail('Err. few shares '.$symbol,"<br />Too few shares calc $mktcap/$value=$shares, skipping...<br /><br />","hectorlm1983@gmail.com");
-						return $details;
-					}
 				}else{
 					$shares=format_billions($shares);
 				}
@@ -176,11 +166,6 @@ function get_details($symbol,$debug=false){
 				// shares in billions guessed from market cap in billions (often shares appear as -, while mktcap is often available)
 				$shares_source="from_mktcap_not_found";
 				$shares=$shares_from_mktcap;
-				if(floatval($shares)<0.020){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
-					echo "<br />Too few shares $shares calculated (min 0.02)..., email sent...<br />";
-					send_mail('Err. few shares '.$symbol,"<br />Too few shares calc $mktcap/$value=$shares, skipping (consider removing this stock, too small)...<br /><br />","hectorlm1983@gmail.com");
-					return $details;
-				}
 			}
 			
 			// special cases
@@ -197,21 +182,11 @@ function get_details($symbol,$debug=false){
     }
 
 
-    // assignment to the array, only if all went ok
-
-    $details['name']=$name;
-    $details['market']=$market;
-    $details['title']=$title;
-    $details['value']=$value;
-    $details['session_change_percentage']=$changep;
-    $details['yield']=$yieldval;
-    $details['dividend']=$divval;
+    // assignment to the array, will be 0 if went wrong
     $details['mktcap']=$mktcap;
     $details['shares']=$shares;
     $details['shares_from_mktcap']=$shares_from_mktcap;
     $details['shares_source']=$shares_source;
-    $details['range_52week_high']=$range_52week_high;
-    $details['range_52week_low']=$range_52week_low;
 	
 	return $details;
 }

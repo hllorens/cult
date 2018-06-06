@@ -183,6 +183,10 @@ function compound_average_growth($from, $to, $periods=1.0){
 }
 
 function compound_interest_4($principal,$interest,$years){
+	// handle negative cases --------------------------
+	if($interest*$years<-0.999) return 0.001;
+	if($interest*$years<0) return $principal*(1+($interest*$years)); // in reality it should be less each year, but to keep it simple...
+	// ------------------------------------------------
 	return floatval(toFixed( $principal*pow((1+(floatval($interest)/4)),$years*4) ,2));
 }
 
@@ -487,11 +491,32 @@ function test_avg_weighted(){
 	
 }
 
+function test_compound_interest(){
+	$result=compound_interest_4(10,0.5,5);
+	echo "<br />compound_interest_4(10,0.5,5)=".$result."<br />";
+	$result=compound_interest_4(10,0.1,5);
+	echo "<br />compound_interest_4(10,0.1,5)=".$result."<br />";
+	
+	echo "<br />compound_interest_4 cannot handle negative interests by default, formula: \$principal*pow((1+(floatval(\$interest)/4)),\$years*4), so this is a simplification alternative";
+	echo "<br />- if negative interest is <-0.999 we just return a very small value";
+	echo "<br />- if interest*years>-0.999 and <0 we return \$principal*(1+interest*years)<br />";
+	$result=compound_interest_4(10,-0.1,5);
+	echo "<br />compound_interest_4(10,-0.1,5)=".$result."<br />";
+	$result=compound_interest_4(10,-0.5,5);
+	echo "<br />compound_interest_4(10,-0.5,5)=".$result."<br />";
+	$result=compound_interest_4(10,-10.9,5);
+	echo "<br />compound_interest_4(10,-10.9,5)=".$result."<br />";
+
+}
+
+
+
 if(isset($_REQUEST['test'])){
     //test_pad_arr();
     // TODO smooth_avg_7
     test_ksort();
     test_avg_weighted();
+	test_compound_interest();
 }
 
 

@@ -100,42 +100,110 @@ foreach ($stock_details_arr as $key => $item) {
         $symbol_object['range_52week_high']=trim($item['range_52week_high']);
         $symbol_object['range_52week_low']=trim($item['range_52week_low']);
         $symbol_object['yield']=$stock_details_arr[$item['market'].':'.$item['name']]['yield'];   // already 0 if index in details
-		if(!array_key_exists('shares_manual',$symbol_object)){
-			$symbol_object['shares_manual']=array();
-			$symbol_object['shares_manual'][]=array('2017-12-31',$stock_details_arr[$item['market'].':'.$item['name']]['shares']);
-            send_mail($item['name'].' shares manual missing','<br />shares manual missing in '.$item['name'].', please review the automatically added version<br /><br />',"hectorlm1983@gmail.com");
-		}
-        if(array_key_exists('shares',$symbol_object) && // avoid this check if it is the first time
-		        abs(floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])-floatval(end($symbol_object['shares_manual'])[1]))>max(0.04,floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])/15)){
-            // if the diff is bigger than 6.6% or 0.04 whatever is bigger
 
-			// exceptions
-			if(
-				($symbol_object['name']=="SGRE" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="0.28")
-				||
-				($symbol_object['name']=="SNAP" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="1.22")
-
-			){
-				echo "sharenum exception<br />";
-			}else{
-				send_mail($item['name'].' sharenum change','<br />original('.$symbol_object['shares_source'].'):'.$symbol_object['shares'].
-														   ' <br />new ('.$stock_details_arr[$item['market'].':'.$item['name']]['shares_source'].'):'.$stock_details_arr[$item['market'].':'.$item['name']]['shares'].
-														   '<br />shares manual:'.end($symbol_object['shares_manual'])[1].
-														   '<br />diff%:'.abs(floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])-floatval(end($symbol_object['shares_manual'])[1])).
-														   '<br /><br />Time to update the manual shares?'.
-														   '<br /><br />title:'.$symbol_object['title'].
-														   '<br /><br /><br />value:'.$symbol_object['value'].
-														   '<br />change:'.$symbol_object['session_change_percentage'].
-														   '<br /><br />',"hectorlm1983@gmail.com");
-			}
-			$symbol_object['shares']=end($symbol_object['shares_manual'])[1]; // already 0 if index in details
-			$symbol_object['shares_source']='manual';
-	   }else{
+		
+		
+		if(substr($symbol_object['market'],0,5)=="INDEX"){
+			$symbol_object['mktcap']=$stock_details_arr[$item['market'].':'.$item['name']]['mktcap'];// already 0 if index in details
 			$symbol_object['shares']=$stock_details_arr[$item['market'].':'.$item['name']]['shares']; // already 0 if index in details
-			$symbol_object['shares_source']=$stock_details_arr[$item['market'].':'.$item['name']]['shares_source'];
-		}
-        $symbol_object['mktcap']=$stock_details_arr[$item['market'].':'.$item['name']]['mktcap'];// already 0 if index in details
+			$symbol_object['shares_source']=$stock_details_arr[$item['market'].':'.$item['name']]['shares_source']; // will always be direct
+		}else{
+			// if not manual nor direct just break
+			if(
+				!array_key_exists('shares_manual',$symbol_object) 
+				&& 
+				(
+					!array_key_exists('shares',$stock_details_arr[$item['market'].':'.$item['name']])
+					||
+					(
+						array_key_exists('shares',$stock_details_arr[$item['market'].':'.$item['name']]) && 
+						(
+							$stock_details_arr[$item['market'].':'.$item['name']]['shares']==0
+							||
+							$stock_details_arr[$item['market'].':'.$item['name']]['shares_source']!='direct'
+						)
+					)
+				)
+				
+			){
+				send_mail($item['name'].' ERROR shares manual missing','<br />ERROR shares manual missing in '.$item['name'].' and shares direct missing first time, please ADD<br /><br />',"hectorlm1983@gmail.com");
+				continue;
+			}
+			
+			// if !manual means that we have direct
+			if(!array_key_exists('shares_manual',$symbol_object)){
+				$symbol_object['shares_manual']=array();
+				$symbol_object['shares_manual'][]=array('2017-12-31',$stock_details_arr[$item['market'].':'.$item['name']]['shares']);
+				send_mail($item['name'].' shares manual missing','<br />shares manual missing in '.$item['name'].', please review the automatically added version<br /><br />',"hectorlm1983@gmail.com");
+			}
 
+			if(floatval(substr($timestamp_date,0,4))>(floatval(substr(end($symbol_object['shares_manual'])[0],0,4))+1)){
+				send_mail($item['name'].' shares manual old','<br />shares manual old in '.$item['name'].', please review and add updated info<br /><br />',"hectorlm1983@gmail.com");
+			}
+			// if manual and details direct, check
+			if(array_key_exists('shares',$symbol_object) && // avoid this check if it is the first time
+				array_key_exists('shares',$stock_details_arr[$item['market'].':'.$item['name']]) &&
+					floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])!=0 &&
+					$stock_details_arr[$item['market'].':'.$item['name']]['shares_source']=='direct' &&
+					abs(floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])-floatval(end($symbol_object['shares_manual'])[1]))>max(0.04,floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])/15)){
+				// if the diff is bigger than 6.6% or 0.04 whatever is bigger
+
+				// exceptions
+				if(
+					($symbol_object['name']=="SGRE" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="0.28")
+					||
+					($symbol_object['name']=="SNAP" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="1.22")
+
+				){
+					echo "sharenum exception<br />";
+				}else{
+					send_mail($item['name'].' sharenum change','<br />original('.$symbol_object['shares_source'].'):'.$symbol_object['shares'].
+															   ' <br />new ('.$stock_details_arr[$item['market'].':'.$item['name']]['shares_source'].'):'.$stock_details_arr[$item['market'].':'.$item['name']]['shares'].
+															   '<br />shares manual:'.end($symbol_object['shares_manual'])[1].
+															   '<br />diff%:'.abs(floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])-floatval(end($symbol_object['shares_manual'])[1])).
+															   '<br /><br />Time to update the manual shares?'.
+															   '<br /><br />title:'.$symbol_object['title'].
+															   '<br /><br /><br />value:'.$symbol_object['value'].
+															   '<br />change:'.$symbol_object['session_change_percentage'].
+															   '<br /><br />',"hectorlm1983@gmail.com");
+				}
+				$symbol_object['shares']=end($symbol_object['shares_manual'])[1]; // already 0 if index in details
+				$symbol_object['shares_source']='manual';
+		   }else{
+				if(
+					array_key_exists('shares',$stock_details_arr[$item['market'].':'.$item['name']]) &&
+						floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])!=0 &&
+					$stock_details_arr[$item['market'].':'.$item['name']]['shares_source']=='direct'
+				){
+					$symbol_object['shares']=$stock_details_arr[$item['market'].':'.$item['name']]['shares']; // already 0 if index in details
+					$symbol_object['shares_source']=$stock_details_arr[$item['market'].':'.$item['name']]['shares_source']; // will always be direct
+					if(floatval($symbol_object['shares'])<0.020){ // if shares are as little the calculations for eps, etc can be wrong, consider using other calculations
+						echo "<br />Too few shares ".$symbol_object['shares']." calculated (min 0.02)..., email sent...<br />";
+						send_mail('Err. few shares '.$item['name'],"<br />Too few shares calc ".$symbol_object['shares'].", consider removing symbol...<br /><br />","hectorlm1983@gmail.com");
+					}
+				}else{
+					$symbol_object['shares']=end($symbol_object['shares_manual'])[1]; // already 0 if index in details
+					$symbol_object['shares_source']='manual';
+				}
+			}
+			// if mktcap exists and !=0 take otherwise calculate from shares that at this point must be good or manual
+			if(
+				array_key_exists('mktcap',$stock_details_arr[$item['market'].':'.$item['name']]) &&
+					floatval($stock_details_arr[$item['market'].':'.$item['name']]['mktcap'])!=0
+			){
+				$symbol_object['mktcap']=$stock_details_arr[$item['market'].':'.$item['name']]['mktcap'];// already 0 if index in details
+			}else{
+				$symbol_object['mktcap']=toFixed(floatval($symbol_object['shares'])*floatval($symbol_object['value']),2,'mktcap calc');
+			}
+		}
+		
+		
+
+		
+		
+		
+		
+		
         // hist of basic stuff needs to be done here since it is used below, and if it is the first time a new value is added, it would be needed
         hist_year_last_day('value',$symbol_object); // every year
         if(substr($symbol_object['market'],0,5)!="INDEX"){
@@ -393,6 +461,7 @@ foreach ($stock_details_arr as $key => $item) {
 				if($operating_margin_pot<0.01 && $symbol_formatted['revenue_growth']>=0.25){
 					$prod_ps_guess=toFixed(max(floatval($symbol_formatted['revps'])*0.01,floatval($symbol_formatted['oips']),floatval($symbol_formatted['eps'])*1.1),3,'prod');
 				}
+				if($prod_ps_guess<0) $prod_ps_guess=0.00001;
 			}else{
                 echo "!financials (no revenue), consider running financials and fiancials, leverage-book manually";
                 send_mail('NOTE:'.$item['name'].' !financials','<br />From stock_cron.php, there is no revenue_hist for this stock. !financials? fix manually (run financials).<br /><br />',"hectorlm1983@gmail.com");
@@ -412,7 +481,7 @@ foreach ($stock_details_arr as $key => $item) {
             
             $score_rev_growth=0;
             if(array_key_exists('revenue_growth',$symbol_formatted) && floatval($symbol_formatted['revenue_growth'])>0){
-                $score_rev_growth=(min(floatval($symbol_formatted['revenue_growth'])*100,34)*2)/100;
+                $score_rev_growth=(min(floatval($symbol_formatted['revenue_growth'])*100,34))/100;
 				if(floatval($symbol_formatted['revenue_growth'])>0.01) $score_rev_growth+=0.1;
 				if(floatval($symbol_formatted['revenue_growth'])>0.03) $score_rev_growth+=0.1;
 				if(floatval($symbol_formatted['revenue_growth'])>0.05) $score_rev_growth+=0.1; // 0.30+0.05x2=0.40 
@@ -441,7 +510,7 @@ foreach ($stock_details_arr as $key => $item) {
 				// avg is aroun 0.07, highest is around 0.20, multiplying by 5 would make it 1
                 //$score_epsp=($prod)*5; // 7*5=35, 20*5=100
 				// 7 should be at least 5
-                $score_epsp=($prod)*7; // 7*8=56, 13*8=100
+                $score_epsp=($prod)*7; // 7*7=49, 14*7=98
                 if($computable_yield>($epsp+0.006)) $score_epsp-=($epsp-$computable_yield)*15; // penalized if yield > $epsp
                 /*if(array_key_exists('eps_hist_trend',$symbol_formatted)){
                     if($symbol_formatted['eps_hist_trend']=='/-') $score_epsp+=0.05; 
@@ -450,8 +519,8 @@ foreach ($stock_details_arr as $key => $item) {
                 }*/
                 if(array_key_exists('prod_ps_trend',$symbol_formatted)){
                     if($symbol_formatted['prod_ps_trend']=='v') $score_epsp+=0.05; 
-                    if($symbol_formatted['prod_ps_trend']=='_/') $score_epsp+=0.08; 
-                    if($symbol_formatted['prod_ps_trend']=='/') $score_epsp+=0.10;
+                    if($symbol_formatted['prod_ps_trend']=='_/') $score_epsp+=0.10; 
+                    if($symbol_formatted['prod_ps_trend']=='/') $score_epsp+=0.20;
                 }
                 $score_epsp=max(min($score_epsp,1),0);  // min 0 max 1
             }
@@ -540,22 +609,24 @@ foreach ($stock_details_arr as $key => $item) {
 			                            floatval($symbol_formatted['value'])/2)
                                   ),1,"calc_value guessed_value");
 								  
-            $symbol_formatted['guessed_value_5y']="".toFixed(
-									5*compound_interest_4($prod_ps_guess,  // we should calculate the pot om and prodps...
+			$tmp_base=5*compound_interest_4($prod_ps_guess,  // we should calculate the pot om and prodps...
 										min(
 											floatval($symbol_formatted['revenue_growth'])
 											+
 											max(-0.1,min(0.1,floatval($symbol_formatted['revenue_acceleration'])/2))
 											, 0.60
 										)
-									,5)
+									,5)                                
+									+min($calc_value_asset_share,
+			                            floatval($symbol_formatted['value'])/2);
+            $symbol_formatted['guessed_value_5y']="".toFixed(
+									max(floatval($symbol_formatted['value'])/100, 
+									$tmp_base
 									// remove some debt issue (liabilities/4 means pay 25% in 5y if we had to return in 20y how much pay in 5y)
 									// for banks do it 20 like pay 5% in 5y
 									-
-									($liabilities_ps/$debt_ralenization_ratio)
-                                  +min($calc_value_asset_share,
-			                            floatval($symbol_formatted['value'])/2)   // we should calculate this from equity...
-                                  ,1,"calc_value guessed_value");
+									min($liabilities_ps/$debt_ralenization_ratio,$tmp_base/2))
+                                  ,1,"calc_value guessed_value_5y");
 			if(intval(substr(end($symbol_formatted['revenue_hist'])[0],0,4))<(intval(date("Y"))-1) && intval(date("n"))>4){
 				$symbol_formatted['guessed_percentage']=1; // with lack of data just neutral valuation...
 			}else{
@@ -584,8 +655,8 @@ foreach ($stock_details_arr as $key => $item) {
             $symbol_formatted['h_souce']=
                                                  ($score_eqp*1)+
                                                  ($score_val_growth*2)+
-                                                 ($score_rev_growth*3)+
-                                                 ($score_epsp*3)+
+                                                 ($score_rev_growth*2)+
+                                                 ($score_epsp*2)+
                                                  ($score_leverage*1)+
                                                  ($negative_val_growth_penalty*2)+
                                                  ($negative_rev_growth_penalty*2)+
@@ -596,6 +667,9 @@ foreach ($stock_details_arr as $key => $item) {
 			if($symbol_formatted['guessed_percentage']<0.9){
 				$symbol_formatted['h_souce']+=0.5;
 			}
+			if($symbol_formatted['guessed_percentage']<0.8){
+				$symbol_formatted['h_souce']+=0.5;
+			}
 			if($symbol_formatted['guessed_percentage']<0.7){
 				$symbol_formatted['h_souce']+=0.5;
 			}
@@ -603,6 +677,9 @@ foreach ($stock_details_arr as $key => $item) {
 				$symbol_formatted['h_souce']+=-0.5;
 			}
 			if($symbol_formatted['guessed_percentage']>2.7){
+				$symbol_formatted['h_souce']+=-0.5; 
+			}
+			if($symbol_formatted['guessed_percentage']>3.7){
 				$symbol_formatted['h_souce']+=-0.5; 
 			}
 			if(floatval($symbol_formatted['current_ratio'])<1){
@@ -623,6 +700,8 @@ foreach ($stock_details_arr as $key => $item) {
 		$symbol_formatted_extra["score_rev_g"]=$score_rev_growth;
 		$symbol_formatted_extra["score_epsp"]=$score_epsp;
 		$symbol_formatted_extra["score_lev"]=$score_leverage;
+		$symbol_formatted_extra["score_tmp_base"]=$tmp_base;
+		$symbol_formatted_extra["score_liabilities_ps"]=$liabilities_ps;
 		
 		
 		$curl = curl_init();
