@@ -179,7 +179,7 @@ function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$de
         if($param_id=="leverage" && (  $orig['name']=='BIDU' || $orig['name']=='ACX' )){return "";}
         #-------------------------------------------
         $results[$param_id][$index]=$default_val;
-        $report="$name<br /><br />Empty - in $param_id (".$results[$param_id][$index].") (index=$index) new:[".implode(" ",$results[$param_id])."] (stock_cron_leverage_book.php), setting $default_val<br /><br />";
+        //$report_slow="$name<br /><br />Empty - in $param_id (".$results[$param_id][$index].") (index=$index) new:[".implode(" ",$results[$param_id])."] (stock_cron_leverage_book.php), setting $default_val<br /><br />";
     }
     if(!array_key_exists($orig_param,$orig)){
         $report.="$name<br /><br />New $param_id: ".$results[$param_id][$index]."<br />(stock_cron_leverage_book.php)<br />";
