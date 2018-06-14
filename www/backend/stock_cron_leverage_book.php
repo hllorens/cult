@@ -14,6 +14,7 @@ $timestamp_date=date("Y-m-d");
 $timestamp_simplif=date("d H:i");
 $timestamp_quarter=substr($timestamp_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $timestamp_date)->format('n') / 3) % 4) + 1 );
 $timestamp_half=substr($timestamp_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $timestamp_date)->format('n') / 6) % 2) + 1 );
+#echo "<br />$timestamp_date<br />";
 
 $debug=false;
 if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug']=="1")){
@@ -170,6 +171,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
 // -----------update stocks formatted ----------------------------------
 
 function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$default_val=0,$diff_margin=0){
+	$timestamp_date=date("Y-m-d");
 	$report="";
     if($results[$param_id][$index]=="-" || $results[$param_id][$index]==""){
         #exceptions stocks that don't have 5y or few data ------
@@ -186,16 +188,17 @@ function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$de
         $orig[$orig_param]=$results[$param_id][$index];
 		$orig[$orig_param."_date"]=$timestamp_date;
     }else{
+		if(!array_key_exists($orig_param."_date",$orig)){
+			$orig[$orig_param."_date"]=$timestamp_date;
+		}
         if(floatval($orig[$orig_param])==$default_val){
             $orig[$orig_param]=$results[$param_id][$index];
+			$orig[$orig_param."_date"]=$timestamp_date;
             $report="";
         }else{
             if(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1) >$diff_margin){
                 $diff=toFixed(abs(floatval($orig[$orig_param])-floatval($results[$param_id][$index]))/max(abs(floatval($results[$param_id][$index])),0.1),2,"lev-book diff");
                 if(floatval($results[$param_id][$index])==$default_val){
-					if(!array_key_exists($orig_param."_date",$orig)){
-						$orig[$orig_param."_date"]=$timestamp_date;
-					}
 					// only report if the orig is too old (2 years)
 					if(floatval(substr($timestamp_date,0,4))>(floatval(substr($orig[$orig_param."_date"],0,4))+1)){
 						$report.="$name<br />$param_id<br />Orig (".$orig[$orig_param."_date"]."): ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]." (default, empty)<br />Keeping original since new is the default (empty)<br />New $param_id (orig: $orig_param)<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
@@ -206,9 +209,12 @@ function handle_new_value(&$orig,$orig_param,$results,$param_id,$index,$name,$de
 						$report.="$name<br />$param_id<br />Orig: ".$orig[$orig_param].'<br />New: '.$results[$param_id][$index]."<br />Keeping the new<br />New $param_id (orig: $orig_param)<br />diff=$diff, diff_margin=$diff_margin<br />(stock_cron_leverage_book.php)<br />";
 					}
 					$orig[$orig_param]=$results[$param_id][$index];
-					$orig[$orig_param."_date"]=$timestamp_date;
                 }
             }
+			// even if no diff if no default update the date (last date a non-default value was obtained)
+			if(floatval($results[$param_id][$index])!=$default_val){
+				$orig[$orig_param."_date"]=$timestamp_date;
+			}
         }
     }
 	return $report;
