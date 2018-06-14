@@ -142,8 +142,8 @@ function hist_year_last_day($param_id, &$symbol_object){
         $last_elem_freq=substr($last_elem_date,0,4);
         if($timestamp_freq!=$last_elem_freq){
             // store the new and set the last to last year date
-            $symbol_object[$param_id.'_hist'][]=[$timestamp_date,$symbol_object[$param_id]];
             $symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist']) - 1]=[$last_elem_freq."-12-31",$last_elem_val];
+            $symbol_object[$param_id.'_hist'][]=[$timestamp_date,$symbol_object[$param_id]];
         }else{ // to keep it fresh
             $symbol_object[$param_id.'_hist'][count($symbol_object[$param_id.'_hist']) - 1]=[$timestamp_date,$symbol_object[$param_id]];
         }
@@ -433,8 +433,9 @@ function get_anualized_data($param,$stock_data,&$tsv_arr){
 		foreach ($stock_data[$param.'_hist'] as $valdata){
 			//echo $valdata[0]."<br />";
 			if(array_key_exists(substr($valdata[0],0,4),$seen_years)){
-			echo "ERROR duplicated year in ${param}_hist ".substr($valdata[0],0,4)."<br />"; exit(1);
-			send_mail('ERROR:'.$param.'_hist dup year '.$stock_data['name'],'<br />For '.$stock_data['name']."ERROR duplicated year in ${param}_hist ".substr($valdata[0],0,4).'<br /><br />',"hectorlm1983@gmail.com");
+				echo "ERROR duplicated year in ${param}_hist ".substr($valdata[0],0,4)."  ".implode(",",array_keys($seen_years))."   ".print_r($stock_data[$param.'_hist'],true)."<br />";
+				send_mail('ERROR:'.$param.'_hist dup year '.$stock_data['name'],'<br />For '.$stock_data['name'].", ERROR duplicated year in ${param}_hist ".substr($valdata[0],0,4)."  ".implode(",",array_keys($seen_years))."   ".print_r($stock_data[$param.'_hist'],true).'<br /><br />',"hectorlm1983@gmail.com");
+				exit(1);
 			}
 			$seen_years[substr($valdata[0],0,4)]=true;
 			$tsv_arr[substr($valdata[0],0,4)][$param]=$valdata[1];
@@ -452,7 +453,9 @@ function get_anualized_data($param,$stock_data,&$tsv_arr){
 					$tsv_arr[substr($valdata[0],0,4)][$param.'_a']=$val_a[($i-2)];
 				}
 			}else{
-				echo "ERROR: in $param, year ".substr($valdata[0],0,4)." is not in tsv_arr<br />"; exit(1);
+				echo "ERROR: in $param, year ".substr($valdata[0],0,4)." is not in tsv_arr<br />";
+				send_mail('ERROR:'.$param.' not in tsv '.$stock_data['name'],'<br />For '.$stock_data['name']."ERROR: in $param, year ".substr($valdata[0],0,4)." is not in tsv_arr<br />","hectorlm1983@gmail.com");
+				exit(1);
 			}
 			$i++;
 		}
