@@ -153,7 +153,8 @@ foreach ($stock_details_arr as $key => $item) {
 					($symbol_object['name']=="SGRE" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="0.28")
 					||
 					($symbol_object['name']=="SNAP" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="1.22")
-
+					||
+					($symbol_object['name']=="TL5" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="0.01")
 				){
 					echo "sharenum exception<br />";
 				}else{

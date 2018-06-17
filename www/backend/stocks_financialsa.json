@@ -137,12 +137,12 @@
 			"Total Liabilities": "90000000"
 		},
 		"2016-03-31": {
-			"Total Assets": "208000000",
-			"Total Liabilities": "95000000"
+			"Total Assets": "192708000",
+			"Total Liabilities": "95690000"
 		},
 		"2017-03-31": {
-			"Total Assets": "190000000",
-			"Total Liabilities": "1000000"
+			"Total Assets": "165443000",
+			"Total Liabilities": "86596000"
 		},
 		"market": "NASDAQ",
 		"name": "VOD"
@@ -438,15 +438,15 @@
 		},
 		"2015-12-31": {
 			"Total Assets": "8067939",
-			"Total Liabilities": "6984235"
+			"Total Liabilities": "6936950"
 		},
 		"2016-12-31": {
 			"Total Assets": "22664076",
-			"Total Liabilities": "16758951"
+			"Total Liabilities": "17535342"
 		},
 		"2017-12-31": {
 			"Total Assets": "28655372",
-			"Total Liabilities": "23023050"
+			"Total Liabilities": "24020326"
 		},
 		"market": "NASDAQ",
 		"name": "TSLA"
@@ -1010,15 +1010,15 @@
 		},
 		"2015-12-31": {
 			"Total Assets": "76846000",
-			"Total Liabilities": "51574000"
+			"Total Liabilities": "49276000"
 		},
 		"2016-12-31": {
 			"Total Assets": "75142000",
-			"Total Liabilities": "45007000"
+			"Total Liabilities": "42817000"
 		},
 		"2017-12-31": {
 			"Total Assets": "85297000",
-			"Total Liabilities": "46508000"
+			"Total Liabilities": "44442000"
 		},
 		"market": "BME",
 		"name": "MTS"
@@ -1081,16 +1081,16 @@
 			"Total Liabilities": "23735000"
 		},
 		"2015-12-31": {
-			"Total Assets": "39449",
-			"Total Liabilities": "4629"
+			"Total Assets": "68650000",
+			"Total Liabilities": "37406000"
 		},
 		"2016-12-31": {
-			"Total Assets": "42544",
-			"Total Liabilities": "6770"
+			"Total Assets": "68400000",
+			"Total Liabilities": "35585000"
 		},
 		"2017-12-31": {
-			"Total Assets": "42801",
-			"Total Liabilities": "10794"
+			"Total Assets": "71877000",
+			"Total Liabilities": "35777000"
 		},
 		"market": "BME",
 		"name": "REP"
@@ -1122,23 +1122,33 @@
 	"BME:SAN": {
 		"2013-12-31": {
 			"Total Assets": "1115763000",
-			"Total Liabilities": "1036121000"
+			"Total Assets Manual": "1115638000",
+			"Total Liabilities": "1036121000",
+			"Total Liabilities Manual": "1035121000"
 		},
 		"2014-12-31": {
-			"Total Assets": "1266296000",
-			"Total Liabilities": "1176582000"
+			"Total Assets":        "1266296000",
+			"Total Assets Manual": "1266296000",
+			"Total Liabilities":        "1176582000",
+			"Total Liabilities Manual": "1176582000"
 		},
 		"2015-12-31": {
-			"Total Assets": "1455934000",
-			"Total Liabilities": "1360296000"
+			"Total Assets":        "1455934000",
+			"Total Assets Manual": "1340000000",
+			"Total Liabilities":        "1360296000",
+			"Total Liabilities Manual": "1252000000"  
 		},
 		"2016-12-31": {
-			"Total Assets": "1412445000",
-			"Total Liabilities": "1316528000"
+			"Total Assets":        "1412445000",
+			"Total Assets Manual": "1339000000",
+			"Total Liabilities":        "1316528000",
+			"Total Liabilities Manual": "1248000000"
 		},
 		"2017-12-31": {
-			"Total Assets": "1734338000",
-			"Total Liabilities": "1620875000"
+			"Total Assets":        "1734338000",
+			"Total Assets Manual": "1444000000",
+			"Total Liabilities":        "1620875000",
+			"Total Liabilities Manual": "1349000000"
 		},
 		"market": "BME",
 		"name": "SAN"
@@ -1665,16 +1675,16 @@
 			"Total Liabilities": "180000000"
 		},
 		"2015-12-31": {
-			"Total Assets": "1200000000",
-			"Total Liabilities": "180000000"
+			"Total Assets": "1088793000",
+			"Total Liabilities": "1039939000"
 		},
 		"2016-12-31": {
-			"Total Assets": "888000000",
-			"Total Liabilities": "838000000"
+			"Total Assets": "888329000",
+			"Total Liabilities": "838485000"
 		},
 		"2017-12-31": {
-			"Total Assets": "1013000000",
-			"Total Liabilities": "955000000"
+			"Total Assets": "1013339000",
+			"Total Liabilities": "955185000"
 		},
 		"market": "NYSE",
 		"name": "ING"
