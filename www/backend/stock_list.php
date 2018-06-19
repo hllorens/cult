@@ -5,6 +5,8 @@ echo date('Y-m-d H:i:s')." starting stock_list.php<br />";
 // current markets: grep "^.stock_list" cult/www/backend/stock_list.php | sed "s/\";.*\$//" | sed "s/^.*stock_list,//" | tr "," "\n" | cut -f 1 -d : | sort | uniq -c
 // [INDEX], BME, EPA, FRA, NASDAQ, NYSE, OTCMKTS, VTX
 
+$bank_insurance_companies=['SAN','BBVA','ING','BKIA','BKT','SAB','CABK','MAP','ZURVY','HSBC','R4'];
+
 $stock_list="INDEXBME:IB";
 
 $stock_list="$stock_list,BME:ACS,BME:ACX,BME:AENA,BME:AMS,BME:ANA,BME:BBVA,BME:BKIA,BME:BKT,BME:CABK,BME:DIA";  

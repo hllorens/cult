@@ -537,7 +537,7 @@ foreach ($stock_details_arr as $key => $item) {
                 if(array_key_exists('leverage_industry',$symbol_formatted) && floatval($symbol_formatted['leverage_industry'])!=0 && floatval($symbol_formatted['leverage_industry'])!=0.01){
                     $acceptable_leverage=min(max(floatval($symbol_formatted['leverage_industry']),$acceptable_leverage),3);
                 }
-                if(in_array($symbol_formatted['name'], ['SAN','BBVA','ING','BKIA','BKT','SAB','CABK','MAP','ZURVY','HSBC','R4'])){ 
+                if(in_array($symbol_formatted['name'], $bank_insurance_companies)){ 
                     $acceptable_leverage=9; // finance/insurance industry lives on this so we cannot penalize as much
 					$debt_ralenization_ratio=40; // like only pay 5% of debt in 5y
                 }
@@ -665,8 +665,11 @@ foreach ($stock_details_arr as $key => $item) {
                                                  ;
             
 			// TODO: improve this
+			if($symbol_formatted['guessed_percentage']<1.1){
+				$symbol_formatted['h_souce']+=0.25;
+			}
 			if($symbol_formatted['guessed_percentage']<0.9){
-				$symbol_formatted['h_souce']+=0.5;
+				$symbol_formatted['h_souce']+=0.25;
 			}
 			if($symbol_formatted['guessed_percentage']<0.8){
 				$symbol_formatted['h_souce']+=0.5;
@@ -683,7 +686,7 @@ foreach ($stock_details_arr as $key => $item) {
 			if($symbol_formatted['guessed_percentage']>3.7){
 				$symbol_formatted['h_souce']+=-0.5; 
 			}
-			if(floatval($symbol_formatted['current_ratio'])<1){
+			if(!in_array($symbol_formatted['name'], $bank_insurance_companies) && floatval($symbol_formatted['current_ratio'])<1){
 				$symbol_formatted['h_souce']-=(1-floatval($symbol_formatted['current_ratio']));
 			}
 
