@@ -76,6 +76,20 @@ foreach ($stock_details_arr as $key => $item) {
             send_mail('ERROR:'.$json_name.' title or shares !exist','<br />This stock was in stocks.formatted.json but without title or shares, fix manually.<br /><br />',"hectorlm1983@gmail.com");
             exit(1);
         }
+		// minimal hist check
+		foreach ($symbol_object as $key => $value) {
+			if(substr($key, -strlen('_hist'))==='_hist'){
+				if($debug) echo "<br />checking order $key<br />";
+				$last_val=0;
+				foreach ($symbol_object[$key] as $val){
+					if(floatval($val[0])<=$last_val){
+						echo " ERROR in year order in $key in $json_name ";
+						send_mail('ERROR:'.$json_name.' _hist order','<br />ERROR in year order in $key in $json_name, fix manually.<br /><br />',"hectorlm1983@gmail.com");
+						exit(1);
+					}
+				}
+			}
+		}
     }else{
         echo "<br />No old info... first time?<br />";
     }
