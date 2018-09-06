@@ -680,8 +680,6 @@
 		"name": "ACX"
 	},
 	"BME:AENA": {
-		"name": "AENA",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "2876.8",
 			"Operating Income": "741.8",
@@ -706,11 +704,11 @@
 			"Total Revenue": "3960.6",
 			"Operating Income": "1722.2",
 			"Net Income": "1232.0"
-		}
+		},
+		"market": "BME",
+		"name": "AENA"
 	},
 	"BME:AMS": {
-		"name": "AMS",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "3103.7",
 			"Operating Income": "888.0",
@@ -735,11 +733,11 @@
 			"Total Revenue": "4852.7",
 			"Operating Income": "1323.2",
 			"Net Income": "1002.9"
-		}
+		},
+		"market": "BME",
+		"name": "AMS"
 	},
 	"BME:ANA": {
-		"name": "ANA",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "6271.2",
 			"Operating Income": "-1832.0",
@@ -764,11 +762,11 @@
 			"Total Revenue": "7254.0",
 			"Operating Income": "610.5",
 			"Net Income": "220.1"
-		}
+		},
+		"market": "BME",
+		"name": "ANA"
 	},
 	"BME:BBVA": {
-		"name": "BBVA",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "26550.0",
 			"Operating Income": "954.0",
@@ -793,11 +791,11 @@
 			"Total Revenue": "29761.0",
 			"Operating Income": "7534.0",
 			"Net Income": "3519.0"
-		}
+		},
+		"market": "BME",
+		"name": "BBVA"
 	},
 	"BME:BKIA": {
-		"name": "BKIA",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "2727.1",
 			"Operating Income": "147.4",
@@ -822,11 +820,11 @@
 			"Total Revenue": "3245.5",
 			"Operating Income": "744.1",
 			"Net Income": "504.5"
-		}
+		},
+		"market": "BME",
+		"name": "BKIA"
 	},
 	"BME:BKT": {
-		"name": "BKT",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "1518.4",
 			"Operating Income": "354.7",
@@ -851,11 +849,11 @@
 			"Total Revenue": "2343.1",
 			"Operating Income": "705.1",
 			"Net Income": "495.2"
-		}
+		},
+		"market": "BME",
+		"name": "BKT"
 	},
 	"BME:CABK": {
-		"name": "CABK",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "2391.3",
 			"Operating Income": "-2749.4",
@@ -880,7 +878,9 @@
 			"Total Revenue": "9033.3",
 			"Operating Income": "1934.5",
 			"Net Income": "1684.2"
-		}
+		},
+		"market": "BME",
+		"name": "CABK"
 	},
 	"BME:DIA": {
 		"2013-12-31": {
@@ -943,8 +943,6 @@
 		"name": "ELE"
 	},
 	"BME:ENG": {
-		"name": "ENG",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "1233.0",
 			"Operating Income": "649.7",
@@ -969,11 +967,11 @@
 			"Total Revenue": "1360.2",
 			"Operating Income": "694.4",
 			"Net Income": "490.8"
-		}
+		},
+		"market": "BME",
+		"name": "ENG"
 	},
 	"BME:FCC": {
-		"name": "FCC",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "6750.0",
 			"Operating Income": "-307.7",
@@ -998,11 +996,11 @@
 			"Total Revenue": "5802.0",
 			"Operating Income": "448.6",
 			"Net Income": "118.0"
-		}
+		},
+		"market": "BME",
+		"name": "FCC"
 	},
 	"BME:FER": {
-		"name": "FER",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "8166.0",
 			"Operating Income": "827.0",
@@ -1027,11 +1025,11 @@
 			"Total Revenue": "12208.0",
 			"Operating Income": "557.0",
 			"Net Income": "454.0"
-		}
+		},
+		"market": "BME",
+		"name": "FER"
 	},
 	"BME:SGRE": {
-		"name": "SGRE",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "2335.6",
 			"Operating Income": "130.3",
@@ -1051,11 +1049,16 @@
 			"Total Revenue": "4612.0",
 			"Operating Income": "494.3",
 			"Net Income": "301.3"
-		}
+		},
+		"2017-12-31": {
+			"Total Revenue": "7000.0",
+			"Operating Income": "200.0",
+			"Net Income": "-13.0"
+		},
+		"market": "BME",
+		"name": "SGRE"
 	},
 	"BME:GAS": {
-		"name": "GAS",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "24322.0",
 			"Operating Income": "3022.0",
@@ -1080,7 +1083,9 @@
 			"Total Revenue": "23306.0",
 			"Operating Income": "2202.0",
 			"Net Income": "1360.0"
-		}
+		},
+		"market": "BME",
+		"name": "GAS"
 	},
 	"BME:GRF": {
 		"2013-12-31": {
@@ -1136,8 +1141,6 @@
 		}
 	},
 	"BME:IBE": {
-		"name": "IBE",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "31077.1",
 			"Operating Income": "2219.5",
@@ -1162,11 +1165,11 @@
 			"Total Revenue": "31263.3",
 			"Operating Income": "2712.6",
 			"Net Income": "2804.0"
-		}
+		},
+		"market": "BME",
+		"name": "IBE"
 	},
 	"BME:IDR": {
-		"name": "IDR",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "2914.1",
 			"Operating Income": "198.3",
@@ -1191,11 +1194,11 @@
 			"Total Revenue": "3011.1",
 			"Operating Income": "196.7",
 			"Net Income": "126.9"
-		}
+		},
+		"market": "BME",
+		"name": "IDR"
 	},
 	"BME:ITX": {
-		"name": "ITX",
-		"market": "BME",
 		"2014-01-31": {
 			"Total Revenue": "16724.4",
 			"Operating Income": "3070.9",
@@ -1220,7 +1223,9 @@
 			"Total Revenue": "25336.0",
 			"Operating Income": "4315.0",
 			"Net Income": "3368.0"
-		}
+		},
+		"market": "BME",
+		"name": "ITX"
 	},
 	"BME:MAP": {
 		"2013-12-31": {
@@ -1252,8 +1257,6 @@
 		"name": "MAP"
 	},
 	"BME:MEL": {
-		"name": "MEL",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "1368.7",
 			"Operating Income": "174.9",
@@ -1278,7 +1281,9 @@
 			"Total Revenue": "1885.2",
 			"Operating Income": "200.3",
 			"Net Income": "128.7"
-		}
+		},
+		"market": "BME",
+		"name": "MEL"
 	},
 	"BME:MTS": {
 		"2013-12-31": {
@@ -1339,8 +1344,6 @@
 		"name": "OHL"
 	},
 	"BME:REE": {
-		"name": "REE",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "1758.3",
 			"Operating Income": "898.7",
@@ -1365,11 +1368,11 @@
 			"Total Revenue": "1941.2",
 			"Operating Income": "1027.8",
 			"Net Income": "669.8"
-		}
+		},
+		"market": "BME",
+		"name": "REE"
 	},
 	"BME:REP": {
-		"name": "REP",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "46089.0",
 			"Operating Income": "959.0",
@@ -1394,11 +1397,11 @@
 			"Total Revenue": "41668.0",
 			"Operating Income": "2847.0",
 			"Net Income": "2121.0"
-		}
+		},
+		"market": "BME",
+		"name": "REP"
 	},
 	"BME:SAB": {
-		"name": "SAB",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "3649.0",
 			"Operating Income": "739.8",
@@ -1423,11 +1426,11 @@
 			"Total Revenue": "6173.1",
 			"Operating Income": "1386.8",
 			"Net Income": "801.5"
-		}
+		},
+		"market": "BME",
+		"name": "SAB"
 	},
 	"BME:SAN": {
-		"name": "SAN",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "45630.0",
 			"Total Revenue Manual": "44750.0",
@@ -1462,7 +1465,9 @@
 			"Operating Income": "11000.0",
 			"Net Income": "6619.0",
 			"Net Income Manual": "6619.0"
-		}
+		},
+		"market": "BME",
+		"name": "SAN"
 	},
 	"BME:SCYR": {
 		"2013-12-31": {
@@ -1494,8 +1499,6 @@
 		"name": "SCYR"
 	},
 	"BME:TEF": {
-		"name": "TEF",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "50547.0",
 			"Operating Income": "8861.0",
@@ -1520,11 +1523,11 @@
 			"Total Revenue": "53497.0",
 			"Operating Income": "6835.0",
 			"Net Income": "3132.0"
-		}
+		},
+		"market": "BME",
+		"name": "TEF"
 	},
 	"BME:TL5": {
-		"name": "TL5",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "818.8",
 			"Operating Income": "70.2",
@@ -1549,11 +1552,11 @@
 			"Total Revenue": "985.6",
 			"Operating Income": "245.3",
 			"Net Income": "197.5"
-		}
+		},
+		"market": "BME",
+		"name": "TL5"
 	},
 	"BME:TRE": {
-		"name": "TRE",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "2846.1",
 			"Operating Income": "148.0",
@@ -1578,7 +1581,9 @@
 			"Total Revenue": "5067.9",
 			"Operating Income": "100.4",
 			"Net Income": "39.5"
-		}
+		},
+		"market": "BME",
+		"name": "TRE"
 	},
 	"BME:FAE": {
 		"2013-12-31": {
@@ -2562,24 +2567,24 @@
 			"Net Income": "706.6"
 		},
 		"2014-12-31": {
-			"Total Revenue": "1821.2",
+			"Total Revenue": "1821.1",
 			"Operating Income": "740.9",
-			"Net Income": "739.6"
+			"Net Income": "739.5"
 		},
 		"2015-12-31": {
-			"Total Revenue": "3545.5",
-			"Operating Income": "1130.7",
-			"Net Income": "1047.2"
+			"Total Revenue": "3545.3",
+			"Operating Income": "1130.6",
+			"Net Income": "1047.1"
 		},
 		"2016-12-31": {
-			"Total Revenue": "5936.2",
-			"Operating Income": "1963.6",
-			"Net Income": "1804.3"
+			"Total Revenue": "5935.9",
+			"Operating Income": "1963.5",
+			"Net Income": "1804.2"
 		},
 		"2017-12-31": {
-			"Total Revenue": "8412.1",
-			"Operating Income": "1889.7",
-			"Net Income": "1667.2"
+			"Total Revenue": "8411.5",
+			"Operating Income": "1889.6",
+			"Net Income": "1667.1"
 		},
 		"market": "NASDAQ",
 		"name": "NTES"
@@ -2778,8 +2783,6 @@
 		"name": "BIDU"
 	},
 	"BME:VID": {
-		"name": "VID",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "473.6",
 			"Operating Income": "67.5",
@@ -2804,11 +2807,11 @@
 			"Total Revenue": "823.2",
 			"Operating Income": "117.9",
 			"Net Income": "89.1"
-		}
+		},
+		"market": "BME",
+		"name": "VID"
 	},
 	"BME:R4": {
-		"name": "R4",
-		"market": "BME",
 		"2013-12-31": {
 			"Total Revenue": "54.6",
 			"Operating Income": "14.0",
@@ -2828,11 +2831,11 @@
 			"Total Revenue": "71.0",
 			"Operating Income": "17.2",
 			"Net Income": "12.1"
-		}
+		},
+		"market": "BME",
+		"name": "R4"
 	},
 	"NASDAQ:SUPN": {
-		"name": "SUPN",
-		"market": "NASDAQ",
 		"2013-12-31": {
 			"Total Revenue": "12.0",
 			"Operating Income": "-61.9",
@@ -2857,11 +2860,11 @@
 			"Total Revenue": "302.2",
 			"Operating Income": "99.5",
 			"Net Income": "57.3"
-		}
+		},
+		"market": "NASDAQ",
+		"name": "SUPN"
 	},
 	"NASDAQ:REGN": {
-		"name": "REGN",
-		"market": "NASDAQ",
 		"2013-12-31": {
 			"Total Revenue": "2104.7",
 			"Operating Income": "743.1",
@@ -2886,11 +2889,11 @@
 			"Total Revenue": "5872.2",
 			"Operating Income": "2079.6",
 			"Net Income": "1198.5"
-		}
+		},
+		"market": "NASDAQ",
+		"name": "REGN"
 	},
 	"NASDAQ:ALXN": {
-		"name": "ALXN",
-		"market": "NASDAQ",
 		"2013-12-31": {
 			"Total Revenue": "1551.3",
 			"Operating Income": "528.0",
@@ -2915,7 +2918,9 @@
 			"Total Revenue": "3551.1",
 			"Operating Income": "804.0",
 			"Net Income": "443.3"
-		}
+		},
+		"market": "NASDAQ",
+		"name": "ALXN"
 	},
 	"NASDAQ:AMD": {
 		"name": "AMD",
@@ -3169,8 +3174,6 @@
 		}
 	},
 	"NASDAQ:VRTX": {
-		"name": "VRTX",
-		"market": "NASDAQ",
 		"2014-12-31": {
 			"Total Revenue": "580.4",
 			"Operating Income": "-641.5",
@@ -3190,7 +3193,9 @@
 			"Total Revenue": "2488.7",
 			"Operating Income": "392.8",
 			"Net Income": "263.5"
-		}
+		},
+		"market": "NASDAQ",
+		"name": "VRTX"
 	},
 	"NYSE:BA": {
 		"name": "BA",
@@ -3241,8 +3246,6 @@
 		}
 	},
 	"BME:CLNX": {
-		"name": "CLNX",
-		"market": "BME",
 		"2014-12-31": {
 			"Total Revenue": "412.1",
 			"Operating Income": "86.0",
@@ -3262,7 +3265,9 @@
 			"Total Revenue": "757.6",
 			"Operating Income": "126.6",
 			"Net Income": "32.9"
-		}
+		},
+		"market": "BME",
+		"name": "CLNX"
 	},
 	"NYSE:MA": {
 		"name": "MA",
@@ -3438,8 +3443,6 @@
 		}
 	},
 	"NYSE:ABBV": {
-		"name": "ABBV",
-		"market": "NYSE",
 		"2014-12-31": {
 			"Total Revenue": "19960.0",
 			"Operating Income": "3411.0",
@@ -3459,7 +3462,9 @@
 			"Total Revenue": "28216.0",
 			"Operating Income": "9592.0",
 			"Net Income": "5309.0"
-		}
+		},
+		"market": "NYSE",
+		"name": "ABBV"
 	},
 	"NASDAQ:CAR": {
 		"2014-12-31": {

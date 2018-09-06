@@ -436,7 +436,29 @@ foreach ($stock_details_arr as $key => $item) {
 					$symbol_formatted['revenue_growth']=floatval(end($symbol_formatted['revenue_growth_arr']));
 				}
                 $revenue_acceleration=acceleration_array($symbol_formatted['revenue_growth_arr']);
-                $symbol_formatted['revenue_acceleration']=avg_weighted($revenue_acceleration,0.66,0.99);
+				
+				// this can be wrong if avg_weighted, e.g., can show positive for ^ when that could be at most 0
+                //$symbol_formatted['revenue_acceleration']=avg_weighted($revenue_acceleration,0.66,0.99);
+                $symbol_formatted['revenue_acceleration']=0;
+				$revenue_acceleration_length=count($revenue_acceleration);
+				if($revenue_acceleration_length>2){
+					$acc_minus_1=$revenue_acceleration[$revenue_acceleration_length-2];
+					$acc_last=$revenue_acceleration[$revenue_acceleration_length-1];
+					if( 
+						floatval($symbol_formatted['revenue_growth']) > 0 &&
+						$acc_minus_1>=0 &&
+						$acc_last   >0 
+					){
+						$symbol_formatted['revenue_acceleration']=max($acc_last,0.99);
+					}
+					if( 
+						$acc_minus_1<=0 &&
+						$acc_last   <0 
+					){
+						$symbol_formatted['revenue_acceleration']=max($acc_last,-0.99);
+					}
+				}
+                //$symbol_formatted['revenue_acceleration']=avg_weighted($revenue_acceleration,0.66,0.99);
                 //$symbol_formatted['operating_income_growth_arr']=hist_growth_array('operating_income_hist',$symbol_formatted,5);
                 //$operating_income_acceleration=acceleration_array($symbol_formatted['operating_income_growth_arr']);
                 //$symbol_formatted['operating_income_acceleration']=avg_weighted($operating_income_acceleration);
