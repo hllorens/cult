@@ -169,6 +169,8 @@ foreach ($stock_details_arr as $key => $item) {
 					($symbol_object['name']=="SNAP" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="1.22")
 					||
 					($symbol_object['name']=="TL5" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="0.01")
+					||
+					($symbol_object['name']=="FB" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="2.90")
 				){
 					echo "sharenum exception<br />";
 				}else{
@@ -182,8 +184,10 @@ foreach ($stock_details_arr as $key => $item) {
 															   '<br />change:'.$symbol_object['session_change_percentage'].
 															   '<br /><br />',"hectorlm1983@gmail.com");
 				}
+				
 				$symbol_object['shares']=end($symbol_object['shares_manual'])[1]; // already 0 if index in details
 				$symbol_object['shares_source']='manual';
+		   
 		   }else{
 				if(
 					array_key_exists('shares',$stock_details_arr[$item['market'].':'.$item['name']]) &&
