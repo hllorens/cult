@@ -170,7 +170,7 @@ foreach ($stock_details_arr as $key => $item) {
 					||
 					($symbol_object['name']=="TL5" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="0.01")
 					||
-					($symbol_object['name']=="FB" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="2.90")
+					($symbol_object['name']=="FB" && $stock_details_arr[$item['market'].':'.$item['name']]['shares']=="2.41")
 				){
 					echo "sharenum exception<br />";
 				}else{
