@@ -40,12 +40,6 @@ fwrite($stock_cron_leverage_book_log, date('Y-m-d H:i:s')." starting stock_cron_
 fwrite($stock_cron_leverage_book_log, date('Y-m-d H:i:s')." starting stock_list.php\n");
 
 
-$num_stocks_to_curl=3;
-$stock_last_leverage_book_updated=0;
-if(file_exists ( 'stock_last_leverage_book_updated.txt' )){
-    $stock_last_leverage_book_updated=intval(fgets(fopen('stock_last_leverage_book_updated.txt', 'r')));
-}
-echo " curr_stock_num_to_curl=$stock_last_leverage_book_updated num_stocks_to_curl=$num_stocks_to_curl<br />";
 
 
 $debug=false;
@@ -60,7 +54,22 @@ $the_url="https://www.msn.com/en-us/money/stockdetails/analysis/"; //fi-199.1.SG
 //$vals=",";
 $url_and_query="url_and_query not set yet";
 $the_url_query_arr = explode(",", $stock_list);
+
+$num_stocks_to_curl=3;
+$stock_last_leverage_book_updated=0;
+if(file_exists ( 'stock_last_leverage_book_updated.txt' )){
+    $stock_last_leverage_book_updated=intval(fgets(fopen('stock_last_leverage_book_updated.txt', 'r')));
+}
 $num_stocks_to_curl=min($num_stocks_to_curl,count($the_url_query_arr)); // make sure we do not duplicate...
+
+
+// debug
+//$the_url_query_arr = array("BME:SGRE");
+//$num_stocks_to_curl=1;
+//$stock_last_leverage_book_updated=0;
+
+echo " curr_stock_num_to_curl=$stock_last_leverage_book_updated num_stocks_to_curl=$num_stocks_to_curl<br />";
+
 for ($i=0;$i<$num_stocks_to_curl;$i++){
     $current_num_to_curl=($stock_last_leverage_book_updated+$i) % count($the_url_query_arr);
     $query_arr=explode(":",$the_url_query_arr[$current_num_to_curl]);

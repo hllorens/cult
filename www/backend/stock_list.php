@@ -35,7 +35,7 @@ $stock_list="$stock_list,NASDAQ:FB,NYSE:TWTR,NYSE:SNAP";
 // index 54
 $stock_list="$stock_list,NYSE:MA,NYSE:V,NASDAQ:PYPL";
 // index 57
-$stock_list="$stock_list,NYSE:YRD,NYSE:FIT,NYSE:BABA,NYSE:BLK,NYSE:EL,NYSE:BA,NASDAQ:ATVI,NASDAQ:ADBE,NYSE:RHT,NYSE:CAT"; //new, at some point we might want EPA:AIR (although Boeing is larger...)
+$stock_list="$stock_list,NYSE:YRD,NYSE:FIT,NYSE:BABA,NYSE:BLK,NYSE:EL,NYSE:BA,NASDAQ:ATVI,NASDAQ:ADBE,NYSE:CAT"; //new, at some point we might want EPA:AIR (although Boeing is larger...)
 // index 67
 $stock_list="$stock_list,NASDAQ:NUAN,NASDAQ:CMPR,NYSE:PSX,NASDAQ:AAPL,NASDAQ:INTC,NASDAQ:AMD,NASDAQ:TEAM,NASDAQ:BKCC,NASDAQ:IRBT";
 // index 76
@@ -53,6 +53,10 @@ $stock_list="$stock_list,NASDAQ:NFLX,NASDAQ:CMCSA,NASDAQ:FOXA,NASDAQ:TXN"; // HB
 $stock_list="$stock_list,NYSE:TM,NYSE:GM,EPA:UG,NYSE:F"; // maybe add FRA:VOW, but ETR financials are not good
 // solar power and machines -- semiconductor producers (review)
 $stock_list="$stock_list,NYSE:ED,NYSE:EIX,NASDAQ:SPWR,NASDAQ:TSLA,NYSE:NEE,NYSE:DUK,NYSE:SO,NYSE:D,NYSE:EXC,NASDAQ:STX";  // ,NASDAQ:SCTY acquired by TESLA 2016/2017?
+// lithium
+$stock_list="$stock_list,NYSE:SQM,NYSE:ALB,NYSE:FMC,NASDAQ:ARTX";
+// Software
+$stock_list="$stock_list,EPA:UBI,NYSE:INFY";
 
 // FUTURE:
 // Uber, airbnb, dropbox, spotify is not yet in stock, IPO estimated 2019

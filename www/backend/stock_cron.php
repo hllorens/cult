@@ -122,7 +122,7 @@ foreach ($stock_details_arr as $key => $item) {
 			$symbol_object['shares']=$stock_details_arr[$item['market'].':'.$item['name']]['shares']; // already 0 if index in details
 			$symbol_object['shares_source']=$stock_details_arr[$item['market'].':'.$item['name']]['shares_source']; // will always be direct
 		}else{
-			// if not manual nor direct just break
+			// if not manual nor direct just break (well just email and use the guessed ones... otherwise it is impossible)
 			if(
 				!array_key_exists('shares_manual',$symbol_object) 
 				&& 
@@ -141,7 +141,9 @@ foreach ($stock_details_arr as $key => $item) {
 				
 			){
 				send_mail($item['name'].' ERROR shares manual missing','<br />ERROR shares manual missing in '.$item['name'].' and shares direct missing first time, please ADD<br /><br />',"hectorlm1983@gmail.com");
-				continue;
+				//continue;
+				$symbol_object['shares_manual']=array();
+				$symbol_object['shares_manual'][]=array('2017-12-31',$stock_details_arr[$item['market'].':'.$item['name']]['shares']);
 			}
 			
 			// if !manual means that we have direct
