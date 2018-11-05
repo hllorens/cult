@@ -16,6 +16,8 @@ $timestamp_quarter=substr($timestamp_date,0,4)."-".((ceil(DateTime::createFromFo
 $timestamp_half=substr($timestamp_date,0,4)."-".((ceil(DateTime::createFromFormat('Y-m-d', $timestamp_date)->format('n') / 6) % 2) + 1 );
 #echo "<br />$timestamp_date<br />";
 
+$FIREBASE='https://cult-game.firebaseio.com/';
+
 $debug=false;
 if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug']=="1")){
     $debug=true;
@@ -135,6 +137,7 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         // In msn I am not sure but in yahoo it is most-recent-quarter (mrq) we should probably ignore this and only use equity (financils)
 		$email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_book',$results,'Price\/Book Value',0,$name,99,0.34);
         
+		// DISABLED FOR NOW CLEAN JSON AND FIREBASE?
 		// If missing could be calculated from financials and just send slow emeail
 		$email_report.=handle_new_value($stocks_formatted_arr[$name.":".$market],'price_to_sales',$results,'Price\/Sales',0,$name,99,0.34);
         
@@ -167,6 +170,15 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
     //hist_min('price_to_sales',3,$stocks_formatted_arr[$name.":".$market]); //avg of 8 (default) 
     //hist_year_last_day('avg_revenue_growth_5y',$stocks_formatted_arr[$name.":".$market]);
     //hist_min('revenue_growth_qq_last_year',3,$stocks_formatted_arr[$name.":".$market]);
+	
+	$curl = curl_init();
+	curl_setopt( $curl, CURLOPT_URL, $FIREBASE .'stocks_formatted/'. $name.':'.$market.'.json' ); ///'.$usr.'_'.$symbol.'
+	curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "PUT" );
+	curl_setopt( $curl, CURLOPT_POSTFIELDS, json_encode($stocks_formatted_arr[$name.":".$market]) );
+	curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+	$response = curl_exec( $curl );
+		curl_close( $curl );
+
 }
 // -----------update stocks formatted ----------------------------------
 
@@ -234,6 +246,16 @@ $stocks_formatted_arr_json_str=json_encode( $stocks_formatted_arr );
 $stocks_formatted_json_file = fopen("stocks.formatted.json", "w") or die("Unable to open file stocks.formatted.json!");
 fwrite($stocks_formatted_json_file, $stocks_formatted_arr_json_str);
 fclose($stocks_formatted_json_file);
+
+
+/*$curl = curl_init();
+curl_setopt( $curl, CURLOPT_URL, $FIREBASE .'stocks_formatted.json' ); ///'.$usr.'_'.$symbol.'
+curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "PUT" );
+curl_setopt( $curl, CURLOPT_POSTFIELDS, json_encode($stocks_formatted_arr) );
+curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+$response = curl_exec( $curl );
+curl_close( $curl );*/
+
 
 
 fwrite($stock_cron_leverage_book_log, date('Y-m-d H:i:s')." done with stock_cron_leverage_book.php\n");
