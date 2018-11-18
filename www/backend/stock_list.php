@@ -57,6 +57,8 @@ $stock_list="$stock_list,NYSE:ED,NYSE:EIX,NASDAQ:SPWR,NASDAQ:TSLA,NYSE:NEE,NYSE:
 $stock_list="$stock_list,NYSE:SQM,NYSE:ALB,NYSE:FMC,NASDAQ:ARTX";
 // Software
 $stock_list="$stock_list,EPA:UBI,NYSE:INFY";
+$stock_list="$stock_list,NYSE:PFE";
+
 
 // FUTURE:
 // Uber, airbnb, dropbox, spotify is not yet in stock, IPO estimated 2019
