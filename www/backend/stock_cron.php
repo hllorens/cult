@@ -659,7 +659,7 @@ foreach ($stock_details_arr as $key => $item) {
 											floatval($symbol_formatted['revenue_growth'])
 											+
 											max(-0.1,min(0.1,floatval($symbol_formatted['revenue_acceleration'])/2))
-											, 0.60
+											, 0.30
 										)
 									,5)                                
 									+min($calc_value_asset_share,

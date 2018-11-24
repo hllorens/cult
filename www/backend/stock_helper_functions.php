@@ -395,7 +395,7 @@ function get_om_max_avg_pot(&$tsv_arr){
 	return $om_obj;
 }
 
-// adds om and returns om_max, om_avg, om_pot
+
 function get_prod_ps(&$tsv_arr){
 	$hist_obj=array();
 	$hist_obj['prod_ps_hist']=array();
