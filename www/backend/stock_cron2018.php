@@ -339,9 +339,9 @@ foreach ($stock_details_arr as $key => $item) {
 			
 			
             $ref_value=floatval($symbol_formatted['value']);
-            /*if(count($symbol_formatted['value_hist'])>1){
+            if(count($symbol_formatted['value_hist'])>1){
                 $ref_value=floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-2][1]); // last year's value (less volatility in scorings)
-            }*/
+            }
             if(array_key_exists('revenue_hist',$symbol_formatted)){
 				$tsv_arr=array();
 				get_anualized_data('value',$symbol_formatted,$tsv_arr);
@@ -367,9 +367,9 @@ foreach ($stock_details_arr as $key => $item) {
                     exit(1);
                 }
                 // if 2 year old revenue
-                /*if(count($symbol_formatted['value_hist'])>2 && ($last_value_year-$last_revenue_year)==2){
+                if(count($symbol_formatted['value_hist'])>2 && ($last_value_year-$last_revenue_year)==2){
                     $ref_value=floatval($symbol_formatted['value_hist'][count($symbol_formatted['value_hist'])-3][1]); // 2 years old value (more accurate, less volatility in scorings)
-                }*/
+                }
             
                 //$symbol_formatted['last_financials_year']=substr($symbol_formatted['revenue_hist'][0][0],0,4); can be calculated directly in js
                 $revenue=floatval(end($symbol_formatted['revenue_hist'])[1]);
@@ -555,8 +555,8 @@ foreach ($stock_details_arr as $key => $item) {
 				// avg is aroun 0.07, highest is around 0.20, multiplying by 5 would make it 1
                 //$score_epsp=($prod)*5; // 7*5=35, 20*5=100
 				// 7 should be at least 5
-                $score_epsp=($prod)*6; // 8*6=48, 16*6=96...
-                if($computable_yield>($epsp+0.006)) $score_epsp-=($epsp-$computable_yield)*10; // penalized if yield > $epsp
+                $score_epsp=($prod)*7; // 7*7=49, 14*7=100...
+                if($computable_yield>($epsp+0.006)) $score_epsp-=($epsp-$computable_yield)*14; // penalized if yield > $epsp
                 /*if(array_key_exists('eps_hist_trend',$symbol_formatted)){
                     if($symbol_formatted['eps_hist_trend']=='/-') $score_epsp+=0.05; 
                     if($symbol_formatted['eps_hist_trend']=='_/') $score_epsp+=0.08; 
