@@ -58,6 +58,7 @@ $stock_list="$stock_list,NYSE:SQM,NYSE:ALB,NYSE:FMC,NASDAQ:ARTX";
 // Software
 $stock_list="$stock_list,EPA:UBI,NYSE:INFY";
 $stock_list="$stock_list,NYSE:PFE";
+$stock_list="$stock_list,NYSE:NIO";
 
 
 // FUTURE:
@@ -170,6 +171,19 @@ function get_yahoo_quote($quote){
     //$quote_arr[0]=substr($quote_arr[0],0,3);
     
     return $quote_arr[1].".".$quote_arr[0];
+}
+
+//$investing_mppings=...
+
+function get_investing_quote($quote){
+    $quote_arr=explode(":",$quote);
+	// 0 market 1 name
+    // replacements
+    if($quote_arr[1]=="GOOG"){
+        return "google-inc-c";
+    }
+	return "$quote";
+
 }
 
 function format_millions($number){
