@@ -33,10 +33,12 @@ function get_earnings($symbol,$debug=false){
     $response2 = curl_exec( $curl ); //utf8_decode( not necessary
     curl_close( $curl );
     $response2=preg_replace("/(\n|&nbsp;)/", " ", $response2);
+				 
     //if($debug) echo "base .<pre>".htmlspecialchars($response2)."</pre>";
     $response2=preg_replace("/<title>/", "\ntd <title>", $response2);
     $response2=preg_replace("/<\/title>/", "\n", $response2);
     $response2=preg_replace("/<tr/", "\ntr", $response2);
+				  
     //if($debug)  echo "aaa.<pre>".htmlspecialchars($response2)."</pre>";
     $response2=preg_replace("/<\/(tr|table|ul)>/", "</tr>\n", $response2);
     //$response2=preg_replace("/^[^t][^d].*$/m", "", $response2);
@@ -44,8 +46,8 @@ function get_earnings($symbol,$debug=false){
     if($debug) echo "----------end----------";
     
     //preg_match("/^.*earningsHistory100160(.*)$/m", $response2, $xxxx);
-    preg_match_all("/tr.*instrumentEarningsHistory\"[^>]*>(.*)<\/tr>/", $response2, $period_arr);
-	var_dump($period_arr); 
+    preg_match_all("/tr name=.*instrumentEarningsHistory\"[^>]*>(.*)<\/tr>/", $response2, $period_arr);
+	var_dump($period_arr);
 
 }
  
@@ -102,7 +104,8 @@ if( isset($_REQUEST['symbol']) ){
 	}else{
 		
 		
-		
+  
+		 
 		// EQUITY=TOTAL ASSETS - TOTAL LIABILITES
 		$vars2get=['Total Assets','Total Liabilities']; // ,'Total Stockholder Equity''Total Current Assets','Total Current Liabilities'
 
