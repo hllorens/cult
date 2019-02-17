@@ -82,6 +82,11 @@ function get_earnings($symbol,$debug=false,$force=false){
 			$quarter=$quarter_arr[1]."-".$quarter_arr[0];
 			$stock_financial[$quarter]=array();
 			$stock_financial[$quarter]['published']=$data_arr[0];
+			$stock_financial[$quarter]['quarter']=$data_arr[4];
+			$stock_financial[$quarter]['eps_f']=$data_arr[5];
+			$stock_financial[$quarter]['eps']=$data_arr[7];
+			$stock_financial[$quarter]['rev_f']=$data_arr[8];
+			$stock_financial[$quarter]['rev']=$data_arr[10];
 		}
 		var_dump($stock_financial);
 	}
