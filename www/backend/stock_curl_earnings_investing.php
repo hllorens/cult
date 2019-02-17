@@ -6,7 +6,7 @@ require_once 'stock_helper_functions.php';
 
 
 
-function get_earnings($symbol,$debug=false){
+function get_earnings($symbol,$debug=false,$force=false){
 	// https://www.investing.com/equities/google-inc-c-earnings
 	$json_file_name="stocks_earnings.json";
 	$agent = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.0.3705; .NET CLR 1.1.4322)';
@@ -47,8 +47,46 @@ function get_earnings($symbol,$debug=false){
     
     //preg_match("/^.*earningsHistory100160(.*)$/m", $response2, $xxxx);
     preg_match_all("/tr name=.*instrumentEarningsHistory\"[^>]*>(.*)<\/tr>/", $response2, $period_arr);
-	var_dump($period_arr);
+	echo "hola<br />"; 
+	//var_dump($period_arr);
+	
+	if(count($period_arr)==0 || count($period_arr[0])==0){
+		$first_time="";
+		if(!array_key_exists($symbol,$file_old)){
+			$first_time="first_time";
+		}
+		echo "<br />ERROR no data but old data exists... $last_fin_year<br />";
+		send_mail('ERROR  '.$name.' '.$url_and_query,"$url_and_query<br /> $first_time no data<br /><br />","hectorlm1983@gmail.com");
+		return $stock_financial;
+	}else{
+		if(!array_key_exists($symbol,$file_old)){
+			echo "first time getting assets for ".$symbol;
+			$first_time_financials=true;
+			$stock_financial['name']=$name;
+			$stock_financial['market']=$market;
+		}else{
+			$stock_financial=$file_old[$symbol]; 
+		}
+		
+		for ($period=0;$period<count($period_arr[0]);$period++){
+			//echo "<br />index:$period, period: <pre>".htmlspecialchars($period_arr[0][$period])."</pre><br />";
+			$data_line=str_replace("\"","",$period_arr[0][$period]);
+			$data_line = preg_replace('!\s\s+!', ' ', $data_line);
+			$data_line=preg_replace('/<[\/]*td[^>]*>/', '', $data_line);
+			$data_line=preg_replace('/^.*event_timestamp=([^>]*)>\s+(.*)$/', '${1} ${2}', $data_line);
+			//echo "aa $data_line<br />"; 
+			$data_arr=explode(" ",$data_line);
+			//var_dump($data_arr); 
+			echo "published:".$data_arr[0]." period:".$data_arr[4]." eps_f:".$data_arr[5]." eps:".$data_arr[7]." rev_f:".$data_arr[8]." rev:".$data_arr[10]." "."<br />";
+			$quarter_arr=explode("/",$data_arr[4]);
+			$quarter=$quarter_arr[1]."-".$quarter_arr[0];
+			$stock_financial[$quarter]=array();
+			$stock_financial[$quarter]['published']=$data_arr[0];
+		}
+		var_dump($stock_financial);
+	}
 
+	
 }
  
 if( isset($_REQUEST['symbol']) ){
@@ -56,8 +94,13 @@ if( isset($_REQUEST['symbol']) ){
     if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug']=="1")){
         $debug=true;
     }
+	$force=false;
+    if( isset($_REQUEST['force']) && ($_REQUEST['force']=="true" || $_REQUEST['force']=="1")){
+        $force=true;
+    }
+	
     echo "symbol found, manual mode<br /><br />";
-    $stock_data=get_earnings($_REQUEST['symbol'],$debug);
+    $stock_data=get_earnings($_REQUEST['symbol'],$debug,$force);
     echo "Result:<br />---<pre>".json_encode($stock_data, JSON_PRETTY_PRINT)."</pre>---<br />";
 }
 
@@ -83,28 +126,9 @@ if( isset($_REQUEST['symbol']) ){
     
 	
 	
-    if(count($xxxx)==0){
-		if(!array_key_exists($symbol,$file_old)){
-			echo "ERROR: trying to get assets first time for symbol with no data ".$symbol;
-			send_mail('ERROR financial '.$name,"$url_and_query<br />first time assets and count periods is 0, no data<br /><br />","hectorlm1983@gmail.com");
-			return $stock_financial;
-		}else{
-			$stock_financial=$file_old[$symbol];
-		    ksort($stock_financial);
-			$keys=array_keys($stock_financial);
-			$last_fin_year=intval(substr($keys[count($keys)-3],0,4));
-			$curr_year=intval(date("Y"));
-			$curr_month=intval(date("m"));
-			if($last_fin_year<($curr_year-3) || ($last_fin_year<($curr_year-2)) && $curr_month>4 ){
-				send_mail('ERROR asset OLD '.$name,"$url_and_query<br />No data (periods) found and the last asset is older than 2 periods, manual update needed...<br /><br />","hectorlm1983@gmail.com");
-			}
-			echo "<br />ERROR no data but old data exists... $last_fin_year<br />";
-			return $stock_financial;
-		}
-	}else{
+
 		
 		
-  
 		 
 		// EQUITY=TOTAL ASSETS - TOTAL LIABILITES
 		$vars2get=['Total Assets','Total Liabilities']; // ,'Total Stockholder Equity''Total Current Assets','Total Current Liabilities'
