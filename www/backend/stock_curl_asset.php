@@ -169,6 +169,7 @@ function get_asset($symbol,$debug=false){
 						fclose($latelog);
 						//send_mail('Error assets '.$name,"<br />Empty - in $var2get, setting 0<br /><br />","hectorlm1983@gmail.com");
 					}
+					// TODO TODO, if it is empty just ignore it...
 					$stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
 					echo "<br />New period ".$period_arr[1][$period]." var:".$var2get.":".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
 					$new_period_report.="<br />".$period_arr[1][$period]." var:".$var2get.":".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
