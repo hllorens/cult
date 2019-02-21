@@ -5,8 +5,9 @@ require_once("stock_list.php");
 require_once 'stock_helper_functions.php';
 
 
-
+              
 function get_earnings($symbol,$debug=false,$force=false){
+	$FIREBASE='https://cult-game.firebaseio.com/';
 	// https://www.investing.com/equities/google-inc-c-earnings
 	$json_file_name="stocks_earnings.json";
 	$agent = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.0.3705; .NET CLR 1.1.4322)';
@@ -14,6 +15,8 @@ function get_earnings($symbol,$debug=false,$force=false){
 	$query_arr=explode(":",$symbol);
     $name=$query_arr[1];
     $market=$query_arr[0];
+	$json_name=$name;
+	if($name==".INX"){$json_name="INX";}
     $file_old=array(); // to store stocks.assets, typo "assets"
     if(!isset($symbol)){echo "ERROR: empty sybmol";exit(1);}
     if(file_exists ( $json_file_name )){
@@ -89,6 +92,14 @@ function get_earnings($symbol,$debug=false,$force=false){
 			$stock_financial[$quarter]['rev']=$data_arr[10];
 		}
 		var_dump($stock_financial);
+		$curl = curl_init();
+		curl_setopt( $curl, CURLOPT_URL, $FIREBASE .'earnings/'. $json_name.':'.$market.'.json' ); ///'.$usr.'_'.$symbol.'
+		curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "PUT" );
+		curl_setopt( $curl, CURLOPT_POSTFIELDS, json_encode($stock_financial) );
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+		$response = curl_exec( $curl );
+		curl_close( $curl );
+
 	}
 
 	

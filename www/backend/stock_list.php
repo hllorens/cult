@@ -176,16 +176,110 @@ function get_yahoo_quote($quote){
 
 //$investing_mppings=...
 
+
+/* to simplify we start with portfolio only */
 function get_investing_quote($quote){
     $quote_arr=explode(":",$quote);
 	// 0 market 1 name
-    // replacements
     if($quote_arr[1]=="GOOG"){
         return "google-inc-c";
+    }elseif($quote_arr[1]=="ACS"){
+        return "acs-cons-y-serv";
+    }elseif($quote_arr[1]=="ACX"){
+        return "acerinox";
+    }elseif($quote_arr[1]=="AENA"){
+        return "aena-aeropuertos-sa";
+    }elseif($quote_arr[1]=="ANA"){
+        return "acciona-sa";
+    }elseif($quote_arr[1]=="BBVA"){
+        return "bbva";
+    }elseif($quote_arr[1]=="IBE"){
+        return "iberdrola";
+    }elseif($quote_arr[1]=="ITX"){
+        return "inditex";
+    }elseif($quote_arr[1]=="MAP"){
+        return "mapfre";
+    }elseif($quote_arr[1]=="SAN"){
+        return "banco-santander";
+    }elseif($quote_arr[1]=="TEF"){
+        return "telefonica";
+    }elseif($quote_arr[1]=="MSFT"){
+        return "microsoft-corp";
+    }elseif($quote_arr[1]=="AMZN"){
+        return "amazon-com-inc";
+    }elseif($quote_arr[1]=="NVDA"){
+        return "nvidia-corp";
+    }elseif($quote_arr[1]=="FB"){
+        return "facebook-inc";
+    }elseif($quote_arr[1]=="TWTR"){
+        return "twitter-inc";
+    }elseif($quote_arr[1]=="V"){
+        return "visa-inc";
+    }elseif($quote_arr[1]=="YRD"){
+        return "yirendai-ltd";
+    }elseif($quote_arr[1]=="BABA"){
+        return "alibaba";
+    }elseif($quote_arr[1]=="EL"){
+        return "estee-lauder";
+    }elseif($quote_arr[1]=="ATVI"){
+        return "activision-inc";
+    }elseif($quote_arr[1]=="NUAN"){
+        return "nuance-communications";
+    }elseif($quote_arr[1]=="CMPR"){
+        return "vistaprint-n.v.";
+    }elseif($quote_arr[1]=="AAPL"){
+        return "apple-computer-inc";
+    }elseif($quote_arr[1]=="INTC"){
+        return "intel-corp";
+    }elseif($quote_arr[1]=="AMD"){
+        return "adv-micro-device";
+    }elseif($quote_arr[1]=="IRBT"){
+        return "irobot-corp";
+    }elseif($quote_arr[1]=="NTES"){
+        return "netease.com";
+    }elseif($quote_arr[1]=="MU"){
+        return "micron-tech";
+    }elseif($quote_arr[1]=="TSM"){
+        return "taiwan-semicond.manufacturing-co";
+    }elseif($quote_arr[1]=="WDC"){
+        return "western-digital";
+    }elseif($quote_arr[1]=="KER"){
+        return "kering-sa";
+    }elseif($quote_arr[1]=="BKNG"){
+        return "priceline.com-inc";
+    }elseif($quote_arr[1]=="TRIP"){
+        return "tripadvisor";
+    }elseif($quote_arr[1]=="IBM"){
+        return "ibm";
+    }elseif($quote_arr[1]=="O"){
+        return "realty-income";
+    }elseif($quote_arr[1]=="HD"){
+        return "home-depot";
+    }elseif($quote_arr[1]=="AVGO"){
+        return "avago-technologies";
+    }elseif($quote_arr[1]=="QCOM"){
+        return "qualcomm-inc";
+    }elseif($quote_arr[1]=="T"){
+        return "at-t";
+    }elseif($quote_arr[1]=="VZ"){
+        return "verizon-communications";
+    }elseif($quote_arr[1]=="NFLX"){
+        return "netflix,-inc.";
+    }elseif($quote_arr[1]=="CMCSA"){
+        return "comcast-corp-new";
+    }elseif($quote_arr[1]=="TXN"){
+        return "texas-instru";
+    }elseif($quote_arr[1]=="TSLA"){
+        return "tesla-motors";
+    }elseif($quote_arr[1]=="SQM"){
+        return "soc-quimica-adr";
+    }elseif($quote_arr[1]=="SNH"){
+        return "senior-housing";
     }
-	return "$quote";
-
+	return "not-supported";
 }
+
+
 
 function format_millions($number){
     $number=str_replace(",","",trim($number));
