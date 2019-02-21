@@ -79,17 +79,21 @@ function get_earnings($symbol,$debug=false,$force=false){
 			$data_line=preg_replace('/^.*event_timestamp=([^>]*)>\s+(.*)$/', '${1} ${2}', $data_line);
 			//echo "aa $data_line<br />"; 
 			$data_arr=explode(" ",$data_line);
+			if(count($data_arr)<10){
+				echo "ERROR: Bogus data line $data_line<br />";
+				return;
+			}
 			//var_dump($data_arr); 
-			echo "published:".$data_arr[0]." period:".$data_arr[4]." eps_f:".$data_arr[5]." eps:".$data_arr[7]." rev_f:".$data_arr[8]." rev:".$data_arr[10]." "."<br />";
+			if($debug) echo "published:".$data_arr[0]." period:".$data_arr[4]." eps_f:".$data_arr[5]." eps:".$data_arr[7]." rev_f:".$data_arr[8]." rev:".$data_arr[10]." "."<br />";
 			$quarter_arr=explode("/",$data_arr[4]);
 			$quarter=$quarter_arr[1]."-".$quarter_arr[0];
 			$stock_financial[$quarter]=array();
 			$stock_financial[$quarter]['published']=$data_arr[0];
 			$stock_financial[$quarter]['quarter']=$data_arr[4];
-			$stock_financial[$quarter]['eps_f']=$data_arr[5];
-			$stock_financial[$quarter]['eps']=$data_arr[7];
-			$stock_financial[$quarter]['rev_f']=$data_arr[8];
-			$stock_financial[$quarter]['rev']=$data_arr[10];
+			$stock_financial[$quarter]['eps_f']=str_replace(",","",$data_arr[7]);
+			$stock_financial[$quarter]['eps']=str_replace(",","",$data_arr[5]);
+			$stock_financial[$quarter]['rev_f']=format_billions(str_replace(",","",$data_arr[10]));
+			$stock_financial[$quarter]['rev']=format_billions(str_replace(",","",$data_arr[8]));
 		}
 		var_dump($stock_financial);
 		$curl = curl_init();
@@ -99,6 +103,9 @@ function get_earnings($symbol,$debug=false,$force=false){
 		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
 		$response = curl_exec( $curl );
 		curl_close( $curl );
+		
+//		ksort($stock_financial);
+//		return $stock_financial;
 
 	}
 
