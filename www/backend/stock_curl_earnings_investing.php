@@ -28,7 +28,7 @@ function get_earnings($symbol,$debug=false,$force=false){
     $stock_financial=array();
     if(substr($symbol,0,5)=="INDEX"){echo "<br />index (no data), nothing to be done<br />"; return;} // skip indexes
     $url_and_query="https://www.investing.com/equities/".get_investing_quote($symbol)."-earnings"; 
-    echo "asset $url_and_query<br />";
+    echo "$url_and_query<br />";
     $curl = curl_init();
     curl_setopt( $curl, CURLOPT_URL, $url_and_query );
     curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
@@ -50,9 +50,16 @@ function get_earnings($symbol,$debug=false,$force=false){
     
     //preg_match("/^.*earningsHistory100160(.*)$/m", $response2, $xxxx);
     preg_match_all("/tr name=.*instrumentEarningsHistory\"[^>]*>(.*)<\/tr>/", $response2, $period_arr);
-	echo "hola<br />"; 
 	//var_dump($period_arr);
 	
+	if(!array_key_exists($symbol,$file_old)){
+		echo "first time getting for ".$symbol;
+		$first_time_financials=true;
+		$stock_financial['name']=$name;
+		$stock_financial['market']=$market;
+	}else{
+		$stock_financial=$file_old[$symbol]; 
+	}
 	if(count($period_arr)==0 || count($period_arr[0])==0){
 		$first_time="";
 		if(!array_key_exists($symbol,$file_old)){
@@ -62,15 +69,6 @@ function get_earnings($symbol,$debug=false,$force=false){
 		send_mail('ERROR  '.$name.' '.$url_and_query,"$url_and_query<br /> $first_time no data<br /><br />","hectorlm1983@gmail.com");
 		return $stock_financial;
 	}else{
-		if(!array_key_exists($symbol,$file_old)){
-			echo "first time getting assets for ".$symbol;
-			$first_time_financials=true;
-			$stock_financial['name']=$name;
-			$stock_financial['market']=$market;
-		}else{
-			$stock_financial=$file_old[$symbol]; 
-		}
-		
 		for ($period=0;$period<count($period_arr[0]);$period++){
 			//echo "<br />index:$period, period: <pre>".htmlspecialchars($period_arr[0][$period])."</pre><br />";
 			$data_line=str_replace("\"","",$period_arr[0][$period]);
@@ -87,25 +85,48 @@ function get_earnings($symbol,$debug=false,$force=false){
 			if($debug) echo "published:".$data_arr[0]." period:".$data_arr[4]." eps_f:".$data_arr[5]." eps:".$data_arr[7]." rev_f:".$data_arr[8]." rev:".$data_arr[10]." "."<br />";
 			$quarter_arr=explode("/",$data_arr[4]);
 			$quarter=$quarter_arr[1]."-".$quarter_arr[0];
-			$stock_financial[$quarter]=array();
+			
+			if(!array_key_exists($quarter,$stock_financial)){
+				echo "new quarter $quarter<br />";
+				$stock_financial[$quarter]=array();
+			}else{
+				if($stock_financial[$quarter]['rev']!=format_billions(str_replace(",","",$data_arr[8]))){
+					echo "past changed rev old ".$stock_financial[$quarter]['rev']." vs new ".format_billions(str_replace(",","",$data_arr[8]))."<br />";
+					// STORE CHANGE PAST HISTORY AND SEND IT ONCE A QUARTER...!! SILENT MODE
+					
+					// TODO
+				}
+			}
 			$stock_financial[$quarter]['published']=$data_arr[0];
-			$stock_financial[$quarter]['quarter']=$data_arr[4];
+			$stock_financial[$quarter]['quarter']=$quarter; 
 			$stock_financial[$quarter]['eps_f']=str_replace(",","",$data_arr[7]);
 			$stock_financial[$quarter]['eps']=str_replace(",","",$data_arr[5]);
 			$stock_financial[$quarter]['rev_f']=format_billions(str_replace(",","",$data_arr[10]));
 			$stock_financial[$quarter]['rev']=format_billions(str_replace(",","",$data_arr[8]));
+			
+			
 		}
-		var_dump($stock_financial);
+		//var_dump($stock_financial);
+		
+		// Update old var
+		$file_old[$symbol]=$stock_financial;
 		$curl = curl_init();
 		curl_setopt( $curl, CURLOPT_URL, $FIREBASE .'earnings/'. $json_name.':'.$market.'.json' ); ///'.$usr.'_'.$symbol.'
 		curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "PUT" );
 		curl_setopt( $curl, CURLOPT_POSTFIELDS, json_encode($stock_financial) );
 		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
 		$response = curl_exec( $curl );
-		curl_close( $curl );
+		curl_close( $curl ); 
 		
-//		ksort($stock_financial);
-//		return $stock_financial;
+		echo date('Y-m-d H:i:s')." updating $json_file_name\n";
+		$file_old_str=json_encode( $file_old );
+		$stocks_financials_json_file = fopen($json_file_name, "w") or die("Unable to open file $json_file_name!");
+		fwrite($stocks_financials_json_file, $file_old_str);
+		fclose($stocks_financials_json_file);
+		
+		ksort($stock_financial);
+		return $stock_financial;
+		
 
 	}
 
