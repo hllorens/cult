@@ -168,11 +168,11 @@ function get_asset($symbol,$debug=false){
 						fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_asset.php. Error financials ".$name.". Empty - in $var2get, setting 0<br />\n");
 						fclose($latelog);
 						//send_mail('Error assets '.$name,"<br />Empty - in $var2get, setting 0<br /><br />","hectorlm1983@gmail.com");
+					}else{
+						$stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
+						echo "<br />New period ".$period_arr[1][$period]." var:".$var2get.":".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
+						$new_period_report.="<br />".$period_arr[1][$period]." var:".$var2get.":".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
 					}
-					// TODO TODO, if it is empty just ignore it...
-					$stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
-					echo "<br />New period ".$period_arr[1][$period]." var:".$var2get.":".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
-					$new_period_report.="<br />".$period_arr[1][$period]." var:".$var2get.":".$stock_financial[$period_arr[1][$period]][$var2get]."<br />";
 				}else{
 					if(!$manual_update){
 						if($results[$var2get][$period]=="-" || $results[$var2get][$period]==""){
@@ -195,7 +195,8 @@ function get_asset($symbol,$debug=false){
 		}
 		if($new_period_report!="" && !$first_time_financials){
 			if(!$manual_update){
-				send_mail('new financials '.$name,"$url_and_query<br />In ".$symbol." ".$new_period_report."<br /><br />","hectorlm1983@gmail.com");
+				echo 'new financials '.$name,"$url_and_query<br />In ".$symbol." ".$new_period_report."<br /><br />";
+				//send_mail('new financials '.$name,"$url_and_query<br />In ".$symbol." ".$new_period_report."<br /><br />","hectorlm1983@gmail.com");
 			}else{
 				send_mail('IMP update manually '.$name,"$url_and_query<br />In ".$symbol." (seek new info in the correct currency) ".$new_period_report."<br /><br />","hectorlm1983@gmail.com");
 			}

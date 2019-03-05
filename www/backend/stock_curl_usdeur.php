@@ -3,6 +3,11 @@
 // USAGE: provides $usdeur variable for other scripts to use
 require_once 'stock_helper_functions.php';
 
+$debug=false;
+if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug']=="1")){
+	$debug=true;
+}
+
 echo date('Y-m-d H:i:s')." starting stock_curl_usdeur.php<br />";
 //$url_and_query='https://finance.google.com/finance?q=usdeur';
 $url_and_query='https://finance.yahoo.com/quote/USDeur=X?ltr=1';
@@ -10,12 +15,15 @@ $curl = curl_init();
 curl_setopt( $curl, CURLOPT_URL, $url_and_query );
 curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
 $response = curl_exec( $curl ); //utf8_decode( not necessary
-curl_close( $curl );
+curl_close( $curl ); 
+echo $url_and_query."<br />";
+if($debug) echo "<pre>".$response."</pre><br />";
+
     $response=preg_replace("/(\n|&nbsp;)/", " ", $response);
 //    $response=preg_replace("/react-text: 36 -->([^<]*)</", "\n1USD=$1\n", $response);
-    $response=preg_replace("/reactid=\"35\"[^>]*>([0-9][^<]*)</", "\n1USD=$1\n", $response);
+    $response=preg_replace("/reactid=\"34\"[^>]*>([0-9][^<]*)</", "\n1USD=$1\n", $response);
 //    $response=preg_replace("/react-text: 38 -->[-]?[0-9.]*\s*\(([^%]*)%/", "\n1curr_change=$1\n", $response);
-    $response=preg_replace("/reactid=\"36\"[^>]*>[-+]?[0-9.]+\s*\(([^%]*)%/", "\n1curr_change=$1\n", $response);
+    $response=preg_replace("/reactid=\"35\"[^>]*>[-+]?[0-9.]+\s*\(([^%]*)%/", "\n1curr_change=$1\n", $response);
     //$response=preg_replace("/1\s+USD\s+=\s+([^E]+)EUR[^\(]*\(([^%]*)%/", "\n1USD=$1\n1curr_change=$2\n", $response);
     //$response=preg_replace("/^[^1].*$/m", "", $response); // needs m to work
     //$response=preg_replace("/<[^>]*>/", "", $response);

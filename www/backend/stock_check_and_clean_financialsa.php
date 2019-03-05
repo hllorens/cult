@@ -46,7 +46,7 @@ foreach ($stocks_financials_arr as $key => $item) {
         if($key[0]=="2"){
             if(count($years_arr)>0 && intval(end($years_arr))!=(intval(substr($key,0,4))-1)){
                 echo "<br />ERROR: MISSING year ".(intval(substr($key,0,4))-1)."<br />";
-                send_mail('ERROR MISSING year financialsA '.$item['name'],$item['name']." MISSING dup year ".(intval(substr($key,0,4))-1)."<br /><br />","hectorlm1983@gmail.com");
+                send_mail('ERROR MISSING year financialsR '.$item['name'],$item['name']." MISSING dup year ".(intval(substr($key,0,4))-1)."<br /><br />","hectorlm1983@gmail.com");
                 exit(1);
             }
             $years_arr[]=substr($key,0,4);
@@ -61,7 +61,7 @@ foreach ($stocks_financials_arr as $key => $item) {
             $symbol_object[$key2]=array();
 			if(floatval($item2['Total Assets'])==0){
                 echo "&nbsp; ".$item['name']." $key2 assets=".$item2['Total Assets']."... ERROR, MANUAL REVIEW NEEDED<br />";
-                send_mail('ERROR financialsR revenue=0 '.$item['name'],"&nbsp; ".$item['name']." $key2 assets=".$item2['Total Assets']."... ERROR, MANUAL REVIEW NEEDED<br /><br />","hectorlm1983@gmail.com");
+                //send_mail('ERROR financialsA assets=0 '.$item['name'],"&nbsp; ".$item['name']." $key2 assets=".$item2['Total Assets']."... ERROR, MANUAL REVIEW NEEDED<br /><br />","hectorlm1983@gmail.com");
 			}
             $symbol_object[$key2]['Total Assets']=$item2['Total Assets'];
             $symbol_object[$key2]['Total Liabilities']=$item2['Total Liabilities'];
