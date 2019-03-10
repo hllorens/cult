@@ -176,6 +176,9 @@ function get_financial($symbol,$debug=false){
 					}
 				}
 			}
+			if(count($stock_financial[$period_arr[1][$period]])==0){
+				unset($stock_financial[$period_arr[1][$period]]); 
+			}
 		}
 		if($new_period_report!="" && !$first_time_financials){
 			echo 'new financials '.$name,"$url_and_query<br />In ".$symbol." ".$new_period_report."<br /><br />";

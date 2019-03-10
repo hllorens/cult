@@ -97,8 +97,11 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
             }else if($key2[0]=="2"){
                 echo "FATAL ERROR, financials but not var for ".$name." ".$key2;
                 var_dump($item2);
-                send_mail('ERROR financialsa '.$name,"<br />FATAL ERROR, financials but not var for ".$name." ".$key2." ".implode(",",array_keys($item2))."<br /><br />","hectorlm1983@gmail.com");
-                exit(1);
+				$latelog = fopen("late.log", "a") or die("Unable to open/create late.log!");
+				fwrite($latelog, date('Y-m-d H:i:s')."  <br />FATAL ERROR, financials but not var for ".$name." ".$key2." ".implode(",",array_keys($item2))."<br /><br />\n");
+				fclose($latelog);
+                //send_mail('ERROR financialsa '.$name,"<br />FATAL ERROR, financials but not var for ".$name." ".$key2." ".implode(",",array_keys($item2))."<br /><br />","hectorlm1983@gmail.com");
+                //exit(1);
             }
         }
     }

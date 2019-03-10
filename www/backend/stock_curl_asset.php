@@ -192,6 +192,9 @@ function get_asset($symbol,$debug=false){
 					}
 				}
 			}
+			if(count($stock_financial[$period_arr[1][$period]])==0){
+				unset($stock_financial[$period_arr[1][$period]]); 
+			}
 		}
 		if($new_period_report!="" && !$first_time_financials){
 			if(!$manual_update){
