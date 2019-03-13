@@ -403,8 +403,8 @@ foreach ($stock_details_arr as $key => $item) {
                     exit(1);
                 }
                 if($revenue==0){ 
-                    echo "revenue 0"; 
-                    send_mail('ERROR:'.$item['name'].' revenue 0','<br />This stock has financials but revenue is 0, fix manually.<br /><br />',"hectorlm1983@gmail.com");
+                    echo "revenue 0";  
+                    send_mail('ERROR:'.$item['name'].' revenue 0','<br />This stock has financials but revenue '.end($symbol_formatted['revenue_hist'])[0].' is 0, fix manually. <br /><br />',"hectorlm1983@gmail.com");
                     exit(1);
                 }
                 $symbol_formatted['operating_margin']=toFixed($operating_income/$revenue,2,'operating margin');
