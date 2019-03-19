@@ -125,14 +125,18 @@ for ($i=0;$i<$num_stocks_to_curl;$i++){
         foreach($vars2get as $var2get){
             preg_match("/^".$var2get."(.*)$/m", $response, $xxxx);
             if(count($xxxx)<2){
-                echo "<br />Empty $var2get skipping, email sent...<br />";
-                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],"$url_and_query<br />Empty $var2get (stock_cron_leverage_book.php step 1), skipping...<br /><br />","hectorlm1983@gmail.com");
+                echo "<br />Empty $var2get skipping, late email sent...<br />";
+				$latelog = fopen("late.log", "a") or die("Unable to open/create late.log!");
+				fwrite($latelog, date('Y-m-d H:i:s')." $url_and_query<br />Empty $var2get (stock_cron_leverage_book.php step 1), skipping...<br /><br />\n");
+				fclose($latelog);
                 continue;
             }
             preg_match_all("/title='([^']*)'/", $xxxx[1], $xxxx_arr);
             if(count($xxxx_arr)<2){
                 echo "<br />Empty $var2get skipping, email sent...<br />";
-                send_mail('Error '.$the_url_query_arr[$current_num_to_curl],"$url_and_query<br />Empty $var2get (stock_cron_leverage_book.php step title), skipping...<br /><br />","hectorlm1983@gmail.com");
+				$latelog = fopen("late.log", "a") or die("Unable to open/create late.log!");
+				fwrite($latelog, date('Y-m-d H:i:s')." $url_and_query<br />Empty $var2get (stock_cron_leverage_book.php step 1), skipping...<br /><br />\n");
+				fclose($latelog);
                 continue;
             }
             $results[$var2get]=str_replace(",","",$xxxx_arr[1]);
