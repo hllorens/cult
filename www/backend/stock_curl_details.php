@@ -30,6 +30,17 @@ function get_details($symbol,$debug=false){
     curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
     $response = curl_exec( $curl ); //utf8_decode( not necessary
     curl_close( $curl );
+    preg_match("/^.*moved to <a href=\".*stockdetails\/([^\"]*)\">.*$/m", $response, $redirect);
+	if($debug) var_dump($redirect);
+    if(count($redirect)>0){
+		$url_and_query=$the_url.$redirect[1];
+		echo "stock $url_and_query<br />";
+		$curl = curl_init();
+		curl_setopt( $curl, CURLOPT_URL, $url_and_query );
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+		$response = curl_exec( $curl ); //utf8_decode( not necessary
+		curl_close( $curl );
+	}
     $response=preg_replace("/(\n|&nbsp;)/", " ", $response);
     //if($debug) echo "base .<pre>".htmlspecialchars($response)."</pre>";
     $response=preg_replace("/<td/", "\ntd", $response);

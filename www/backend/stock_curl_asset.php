@@ -24,21 +24,32 @@ function get_asset($symbol,$debug=false){
     $curl = curl_init();
     curl_setopt( $curl, CURLOPT_URL, $url_and_query );
     curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
-    $response2 = curl_exec( $curl ); //utf8_decode( not necessary
+    $response = curl_exec( $curl ); //utf8_decode( not necessary
     curl_close( $curl );
-    $response2=preg_replace("/(\n|&nbsp;)/", " ", $response2);
-    //if($debug) echo "base .<pre>".htmlspecialchars($response2)."</pre>";
-    $response2=preg_replace("/<title>/", "\ntd <title>", $response2);
-    $response2=preg_replace("/<\/title>/", "\n", $response2);
-    $response2=preg_replace("/<tr/", "\ntr", $response2);
-    if($debug)  echo "aaa.<pre>".htmlspecialchars($response2)."</pre>";
-    $response2=preg_replace("/<\/(tr|table|ul)>/", "\n", $response2);
-    //$response2=preg_replace("/^[^t][^d].*$/m", "", $response2);
-    $response2 = preg_replace('/^[ \t]*[\r\n]+/m', '', $response2); // remove blank lines
+    preg_match("/^.*moved to <a href=\".*stockdetails\/([^\"]*)\">.*$/m", $response, $redirect);
+	if($debug) var_dump($redirect);
+    if(count($redirect)>0){
+		$url_and_query=$the_url.$redirect[1];
+		echo "stock $url_and_query<br />";
+		$curl = curl_init();
+		curl_setopt( $curl, CURLOPT_URL, $url_and_query );
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+		$response = curl_exec( $curl ); //utf8_decode( not necessary
+		curl_close( $curl );
+	}
+    $response=preg_replace("/(\n|&nbsp;)/", " ", $response);
+    //if($debug) echo "base .<pre>".htmlspecialchars($response)."</pre>";
+    $response=preg_replace("/<title>/", "\ntd <title>", $response);
+    $response=preg_replace("/<\/title>/", "\n", $response);
+    $response=preg_replace("/<tr/", "\ntr", $response);
+    if($debug)  echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
+    $response=preg_replace("/<\/(tr|table|ul)>/", "\n", $response);
+    //$response=preg_replace("/^[^t][^d].*$/m", "", $response);
+    $response = preg_replace('/^[ \t]*[\r\n]+/m', '', $response); // remove blank lines
     if($debug) echo "----------end----------";
     
     $manual_update=false;
-    preg_match("/^.*data-reactid=\"26\"[^C]*Currency in (...)\./m", $response2, $currency);
+    preg_match("/^.*data-reactid=\"26\"[^C]*Currency in (...)\./m", $response, $currency);
     if(count($currency)>1){
         $currency=$currency[1];
     }else{
@@ -51,7 +62,7 @@ function get_asset($symbol,$debug=false){
         //send_mail('Manual '.$name,"$url_and_query<br />currency:$currency<br /><br />","hectorlm1983@gmail.com");
     }
     
-    preg_match("/^.*Period Ending(.*)$/m", $response2, $xxxx);
+    preg_match("/^.*Period Ending(.*)$/m", $response, $xxxx);
     preg_match_all("/<span[^>]*>([^\/]*\/[^\/]*\/[^<]*)<\/span>/", $xxxx[1], $period_arr);
     if($debug) echo "<br />";
     
@@ -85,7 +96,7 @@ function get_asset($symbol,$debug=false){
 		$results=array();
 		foreach($vars2get as $var2get){
 			if($debug) echo "getting results for: $var2get<br />";
-			preg_match("/".$var2get."\s*<(.*)$/m", $response2, $xxxx);
+			preg_match("/".$var2get."\s*<(.*)$/m", $response, $xxxx);
 			preg_match_all("/<td[^>]*>(?:<span[^>]*>)?([^<]*)(?:<\/span>)?<\/td>/", $xxxx[1], $xxxx_arr);
 			if(count($period_arr[1])!=count($xxxx_arr[1])){
 				echo "<br />count periods and count data is not the same...<br /><br />";

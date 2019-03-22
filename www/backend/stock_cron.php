@@ -30,6 +30,11 @@ if(file_exists ( 'stocks.formatted.json' )){
     echo "<br/><br/><span style=\"color:red\">ERROR:</span>stocks.formatted.json does NOT exist -> using an empty array<br />";
 }
 
+$sharenum_issues=array(); 
+if(file_exists ( 'sharenum_issues.json' )){
+    $sharenum_issues = json_decode(file_get_contents('sharenum_issues.json'), true);
+}
+
 
 
 echo date('Y-m-d H:i:s')." start stock_cron.php<br />";
@@ -154,7 +159,7 @@ foreach ($stock_details_arr as $key => $item) {
 			}
 
 			if(floatval(substr($timestamp_date,0,4))>(floatval(substr(end($symbol_object['shares_manual'])[0],0,4))+1)){
-				send_mail($item['name'].' shares manual old','<br />shares manual old in '.$item['name'].', please review and add updated info<br /><br />',"hectorlm1983@gmail.com");
+				//send_mail($item['name'].' shares manual old','<br />shares manual old in '.$item['name'].', please review and add updated info<br /><br />',"hectorlm1983@gmail.com");
 			}
 			// if manual and details direct, check
 			if(array_key_exists('shares',$symbol_object) && // avoid this check if it is the first time
@@ -178,17 +183,12 @@ foreach ($stock_details_arr as $key => $item) {
 				){
 					echo "sharenum exception<br />";
 				}else{
-					send_mail($item['name'].' sharenum change','<br />original('.$symbol_object['shares_source'].'):'.$symbol_object['shares'].
-															   ' <br />new ('.$stock_details_arr[$item['market'].':'.$item['name']]['shares_source'].'):'.$stock_details_arr[$item['market'].':'.$item['name']]['shares'].
-															   '<br />shares manual:'.end($symbol_object['shares_manual'])[1].
-															   '<br />diff%:'.abs(floatval($stock_details_arr[$item['market'].':'.$item['name']]['shares'])-floatval(end($symbol_object['shares_manual'])[1])).
-															   '<br /><br />Time to update the manual shares?'.
-															   '<br /><br />title:'.$symbol_object['title'].
-															   '<br /><br /><br />value:'.$symbol_object['value'].
-															   '<br />change:'.$symbol_object['session_change_percentage'].
-															   '<br /><br />',"hectorlm1983@gmail.com");
+		
+					$sharenum_issues[$item['market'].':'.$item['name']]=array();
+					$sharenum_issues[$item['market'].':'.$item['name']]['manual']=end($symbol_object['shares_manual'])[1];
+					$sharenum_issues[$item['market'].':'.$item['name']]['new']=$stock_details_arr[$item['market'].':'.$item['name']]['shares'];
 				}
-				
+ 
 				$symbol_object['shares']=end($symbol_object['shares_manual'])[1]; // already 0 if index in details
 				$symbol_object['shares_source']='manual';
 		   
@@ -784,6 +784,13 @@ if(!file_exists( date("Y-m").'.stocks.formatted.json' )){
     fwrite($stocks_formatted_json_fileb, $stocks_formatted_arr_json_str);
     fclose($stocks_formatted_json_fileb);
 }
+
+$sharenum_issues_json_str=json_encode( $sharenum_issues );
+echo date('Y-m-d H:i:s')." updating sharenum_issues.json\n";
+$json_file = fopen("sharenum_issues.json", "w") or die("Unable to open file sharenum_issues.json!");
+fwrite($json_file, $sharenum_issues_json_str);
+fclose($json_file);
+
 
 // send alert bulcks only 1 email..., if too long then create another cron for this
 fwrite($stock_cron_log, date('Y-m-d H:i:s')." starting stock_send-alert-fire.php\n");

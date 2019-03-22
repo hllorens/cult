@@ -29,8 +29,35 @@ function get_financial($symbol,$debug=false){
     curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
     $response = curl_exec( $curl ); //utf8_decode( not necessary
     curl_close( $curl );
+    preg_match("/^.*moved to <a href=\".*stockdetails\/([^\"]*)\">.*$/m", $response, $redirect);
+	if($debug) var_dump($redirect);
+    if(count($redirect)>0){
+		$url_and_query=$the_url.$redirect[1];
+		$msn_mapping=array(); 
+		if(file_exists ( 'msn_mapping.json' )){
+			$msn_mapping = json_decode(file_get_contents('msn_mapping.json'), true);
+		}
+		if(array_key_exists($symbol,$msn_mapping)){
+			if($msn_mapping[$symbol]!=$redirect[1]){
+				$msn_mapping['aERROR'.$symbol]=$msn_mapping[$symbol];
+			}
+		}
+		$msn_mapping[$symbol]=$redirect[1];
+		$json_str=json_encode( $msn_mapping );
+		echo date('Y-m-d H:i:s')." updating msn_mapping.json\n";
+		$json_file = fopen("msn_mapping.json", "w") or die("Unable to open file msn_mapping.json!");
+		fwrite($json_file, $json_str);
+		fclose($json_file);
+		
+		echo "stock $url_and_query<br />";
+		$curl = curl_init();
+		curl_setopt( $curl, CURLOPT_URL, $url_and_query );
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+		$response = curl_exec( $curl ); //utf8_decode( not necessary
+		curl_close( $curl );
+	}
     $response=preg_replace("/(\n|&nbsp;)/", " ", $response);
-    //if($debug) echo "base .<pre>".htmlspecialchars($response)."</pre>";
+    if($debug) echo "base .<pre>".htmlspecialchars($response)."</pre>";
     $response=preg_replace("/<title>/", "\ntd <title>", $response);
     $response=preg_replace("/<\/title>/", "\n", $response);
     $response=preg_replace("/<td/", "\ntd", $response);
@@ -48,7 +75,7 @@ function get_financial($symbol,$debug=false){
     if(count($xxxx)==0){
 		if(!array_key_exists($symbol,$stock_financials_old)){
 			echo "ERROR: trying to get financials first time for symbol with no data ".$symbol;
-			send_mail('ERROR financial '.$name,"$url_and_query<br />first time financials and count periods is 0, no data<br /><br />","hectorlm1983@gmail.com");
+			send_mail('ERROR financial '.$symbol,"$url_and_query<br />first time financials and count periods is 0, no data<br /><br />","hectorlm1983@gmail.com");
 			return $stock_financial;
 		}else{
 			$stock_financial=$stock_financials_old[$symbol];
