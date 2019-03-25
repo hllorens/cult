@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://www.google.com/2005/gml/b' xmlns:data='http://www.google.com/2005/gml/data' xmlns:expr='http://www.google.com/2005/gml/expr' b:version='2' class='v2' expr:dir='data:blog.languageDirection' lang='es-ES'>
+    <head>
+        <b:include data='blog' name='all-head-content'/>
+
+        <title>
+          <b:if cond='data:blog.pageType == &quot;index&quot;'>
+            <data:blog.pageTitle/>
+            <b:else/>
+            <b:if cond='data:blog.pageType != &quot;error_page&quot;'>
+              <data:blog.pageName/> | <data:blog.title/>
+              <b:else/>
+              Page Not Found | <data:blog.title/> 
+            </b:if>
+          </b:if>
+        </title>
+        
+        <b:if cond='data:blog.pageType == &quot;archive&quot;'>
+          <meta content='noindex,noarchive' name='robots'/>
+        </b:if>
+        <b:if cond='data:blog.metaDescription != &quot;&quot;'>
+          <meta expr:content='data:blog.metaDescription' name='description'/>
+        </b:if> 
+        <meta charset='UTF-8'/>
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1' name='viewport'/>
+        
+        <!-- CSS -->
+        <link href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css' rel='stylesheet'/> <!-- for icons like fb, tweet, ... -->
+        <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css' rel='stylesheet'/>
+        <!-- Fonts -->
+        <!--<link href='http://fonts.googleapis.com/css?family=Inconsolata%3A400%2C700&amp;ver=4.1.1' id='googlefonts-Inconsolata-css' media='all' rel='stylesheet' type='text/css'/>
+        <link href='http://fonts.googleapis.com/css?family=Tinos%3A400%2C400italic&amp;ver=4.1.1' id='googlefonts-tinos-css' media='all' rel='stylesheet' type='text/css'/>
+        <link href='http://fonts.googleapis.com/css?family=Nixie+One&amp;ver=4.1.1' id='googlefonts-nixieone-css' media='all' rel='stylesheet' type='text/css'/>-->
+        <link href='https://fonts.googleapis.com/css?family=Amatic+SC:400,700|Dosis:400,500,700&amp;subset=latin,latin-ext' rel='stylesheet' type='text/css'/>
+        <link href='https://fonts.googleapis.com/css?family=Pirata+One' rel='stylesheet'/>
+
+        <!-- JS -->
+        <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js' type='text/javascript'/>
+
+        <!--[if lt IE 9]>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+
+        <b:skin><![CDATA[/*
+            Name : simple
+            CSS minimal style
+        */
+        
+        /*
+            Palete
+            back or 111
+            dark brown 654 or 816249 or 533114 or 
+            light brown eeccb1 or D4B59C
+                        brown alternative B59B86 and 514134
+            then white and gray...
+        */
+        
+        /* Avoiding certain blogger elements */
+        #BlogArchive1 {display : none;}
+        #BlogSearch1 {display : none;}
+        #FeaturedPost1 {display : none;}
+        #ReportAbuse1 {display : none;}
+        #Profile1 {display : none;}
+        #Label1 {display : none;}
+        #Attribution1 {display : none;}
+        
+        /* ----------------- start reset ------------------------ */
+        html,body{overflow-x:hidden;} /**Removes right scroll**/
+        html {
+          box-sizing: border-box;
+          font-size: 16px;
+        }
+        *, *:before, *:after {
+          box-sizing: inherit;
+        }
+        body, h1, h2, h3, h4, h5, h6, p, ol, ul {
+          margin: 0;
+          padding: 0;
+          font-weight: normal;
+        }
+        /*ol, ul {list-style: none;}*/
+        img {max-width: 100%;height: auto;}
+        /* ----------------- end reset --------------------------- */
+        /*--------------------------------------------------------------
+        Accessibility
+        --------------------------------------------------------------*/
+        /* Text meant only for screen readers. */
+        .screen-reader-text{clip:rect(1px,1px,1px,1px);position:absolute !important;height:1px;width:1px;overflow:hidden;right:0;}
+        .screen-reader-text:hover,.screen-reader-text:active,.screen-reader-text:focus{background-color:#f1f1f1;border-radius:3px;box-shadow:0 0 2px 2px rgba(0,0,0,0.6);clip:auto !important;color:#21759b;display:block;font-size:14px;font-size:0.875rem;font-weight:bold;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000;}
+
+
+        
+        /*reset blogger */
+        .widget{margin:0;padding:0;}
+        .section{margin:0;padding:0;}
+        
+
+        
+        body{background-color:#654;} /* 444 */
+        .container{ /* contains all including header */
+            width:100%;max-width:1000px;
+            margin:0 auto;padding:0;
+            background-color:#654; /*#654; 816249 #111 492509*/
+        }
+
+        .header{background:#111;}
+        .Header h1{text-align:center;margin:0;padding:5px 0px;} /* margin:0 auto;width:50%; or 0 */
+        .Header h1 a{
+            color:#ddd;
+            font-family: 'Pirata One',sans-serif;
+            font-size:1.3em;
+        }
+        
+        .socialnbt{font-family:'Fontawesome';-webkit-font-smoothing:antialiased;color:black;} /* font-size:20px; position:absolute; top:5px; right:10px;*/
+        /*twitter.com content:'\f099';*/
+        /*youtube.com content:'\f167';*/
+
+    
+        .nav{
+            /*background:#ccc;*/
+            margin:0;
+            padding:0 1px;
+            font-family:'Dosis',sans-serif;text-transform:uppercase;
+        }
+        .nav li a {color:#ddd;}  /* eeccb1 */
+        li#currentpage a {color:#eee;}
+        .nav li:hover > a{color:#eee;}
+        li#currentpage:hover > a{text-decoration:underline;color:#eee;} /* color:#654; */
+
+
+        
+        .main{ /*contains posts*/ /*654 or 816249*/
+            padding:0 1px;
+        }
+        .item-thumbnail-img{
+            margin-right:5px;
+        }
+        .post-title-list{
+            margin-top:10px;
+            font-size:1.4em;
+            font-family: 'Pirata One',sans-serif;
+            color: #111;
+        }
+        .post-title-list a{
+            color: #111;
+        }
+        
+        .post{
+            background:#eeccb1; /* or eee or eeccb1 D4B59C  F4E0D0*/
+            margin-bottom: 5px;
+            padding: 5px;
+            display:inline-block;
+            width:100%;
+            /*border:3px solid black;*/
+        }
+        
+        /* expanded form */
+        .post-title{margin-top:-12px;}
+        .post-title a{
+            font-size:2em; font-family: 'Pirata One',sans-serif;
+            padding: 5px 0 5px 15px; color:black;
+        }
+        .post-date{
+            float:right;
+            padding: 20px 10px 0 10px;
+        }
+        .post-body{
+            padding: 5px 15px;text-align:justify;
+        }
+        
+        
+        .comments{
+            background: #ccc;
+            margin-top:10px;
+            padding:10px;
+        }
+        .footer{
+            /*background:#111;*/
+            color:#111;  /* ddd */
+            /*width:100%;*/
+            text-align:center;
+            padding:5px;
+            margin:0px; /*5px*/
+            border-bottom:3px solid #111;
+        }
+        
+
+        
+        
+    /*Menu laman*/
+    #laman {
+        background: transparent;
+        position:relative;
+        height: 40px;
+        padding-top:10px;
+    }
+    #laman input {
+        display: none;
+        margin:0 0;
+        padding:0 0;
+        width: 40px;
+        height: 40px;
+        opacity: 0;
+        cursor: pointer;
+    }
+    #laman label {
+        font: bold 45px Arial;
+        display: none;
+        width: 45px;
+        height: 41px;
+        line-height: 41px;
+        text-align: center;
+    }
+    #laman ul,
+    #laman li {
+        width: auto;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        z-index: 100;
+    }
+    #laman li {
+        position: relative;
+        display: inline;
+        /*margin-left:10px;*/
+    }
+    #laman li a {
+        border:2px solid black;
+        background:#111;
+        padding:2px 10px;
+        font-size:1em;
+    }
+    
+        @media screen and (max-width:1000px){
+            .main{ /*contains posts*/ /*654 or 816249*/
+                padding:0 15px;
+            }
+            .nav{
+                padding:0 15px;
+            }
+            .footer{
+                margin:0 15px;
+            }
+        }
+        
+        
+        @media screen and (max-width:800px){
+            .header{width:100%;float:left;} /* this will make layers overlap with responsive menu */
+            .Header h1{margin:0 auto;text-align:left; padding-left:15px;} /* this will left or center the header title */
+            .Header h1 a{font-size:1em;}
+            .main{ /*contains posts*/ /*654 or 816249*/
+                padding:5px 15px 0 15px;
+            }
+            .post-body{
+                font-size:0.9em;
+            }
+            .post-body img {
+                max-width:90%;
+            }
+            .post-title a{
+                font-size:1.4em;
+            }
+            .post-date{
+                padding: 15px 10px 0 0;
+                font-size:0.7em;
+            }
+            #laman {
+                margin:0;
+                height:auto;
+            }
+            #laman ul {
+                display: none;
+                top: 50px; /*100%*/
+                left: 20%;   /* or right */
+                right: -15px;    /* or left */
+                height: auto;
+                position: absolute;
+            }
+            #laman ul.menus {
+                width: 100%;
+                position: static;
+                border: none;
+            }
+            #laman li {
+                display: block;
+                float: none;
+                text-align: left;
+                margin-left:0;
+            }
+            #laman a {
+                display: block;
+                line-height: 40px;
+                padding:0 14px;
+                text-decoration: none;
+                /*color: #eeccb1;*/
+            }
+            #laman li a {
+                border-top: 2px solid rgba(0, 0, 0, .1);
+                background: #222;
+                font-size:1em;
+            }
+            #laman li a:hover {
+                background:#654;
+            }
+            #laman input,
+            #laman label {
+                color: #eee;
+                display: block;
+                position: absolute;
+                right: 0; /* or left */
+                top:5px;
+            }
+            #laman input {
+            z-index: 4;
+            }
+            #laman input:checked + label {
+            color: #bbb;
+            }
+            #laman input:checked ~ ul {
+            display: block;
+            }
+
+
+        }
+        ]]>
+        </b:skin>
+    </head>
+    
+    
+    <body>
+        <div class='container'>
+            <b:section id='header' class='header' maxwidgets='1' showaddelement='no'>
+                <b:widget id='Header1' locked='true' title='Testground (Header)' type='Header'>
+                    <b:includable id='main'>
+                        <!-- ignore use image, we don't use images just title-text, not even description -->
+                        <h1 class='header-title'><b:include name='title'/></h1>
+                    </b:includable>
+                    <b:includable id='title'>
+                        <a expr:href='data:blog.homepageUrl'><data:title/></a>
+                    </b:includable>
+                </b:widget>
+            </b:section>
+            
+            
+            
+            <div class="container2">
+            <b:section id='nav' class='nav' maxwidgets='1' showaddelements='no'>
+                <b:widget id='PageList1' locked='true' title='Pages' type='PageList' class='useless_empty'><!-- version='1' visible='true' -->
+                    <b:includable id='main'>
+                        <b:if cond='data:title'><!--<h2><data:title/>ignore title</h2>--></b:if>
+                        <div class='widget-content'>
+                        <div id='laman'>
+                            <input type='checkbox'/>
+                            <label>
+                                &#8801;
+                            </label>
+                            <ul>
+                              <b:loop values='data:links' var='link'>
+                                <b:if cond='data:link.isCurrentPage'>
+                                  <li id='currentpage'><a expr:href='data:link.href'><data:link.title/></a></li>
+                                <b:else/>
+                                  <li><a expr:href='data:link.href'><data:link.title/></a></li>
+                                </b:if>
+                              </b:loop>
+                            </ul>
+                        </div>
+                        </div>
+                    </b:includable>
+                </b:widget>
+            </b:section>
+            
+            
+            <b:section id='main' class='main' maxwidgets='' showaddelements='yes'>
+                <b:widget id='Blog1' locked='false' title='Blog Posts' type='Blog'> <!-- works for single and multiple posts -->
+                    <b:includable id='main' var='top'> 
+                        <!--<div class='blog-posts'> optional -->
+                            <b:include data='top' name='status-message'/> <!-- message to show when a search query or label reached 0 posts -->
+                            <b:loop values='data:posts' var='post'> <!-- name of the var is free to choose could be "i" and is used in the loop -->
+                                <!--<b:if cond='data:post.dateHeader'><h2 class='date-header'><data:post.dateHeader/></h2></b:if> if u want date classification -->
+                                <b:include data='post' name='post'/> <!-- main sutance -->
+                                <!--<h2><data:post.title/></h2> we could do it direclty here-->
+                                <b:if cond='data:blog.pageType == "item"'><!--if it is a single page -->
+                                    <b:include data='post' name='comments'/>
+                                    <!--<b:include name='nextprev'/> optional post navigation I don't like it -->
+                                    <!--<b:include name='feedLinks'/> optional feed links suscribe to atom -->
+                                </b:if>
+                            </b:loop>
+                        <!--</div> optional -->
+                    </b:includable>
+                    
+                    
+                    <b:includable id='post' var='post'>
+                        <div class='post'>
+                            <a expr:name='data:post.id'/>
+
+                            <b:if cond='data:blog.pageType == "index"'><!--if it is NOT a single page, but the list -->
+                                <b:if cond='data:post.thumbnailUrl'>
+                                    <!--<div class='item-thumbnail'>-->
+                                      <a expr:href='data:post.href' target='_blank'>
+                                        <img alt='' border='0'  expr:src='data:post.thumbnailUrl' align="left" class='item-thumbnail-img' />
+                                      </a>
+                                    <!--</div>-->
+                                </b:if>
+                                 <b:if cond='data:post.title'>
+                                    <!--<div class="item-title-and-date">-->
+                                        <span class='post-title-list'>
+                                            <b:if cond='data:post.link'>
+                                                <a expr:href='data:post.link'><data:post.title/></a>
+                                            <b:else/>
+                                                <b:if cond='data:post.url'>
+                                                    <a expr:href='data:post.url'><data:post.title/></a>
+                                                <b:else/>
+                                                    <data:post.title/>
+                                                </b:if>
+                                            </b:if>
+                                        </span>
+                                        <!--<p><data:post.timestamp/></p>-->
+                                        <p><data:post.dateHeader/></p>
+                                    <!--</div>-->
+                                </b:if>
+                            </b:if>
+
+                            <b:if cond='data:blog.pageType != "index"'><!--if it is a single page  data:blog.pageType != "item" || data:blog.pageType == "static_page"-->
+                                
+                                <br />
+                                <b:if cond='data:post.title'>
+                                    <h3 class='post-title'>
+                                        <b:if cond='data:post.link'>
+                                            <a expr:href='data:post.link'><data:post.title/></a>
+                                        <b:else/>
+                                            <b:if cond='data:post.url'>
+                                                <a expr:href='data:post.url'><data:post.title/></a>
+                                            <b:else/>
+                                                <data:post.title/>
+                                            </b:if>
+                                        </b:if>
+                                        <b:if cond='data:blog.pageType != "static_page"'><span class='post-date'><data:post.timestamp/></span></b:if>
+                                    </h3>
+                                </b:if>
+                                <div class='post-header-line-1'/>
+                                    <div class='post-body'>
+                                    <p><data:post.body/></p>
+                                    <b:if cond='data:blog.pageType != "static_page"'>
+                                    <div class='pbtsharethisbutt'>
+                                    <br />
+                                    Compartir: <a class="socialnbt" expr:href='&quot;https://www.facebook.com/share.php?v=4&amp;src=bm&amp;u=&quot; + data:post.url + &quot;&amp;t=&quot; + data:post.title' onclick='window.open(this.href,&quot;sharer&quot;,&quot;toolbar=0,status=0,width=626,height=436&quot;); return false;' rel='nofollow' target='_blank' title='Share this on Facebook'><i class='fa fa-facebook'/></a>
+                                               <a class="socialnbt" expr:href='&quot;https://twitter.com/home?status=&quot; + data:post.title + &quot; -- &quot; + data:post.url' rel='nofollow' target='_blank' title='Tweet This!'>&#61593;</a>
+                                               <a class="socialnbt" expr:href='&quot;https://plus.google.com/share?url=&quot; + data:post.url' onclick='javascript:window.open(this.href,   &quot;&quot;, &quot;menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600&quot;);return false;' rel='nofollow' target='_blank' title='Share this on Google+'><i class='fa fa-google-plus'/></a>
+                                               <b:if cond='data:post.firstImageUrl'><a class='social-iconnbt socialnbt' expr:href='&quot;https://pinterest.com/pin/create/button/?source_url=&quot; + data:post.url + &quot;&amp;media=&quot; + data:post.firstImageUrl + &quot;&amp;description=&quot; + data:post.title' rel='nofollow' target='_blank' title='Share on Pinterest'><i class='fa fa-pinterest'/></a></b:if>
+                                    </div>
+                                    </b:if>
+                                    <div style='clear: both;'/> 
+                                </div>
+
+                                <div class='post-footer'>
+                                    <p class='post-footer-line post-footer-line-1'>
+                                        <span class='post-author'>
+                                            <b:if cond='data:top.showAuthor'>
+                                                <data:top.authorLabel/> <data:post.author/>
+                                            </b:if>
+                                        </span>
+
+                                        <!--<span class='post-timestamp'>
+                                            <b:if cond='data:top.showTimestamp'>
+                                                <data:top.timestampLabel/>
+                                                <b:if cond='data:post.url'>
+                                                    <a class='timestamp-link' expr:href='data:post.url' title='permanent link'><data:post.timestamp/></a>
+                                                </b:if>
+                                            </b:if>
+                                        </span>-->
+
+                                        <!--<span class='post-comment-link'>
+                                        <b:if cond='data:blog.pageType != "item"'>
+
+                                        <b:if cond='data:post.allowComments'>
+                                        <a class='comment-link' expr:href='data:post.addCommentUrl' expr:onclick='data:post.addCommentOnclick'><b:if cond='data:post.numComments == 1'>1 <data:top.commentLabel/><b:else/><data:post.numComments/> <data:top.commentLabelPlural/></b:if></a>
+                                        </b:if>
+                                        </b:if>
+                                        </span>-->
+
+                                        <span class='post-icons'>
+                                            <!-- email post links -->
+                                            <b:if cond='data:post.emailPostUrl'>
+                                                <span class='item-action'>
+                                                    <a expr:href='data:post.emailPostUrl' expr:title='data:top.emailPostMsg'>
+                                                    <span class='email-post-icon'> </span>
+                                                    </a>
+                                                </span>
+                                            </b:if>
+                                        </span>
+                                    </p>
+                                    <!--<p class='post-footer-line post-footer-line-2'>
+                                        <span class='post-labels'>
+                                        <b:if cond='data:post.labels'>
+                                        <data:postLabelsLabel/>
+                                        <b:loop values='data:post.labels' var='label'>
+                                        <a expr:href='data:label.url' rel='tag'><data:label.name/></a><b:if cond='data:label.isLast != "true"'>,</b:if>
+                                        </b:loop>
+                                        </b:if>
+                                        </span>
+                                    </p>
+                                    <p class='post-footer-line post-footer-line-3'/>-->
+                                </div>
+                            </b:if>
+                        </div>
+                    </b:includable>
+                </b:widget>
+            </b:section>
+            </div>
+        
+            <div class="footer">
+                Copyright &#169; <data:blog.title/> &#160;&#160; <a href='https://twitter.com/piratainversor' class="socialnbt" rel='nofollow' target='_blank' title='Twitter'>&#61593;</a>
+            </div>
+
+            <!-- if you need dynamic footer <b:section id='footer' class='footer' maxwidgets='0' showaddelements='yes'>-->
+                <!-- <b:widget id='Attribution1' locked='false' title='' type='Attribution'/>-->
+                <!-- simply disabled by css <b:widget id='BlogArchive1' locked='false' title='Archive' type='BlogArchive'/>-->
+                <!-- simply disabled by css <b:widget id='BlogSearch1' locked='false' title='Search' type='BlogSearch'/>-->
+                <!-- simply disabled by css <b:widget id='FeaturedPost1' locked='false' title='Featured' type='FeaturedPost'/>-->
+                <!-- simply disabled by css <b:widget id='ReportAbuse1' locked='false' title='Archive' type='ReportAbuse'/>-->
+                <!-- simply disabled by css <b:widget id='Profile1' locked='false' title='Profile' type='Profile'/>-->
+                <!-- disable blog feeds?? -->
+            <!--</b:section>-->
+        </div>
+    
+    </body>
+</html>
