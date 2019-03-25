@@ -11,7 +11,6 @@ require_once("email_config.php");
 
 
 echo date('Y-m-d H:i:s')." starting stock_curl_details.php<br />";
-$latelog = fopen("late.log", "a") or die("Unable to open/create late.log!");
 
 $timestamp_date=date("Y-m-d");
 
@@ -31,6 +30,17 @@ function get_details($symbol,$debug=false){
     curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
     $response = curl_exec( $curl ); //utf8_decode( not necessary
     curl_close( $curl );
+    preg_match("/^.*moved to <a href=\".*stockdetails\/([^\"]*)\">.*$/m", $response, $redirect);
+	if($debug) var_dump($redirect);
+    if(count($redirect)>0){
+		$url_and_query=$the_url.$redirect[1];
+		echo "stock $url_and_query<br />";
+		$curl = curl_init();
+		curl_setopt( $curl, CURLOPT_URL, $url_and_query );
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+		$response = curl_exec( $curl ); //utf8_decode( not necessary
+		curl_close( $curl );
+	}
     $response=preg_replace("/(\n|&nbsp;)/", " ", $response);
     //if($debug) echo "base .<pre>".htmlspecialchars($response)."</pre>";
     $response=preg_replace("/<td/", "\ntd", $response);
@@ -40,7 +50,10 @@ function get_details($symbol,$debug=false){
     if(count($title)<2){
         echo "<br />Empty value title1, log created...no header-companyname, and often note even currentvalue or percentchange<br />";
         if($debug) echo "<pre>".htmlspecialchars($response)."</pre><br />";
-        fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_details.php. Bad crawl $symbol. Empty title1 no header-companyname, and often note even currentvalue or percentchange $url_and_query<br />\n");
+		$latelog = fopen("late.log", "a") or die("Unable to open/create late.log!");
+		fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_details.php. Bad crawl $symbol. Empty title1 no header-companyname, and often note even currentvalue or percentchange $url_and_query<br />\n");
+		fclose($latelog);
+
         //send_mail('Bad crawl '.$symbol,'<br />Bad crawl, no header-companyname, and often note even currentvalue or percentchange<br /><mpty title1, skipping...<br /><br />',"hectorlm1983@gmail.com");
         return $details;
     }
@@ -48,7 +61,9 @@ function get_details($symbol,$debug=false){
     if(!isset($title) || $title=="" || $title=="-" || $title=="Data not available"){
         echo "<br />Empty value title2 ($title)...<br />";
         if($debug) echo "<pre>".htmlspecialchars($response)."</pre><br />";
+		$latelog = fopen("late.log", "a") or die("Unable to open/create late.log!");
 		fwrite($latelog, date('Y-m-d H:i:s')."  stock_curl_details.php. Bad crawl $symbol. Empty title2($title) no header-companyname or data not available, and often note even currentvalue or percentchange $url_and_query<br />\n");
+		fclose($latelog);
         //send_mail('Error '.$symbol,"<br />Empty title2 ($title), skipping...<pre>".htmlspecialchars($response)."</pre><br /><br />","hectorlm1983@gmail.com");
         return $details;
     }
@@ -231,7 +246,6 @@ if(isset($_REQUEST['symbol'])){
 	fclose($stock_last_detail_updated_f);
 }
 
-fclose($latelog);
 echo date('Y-m-d H:i:s')." ending stock_curl_details.php<br />";
 
 

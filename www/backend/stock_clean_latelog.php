@@ -19,4 +19,18 @@ if(file_exists ( 'late.log' )){
     echo "<br/><br/><span style=\"color:red\">ERROR:</span>late.log does NOT exist<br />";
 }
 
+if(file_exists ( 'sharenum_issues.json' )){
+    echo "sharenum_issues exists -> reading...<br />";
+    $content = file_get_contents('sharenum_issues.json');
+	if(str_word_count($content)>6){
+		echo "content: '$content'";
+		send_mail('cult: sharenum_issues','<br />'.$content.'<br />',"hectorlm1983@gmail.com");
+	}else{
+		echo "empty: no action";
+	}
+	unlink('late.log');
+}else{
+    echo "<br/><br/><span style=\"color:red\">ERROR:</span>late.log does NOT exist<br />";
+}
+
 ?>

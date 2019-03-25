@@ -89,7 +89,12 @@ $market_currencies['NYSE']="USD";
 
 function get_msn_quote($quote){
     $quote_arr=explode(":",$quote);
-    $prefix="fi-126.1";  // USA: NASDAQ, NYSE
+	
+	
+	// NEW /en-us/money/stockdetails/analysis/nys-so/
+    
+	
+	$prefix="fi-126.1";  // USA: NASDAQ, NYSE
     
     // replacements
     if($quote_arr[0]=="INDEXBME"){
