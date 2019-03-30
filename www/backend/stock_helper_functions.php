@@ -3,8 +3,31 @@
 require_once("email_config.php");
 
 
+
 //function print_r_pretty_html($arr){
     // BETTER USE <pre></pre> with either print_r(xxx,true) or json_encode($data, JSON_PRETTY_PRINT) perfect for json 
+
+
+function normalize_period($period){
+	$period_arr_arr=explode("-",$period);
+	$day=str_pad($period_arr_arr[2],2,"0",STR_PAD_LEFT);
+	$month=str_pad($period_arr_arr[1],2,"0",STR_PAD_LEFT);
+	$year=$period_arr_arr[0];
+	if($month=="01" || $month=="02" || ($month=="03" && $day[0]!="3" && $day[0]!="2")){
+		$month="12";
+		$year="".(intval($year)-1);
+	}elseif($month=="04" || $month=="05" || ($month=="06" && $day[0]!="3" && $day[0]!="2")){
+		$month="03";
+	}
+	elseif($month=="07" || $month=="08" || ($month=="09" && $day[0]!="3" && $day[0]!="2")){
+		$month="06";
+	}
+	elseif($month=="10" || $month=="11" || ($month=="12"  && $day[0]!="3" && $day[0]!="2")){
+		$month="09";
+	}
+	$period=$year."-".$month."-31";
+	return $period;
+}
 
 
 function toFixed($number, $decimals=2, $tracking="tracking unset") {
