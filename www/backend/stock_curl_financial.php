@@ -133,7 +133,7 @@ function get_financial($symbol,$debug=false){
 		$formatted_periods_years[]=substr($period_arr[1][$period],0,4);
 	}
 	// CHECK PERIODS
-	var_dump($period_arr[1]);
+	//var_dump($period_arr[1]);
 	if(count($formatted_periods_years)!=count(array_unique($formatted_periods_years))){
 		echo "<br />PERIODS do not follow consecutive years<br /><br />";
 		send_mail('ERROR financial '.$name,"$url_and_query<br />periods do not follow consecutive years...<br /><br />","hectorlm1983@gmail.com");
@@ -145,7 +145,7 @@ function get_financial($symbol,$debug=false){
 	$vars_required=['Total Revenue','Net Income']; //,'Basic EPS'
 	$results=array();
 	foreach($vars2get as $var2get){
-		echo "getting results for: $var2get<br />";
+		if($debug) echo "<br />getting results for: $var2get<br />";
 		preg_match("/^".$var2get."(.*)$/m", $response, $xxxx);
 		preg_match_all("/title='([^']*)'/", $xxxx[1], $xxxx_arr);
 		if(count($period_arr[1])!=count($xxxx_arr[1])){
@@ -155,8 +155,7 @@ function get_financial($symbol,$debug=false){
 		}
 		$results[$var2get]=$xxxx_arr[1];
 	}
-	//if($debug)
-	var_dump($results);
+	if($debug) var_dump($results);
 	
 
 	$query_arr=explode(":",$symbol);
