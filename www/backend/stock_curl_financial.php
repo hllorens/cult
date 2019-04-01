@@ -206,6 +206,12 @@ function get_financial($symbol,$debug=false){
 		$empty_vars=false;
 		foreach($vars2get as $var2get){
 			$results[$var2get][$period]=str_replace(",","",$results[$var2get][$period]);
+			// TWD or other companies (remove?)
+			if($symbol=="NYSE:TSM"){
+				echo "<br />converting to twd<br />";
+				$results[$var2get][$period]=floatval($results[$var2get][$period])*0.03;
+			}
+			
 			if($results[$var2get][$period]=="-" || $results[$var2get][$period]==""){
 				if(!array_key_exists($var2get,$stock_financial[$period_arr[1][$period]])){
 					echo "<br />".$period_arr[1][$period]." var:".$var2get." empty (".$results[$var2get][$period].") ignoring...<br />";
@@ -220,28 +226,31 @@ function get_financial($symbol,$debug=false){
 		}
 		if(!$empty_vars){
 			if($debug) echo "updating vars: $var2get<br />";
-			// check past
-			if(array_key_exists($var2get,$stock_financial_full[$period_arr[1][$period]])){
-				if($stock_financial_full[$period_arr[1][$period]][$var2get]!=$results[$var2get][$period]){
-					if(abs(floatval($stock_financial_full[$period_arr[1][$period]][$var2get])-floatval($results[$var2get][$period]))>abs(floatval($results[$var2get][$period])/10)){
-						$diff=toFixed(((floatval($results[$var2get][$period])-floatval($stock_financial_full[$period_arr[1][$period]][$var2get]))/max(abs(floatval($results[$var2get][$period])),0.1))*100,2,"financial diff");
-						echo "ERROR changing the past for ".$period_arr[1][$period]." $var2get significantly ($diff%) !!! (keeping new value, email sent)<br />";
-						$change_past_report.="<br />".$period_arr[1][$period]." var:".$var2get."  old:".$stock_financial_full[$period_arr[1][$period]][$var2get]." != new:".$results[$var2get][$period]." ($diff% greater than 10% diff). Keeping new.<br />";
+			foreach($vars2get as $var2get){
+			
+				// check past
+				if(array_key_exists($var2get,$stock_financial_full[$period_arr[1][$period]])){
+					if($stock_financial_full[$period_arr[1][$period]][$var2get]!=$results[$var2get][$period]){
+						if(abs(floatval($stock_financial_full[$period_arr[1][$period]][$var2get])-floatval($results[$var2get][$period]))>abs(floatval($results[$var2get][$period])/10)){
+							$diff=toFixed(((floatval($results[$var2get][$period])-floatval($stock_financial_full[$period_arr[1][$period]][$var2get]))/max(abs(floatval($results[$var2get][$period])),0.1))*100,2,"financial diff");
+							echo "ERROR changing the past for ".$period_arr[1][$period]." $var2get significantly ($diff%) !!! (keeping new value, email sent)<br />";
+							$change_past_report.="<br />".$period_arr[1][$period]." var:".$var2get."  old:".$stock_financial_full[$period_arr[1][$period]][$var2get]." != new:".$results[$var2get][$period]." ($diff% greater than 10% diff). Keeping new.<br />";
+						}
 					}
 				}
-			}
-			if($new_quarter){
-				unset($stock_financial[$matching_period]); // reset to the new quarter
-				$stock_financial[$period_arr[1][$period]]=array();
-			}
-			if(!array_key_exists($var2get,$stock_financial[$period_arr[1][$period]])){
-				echo "<br />New period ".$period_arr[1][$period]." var:".$var2get.":".$results[$var2get][$period]."<br />";
-				$new_period_report.="<br />".$period_arr[1][$period]." var:".$var2get.":".$results[$var2get][$period]."<br />";
-				$stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
-				$stock_financial_full[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
-			}else if($stock_financial[$period_arr[1][$period]][$var2get]!=$results[$var2get][$period]){
-				$stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
-				$stock_financial_full[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
+				if($new_quarter){
+					unset($stock_financial[$matching_period]); // reset to the new quarter
+					$stock_financial[$period_arr[1][$period]]=array();
+				}
+				if(!array_key_exists($var2get,$stock_financial[$period_arr[1][$period]])){
+					echo "<br />New period ".$period_arr[1][$period]." var:".$var2get.":".$results[$var2get][$period]."<br />";
+					$new_period_report.="<br />".$period_arr[1][$period]." var:".$var2get.":".$results[$var2get][$period]."<br />";
+					$stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
+					$stock_financial_full[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
+				}else if($stock_financial[$period_arr[1][$period]][$var2get]!=$results[$var2get][$period]){
+					$stock_financial[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
+					$stock_financial_full[$period_arr[1][$period]][$var2get]=$results[$var2get][$period];
+				}
 			}
 		}
 		// if created but empty vars then... unset
