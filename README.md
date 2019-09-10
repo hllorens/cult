@@ -1,5 +1,5 @@
-# cult
-culture game!
+# cult + pirata
+Pirata Inversor y culture game!
 
 # installation
 

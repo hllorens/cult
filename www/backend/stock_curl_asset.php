@@ -150,7 +150,7 @@ function get_asset($symbol,$debug=false){
 					$new_period=false;
 					$original_month=floatval(substr($stock_financial_period,5,2));
 					$new_month=floatval($period_arr_arr[0]);
-					if($new_month>$original_month){
+					if($new_month>=$original_month){
 						$new_period=true;
 						echo "<br />ERROR: asset period change same year new ".$period_arr[1][$period]." vs existing ".$stock_financial_period." keeping the new with higher month<br />";
 						send_mail('Error asset '.$name,"$url_and_query<br /> asset period change same year new ".$period_arr[1][$period]." vs existing ".$stock_financial_period.", keeping the one with higher month <br /><br />","hectorlm1983@gmail.com");

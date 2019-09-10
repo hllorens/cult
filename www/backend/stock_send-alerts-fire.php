@@ -75,6 +75,9 @@ foreach ($alerts as $usr => $ualerts) {
     foreach ($ualerts as $symbol => $alert) {
         if($debug) echo "  symbol: ".$symbol.'\n<br />';
         $fact="";
+		if(!array_key_exists($alert['symbol'],$stocks)){
+			continue;
+		}
         if(array_key_exists($usr.'_'.$symbol,$alerts_log) && $alerts_log[$usr.'_'.$symbol]==$timestamp_date){
             if($debug) echo '&nbsp;   already sent '.$usr.'_'.$symbol.'=='.$timestamp_date.'\n<br />';
             continue; // check if alerted today already
