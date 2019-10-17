@@ -11,15 +11,15 @@ require_once("email_config.php");
 $list="sabadell-prudente-base-fi";
 $list="$list,amundi-index-msci-europe-aec,amundi-msci-wrld-ae-c,amundi-index-sp-500-aec";
 
-$list_details["amundi-index-sp-500-aec"]=array(
-	"isin"=> "LU0996179007",
-	"morningstar-id"=> "F00000T7PZ",
-	"high"=> "-",
+$list_details["sabadell-prudente-base-fi"]=array(
+	"isin"=> "-",
+	"morningstar-id"=> "-",
+	"high"=> "11",
 	"low"=> "-"
 );
-$list_details["amundi-index-sp-500-aec"]=array(
-	"isin"=> "LU0996179007",
-	"morningstar-id"=> "F00000T7PZ",
+$list_details["amundi-index-msci-europe-aec"]=array(
+	"isin"=> "-",
+	"morningstar-id"=> "-",
 	"high"=> "-",
 	"low"=> "-"
 );
@@ -175,6 +175,9 @@ if(isset($_REQUEST['symbol'])){
 		$temp_result=get_details($key,$debug);
 		if(!empty($temp_result)){
 			if(!array_key_exists($key,$funds_arr)) $funds_arr[$key]=array();
+			if($list_details[$key]['high']!="-" && floatval($list_details[$key]['high'])>floatval($temp_result['v'])){
+				echo "alert high";
+			}
 			$funds_arr[$key]['v']=$temp_result['v'];
 			$funds_arr[$key]['c']=$temp_result['c'];
 			$funds_arr[$key][substr($timestamp_date,0,10)]=$temp_result;
