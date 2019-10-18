@@ -14,7 +14,7 @@ $list="$list,amundi-index-msci-europe-aec,amundi-msci-wrld-ae-c,amundi-index-sp-
 $list_details["sabadell-prudente-base-fi"]=array(
 	"isin"=> "-",
 	"morningstar-id"=> "-",
-	"high"=> "11",
+	"high"=> "10.99",
 	"low"=> "-"
 );
 $list_details["amundi-index-msci-europe-aec"]=array(
@@ -26,8 +26,8 @@ $list_details["amundi-index-msci-europe-aec"]=array(
 $list_details["amundi-msci-wrld-ae-c"]=array(
 	"isin"=> "LU0996182563",
 	"morningstar-id"=> "F00000T66U",
-	"high"=> "-",
-	"low"=> "-"
+	"high"=> "200",
+	"low"=> "150"
 );
 $list_details["amundi-index-sp-500-aec"]=array(
 	"isin"=> "LU0996179007",
@@ -160,11 +160,11 @@ if(isset($_REQUEST['symbol'])){
 			if(array_key_exists($key,$list_details)){
 				if($list_details[$key]['high']!="-" && floatval($temp_result['v'])>floatval($list_details[$key]['high'])){
 					echo "<br />&nbsp; alert high<br /><br />";
-					$alerts.=" $key +val ";
+					$alerts.=" ".substr($key,0,12)." +val ";
 					$alertsb.="<br /> $key +value ".$temp_result['v']."<br />";
 				}else if($list_details[$key]['low']!="-" && floatval($temp_result['v'])<floatval($list_details[$key]['low'])){
 					echo "<br />&nbsp; alert low<br /><br />";
-					$alerts.=" $key -val";
+					$alerts.=" ".substr($key,0,12)." -val ";
 					$alertsb.="<br /> $key -value ".$temp_result['v']."<br />";
 				}
 			}
@@ -179,7 +179,8 @@ if(isset($_REQUEST['symbol'])){
 	}
 
 	if($alerts!=""){
-		send_mail('Fund '.$alerts,'<br />'.$alertsb.'</pre><br /><br />',"hectorlm1983@gmail.com");
+		send_mail(''.$alerts,
+					'<br />'.$alertsb.'</pre><br /><br />',"hectorlm1983@gmail.com");
 	}
 
 	$funds_arr_json_str=json_encode( $funds_arr );
