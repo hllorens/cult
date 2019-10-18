@@ -139,26 +139,8 @@ if(isset($_REQUEST['symbol'])){
 	if(file_exists ( 'stock_last_detail_updated.txt' )){
 		$stock_last_detail_updated=intval(fgets(fopen('stock_last_detail_updated.txt', 'r')));
 	}
-	echo " curr_stock_num_to_curl=$stock_last_detail_updated num_stocks_to_curl=$num_stocks_to_curl<br />";
-	$stock_details_arr=array();
+	echo " curr_stock_num_to_curl=$stock_last_detail_updated num_stocks_to_curl=$num_stocks_to_curl<br />";*/
 
-	$the_url_query_arr = explode(",", $list);
-	$num_stocks_to_curl=min($num_stocks_to_curl,count($the_url_query_arr)); // make sure we do not duplicate...
-	for ($i=0;$i<$num_stocks_to_curl;$i++){
-		$current_num_to_curl=($stock_last_detail_updated+$i) % count($the_url_query_arr);
-		$temp_result=get_details($the_url_query_arr[$current_num_to_curl],$debug);
-		if(!empty($temp_result)) $stock_details_arr[$the_url_query_arr[$current_num_to_curl]]=$temp_result;
-		// to avoid server ban
-		sleep(0.15);
-	}
-
-	if($debug) echo "<br />arr ".print_r($stock_details_arr)."<br />";
-
-	// update last updated number
-	$stock_last_detail_updated=($stock_last_detail_updated+$num_stocks_to_curl) % count($the_url_query_arr); // modulo to avoid big nums...
-	$stock_last_detail_updated_f = fopen("stock_last_detail_updated.txt", "w") or die("Unable to open file!");
-	fwrite($stock_last_detail_updated_f, $stock_last_detail_updated);
-	fclose($stock_last_detail_updated_f);*/
 	$funds_arr=array(); 
 	if(file_exists ( 'funds.json' )){
 		echo "funds.json exists -> reading...<br />";
@@ -167,16 +149,24 @@ if(isset($_REQUEST['symbol'])){
 		echo "<br/><br/><span style=\"color:red\">ERROR:</span>funds.json does NOT exist -> using an empty array<br />";
 	}
 
-	echo "<br />under construction...<br />";
 
 	$the_url_query_arr = explode(",", $list);
-	
+	$alerts="";
+	$alertsb="";
 	foreach($the_url_query_arr as $key){
 		$temp_result=get_details($key,$debug);
 		if(!empty($temp_result)){
 			if(!array_key_exists($key,$funds_arr)) $funds_arr[$key]=array();
-			if($list_details[$key]['high']!="-" && floatval($list_details[$key]['high'])>floatval($temp_result['v'])){
-				echo "alert high";
+			if(array_key_exists($key,$list_details)){
+				if($list_details[$key]['high']!="-" && floatval($temp_result['v'])>floatval($list_details[$key]['high'])){
+					echo "<br />&nbsp; alert high<br /><br />";
+					$alerts.=" $key +val ";
+					$alertsb.="<br /> $key +value ".$temp_result['v']."<br />";
+				}else if($list_details[$key]['low']!="-" && floatval($temp_result['v'])<floatval($list_details[$key]['low'])){
+					echo "<br />&nbsp; alert low<br /><br />";
+					$alerts.=" $key -val";
+					$alertsb.="<br /> $key -value ".$temp_result['v']."<br />";
+				}
 			}
 			$funds_arr[$key]['v']=$temp_result['v'];
 			$funds_arr[$key]['c']=$temp_result['c'];
@@ -186,6 +176,10 @@ if(isset($_REQUEST['symbol'])){
 		}
 		// to avoid server ban
 		sleep(0.30);
+	}
+
+	if($alerts!=""){
+		send_mail('Fund '.$alerts,'<br />'.$alertsb.'</pre><br /><br />',"hectorlm1983@gmail.com");
 	}
 
 	$funds_arr_json_str=json_encode( $funds_arr );
