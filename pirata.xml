@@ -237,18 +237,22 @@
    span.showpagePoint { 
         display: inline-block; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; 
         padding: .6em .8em; margin: 0 .2em; 
-        border: 1px solid #e6e6e6; border-radius: 0.25em; 
-        background-color: #eeccb1; 
-        border-color: #eeccb1; 
-        color: #ffffff;
+        /*border: 1px solid #e6e6e6; border-radius: 0.25em; */
+        background-color: #111; 
+        /*border-color: #eeccb1; */
+        font-family: 'Dosis',sans-serif;
+        text-transform: uppercase;
+        color: #eee;
         pointer-events: none; }
    span.showpageNum, span.showpage { margin: 0 .2em; }
    .showpageNum a, .showpage a { 
         display: inline-block; 
         -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
         padding: .6em .8em; 
-        border: 1px solid #fff; border-radius: 0.25em; 
-        color: #eee; 
+        /*border: 1px solid #fff; border-radius: 0.25em; */
+        font-family: 'Dosis',sans-serif;
+        text-transform: uppercase;
+        color: #ddd; 
         text-decoration: none;
         background-color: #000; 
         }
@@ -538,9 +542,9 @@
             <div id="blog-pager"></div>
             
             <b:if cond='data:blog.pageType != "item"'> 
-                <p> no item </p>
+                <!--<p> no item </p>-->
                 <b:if cond='data:blog.pageType != "static_page"'>
-                    <p>no static</p>
+                    <!--<p>no static</p>-->
                     <script type='text/javascript'> 
                         /*<![CDATA[*/ 
                         var postperpage=7; 
