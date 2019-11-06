@@ -59,7 +59,7 @@ $stock_list="$stock_list,NYSE:SQM,NYSE:ALB,NYSE:FMC,NASDAQ:ARTX";
 $stock_list="$stock_list,EPA:UBI,NYSE:INFY";
 $stock_list="$stock_list,NYSE:PFE";
 $stock_list="$stock_list,NYSE:NIO";
-$stock_list="$stock_list,NASDAQ:SNH"; 
+//$stock_list="$stock_list,NASDAQ:SNH"; 
 
 
 // FUTURE:
