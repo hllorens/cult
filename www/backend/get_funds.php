@@ -8,13 +8,14 @@
 require_once 'stock_helper_functions.php'; // e.g., hist(param_id,freq)
 require_once("email_config.php");
 
-$list="sabadell-prudente-base-fi";
-$list="$list,amundi-index-msci-europe-aec,amundi-msci-wrld-ae-c,amundi-index-sp-500-aec";
+$list="amundi-msci-wrld-ae-c";
+$list="$list,amundi-index-msci-europe-aec,amundi-index-sp-500-aec";
+$list="$list,sabadell-prudente-base-fi";
 
 $list_details["sabadell-prudente-base-fi"]=array(
 	"isin"=> "-",
 	"morningstar-id"=> "-",
-	"high"=> "10.99",
+	"high"=> "-",
 	"low"=> "-"
 );
 $list_details["amundi-index-msci-europe-aec"]=array(
@@ -26,7 +27,7 @@ $list_details["amundi-index-msci-europe-aec"]=array(
 $list_details["amundi-msci-wrld-ae-c"]=array(
 	"isin"=> "LU0996182563",
 	"morningstar-id"=> "F00000T66U",
-	"high"=> "200",
+	"high"=> "250",
 	"low"=> "150"
 );
 $list_details["amundi-index-sp-500-aec"]=array(
