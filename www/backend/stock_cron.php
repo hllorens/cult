@@ -361,7 +361,7 @@ foreach ($stock_details_arr as $key => $item) {
 				$symbol_formatted['om_pot']=floatval(toFixed($om_obj['pot'],3,'om_pot'));
                 $last_revenue_year=floatval(substr(end($symbol_formatted['revenue_hist'])[0],0,4));
                 $last_value_year=floatval(substr(end($symbol_formatted['value_hist'])[0],0,4));
-                if(($last_value_year-$last_revenue_year)>2){
+                if(($last_value_year-$last_revenue_year)>3){
                     echo "ERROR: too old financials $last_revenue_year<br />";
                     send_mail(''.$item['name'].' too old financials',"<br />ERROR: too old financials $last_revenue_year<br /><br />","hectorlm1983@gmail.com");
                     exit(1);
