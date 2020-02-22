@@ -11,8 +11,12 @@ $timestamp_date=date("Y-m-d H:i:s");
 
 $list="INDEXSP:.INX";
 $list="$list,INDEXSTOXX:SX5E";
-$list="$list,SHA:000300";
-$list="$list,INDEXBME:IB";
+
+$json_name['INDEXSP:.INX'] = "sp500close.active.json";
+$json_name['INDEXSTOXX:SX5E'] = "stoxx.active.json";
+
+//$list="$list,SHA:000300";
+//$list="$list,INDEXBME:IB";
 
 
 $cookieFile = "cookies.txt";
@@ -55,13 +59,13 @@ function get_details($symbol,$debug=false){
     preg_match("/data-role=\"currentvalue\"[^>]*>\s*([^<]*)</m", $response, $value);
     if(count($value)<2){
         echo "<br />Empty value skipping, email sent...<br />";
-        send_mail('Bad crawl '.$symbol,'<br />Empty value, skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
+        send_mail('sma Bad crawl '.$symbol,'<br />Empty value, skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
         return $details;
     }
     $value=str_replace(",","",trim($value[1]));
     if(!isset($value) || $value=="" || $value=="-"){
         echo "<br />Empty value skipping, email sent...<br />";
-        send_mail('Error '.$symbol,'<br />Empty value(!isset, "" or "-"), skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
+        send_mail('sma Error '.$symbol,'<br />Empty value(!isset, "" or "-"), skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
         return $details;
     }
     if($debug) echo "value: (".$value.")<br />";
@@ -71,13 +75,13 @@ function get_details($symbol,$debug=false){
     preg_match("/class=\"charttimestamp\"[^>]*>\s*([^<]*)</m", $response, $timestamp);
     if(count($timestamp)<2){
         echo "<br />Empty timestamp skipping, email sent...1<br />";
-        send_mail('Bad crawl '.$symbol,'<br />Empty timestamp, skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
+        send_mail('sma Bad crawl '.$symbol,'<br />Empty timestamp, skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
         return $details;
     }
     $timestamp=trim($timestamp[1]);
     if(!isset($timestamp) || $timestamp=="" || $timestamp=="-"){
         echo "<br />Empty timestamp skipping, email sent...2<br />";
-        send_mail('Error '.$symbol,'<br />Empty timestamp(!isset, "" or "-"), skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
+        send_mail('sma Error '.$symbol,'<br />Empty timestamp(!isset, "" or "-"), skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
         return $details;
     }
     if($debug) echo "timestamp: (".$timestamp.")<br />";
@@ -107,25 +111,24 @@ if(isset($_REQUEST['symbol'])){
 	//echo "<br />arr <pre>".print_r($result,true)."</pre><br />";
 	echo "<br />arr <pre>".json_encode($result, JSON_PRETTY_PRINT)."</pre><br />";
 }else{
-	$arr=array(); 
-	$filename='sp500close.active.json';
-	if(file_exists ( $filename )){
-		echo "$filename exists -> reading...<br />";
-		$arr = json_decode(file_get_contents($filename), true);
-	}else{
-		echo "<br/><br/><span style=\"color:red\">ERROR:</span>$filename does NOT exist -> using an empty array<br />";
-	}
-	//$the_url_query_arr = explode(",", $list);
+	$the_url_query_arr = explode(",", $list);
 	$alerts="";
 	$alertsb="";
-	$key="INDEXSP:.INX";
-	//foreach($the_url_query_arr as $key){
+	foreach($the_url_query_arr as $key){
+		$arr=array(); 
+		$filename=$json_name[$key];
+		if(file_exists ( $filename )){
+			echo "<br /><br />$filename exists -> reading...<br />";
+			$arr = json_decode(file_get_contents($filename), true);
+		}else{
+			echo "<br/><br/><span style=\"color:red\">ERROR:</span>$filename does NOT exist -> using an empty array<br />";
+		}
 		$temp_result=get_details($key,$debug);
 		if(!empty($temp_result)){
 			if(!array_key_exists($temp_result['timestamp'],$arr)){
 				$arr[$temp_result['timestamp']]=$temp_result['value'];
 			}else{
-				echo "ALREADY EXISTS, existing ".$arr[$temp_result['timestamp']]." new ".$temp_result['value'];
+				echo "<br />ALREADY EXISTS, existing ".$arr[$temp_result['timestamp']]." new ".$temp_result['value'];
 			}
 			// calculate gold/death and %diff alert
 			$last_200=array_slice(array_values($arr),-200,200);
@@ -136,50 +139,51 @@ if(isset($_REQUEST['symbol'])){
 			echo "<br />sma_200=$sma_200 (".count($last_200).") sma_50=$sma_50(".count($last_50).") diff=$diff_percentage";
 			echo "<br />";
 			if($diff_percentage<0.019 && $diff_percentage>-0.01){
-				$alerts.=" cross-diff";
-				$alertsb.="<br /> cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
-				echo "<br /> cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
+				$alerts.=substr($json_name[$key],0,5)." cross-diff";
+				$alertsb.=substr($json_name[$key],0,5)."<br /> cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
+				echo substr($json_name[$key],0,5)."<br /> cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
 			}
 			$last_200a=array_slice(array_values($arr),-201,200);
 			$last_50a=array_slice($last_200,-51,50);
 			$sma_200a=array_sum($last_200a)/count($last_200a);
 			$sma_50a=array_sum($last_50a)/count($last_50a);
-			echo "<br />sma_200a=$sma_200a (".count($last_200).") sma_50a=$sma_50a(".count($last_50).")";
-			echo "<br />";
+			echo substr($json_name[$key],0,5)."<br />sma_200a=$sma_200a (".count($last_200).") sma_50a=$sma_50a(".count($last_50).")";
+			echo substr($json_name[$key],0,5)."<br />";
 			if(($sma_50-$sma_200)*($sma_50a-$sma_200a)<0){
 				$cross_type="DEATH";
 				if(($sma_50-$sma_200)>0){$cross_type="GOLDEN";}
-				$alerts.="$cross_type CROSS";
-				$alertsb.="<br /> <b>$cross_type CROSS</b>!!";
-				echo "<br /> <b>$cross_type CROSS</b>!!";
+				$alerts.=substr($json_name[$key],0,5)." $cross_type CROSS";
+				$alertsb.=substr($json_name[$key],0,5)."<br /> <b>$cross_type CROSS</b>!!";
+				echo substr($json_name[$key],0,5)."<br /> <b>$cross_type CROSS</b>!!";
 			}
 		}//else{
 		//	break;
 		//}
-		// to avoid server ban
-	//	sleep(0.30);
-	//}
+		if($alerts!=""){
+			send_mail(''.$alerts,
+						'<br />'.$alertsb.'</pre><br /><br />',"hectorlm1983@gmail.com");
+		}
 
-	if($alerts!=""){
-		send_mail(''.$alerts,
-					'<br />'.$alertsb.'</pre><br /><br />',"hectorlm1983@gmail.com");
+		$arr_json_str=json_encode( $arr );
+
+		// update 
+		echo date('Y-m-d H:i:s')." updating json\n";
+		$json_file = fopen($filename, "w") or die("Unable to open file $filename!");
+		fwrite($json_file, $arr_json_str);
+		fclose($json_file);
+
+		// backup history (monthly)
+		if(!file_exists( date("Y-m").'.'.$filename )){
+			echo "creating backup: ".date("Y-m").".".$filename."<br />";
+			$json_fileb = fopen(date("Y-m").".".$filename, "w") or die("Unable to open file ".$filename."!");
+			fwrite($json_fileb, $arr_json_str);
+			fclose($json_fileb);
+		}
+
+		//to avoid server ban
+		sleep(0.30);
 	}
 
-	$arr_json_str=json_encode( $arr );
-
-	// update 
-	echo date('Y-m-d H:i:s')." updating json\n";
-	$json_file = fopen($filename, "w") or die("Unable to open file $filename!");
-	fwrite($json_file, $arr_json_str);
-	fclose($json_file);
-
-	// backup history (monthly)
-	if(!file_exists( date("Y-m").'.'.$filename )){
-		echo "creating backup: ".date("Y-m").".".$filename."<br />";
-		$json_fileb = fopen(date("Y-m").".".$filename, "w") or die("Unable to open file ".$filename."!");
-		fwrite($json_fileb, $arr_json_str);
-		fclose($json_fileb);
-	}
 
 
 }
