@@ -11,11 +11,12 @@ $timestamp_date=date("Y-m-d H:i:s");
 
 $list="INDEXSP:.INX";
 $list="$list,INDEXSTOXX:SX5E";
+$list="$list,SHA:000300";
 
 $json_name['INDEXSP:.INX'] = "sp500close.active.json";
 $json_name['INDEXSTOXX:SX5E'] = "stoxx.active.json";
+$json_name['SHA:000300'] = "csi300.active.json";
 
-//$list="$list,SHA:000300";
 //$list="$list,INDEXBME:IB";
 
 
