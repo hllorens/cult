@@ -9,15 +9,9 @@ echo date('Y-m-d H:i:s')." starting<br />";
 $timestamp_date=date("Y-m-d H:i:s");
 
 
-$list="INDEXSP:.INX";
-$list="$list,INDEXSTOXX:SX5E";
-$list="$list,SHA:000300";
+$list="T10Y3M";
+$list="$list,T10Y2Y";
 
-$json_name['INDEXSP:.INX'] = "sp500close.active.json";
-$json_name['INDEXSTOXX:SX5E'] = "stoxx.active.json";
-$json_name['SHA:000300'] = "csi300.active.json";
-
-//$list="$list,INDEXBME:IB";
 
 
 $cookieFile = "cookies.txt";
@@ -29,11 +23,8 @@ if(!file_exists($cookieFile)) {
 
 function get_details($symbol,$debug=false){
 	$details=array();
-	$the_url="https://www.msn.com/en-us/money/stockdetails/";
-    $url_and_query=$the_url.get_msn_quote($symbol);
-    $query_arr=explode(":",$symbol);
-    $name=$query_arr[1];
-    $market=$query_arr[0];
+	$the_url="https://fred.stlouisfed.org/series/";
+    $url_and_query=$the_url.$symbol;
     echo "stock $url_and_query<br />";
     $curl = curl_init();
     curl_setopt( $curl, CURLOPT_URL, $url_and_query );
@@ -57,39 +48,40 @@ function get_details($symbol,$debug=false){
     $response=preg_replace("/<\/(td|table)>/", "\n", $response);
     if($debug) echo "aaa.<pre>".htmlspecialchars($response)."</pre>";
 
-    preg_match("/data-role=\"currentvalue\"[^>]*>\s*([^<]*)</m", $response, $value);
+    preg_match("/class=\"series-meta-observation-value\"[^>]*>\s*([^<]*)</m", $response, $value);
     if(count($value)<2){
         echo "<br />Empty value skipping, email sent...<br />";
-        send_mail('sma Bad crawl '.$symbol,'<br />Empty value, skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
+        send_mail('bond_yield_curve_spread Bad crawl '.$symbol,'<br />Empty value, skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
         return $details;
     }
     $value=str_replace(",","",trim($value[1]));
     if(!isset($value) || $value=="" || $value=="-"){
         echo "<br />Empty value skipping, email sent...<br />";
-        send_mail('sma Error '.$symbol,'<br />Empty value(!isset, "" or "-"), skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
+        send_mail('bond_yield_curve_spread Error '.$symbol,'<br />Empty value(!isset, "" or "-"), skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
         return $details;
     }
     if($debug) echo "value: (".$value.")<br />";
 	$details['value']=$value;
 
     //preg_match("/class=\"charttimestamp\"[^>]*>.*Currency .. ...[^ ]* ([^ ]*)</m", $response, $timestamp);
-    preg_match("/class=\"charttimestamp\"[^>]*>\s*([^<]*)</m", $response, $timestamp);
+    preg_match("/class=\"series-meta-value\"[^>]*>\s*([^<]*)</m", $response, $timestamp);
     if(count($timestamp)<2){
         echo "<br />Empty timestamp skipping, email sent...1<br />";
         send_mail('sma Bad crawl '.$symbol,'<br />Empty timestamp, skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
         return $details;
     }
-    $timestamp=trim($timestamp[1]);
+    $timestamp=substr(trim($timestamp[1]),0,10);
     if(!isset($timestamp) || $timestamp=="" || $timestamp=="-"){
         echo "<br />Empty timestamp skipping, email sent...2<br />";
-        send_mail('sma Error '.$symbol,'<br />Empty timestamp(!isset, "" or "-"), skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
+        send_mail('bond_yield_curve_spread Error '.$symbol,'<br />Empty timestamp(!isset, "" or "-"), skipping...<pre>'.htmlspecialchars($response).'</pre><br /><br />',"hectorlm1983@gmail.com");
         return $details;
     }
     if($debug) echo "timestamp: (".$timestamp.")<br />";
-    preg_match("/([0-9][^\/]*\/[0-9][^\/]*\/[0-9][0-9][0-9][0-9])/m", $timestamp, $value);
+    //preg_match("/([0-9][^\/]*\/[0-9][^\/]*\/[0-9][0-9][0-9][0-9])/m", $timestamp, $value);
 	if($debug) echo "timestamp: (".$value[1].")<br />";
-	$date=date_create($value[1]);
-	$details['timestamp']=date_format($date, 'Y-m-d');
+	//$date=date_create($value[1]);
+	$details['timestamp']=$timestamp;
+	//date_format($date, 'Y-m-d');
 
 
 	
@@ -117,7 +109,7 @@ if(isset($_REQUEST['symbol'])){
 	$alertsb="";
 	foreach($the_url_query_arr as $key){
 		$arr=array(); 
-		$filename=$json_name[$key];
+		$filename="bond_yield_curve_spread.".$key.".json";
 		if(file_exists ( $filename )){
 			echo "<br /><br />$filename exists -> reading...<br />";
 			$arr = json_decode(file_get_contents($filename), true);
@@ -131,35 +123,15 @@ if(isset($_REQUEST['symbol'])){
 			}else{
 				echo "<br />ALREADY EXISTS, existing ".$arr[$temp_result['timestamp']]." new ".$temp_result['value'];
 			}
-			// calculate gold/death and %diff alert
-			$last_200=array_slice(array_values($arr),-200,200);
-			$last_50=array_slice($last_200,-50,50);
-			$sma_200=array_sum($last_200)/count($last_200);
-			$sma_50=array_sum($last_50)/count($last_50);
-			$diff_percentage=($sma_50/$sma_200)-1;
-			echo "<br />sma_200=$sma_200 (".count($last_200).") sma_50=$sma_50(".count($last_50).") diff=$diff_percentage";
+			$value=floatval($temp_result["value"]);
+			echo "<br />bond_yield_curve_spread $key=$value";
 			echo "<br />";
-			if($diff_percentage<0.019 && $diff_percentage>-0.01){
-				$alerts.=substr($filename,0,5)." cross-diff";
-				$alertsb.=substr($filename,0,5)."<br /> cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
-				echo substr($filename,0,5)."<br /> cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
+			if($value<=0){
+				$alerts.=$key." bond_yield_curve_spread <0";
+				$alertsb.=$key."<br /> value=".$value."<br />";
+				echo $key."=$value   <0<br />";
 			}
-			$last_200a=array_slice(array_values($arr),-201,200);
-			$last_50a=array_slice($last_200,-51,50);
-			$sma_200a=array_sum($last_200a)/count($last_200a);
-			$sma_50a=array_sum($last_50a)/count($last_50a);
-			echo substr($filename,0,5)."<br />sma_200a=$sma_200a (".count($last_200).") sma_50a=$sma_50a(".count($last_50).")";
-			echo substr($filename,0,5)."<br />";
-			if(($sma_50-$sma_200)*($sma_50a-$sma_200a)<0){
-				$cross_type="DEATH";
-				if(($sma_50-$sma_200)>0){$cross_type="GOLDEN";}
-				$alerts.=substr($filename,0,5)." $cross_type CROSS";
-				$alertsb.=substr($filename,0,5)."<br /> <b>$cross_type CROSS</b>!!";
-				echo substr($filename,0,5)."<br /> <b>$cross_type CROSS</b>!!";
-			}
-		}//else{
-		//	break;
-		//}
+		}
 		if($alerts!=""){
 			send_mail(''.$alerts,
 						'<br />'.$alertsb.'</pre><br /><br />',"hectorlm1983@gmail.com");
