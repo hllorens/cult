@@ -160,10 +160,6 @@ if(isset($_REQUEST['symbol'])){
 		}//else{
 		//	break;
 		//}
-		if($alerts!=""){
-			send_mail(''.$alerts,
-						'<br />'.$alertsb.'</pre><br /><br />',"hectorlm1983@gmail.com");
-		}
 
 		$arr_json_str=json_encode( $arr );
 
@@ -183,6 +179,11 @@ if(isset($_REQUEST['symbol'])){
 
 		//to avoid server ban
 		sleep(0.30);
+	}
+
+	if($alerts!=""){
+		send_mail(''.$alerts,
+					'<br />'.$alertsb.'</pre><br /><br />',"hectorlm1983@gmail.com");
 	}
 
 
