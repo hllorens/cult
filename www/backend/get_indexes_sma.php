@@ -132,16 +132,18 @@ if(isset($_REQUEST['symbol'])){
 				echo "<br />ALREADY EXISTS, existing ".$arr[$temp_result['timestamp']]." new ".$temp_result['value'];
 			}
 			
+			echo "<br/><b>".substr($filename,0,5)."</b><br/>";
 			// calculate diffs
-			$month_20_sessions=(floatval($temp_result['value'])/array_values($arr)[-20])-1;      // 20 working days
-			$quarter_60_sessions=(floatval($temp_result['value'])/array_values($arr)[-60])-1;    // 3x20 working days
-			$year_240_sessions=(floatval($temp_result['value'])/array_values($arr)[-240])-1;  // 12x20 240 working days (356-(52*2 weekends) - 12 holidays)
-			if(abs($month_20_sessions)>0.1 || abs($quarter_250_sessions) > 0.1 || abs($year_240_sessions) > 0.15){
+			$week_6_sessions=(floatval($temp_result['value'])/array_slice(array_values($arr),-6,1)[0])-1;      // 20 working days
+			$month_20_sessions=(floatval($temp_result['value'])/array_slice(array_values($arr),-20,1)[0])-1;      // 20 working days
+			$quarter_60_sessions=(floatval($temp_result['value'])/array_slice(array_values($arr),-60,1)[0])-1;    // 3x20 working days
+			$year_240_sessions=(floatval($temp_result['value'])/array_slice(array_values($arr),-240,1)[0])-1;  // 12x20 240 working days (356-(52*2 weekends) - 12 holidays)
+			echo "<br /> diff week $week_6_sessions month $month_20_sessions quarter $quarter_60_sessions year $year_240_sessions<br />";
+			if(abs($week_6_sessions)>0.09 || abs($month_20_sessions)>0.1 || abs($quarter_60_sessions) > 0.11 || abs($year_240_sessions) > 0.15){
 				$alerts.=substr($filename,0,5)." big-diff";
-				$alertsb.=substr($filename,0,5)."<br /> big-diff month $month_20_sessions quarter $quarter_60_sessions year $year_240_sessions<br />";
-				echo substr($filename,0,5)."<br /> big-diff month $month_20_sessions quarter $quarter_60_sessions year $year_240_sessions<br />";
+				$alertsb.=substr($filename,0,5)."<br /> big-diff week $week_6_sessions month $month_20_sessions quarter $quarter_60_sessions year $year_240_sessions<br />";
 			}			
-			
+   
 			// calculate gold/death and %diff alert
 			$last_200=array_slice(array_values($arr),-200,200);
 			$last_50=array_slice($last_200,-50,50);
@@ -153,7 +155,7 @@ if(isset($_REQUEST['symbol'])){
 			if($diff_percentage<0.019 && $diff_percentage>-0.01){
 				$alerts.=substr($filename,0,5)." cross-diff";
 				$alertsb.=substr($filename,0,5)."<br /> cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
-				echo substr($filename,0,5)."<br /> cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
+				echo substr($filename,0,5)." cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
 			}
 			$last_200a=array_slice(array_values($arr),-201,200);
 			$last_50a=array_slice($last_200,-51,50);
