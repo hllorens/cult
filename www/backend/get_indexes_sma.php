@@ -133,15 +133,16 @@ if(isset($_REQUEST['symbol'])){
 			}
 			
 			echo "<br/><b>".substr($filename,0,5)."</b><br/>";
+			
 			// calculate diffs
-			$week_6_sessions=(floatval($temp_result['value'])/array_slice(array_values($arr),-6,1)[0])-1;      // 20 working days
-			$month_20_sessions=(floatval($temp_result['value'])/array_slice(array_values($arr),-20,1)[0])-1;      // 20 working days
-			$quarter_60_sessions=(floatval($temp_result['value'])/array_slice(array_values($arr),-60,1)[0])-1;    // 3x20 working days
-			$year_240_sessions=(floatval($temp_result['value'])/array_slice(array_values($arr),-240,1)[0])-1;  // 12x20 240 working days (356-(52*2 weekends) - 12 holidays)
-			echo "<br /> diff week $week_6_sessions month $month_20_sessions quarter $quarter_60_sessions year $year_240_sessions<br />";
+			$week_6_sessions=toFixed(100*((floatval($temp_result['value'])/array_slice(array_values($arr),-6,1)[0])-1));      // 20 working days
+			$month_20_sessions=toFixed(100*((floatval($temp_result['value'])/array_slice(array_values($arr),-20,1)[0])-1));      // 20 working days
+			$quarter_60_sessions=toFixed(100*((floatval($temp_result['value'])/array_slice(array_values($arr),-60,1)[0])-1));    // 3x20 working days
+			$year_240_sessions=toFixed(100*((floatval($temp_result['value'])/array_slice(array_values($arr),-240,1)[0])-1));  // 12x20 240 working days (356-(52*2 weekends) - 12 holidays)
+			echo "<br /> diff week $week_6_sessions% month $month_20_sessions% quarter $quarter_60_sessions% year $year_240_sessions%<br />";
 			if(abs($week_6_sessions)>0.09 || abs($month_20_sessions)>0.1 || abs($quarter_60_sessions) > 0.11 || abs($year_240_sessions) > 0.15){
 				$alerts.=substr($filename,0,5)." big-diff";
-				$alertsb.=substr($filename,0,5)."<br /> big-diff week $week_6_sessions month $month_20_sessions quarter $quarter_60_sessions year $year_240_sessions<br />";
+				$alertsb.=substr($filename,0,5)."<br /> big-diff week $week_6_sessions% month $month_20_sessions% quarter $quarter_60_sessions% year $year_240_sessions%<br />";
 			}			
    
 			// calculate gold/death and %diff alert
@@ -202,7 +203,6 @@ if(isset($_REQUEST['symbol'])){
 
 
 }
-
 
 
 
