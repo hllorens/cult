@@ -141,8 +141,8 @@ if(isset($_REQUEST['symbol'])){
 			$year_240_sessions=toFixed(100*((floatval($temp_result['value'])/array_slice(array_values($arr),-240,1)[0])-1));  // 12x20 240 working days (356-(52*2 weekends) - 12 holidays)
 			echo "<br /> diff week $week_6_sessions% month $month_20_sessions% quarter $quarter_60_sessions% year $year_240_sessions%<br />";
 			if(abs($week_6_sessions)>9 || abs($month_20_sessions)>10 || abs($quarter_60_sessions) > 11 || abs($year_240_sessions) > 15){
-				$alerts.=substr($filename,0,5)." big-diff";
-				$alertsb.=substr($filename,0,5)."<br /> big-diff week $week_6_sessions% month $month_20_sessions% quarter $quarter_60_sessions% year $year_240_sessions%<br />";
+				$alerts.=substr($filename,0,5)." big-diff, ";
+				$alertsb.="<br /><br />".substr($filename,0,5)." big-diff week $week_6_sessions% month $month_20_sessions% quarter $quarter_60_sessions% year $year_240_sessions%<br />";
 			}			
    
 			// calculate gold/death and %diff alert
@@ -154,8 +154,8 @@ if(isset($_REQUEST['symbol'])){
 			echo "<br />sma_200=$sma_200 (".count($last_200).") sma_50=$sma_50(".count($last_50).") diff=$diff_percentage";
 			echo "<br />";
 			if($diff_percentage<0.019 && $diff_percentage>-0.01){
-				$alerts.=substr($filename,0,5)." cross-diff";
-				$alertsb.=substr($filename,0,5)."<br /> cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
+				$alerts.=substr($filename,0,5)." cross-diff, ";
+				$alertsb.="<br /><br />".substr($filename,0,5)." cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
 				echo substr($filename,0,5)." cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
 			}
 			$last_200a=array_slice(array_values($arr),-201,200);
@@ -167,8 +167,8 @@ if(isset($_REQUEST['symbol'])){
 			if(($sma_50-$sma_200)*($sma_50a-$sma_200a)<0){
 				$cross_type="DEATH";
 				if(($sma_50-$sma_200)>0){$cross_type="GOLDEN";}
-				$alerts.=substr($filename,0,5)." $cross_type CROSS";
-				$alertsb.=substr($filename,0,5)."<br /> <b>$cross_type CROSS</b>!!";
+				$alerts.=substr($filename,0,5)." $cross_type CROSS, ";
+				$alertsb.="<br /><br /> <b>".substr($filename,0,5)." $cross_type CROSS</b>!!";
 				echo substr($filename,0,5)."<br /> <b>$cross_type CROSS</b>!!";
 			}
 		}//else{
