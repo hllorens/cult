@@ -119,10 +119,10 @@ if(isset($_REQUEST['symbol'])){
 		$arr=array(); 
 		$filename=$json_name[$key];
 		if(file_exists ( $filename )){
-			echo "<br /><br />$filename exists -> reading...<br />";
+			echo "<br /><br />$filename exists -> reading...";
 			$arr = json_decode(file_get_contents($filename), true);
 		}else{
-			echo "<br/><br/><span style=\"color:red\">ERROR:</span>$filename does NOT exist -> using an empty array<br />";
+			echo "<br/><br/><span style=\"color:red\">ERROR:</span>$filename does NOT exist -> using an empty array";
 		}
 		$temp_result=get_details($key,$debug);
 		if(!empty($temp_result)){
@@ -132,18 +132,14 @@ if(isset($_REQUEST['symbol'])){
 				echo "<br />ALREADY EXISTS, existing ".$arr[$temp_result['timestamp']]." new ".$temp_result['value'];
 			}
 			
-			echo "<br/><b>".substr($filename,0,5)."</b><br/>";
+			echo "<br/><br/><b>".substr($filename,0,5)."</b>";
 
 			// calculate diffs
 			$week_6_sessions=toFixed(100*((floatval($temp_result['value'])/array_slice(array_values($arr),-6,1)[0])-1));      // 20 working days
 			$month_20_sessions=toFixed(100*((floatval($temp_result['value'])/array_slice(array_values($arr),-20,1)[0])-1));      // 20 working days
 			$quarter_60_sessions=toFixed(100*((floatval($temp_result['value'])/array_slice(array_values($arr),-60,1)[0])-1));    // 3x20 working days
 			$year_240_sessions=toFixed(100*((floatval($temp_result['value'])/array_slice(array_values($arr),-240,1)[0])-1));  // 12x20 240 working days (356-(52*2 weekends) - 12 holidays)
-			echo "<br /> diff week $week_6_sessions% month $month_20_sessions% quarter $quarter_60_sessions% year $year_240_sessions%<br />";
-			if(abs($week_6_sessions)>9 || abs($month_20_sessions)>10 || abs($quarter_60_sessions) > 11 || abs($year_240_sessions) > 15){
-				$alerts.=substr($filename,0,5)." big-diff, ";
-				$alertsb.="<br /><br />".substr($filename,0,5)." big-diff week $week_6_sessions% month $month_20_sessions% quarter $quarter_60_sessions% year $year_240_sessions%<br />";
-			}			
+			echo "<br /> diff week $week_6_sessions% month $month_20_sessions% quarter $quarter_60_sessions% year $year_240_sessions%";
    
 			// calculate gold/death and %diff alert
 			$last_200=array_slice(array_values($arr),-200,200);
@@ -151,25 +147,28 @@ if(isset($_REQUEST['symbol'])){
 			$sma_200=array_sum($last_200)/count($last_200);
 			$sma_50=array_sum($last_50)/count($last_50);
 			$diff_percentage=($sma_50/$sma_200)-1;
-			echo "<br />sma_200=$sma_200 (".count($last_200).") sma_50=$sma_50(".count($last_50).") diff=$diff_percentage";
-			echo "<br />";
+			echo "<br />sma_200=$sma_200 sma_50=$sma_50 diff=$diff_percentage";
+			
+			if(abs($week_6_sessions)>9 || abs($month_20_sessions)>10 || abs($quarter_60_sessions) > 11 || abs($year_240_sessions) > 15){
+				$alerts.=substr($filename,0,5)." big-diff, ";
+				$alertsb.="<br /><br />".substr($filename,0,5)." big-diff week $week_6_sessions% month $month_20_sessions% quarter $quarter_60_sessions% year $year_240_sessions% sma_200=$sma_200 sma_50=$sma_50 diff=$diff_percentage <br />";
+			}
 			if($diff_percentage<0.019 && $diff_percentage>-0.01){
 				$alerts.=substr($filename,0,5)." cross-diff, ";
-				$alertsb.="<br /><br />".substr($filename,0,5)." cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
-				echo substr($filename,0,5)." cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
+				$alertsb.="<br /><br />".substr($filename,0,5)." cross-diff=".$diff_percentage." (>0 risk of deathcross!!)  sma_200=$sma_200 sma_50=$sma_50 diff=$diff_percentage<br />";
+				echo "<br />".substr($filename,0,5)." cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
 			}
 			$last_200a=array_slice(array_values($arr),-201,200);
 			$last_50a=array_slice($last_200,-51,50);
 			$sma_200a=array_sum($last_200a)/count($last_200a);
 			$sma_50a=array_sum($last_50a)/count($last_50a);
-			echo substr($filename,0,5)."<br />sma_200a=$sma_200a (".count($last_200).") sma_50a=$sma_50a(".count($last_50).")";
-			echo substr($filename,0,5)."<br />";
+			echo "<br />sma_200a=$sma_200a sma_50a=$sma_50a";
 			if(($sma_50-$sma_200)*($sma_50a-$sma_200a)<0){
 				$cross_type="DEATH";
 				if(($sma_50-$sma_200)>0){$cross_type="GOLDEN";}
 				$alerts.=substr($filename,0,5)." $cross_type CROSS, ";
-				$alertsb.="<br /><br /> <b>".substr($filename,0,5)." $cross_type CROSS</b>!!";
-				echo substr($filename,0,5)."<br /> <b>$cross_type CROSS</b>!!";
+				$alertsb.="<br /><br /> <b>".substr($filename,0,5)." $cross_type CROSS</b>!!  sma_200=$sma_200 sma_50=$sma_50 diff=$diff_percentage (just crossed)";
+				echo "<br />".substr($filename,0,5)."<br /> <b>$cross_type CROSS</b>!!";
 			}
 		}//else{
 		//	break;
@@ -178,7 +177,7 @@ if(isset($_REQUEST['symbol'])){
 		$arr_json_str=json_encode( $arr );
 
 		// update 
-		echo date('Y-m-d H:i:s')." updating json\n";
+		echo "<br />".date('Y-m-d H:i:s')." updating json\n";
 		$json_file = fopen($filename, "w") or die("Unable to open file $filename!");
 		fwrite($json_file, $arr_json_str);
 		fclose($json_file);
