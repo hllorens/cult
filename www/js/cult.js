@@ -555,7 +555,7 @@ function handle_live_challenges(ch_status) {
         dbRefChallengeKey=ch_status;
         dbRefChallenge.on('value', function(snapshot) {handle_challenge(snapshot.val());});
     }else{
-        console.log('ch_status undefined');
+        console.log('ch_status undefined. No games started with this user!');
     }
 }
 
@@ -1498,7 +1498,15 @@ function check_correct(clicked_answer,correct_answer,optional_msg){
 }
 
 
-
+function get_lifes_representation_rest(challenge){
+	var lifes_representation=[];
+    for (var u=0;u<challenge.usrs;u++){
+        if(u!=challenge.usrs.indexOf(session_data.usr){
+            lifes_representation[]=challenge.usrs[u]+'='+get_lifes_representation(challenge.lifes[u]);
+        }
+    }
+    return lifes_representation.join(', ');
+}
 
 
 function get_lifes_representation(lif){
