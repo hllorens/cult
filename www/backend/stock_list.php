@@ -101,7 +101,7 @@ function get_msn_quote($quote){
         return "fi-198.10.!IBEX";
     }
     if($quote_arr[0]=="INDEXSTOXX"){
-        $prefix="fi-221.10";
+        $prefix="fi-221.10"; //!SXSE
         return $prefix.".".$quote_arr[1];
     }
     if($quote_arr[0]=="INDEXNASDAQ"){
@@ -109,6 +109,9 @@ function get_msn_quote($quote){
     }
     if($quote_arr[0]=="INDEXSP"){
         return "fi-33.10.!SPX";
+    }
+    if($quote_arr[0]=="SHA" && $quote_arr[1]=="000300"){
+        return "fi-adfsxm"; //csi300
     }
     
     if($quote_arr[0]=="BME"){

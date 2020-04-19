@@ -20,9 +20,9 @@ echo $url_and_query."<br />";
 
     $response=preg_replace("/(\n|&nbsp;)/", " ", $response);
 //    $response=preg_replace("/react-text: 36 -->([^<]*)</", "\n1USD=$1\n", $response);
-    $response=preg_replace("/reactid=\"35\"[^>]*>([0-9][^<]*)</", "\n1USD=$1\n", $response);
+    $response=preg_replace("/reactid=\"33\"[^>]*>([0-9][^<]*)</", "\n1USD=$1\n", $response);
 //    $response=preg_replace("/react-text: 38 -->[-]?[0-9.]*\s*\(([^%]*)%/", "\n1curr_change=$1\n", $response);
-    $response=preg_replace("/reactid=\"36\"[^>]*>[-+]?[0-9.]+\s*\(([^%]*)%/", "\n1curr_change=$1\n", $response);
+    $response=preg_replace("/reactid=\"34\"[^>]*>[-+]?[0-9.]+\s*\(([^%]*)%/", "\n1curr_change=$1\n", $response);
     //$response=preg_replace("/1\s+USD\s+=\s+([^E]+)EUR[^\(]*\(([^%]*)%/", "\n1USD=$1\n1curr_change=$2\n", $response);
     //$response=preg_replace("/^[^1].*$/m", "", $response); // needs m to work
     //$response=preg_replace("/<[^>]*>/", "", $response);
