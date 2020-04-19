@@ -40,6 +40,11 @@ function get_details($cik,$debug=false){
 	}*/
     $response_arr = json_decode($response, true);
     if($debug) echo "aaa.<pre>".$response."</pre>";
+    $response_arr=$response_arr['directory']['item'];
+    
+    foreach ($item in $response_arr){
+        echo " ".$item['name']."<br />";
+    }
 
 	// investing quotes_summary_current_data and id="last_last"
 /*    preg_match("/id=\"last_last\"[^>]*>\s*([^<]*)</m", $response, $value);
@@ -78,7 +83,7 @@ function get_details($cik,$debug=false){
 	//$details['date']=date("Y-m-d H:i:s");
 */
 	
-	return $response_arr['driectory']['item'];
+	return $response_arr;
 }
 
 $debug=false;
