@@ -149,14 +149,14 @@ if(isset($_REQUEST['symbol'])){
 			$diff_percentage=($sma_50/$sma_200)-1;
 			echo "<br />sma_200=$sma_200 sma_50=$sma_50 diff=$diff_percentage";
 			
-			if(abs($week_6_sessions)>9 || abs($month_20_sessions)>10 || abs($quarter_60_sessions) > 11 || abs($year_240_sessions) > 15){
-				$alerts.=substr($filename,0,5)." big-diff, ";
-				$alertsb.="<br /><br />".substr($filename,0,5)." big-diff week $week_6_sessions% month $month_20_sessions% quarter $quarter_60_sessions% year $year_240_sessions% sma_200=$sma_200 sma_50=$sma_50 diff=$diff_percentage <br />";
+			if(abs($week_6_sessions)>9 || abs($month_20_sessions)>11 || abs($quarter_60_sessions) > 14 || abs($year_240_sessions) > 16){
+				$alerts.=substr($filename,0,5)." big-diff,  ";
+				$alertsb.="<br /><br />".substr($filename,0,5)." big-diff week $week_6_sessions% month $month_20_sessions% quarter $quarter_60_sessions% year $year_240_sessions% sma_200=$sma_200 sma_50=$sma_50 diff=$diff_percentage (very-low->buy,very-high->sell) <br />";
 			}
-			if($diff_percentage<0.019 && $diff_percentage>-0.01){
-				$alerts.=substr($filename,0,5)." cross-diff, ";
-				$alertsb.="<br /><br />".substr($filename,0,5)." cross-diff=".$diff_percentage." (>0 risk of deathcross!!)  sma_200=$sma_200 sma_50=$sma_50 diff=$diff_percentage<br />";
-				echo "<br />".substr($filename,0,5)." cross-diff=".$diff_percentage." (>0 risk of deathcross!!)<br />";
+			if($diff_percentage<0.019 && $diff_percentage>0){
+				$alerts.=substr($filename,0,5)." cross-diff,  ";
+				$alertsb.="<br /><br />".substr($filename,0,5)." cross-diff=".$diff_percentage." (risk of deathcross!!)  sma_200=$sma_200 sma_50=$sma_50<br />";
+				echo "<br />".substr($filename,0,5)." cross-diff=".$diff_percentage." (risk of deathcross!!)<br />";
 			}
 			$last_200a=array_slice(array_values($arr),-201,200);
 			$last_50a=array_slice($last_200,-51,50);
@@ -166,7 +166,7 @@ if(isset($_REQUEST['symbol'])){
 			if(($sma_50-$sma_200)*($sma_50a-$sma_200a)<0){
 				$cross_type="DEATH";
 				if(($sma_50-$sma_200)>0){$cross_type="GOLDEN";}
-				$alerts.=substr($filename,0,5)." $cross_type CROSS, ";
+				$alerts.=substr($filename,0,5)." $cross_type CROSS,  ";
 				$alertsb.="<br /><br /> <b>".substr($filename,0,5)." $cross_type CROSS</b>!!  sma_200=$sma_200 sma_50=$sma_50 diff=$diff_percentage (just crossed)";
 				echo "<br />".substr($filename,0,5)."<br /> <b>$cross_type CROSS</b>!!";
 			}
