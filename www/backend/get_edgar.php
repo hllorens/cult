@@ -42,9 +42,7 @@ function get_details($cik,$debug=false){
     if($debug) echo "aaa.<pre>".$response."</pre>";
     $response_arr=$response_arr['directory']['item'];
     
-    foreach ($item in $response_arr){
-        echo " ".$item['name']."<br />";
-    }
+
 
 	// investing quotes_summary_current_data and id="last_last"
 /*    preg_match("/id=\"last_last\"[^>]*>\s*([^<]*)</m", $response, $value);
@@ -86,6 +84,15 @@ function get_details($cik,$debug=false){
 	return $response_arr;
 }
 
+function get_filing(){
+	// if among files has "*.x10k.htm" then it is a 10k
+	// fb-12312019x10k.htm and that is indeed the only page that serves (3mb?) because the txt alternative is way bigger.. (x5 or so)
+	// the xml version is 1.9MB...
+	// hay tb un xlsx 
+	// hay hojas R Q PARECEN ÚTILES...
+	// R2 y R4 SON de lo más útiles a falta del número de acciones... habría q ver si están en todos... sino el xml será lo más práctico...
+}
+
 $debug=false;
 if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug']=="1")){
 	$debug=true;
@@ -95,7 +102,13 @@ if(isset($_REQUEST['cik'])){
 	$result=array();
 	echo "individual details for: (".$_REQUEST['cik'].")<br />";
 	$result=get_details($_REQUEST['cik'],$debug);
-	echo "<br />result:<br /><pre>".json_encode($result, JSON_PRETTY_PRINT)."</pre><br />";
+	if($debug) 
+		echo "<br />result:<br /><pre>".json_encode($result, JSON_PRETTY_PRINT)."</pre><br />";
+	foreach($result as $item){
+        echo " ".$item['name']."<br />";
+    }
+
+
 }else{
   echo "indicate cik=cik";
 }
