@@ -84,13 +84,44 @@ function get_details($cik,$debug=false){
 	return $response_arr;
 }
 
-function get_filing(){
-	// if among files has "*.x10k.htm" then it is a 10k
-	// fb-12312019x10k.htm and that is indeed the only page that serves (3mb?) because the txt alternative is way bigger.. (x5 or so)
-	// the xml version is 1.9MB...
-	// hay tb un xlsx 
-	// hay hojas R Q PARECEN ÚTILES...
-	// R2 y R4 SON de lo más útiles a falta del número de acciones... habría q ver si están en todos... sino el xml será lo más práctico...
+// if among files has "*.x10k.htm" then it is a 10k
+// fb-12312019x10k.htm and that is indeed the only page that serves (3mb?) because the txt alternative is way bigger.. (x5 or so)
+// the xml version is 1.9MB...
+// hay tb un xlsx 
+// hay hojas R Q PARECEN ÚTILES...
+// R2 y R4 SON de lo más útiles a falta del número de acciones... habría q ver si están en todos... sino el xml será lo más práctico...
+function is_10k($filing){
+	foreach($filing as $item){
+        //echo " ".$item['name']."<br />";
+		if(substr($item['name'], -8) === "x10k.htm"){return true;}
+	}	
+	return false;
+}
+function get_10k_name($filing){
+	foreach($filing as $item){
+        echo " ".$item['name']."<br />";
+		if(substr($item['name'], -8) === "x10k.htm"){return str_replace("x10k.htm", "", $item['name']);}
+	}	
+	return false;
+}
+
+
+function get_revenue($url,$debug=false){
+	$details=array();
+	$url_and_query="https://www.sec.gov/Archives/edgar/data/".$url;
+    echo "stock $url_and_query<br />";
+    $curl = curl_init();
+    curl_setopt( $curl, CURLOPT_URL, $url_and_query );
+	curl_setopt($curl,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13'); // help needed for investing
+    curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true ); // save in variable, no stdout
+    $response = curl_exec( $curl ); //utf8_decode( not necessary
+    curl_close( $curl );
+	$xml = simplexml_load_string($response, "SimpleXMLElement", LIBXML_NOCDATA);
+	$json = json_encode($xml);
+	$response_arr = json_decode($json,true);
+	//if($debug) 
+		echo "aaa.<pre>".$response."</pre>";
+    //$response_arr=$response_arr['directory']['item'];
 }
 
 $debug=false;
@@ -101,12 +132,22 @@ if( isset($_REQUEST['debug']) && ($_REQUEST['debug']=="true" || $_REQUEST['debug
 if(isset($_REQUEST['cik'])){
 	$result=array();
 	echo "individual details for: (".$_REQUEST['cik'].")<br />";
-	$result=get_details($_REQUEST['cik'],$debug);
+	$result=get_details($_REQUEST['cik'], $debug);
 	if($debug) 
 		echo "<br />result:<br /><pre>".json_encode($result, JSON_PRETTY_PRINT)."</pre><br />";
 	foreach($result as $item){
-        echo " ".$item['name']."<br />";
-    }
+        //echo " ".$item['name']."<br />";
+		$filing=get_details($_REQUEST['cik']."/".$item['name'],$debug);
+		if(is_10k($filing)){
+			echo "it is a 10k!!<br />";
+			$basename=get_10k_name($filing);
+			echo "revenue=".get_revenue($_REQUEST['cik']."/".$item['name']."/".$basename."x10k_htm.xml",$debug);
+			break;
+		}else{
+			echo "    not a 10k<br />";
+		}
+		sleep(0.10);
+	}
 
 
 }else{
