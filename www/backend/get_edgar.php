@@ -106,6 +106,36 @@ function get_10k_name($filing){
 }
 
 
+// XML size is ok, html might be as well, thing is we need to see how to parse that, 
+Edit:
+0
+
+try item->children('edgar', true)->... to parse them. I think that will allow you to use simplexml. The edgar: is called namespacing, and is used quite a bit with xml files. I had the same issue a while back and this fixed it for me,
+Do I need to register all the namespace in the file? How could I get startDate and endDate infor?
+
+No you only have to register the namespaces you need i.e. http://www.xbrl.org/2003/instance
+
+$xmldoc = new DOMDocument();
+$xmldoc->load("http://www.sec.gov/Archives/edgar/data/27419/000110465911031717/tgt-20110430.xml");
+$xpath = new DOMXPath($xmldoc);
+$xpath->registerNamespace("xbrli", "http://www.xbrl.org/2003/instance");
+$nodelist = $xpath->query("/xbrli:xbrl/xbrli:context[@id='D2010Q1']/xbrli:period"); // much faster than //xbrli:context and //xbrli:startDate
+if($nodelist->length === 1)
+{
+    $period = $nodelist->item(0);
+    $nodelist = $xpath->query("xbrli:startDate", $period);
+    $startDate = $nodelist->length === 1 ? $nodelist->item(0)->nodeValue : null;
+    $nodelist = $xpath->query("xbrli:endDate", $period);
+    $endDate = $nodelist->length === 1 ? $nodelist->item(0)->nodeValue : null;
+    printf("%s<br>%s", $startDate, $endDate);
+}
+else
+    ; // not found or more than one <xbrli:context id='D2010Q1'><xbrli:period>
+
+You'll need to register the xbrli namespace as well, similar to what you've done with us-gaap. From WikiPedia I found this xmlns:xbrli="http://www.xbrl.org/2003/instance"
+
+
+
 function get_revenue($url,$debug=false){
 	$details=array();
 	$url_and_query="https://www.sec.gov/Archives/edgar/data/".$url;
@@ -120,7 +150,7 @@ function get_revenue($url,$debug=false){
 	$json = json_encode($xml);
 	$response_arr = json_decode($json,true);
 	//if($debug) 
-		echo "aaa.<pre>".$response."</pre>";
+		echo "aaa.<pre>".$json."</pre>";
     //$response_arr=$response_arr['directory']['item'];
 }
 
