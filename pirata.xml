@@ -51,7 +51,7 @@
             Palete
             back or 111
             dark brown 654 or 816249 or 533114 or 
-            light brown eeccb1 or D4B59C
+            light brown eeccb1 or D4B59C or FDB
                         brown alternative B59B86 and 514134
             then white and gray...
         */
@@ -147,7 +147,7 @@
         }
         
         .post{
-            background:#eeccb1; /* or eee or eeccb1 D4B59C  F4E0D0*/
+            background:#fdb; /* or eee or eeccb1 D4B59C  F4E0D0*/
             margin-bottom: 5px;
             padding: 5px;
             display:inline-block;
@@ -171,6 +171,7 @@
         }
         .post-body img {
             margin:20px 0px;
+            /*border: 3px solid #654; si hacemos esto no puede haber transparetes como la de mapa*/
         }
         .post-body p {
             text-align:justify;
