@@ -166,9 +166,16 @@
             padding: 20px 10px 0 10px;
         }
         .post-body{
-            padding: 5px 15px;text-align:justify;
+            padding: 15px 35px;
+            text-align:justify;
         }
-        
+        .post-body img {
+            margin:20px 0px;
+        }
+        .post-body p {
+            text-align:justify;
+            margin-top:10px;
+        }
         
         .comments{
             background: #ccc;
@@ -280,6 +287,7 @@
             }
             .post-body{
                 font-size:0.9em;
+                padding: 5px 15px;
             }
             .post-body img {
                 max-width:90%;
