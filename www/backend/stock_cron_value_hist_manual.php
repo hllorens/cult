@@ -31,8 +31,8 @@ require_once 'stock_list.php';
 
 $the_url=""; //fi-199.1.SGRE.MCE (the number depends on the country)
 
-
-$url_and_query="https://finance.yahoo.com/quote/".get_yahoo_quote($_REQUEST['symbol'])."/history?period1=1354316400&period2=1519426800&interval=1mo&filter=history&frequency=1mo"; //get_msn_quote($the_url_query_arr[$current_num_to_curl]);
+// since 2012 monthly, reduced to yearly... (with high-low)
+$url_and_query="https://finance.yahoo.com/quote/".get_yahoo_quote($_REQUEST['symbol'])."/history?period1=1354316400&period2=".time()."&interval=1mo&filter=history&frequency=1mo"; //get_msn_quote($the_url_query_arr[$current_num_to_curl]);
 echo "<br />stock $url_and_query<br />";
 $curl = curl_init();
 curl_setopt( $curl, CURLOPT_URL, $url_and_query );
