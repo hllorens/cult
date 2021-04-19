@@ -1,0 +1,122 @@
+<html>
+<head>
+<style>
+html, body {
+   margin: 0;
+   height: 100%;
+}
+#c {
+   width: 100%;
+   height: 100%;
+   display: block;
+}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+</body>
+<!-- COORS ERROR <script type="module" src="pirata3d.js"></script>-->
+<script src="js/objects.js" ></script> <!-- this works but does not allow modules -->
+<script type="module">
+import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r112/build/three.module.js';
+//import { createGridHelp } from 'file:///C:/cygwin/home/Hector_Llorens/cult/pirata3d/js/objects.js';
+
+// let camera; do we need this to be global? should we create an object wrapper?
+
+function init() {
+  const canvas = document.querySelector('#c');
+  const renderer = new THREE.WebGLRenderer({canvas});
+
+  const fov = 75;
+  const aspect = 2;  // the canvas default
+  const near = 0.1;
+  const far = 5;
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  camera.position.z = 2;
+
+  const scene = new THREE.Scene();
+
+  {
+    const color = 0xFFFFFF;
+    const intensity = 1;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(-1, 2, 4);
+    scene.add(light);
+  }
+
+  const boxWidth = 1;
+  const boxHeight = 1;
+  const boxDepth = 1;
+  const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+
+  function makeInstance(geometry, color, x) {
+    const material = new THREE.MeshPhongMaterial({color});
+
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+
+    cube.position.x = x;
+
+    return cube;
+  }
+
+  const cubes = [
+    makeInstance(geometry, 0x44aa88,  0),
+    makeInstance(geometry, 0x8844aa, -2),
+    makeInstance(geometry, 0xaa8844,  2),
+  ];
+
+
+  function resizeRendererToDisplaySize(renderer) {
+    const canvas = renderer.domElement;
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if (needResize) {
+      renderer.setSize(width, height, false);
+    }
+    return needResize;
+  }
+
+
+  function render(time) {
+    time *= 0.001;
+
+    if (resizeRendererToDisplaySize(renderer)) {
+      const canvas = renderer.domElement;
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+      // renderer.setsize is in the resizerenderer function...
+    }
+
+    cubes.forEach((cube, ndx) => {
+      const speed = 1 + ndx * .1;
+      const rot = time * speed;
+      cube.rotation.x = rot;
+      cube.rotation.y = rot;
+    });
+
+    renderer.render(scene, camera);
+
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+}
+
+/*function onWindowResize() {
+
+  camera.aspect = canvas.clientWidth / canvas.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize( canvas.clientWidth, canvas.clientHeight, false );
+
+}
+window.addEventListener( 'resize', onWindowResize );
+*/
+
+
+init();
+
+</script>
+
+</html>

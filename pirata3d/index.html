@@ -1,122 +1,321 @@
 <html>
 <head>
 <style>
-html, body {
-   margin: 0;
-   height: 100%;
-}
-#c {
-   width: 100%;
-   height: 100%;
-   display: block;
+{
+    margin:0;
+    padding:0;
 }
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
-</body>
-<!-- COORS ERROR <script type="module" src="pirata3d.js"></script>-->
-<script src="js/objects.js" ></script> <!-- this works but does not allow modules -->
+
+
 <script type="module">
-import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r112/build/three.module.js';
-//import { createGridHelp } from 'file:///C:/cygwin/home/Hector_Llorens/cult/pirata3d/js/objects.js';
+import * as THREE from "https://threejs.org/build/three.module.js";
+import {OrbitControls} from "https://threejs.org/examples/jsm/controls/OrbitControls.js";
+import {Sky} from "https://threejs.org/examples/jsm/objects/Sky.js";
+import {Water} from "https://threejs.org/examples/jsm/objects/Water.js";
+import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 
-// let camera; do we need this to be global? should we create an object wrapper?
-
-function init() {
-  const canvas = document.querySelector('#c');
-  const renderer = new THREE.WebGLRenderer({canvas});
-
-  const fov = 75;
-  const aspect = 2;  // the canvas default
-  const near = 0.1;
-  const far = 5;
-  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-  camera.position.z = 2;
-
-  const scene = new THREE.Scene();
-
-  {
-    const color = 0xFFFFFF;
-    const intensity = 1;
-    const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(-1, 2, 4);
-    scene.add(light);
-  }
-
-  const boxWidth = 1;
-  const boxHeight = 1;
-  const boxDepth = 1;
-  const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
-
-  function makeInstance(geometry, color, x) {
-    const material = new THREE.MeshPhongMaterial({color});
-
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
-
-    cube.position.x = x;
-
-    return cube;
-  }
-
-  const cubes = [
-    makeInstance(geometry, 0x44aa88,  0),
-    makeInstance(geometry, 0x8844aa, -2),
-    makeInstance(geometry, 0xaa8844,  2),
-  ];
-
-
-  function resizeRendererToDisplaySize(renderer) {
-    const canvas = renderer.domElement;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-    const needResize = canvas.width !== width || canvas.height !== height;
-    if (needResize) {
-      renderer.setSize(width, height, false);
-    }
-    return needResize;
-  }
-
-
-  function render(time) {
-    time *= 0.001;
-
-    if (resizeRendererToDisplaySize(renderer)) {
-      const canvas = renderer.domElement;
-      camera.aspect = canvas.clientWidth / canvas.clientHeight;
-      camera.updateProjectionMatrix();
-      // renderer.setsize is in the resizerenderer function...
-    }
-
-    cubes.forEach((cube, ndx) => {
-      const speed = 1 + ndx * .1;
-      const rot = time * speed;
-      cube.rotation.x = rot;
-      cube.rotation.y = rot;
-    });
-
-    renderer.render(scene, camera);
-
-    requestAnimationFrame(render);
-  }
-
-  requestAnimationFrame(render);
-}
-
-/*function onWindowResize() {
-
-  camera.aspect = canvas.clientWidth / canvas.clientHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize( canvas.clientWidth, canvas.clientHeight, false );
-
-}
-window.addEventListener( 'resize', onWindowResize );
-*/
-
+var scene, camera, renderer, controls, box, box2, box3,box4,plane,sun,moon,water, updateSun, light, lhelper,hemiLight,sky2, gui;
+var mouse, raycaster, isShiftDown = false;
+const parameters = {
+					inclination: -0.12,  // 0 90º (summer finland) and 0.5 plane limit (0º finland)
+                             // spain it might be from 80 to 60
+					azimuth: 0.5     // initial position 0 to 0.5
+				};
 
 init();
 
+function init(){
+  moon=false;
+
+  
+  scene = new THREE.Scene();
+  sun = new THREE.Vector3();
+  //scene.background = new THREE.Color(0x333333);
+   //   var gridHelper = new THREE.GridHelper( 50, 50 );
+    //scene.add( gridHelper );
+  const geometry = new THREE.BoxGeometry(1,1,1);
+  const geometry3 = new THREE.BoxGeometry(1,3,1);
+  const geometry2 = new THREE.BoxGeometry(1,1,1);
+  const plane_geo = new THREE.PlaneGeometry(12,12,2);
+  const material = new THREE.MeshStandardMaterial({color:new THREE.Color('skyblue'),roughness:0.4, metalness:0});
+  const material3 = new THREE.MeshStandardMaterial({color:new THREE.Color('skyblue'),roughness:0.4, metalness:0});
+  // ,roughness:0.4, metalness:0
+  const material2 = new THREE.MeshStandardMaterial({color: 0x244574,roughness:0, metalness:0});
+  plane=new THREE.Mesh(plane_geo,material2);
+
+  plane.rotation.x=(- Math.PI /2);
+  plane.position.y=0.1
+  plane.receiveShadow=true;
+  scene.add(plane);
+  box = new THREE.Mesh(geometry3, material3);
+  box.position.z=0.5;
+  box.position.y=0.5;
+  box.castShadow=true;
+  scene.add(box);
+  box2 = new THREE.Mesh(geometry, material);
+  box2.position.x = -1.5;
+  box2.position.y = 0.5;
+  box2.castShadow=true;
+  box2.receiveShadow=true;
+  scene.add(box2);
+  box3 = new THREE.Mesh(geometry2, material);
+  box3.position.x = 1.5;
+  box3.position.y = 0.5;
+  scene.add(box3);
+  
+  light = new THREE.DirectionalLight({color:0xffffff,intensity:1,castShadow:true});
+  //{color:0xffffff,intensity:1,castShadow:true}
+  light.castShadow=true;
+  light.position.set(10,3,3);
+  scene.add(light);
+  lhelper = new THREE.DirectionalLightHelper( light, 1 );
+ scene.add( lhelper );
+  
+  //const light2 = new THREE.AmbientLight(0xaaaaaa,0.5);
+  //scene.add(light2);
+  
+  // add hemi lights
+  hemiLight = new THREE.HemisphereLight( 0xeeeeee, 0xccccff, 0.25 );
+  hemiLight.color.setHSL( 0.6, 1, 0.6 );
+  hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+  hemiLight.position.set( 0, 500, 0 );
+  scene.add( hemiLight );
+  
+  //scene.fog = new THREE.Fog(0x222233, 0, 20000); // no va
+  //renderer.setClearColor( scene.fog.color, 1 );
+  
+  
+				// Water
+
+				const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
+
+				water = new Water(
+					waterGeometry,
+					{
+						textureWidth: 512,
+						textureHeight: 512,
+						waterNormals: new THREE.TextureLoader().load( 'https://threejs.org/examples/textures/waternormals.jpg', function ( texture ) {
+
+							texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+						} ),
+						sunDirection: new THREE.Vector3(),
+						sunColor: 0xffffff,
+						waterColor: 0x001e0f,
+						distortionScale: 3.7,
+						fog: scene.fog !== undefined
+					}
+				);
+
+				water.rotation.x = - Math.PI / 2;
+
+				scene.add( water );
+  
+  				// Skybox
+
+				sky2 = new Sky();
+				sky2.scale.setScalar( 10000 );
+				scene.add( sky2 );
+
+				const skyUniforms = sky2.material.uniforms; 
+
+        // understand these params to avoid completely white light
+				skyUniforms[ 'turbidity' ].value = 5;  // maybe more when assimuth is low
+				skyUniforms[ 'rayleigh' ].value = 2; // default 2
+				skyUniforms[ 'mieCoefficient' ].value = 0.005;
+				skyUniforms[ 'mieDirectionalG' ].value = 0.8; // better lower when high
+
+				
+
+				//const pmremGenerator = new THREE.PMREMGenerator( renderer );
+
+				updateSun=function() {
+
+					const theta = Math.PI * ( parameters.inclination - 0.5 );
+					const phi = 2 * Math.PI * ( parameters.azimuth - 0.5 );
+
+					sun.x = Math.cos( phi );
+					sun.y = Math.sin( phi ) * Math.sin( theta );
+					sun.z = Math.sin( phi ) * Math.cos( theta );
+          
+        /*  if (parameters.azimuth>0.2 && parameters.azimuth<0.3){
+            sky2.material.uniforms[ 'rayleigh' ] = 0.5;
+        }*/
+          
+					sky2.material.uniforms[ 'sunPosition' ].value.copy( sun );
+					water.material.uniforms[ 'sunDirection' ].value.copy( sun ).normalize();
+
+					//scene.environment = pmremGenerator.fromScene( sky2 ).texture;
+
+				}
+
+				updateSun();
+
+  
+  
+  
+  camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+  camera.position.z = -3;
+  camera.position.y = 3;
+  
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize( window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true; //Shadow
+  //renderer.shadowMapSoft = true; // Shadow
+  //renderer.shadowMap.type = THREE.PCFShadowMap; //Shadow
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap; // to antialias the shadow
+  //renderer.shadowMapCullFace = THREE.CullFaceBack; //Shadow
+  document.body.appendChild( renderer.domElement );
+  window.addEventListener( 'resize', onResize, false);
+  
+
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2();  
+  
+        //renderer.domElement.addEventListener('dblclick', onShiftMouseDown, false);
+        renderer.domElement.addEventListener('click', onShiftMouseDown, false);
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.maxPolarAngle = Math.PI / 2.1;
+        //controls.enabled = false;
+        //renderer.domElement.addEventListener('mousedown', onShiftMouseDown, false); // only works if controls.enabled = false probably because controls overwrite the capture and prevent other events...
+        //controls.enableDamping = true; // smoothing... not needed
+        //controls.addEventListener('mousedown', onShiftMouseDown, false);
+        //controls.addEventListener('change', renderer); // remove when using loop
+        //controls.minDistance = 1;
+        //controls.maxDistance = 1500;
+  
+  				// GUI
+
+				gui = new GUI();
+
+				const folderSky = gui.addFolder( 'Sky' );
+				folderSky.add( parameters, 'inclination', -0.50, 0.15, 0.0001 ).onChange( updateSun ); // modified by day of the year (Jun 24 max inclination/elevation vs Dec 24 min elevation)
+				folderSky.add( parameters, 'azimuth', -0.20, 0.60, 0.0001 ).onChange( updateSun ); 				//folderSky.add( parameters, 'rayleigh', -0.1, 3, 2 ).onChange( updateSun ); // modified by hour of the day
+				folderSky.open();
+  updateAzimuth();
+  update();
+}
+
+function updateAzimuth(){
+    // default sun position current
+  // summer 15h 6:60 a 21:30 (central hour 14h)
+  // winter 9h  8:30 a 17:30 (central hour 13h)
+  const date = new Date;
+  const minutes = date.getMinutes();
+  let hour = date.getHours();
+  const month = date.getMonth()+1; // beware: January = 0; February = 1, etc.
+  const min_h=9;  // dec
+  const max_h=15; // jun
+  const max_inclination=-0.3;
+  const min_inclination=-0.12;
+  // abs(6 - month)
+  let month_diff_length=(max_h-min_h)/6;
+  let month_diff_inclination=Math.abs(max_inclination-min_inclination)/6;
+  let month_h=max_h-Math.abs(6-month)*month_diff_length;
+  let month_inclination=min_inclination-Math.abs(6-month)*month_diff_inclination;
+  parameters.inclination=month_inclination;
+  let hour_length=0.25/(month_h/2);
+  const azimuth_diff=0.25+hour_length*(13-hour);
+  parameters.azimuth=azimuth_diff;
+  for (var i = 0; i < Object.keys(gui.__folders).length; i++) {
+    var key = Object.keys(gui.__folders)[i];
+    for (var j = 0; j < gui.__folders[key].__controllers.length; j++ )
+    {
+        gui.__folders[key].__controllers[j].updateDisplay();
+    }
+  }
+}
+
+
+function update(){
+  //box.rotation.y += 0.001;
+  //parameters.azimuth-=0.001;
+  //light must follow azimuth, if azimuth=0.25 light must be x=0, if lower more negative
+  //updateAzimuth();
+  light.position.x=(parameters.azimuth-0.25)*100;
+  //light.position.y=10*(1+parameters.inclination*1.52)-Math.abs(parameters.azimuth-0.25)*22;
+  // 0.5 midday and 2 sunset
+  sky2.material.uniforms[ 'rayleigh' ].value=0.5+Math.abs(parameters.azimuth-0.25)*6;
+  if(parameters.azimuth<-0.01 || parameters.azimuth>0.51){
+    // night mode
+    light.intensity=0.05; // (use that of fake moon)
+    hemiLight.intensity=0.05;
+    if(moon==false){
+      console.log("hola");
+let geometry = new THREE.SphereGeometry( 25, 32, 32 );
+const material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+const sphere = new THREE.Mesh( geometry, material );
+scene.add( sphere );
+   geometry=   new THREE.BoxGeometry(1,1,1);
+  box4 = new THREE.Mesh(geometry, material);
+  box4.position.copy(light.position);
+  
+  box4.castShadow=true;
+  box4.receiveShadow=true;
+  scene.add(box4); 
+      renderer.render(scene,camera);
+      
+    moon=true;
+  }
+    /*if(parameters.azimuth<-0.5){
+      parameters.azimuth=0.5;
+      light.position.set(10,3,3);
+    }*/
+  }else{
+    moon=false;
+    scene.remove(box4);
+    renderer.render(scene,camera);
+    light.intensity=1; // (use that of fake moon)
+    hemiLight.intensity=0.25;
+  }
+  updateSun();
+  water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
+  lhelper.update();
+  //box2.rotation.y -= 0.01;
+  //box3.rotation.y -= 0.01;
+	renderer.render( scene, camera );
+  //controls.enabled = false;
+  
+    setTimeout( function() {
+       requestAnimationFrame( update );
+    }, 1000 / 30 );   // 1000/10=10 fps
+
+}
+
+function onResize(){
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize( window.innerWidth, window.innerHeight );
+}
+
+function onShiftMouseDown( event ) {
+    console.log('my-func'+Math.random()*10);
+    event.preventDefault();
+    if ( event.shiftKey ) {  // standard domEvent property
+      console.log('click-shift');
+        mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+        raycaster.setFromCamera( mouse, camera );
+        const intersects = raycaster.intersectObjects( scene.children );
+        if ( intersects.length > 0 ) {
+            //controls.enabled = false;
+            var intersect = intersects[ 0 ];
+            console.log(intersect.object.material.color.getHexString());
+            intersect.object.material.color.setHex(Math.random() * 0xffffff);
+            
+        }
+        // render(); only if you don't update
+    } else {
+          //controls.enabled = true;
+        // let orbit work
+        //return; // not necessary
+    }
+}
 </script>
+</body>
 
 </html>
