@@ -17,12 +17,66 @@ import {Sky} from "https://threejs.org/examples/jsm/objects/Sky.js";
 import {Water} from "https://threejs.org/examples/jsm/objects/Water.js";
 import { GUI } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 
-var scene, camera, renderer, controls, box, box2, box3,box4,plane,sun,moon,water, updateSun, light, lhelper,hemiLight,sky2, gui;
+import { Geometry } from 'https://threejs.org/examples/jsm/deprecated/Geometry.js';
+
+
+
+// load OBJECTS
+//import { TGALoader } from 'https://threejs.org/examples/jsm/loaders/TGALoader.js';
+import { DDSLoader } from 'https://threejs.org/examples/jsm/loaders/DDSLoader.js';
+import { MTLLoader } from 'https://threejs.org/examples/jsm/loaders/MTLLoader.js';
+import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
+import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
+
+
+/*
+// Rain
+THREE.ShaderLib['rain'] = {
+
+	uniforms: {
+    texture: { type: 't', value: null }
+  },
+  
+	vertexShader: [
+    'attribute vec3 color;',
+
+    'varying vec3 vColor;',
+
+    'void main() {',
+    '  vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );',
+
+    '  vColor = color;',
+
+    '  gl_PointSize = 50.0 * abs( modelViewMatrix[1].y );',
+    '  gl_Position = projectionMatrix * mvPosition;',
+    '}'
+	].join( '\n' ),
+  
+	fragmentShader: [
+    'uniform sampler2D texture;',
+
+    'varying vec3 vColor;',
+
+    'void main() {',
+    '  vec4 startColor = vec4( vColor, 1.0 );',
+    '  vec4 finalColor;',
+    '  gl_FragColor = texture2D( texture, gl_PointCoord );',
+    '}'
+	].join( '\n' )
+  
+};*/
+
+
+
+var scene, camera, renderer, controls, box, box2, box3,box4,plane,sun,moon,water, updateSun, light, lhelper,hemiLight,sky2, gui, car, ship;
 var mouse, raycaster, isShiftDown = false;
 const parameters = {
 					inclination: -0.12,  // 0 90º (summer finland) and 0.5 plane limit (0º finland)
                              // spain it might be from 80 to 60
-					azimuth: 0.5     // initial position 0 to 0.5
+					azimuth: 0.5,     // initial position 0 to 0.5
+          camx: 6.6, //13.5
+          camy:2.5,   //4.3
+          camz:-4  //1.23
 				};
 
 init();
@@ -48,21 +102,23 @@ function init(){
 
   plane.rotation.x=(- Math.PI /2);
   plane.position.y=0.1
+  plane.position.x=12
   plane.receiveShadow=true;
   scene.add(plane);
   box = new THREE.Mesh(geometry3, material3);
+  box.position.x = 10;
   box.position.z=0.5;
   box.position.y=0.5;
   box.castShadow=true;
   scene.add(box);
   box2 = new THREE.Mesh(geometry, material);
-  box2.position.x = -1.5;
+  box2.position.x = 8.5;
   box2.position.y = 0.5;
   box2.castShadow=true;
   box2.receiveShadow=true;
   scene.add(box2);
   box3 = new THREE.Mesh(geometry2, material);
-  box3.position.x = 1.5;
+  box3.position.x = 11.5;
   box3.position.y = 0.5;
   scene.add(box3);
   
@@ -114,6 +170,10 @@ function init(){
 
 				scene.add( water );
   
+
+  
+  
+  
   				// Skybox
 
 				sky2 = new Sky();
@@ -124,7 +184,7 @@ function init(){
 
         // understand these params to avoid completely white light
 				skyUniforms[ 'turbidity' ].value = 5;  // maybe more when assimuth is low
-				skyUniforms[ 'rayleigh' ].value = 2; // default 2
+				skyUniforms[ 'rayleigh' ].value = 2; // default 2 (white fog shiny)
 				skyUniforms[ 'mieCoefficient' ].value = 0.005;
 				skyUniforms[ 'mieDirectionalG' ].value = 0.8; // better lower when high
 
@@ -156,11 +216,181 @@ function init(){
 
   
   
+  				// model
+
+		/*		const onProgress = function ( xhr ) {
+
+					if ( xhr.lengthComputable ) {
+
+						const percentComplete = xhr.loaded / xhr.total * 100;
+						console.log( Math.round( percentComplete, 2 ) + '% downloaded' );
+
+					}
+
+				};
+
+				const onError = function () { };
+
+				const manager = new THREE.LoadingManager();
+		*/
+		/*var log = function( message, type, timeout ) {
+			console.log( message );
+			messg( message, type, timeout );
+		}
+		
+		var delay = 1500;
+		manager.onProgress = function( item, loaded, total ) {
+			log( 'Loaded ' + loaded + '/' + total + ':' + item, 'info', delay );
+		};
+		manager.onLoad = function () {
+			log( 'Loaded.', 'success', delay );
+		};
+		manager.onError = function () {
+			log( 'Loading error.', 'error', delay );
+		}; */ 
+//  let ms_ImageLoader = new THREE.ImageLoader( manager);
+  
+        // dds textures
+
+  
+    //Load meshes here
+ /* const loader = new GLTFLoader();
+  loader.setPath('https://s3-us-west-2.amazonaws.com/s.cdpn.io/2666677/');
+  loader.load('Low-Poly-Racing-Car.glb', object => {
+    object.scene.traverse(child => {
+      if (child.isMesh) child.castShadow=child.receiveShadow=true; 
+    });
+    car = new THREE.Object3D();
+    car.add(object.scene.children[0]);
+    car.position.z=3;
+    car.position.y=-0.15;
+    scene.add(car);
+  //  scene.add(object.scene);
+  });
+  */
+  
+    const loader2 = new GLTFLoader();
+  loader2.setPath('https://cognitionis3.000webhostapp.com/pirate_ship/');
+  
+  //loader2.setPath('https://cognitionis.com/pirate_ship/');
+  // TODO: solve the CORS issue!!!!!!!!!!!!!!!!!
+  
+  //  loader2.load('pirate_ship.glb', object => {
+  loader2.load('pirate_ship.glb', object => {
+    /*object.scene.traverse(child => {
+      if (child.isMesh) child.castShadow=child.receiveShadow=true; 
+    });*/
+    ship = new THREE.Object3D();
+    ship.add(object.scene.children[0]);
+    ship.scale.set(0.0015,0.0015,0.0015);
+    ship.position.z=0;
+    ship.position.y=0.5;
+    ship.rotation.y=Math.PI/2;
+    
+    scene.add(ship);
+  });
+  
+				/*
+				manager.addHandler( /\.dds$/i, new DDSLoader() );
+       
+        new MTLLoader( manager )
+          .setPath( 'https://threejs.org/examples/models/obj/male02/' )
+					.load( 'male02_dds.mtl', function ( materials ) {
+						materials.preload();
+             //male02.obj
+						new OBJLoader( manager )
+							.setMaterials( materials )
+							.setPath( 'https://threejs.org/examples/models/obj/male02/' )
+							.load( 'male02.obj', function ( object ) {
+                object.scale.set(0.02,0.02,0.02);
+                object.position.y =0;
+								scene.add( object );
+							}, onProgress, onError );
+
+					} );*/
+  
+  
+  
+
+        /*
+  				// import TGALoader if your asset uses TGA textures
+				manager.addHandler( /\.tga$/i, new TGALoader() );
+  
+         //http://cognitionis.com/fft-ocean-master/models/BlackPearl/
+  
+  				new MTLLoader( manager )
+          .setPath( 'http://jbouny.github.io/fft-ocean/models/BlackPearl/' )
+					.load( 'BlackPearl.mtl', function ( materials ) {
+						materials.preload();
+						new OBJLoader( manager )
+							.setMaterials( materials )
+							.setPath( 'http://jbouny.github.io/fft-ocean/models/BlackPearl/' )
+							.load( 'BlackPearl.obj', function ( object ) {
+                object.scale.set(2,2,2);
+                object.position.y =4;
+                if( object.children ) {
+                  for( child in object.children ) {
+                    object.children[child].material.side = THREE.DoubleSide;
+                  }
+                }
+              
+								scene.add( object );
+
+							}, onProgress, onError );
+
+					} );
+  */
+    /*		// Add rain
+		{
+			var size = 128;
+			var rainTexture = new THREE.Texture();
+			rainTexture.generateMipmaps = false;
+			rainTexture.magFilter = THREE.LinearFilter;
+			rainTexture.minFilter = THREE.LinearFilter;
+			ms_ImageLoader.load( 'http://jbouny.github.io/fft-ocean/img/water-drop.png', function ( image ) {
+					rainTexture.image = image;
+					rainTexture.needsUpdate = true;
+			} );
+
+			var rainShader = THREE.ShaderLib['rain'];
+
+			var rainMaterial = new THREE.ShaderMaterial({
+				fragmentShader: rainShader.fragmentShader,
+				vertexShader: rainShader.vertexShader,
+				uniforms: rainShader.uniforms,
+				transparent: true,
+				depthWrite: false
+			});
+			rainMaterial.uniforms.texture.value = rainTexture;
+
+			let ms_RainGeometry = new Geometry();
+			for ( var i = 0; i < 100; i++ )
+			{
+				var vertex = new THREE.Vector3();
+				vertex.x = Math.random() * 2.0 * size - size;
+				vertex.y = Math.random() * 2.0 * size - size;
+				vertex.z = Math.random() * size - size * 0.5;
+				ms_RainGeometry.vertices.push( vertex );
+			}
+			let ms_Rain = new THREE.Points( ms_RainGeometry, rainMaterial );
+			//this.ms_Camera.add( this.ms_Rain );
+			ms_Rain.position.setZ( - size * 0.75 ) ;
+      //scene.add(ms_Rain);
+		}
+  */
+  // clouds
+  
+  
+  
   
   camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
-  camera.position.z = -3;
-  camera.position.y = 3;
+  camera.position.z = parameters.camz;
+  camera.position.y = parameters.camy;
+  camera.position.x = parameters.camx;
+
+//const chelper = new THREE.CameraHelper( camera );
+//scene.add( chelper );  
   
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize( window.innerWidth, window.innerHeight);
@@ -196,9 +426,26 @@ function init(){
 				folderSky.add( parameters, 'inclination', -0.50, 0.15, 0.0001 ).onChange( updateSun ); // modified by day of the year (Jun 24 max inclination/elevation vs Dec 24 min elevation)
 				folderSky.add( parameters, 'azimuth', -0.20, 0.60, 0.0001 ).onChange( updateSun ); 				//folderSky.add( parameters, 'rayleigh', -0.1, 3, 2 ).onChange( updateSun ); // modified by hour of the day
 				folderSky.open();
+  
+  
+ 				const folderCam = gui.addFolder( 'Cam' );
+				folderCam.add( parameters, 'camx', 10, 100, 1 ).onChange( updateCam ); 
+				folderCam.add( parameters, 'camy', 2, 40, 1 ).onChange( updateCam );
+				folderCam.add( parameters, 'camz', -100, 100, 1 ).onChange( updateCam );
+				folderCam.open();
+  
+  
   updateAzimuth();
   update();
 }
+
+function updateCam(){
+  camera.position.set(parameters.camx,parameters.camy,parameters.camz)
+  camera.lookAt( -20, Math.min(parameters.camy,20), 0 );
+  //camera.lookAt( ship );
+  camera.up.set( 0, 1, 0 );
+}
+
 
 function updateAzimuth(){
     // default sun position current
@@ -232,6 +479,14 @@ function updateAzimuth(){
 
 
 function update(){
+  if (ship){
+   var currentTime = new Date().getTime();
+    // TODO amplitud del rotation y debe variar segun el tiempo (con limite)
+    // TODO la rotation.x tb debe viarar segun eso con menos limite
+   ship.rotation.y = Math.cos( currentTime * 0.0008 ) * 0.05 +Math.PI/2; 
+   ship.rotation.x = Math.sin( currentTime * 0.001154 + 0.78 ) * 0.1 + 0.05;
+  }
+  
   //box.rotation.y += 0.001;
   //parameters.azimuth-=0.001;
   //light must follow azimuth, if azimuth=0.25 light must be x=0, if lower more negative
@@ -249,7 +504,7 @@ function update(){
 let geometry = new THREE.SphereGeometry( 25, 32, 32 );
 const material = new THREE.MeshBasicMaterial( {color: 0xffffff} );
 const sphere = new THREE.Mesh( geometry, material );
-scene.add( sphere );
+//scene.add( sphere );
    geometry=   new THREE.BoxGeometry(1,1,1);
   box4 = new THREE.Mesh(geometry, material);
   box4.position.copy(light.position);
@@ -273,7 +528,7 @@ scene.add( sphere );
     hemiLight.intensity=0.25;
   }
   updateSun();
-  water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
+  water.material.uniforms[ 'time' ].value -= 1.0 / 120; //  60.0 positive or negative change dir
   lhelper.update();
   //box2.rotation.y -= 0.01;
   //box3.rotation.y -= 0.01;
@@ -293,6 +548,7 @@ function onResize(){
 }
 
 function onShiftMouseDown( event ) {
+    console.log(camera.getWorldPosition());
     console.log('my-func'+Math.random()*10);
     event.preventDefault();
     if ( event.shiftKey ) {  // standard domEvent property
@@ -303,8 +559,11 @@ function onShiftMouseDown( event ) {
         const intersects = raycaster.intersectObjects( scene.children );
         if ( intersects.length > 0 ) {
             //controls.enabled = false;
+          
             var intersect = intersects[ 0 ];
-            console.log(intersect.object.material.color.getHexString());
+            if(typeof intersect.object.material.color.getHexString == 'function'){
+              console.log(intersect.object.material.color.getHexString());
+            }
             intersect.object.material.color.setHex(Math.random() * 0xffffff);
             
         }
